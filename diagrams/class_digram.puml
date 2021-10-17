@@ -1,0 +1,113 @@
+@startuml
+
+skinparam nodesep 100
+
+class User {
+    id: Int
+    firstName: String
+    surname: String
+    username: String
+    email: String
+    phoneNumber: Long
+    bookings: List<Booking>
+    registeredAt: Date
+    balance: Double
+}
+
+enum UserAccountStatus {
+    LIVE
+    WAITING_FOR_APPROVAL
+    TEMPORARILY_SUSPENDED
+    DEFINITIVELY_BANNED
+}
+
+class PaymentCard {
+    cardNumber: String
+    expirationDate: Pair<Int, Int>
+    code: Int
+}
+
+class Driver {
+    idImageUrl: String
+    driverLicenseImageUrl: String
+    isSouthAfricanCitizen: Boolean
+    address: String
+    alternativePhoneNumber: Long
+    getCars(): List<Car>
+    setActiveCar(car: Car): void
+}
+
+class Rider {
+    savedPlaces: List<Place>
+    favoriteDrivers: List<Driver>
+}
+
+class Booking {
+    bookedAt: Long
+    price: Double
+    driver: Driver
+    rider: Rider
+    car: Car
+}
+
+class Trip {
+    startedAt: Long
+    finishedAt: Long
+    getEstimateTimeOfArrival(): DateTime
+}
+
+class Place {
+    address: String
+    latitude: Double
+    longitude: Double
+}
+
+
+enum TripStatus {
+    DRIVER_ON_THE_WAY
+    IN_PROGRESS
+    FINISHED
+    CANCELED
+}
+
+class Car {
+    id: Int
+    registrationNumber: String
+    brand: String
+    model: String
+    color: String
+    numberOfSeats: Int
+    additionalInfo: String
+}
+
+class BusinessCar {
+}
+
+class BusinessCarCalendar {
+    getFreeTimeSlots(interval: TimeSlot): List<TimeSlot>
+    getReservedTimeSlots(): List<TimeSlot>
+    reserveTimeSlot(timeSlot: TimeSlot): void
+    releaseTimeSlot(timeSlot: TimeSlot): void
+}
+
+class TimeSlot {
+    startTime: DateTime
+    endTime: DateTime
+    driverId: Int
+    getDuration(): Duration
+}
+
+User <|-- Rider
+User <|-- Driver
+Rider "1" - "*" Place
+Driver -[hidden]r- Rider
+Driver " * " -- " *  " BusinessCar
+Car <|- BusinessCar
+BusinessCar "1" - "1" BusinessCarCalendar
+BusinessCarCalendar o- TimeSlot
+Booking "1" - "1" Trip
+Trip "1" - "1" TripStatus
+Car "1" --- "*" Booking
+UserAccountStatus "1" - "1" User
+
+@enduml
