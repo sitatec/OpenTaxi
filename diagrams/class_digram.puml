@@ -1,58 +1,92 @@
 @startuml
 
 skinparam nodesep 100
+skinparam defaultFontSize 14
+skinparam titleFontSize 24
+title "Hamba class diagram v1\n"
 
-class User {
+class Account {
     id: Int
     firstName: String
     surname: String
-    username: String
+    nickname: String
     email: String
     phoneNumber: Long
     bookings: List<Booking>
     registeredAt: Date
     balance: Double
+    role: UserRole
 }
 
 enum UserAccountStatus {
     LIVE
     WAITING_FOR_APPROVAL
+    UNPAID_SUBSCRIPTION
     TEMPORARILY_SUSPENDED
     DEFINITIVELY_BANNED
 }
 
-class PaymentCard {
-    cardNumber: String
-    expirationDate: Pair<Int, Int>
-    code: Int
+enum UserRole {
+    RIDER
+    DRIVER
+    ADMIN
 }
 
+'class PaymentCard {
+'    cardNumber: String
+'    expirationDate: Pair<Int, Int>
+'    code: Int
+'}
+
 class Driver {
-    idImageUrl: String
-    driverLicenseImageUrl: String
+    profilePictureURL: String
+    idImageURL: String
+    driverLicenseURL: String
+    proofOfResidenceURL: String
+    bankAccountConfirmationURL: String
+    additionalCertificationURLs: List<String>
+    otherPlatformRatingURL: String
+    bio: String
     isSouthAfricanCitizen: Boolean
     address: String
     alternativePhoneNumber: Long
+    activeCar: Car
     getCars(): List<Car>
     setActiveCar(car: Car): void
 }
 
 class Rider {
-    savedPlaces: List<Place>
-    favoriteDrivers: List<Driver>
+    driverGenderPreference: DriverGenderPreference
 }
 
+
 class Booking {
+    id: Int
     bookedAt: Long
-    price: Double
     driver: Driver
     rider: Rider
-    car: Car
+}
+
+class Subscription {
+    id: Int
+    amount: Double
+    startedAt: Long
+    endAt: Long
+    paymentGatewayTransactionID: Long
+    isSubscriptionValid(): Boolean
+}
+
+enum DriverGenderPreference {
+    MALE
+    FEMALE
+    BOTH
 }
 
 class Trip {
+    id: Int
     startedAt: Long
     finishedAt: Long
+    securityVideoURl: String
     getEstimateTimeOfArrival(): DateTime
 }
 
@@ -78,36 +112,85 @@ class Car {
     color: String
     numberOfSeats: Int
     additionalInfo: String
+    isAvailable: Boolean
 }
 
-class BusinessCar {
+'class BusinessCar {
+'}
+'
+'class BusinessCarCalendar {
+'    getFreeTimeSlots(interval: TimeSlot): List<TimeSlot>
+'    getReservedTimeSlots(): List<TimeSlot>
+'    releaseTimeSlot(timeSlot: TimeSlot): void
+'}
+'
+'class TimeSlot {
+'    startTime: DateTime
+'    endTime: DateTime
+'    assignedDriver: Driver
+'    getDuration(): Duration
+'}
+'class BusinessAccount {
+'    businessName
+'    businessPhoneNumber
+'    VATNumber
+'    numberOfDrivers
+'    subscription: Subscription
+'}
+'note right: Extend from Account. \nArrow absent for readability.
+
+class Payment {
+    id: Int
+    amount: Double
+    dateTime: Long
+    type: PaymentType
+    payer: Account
+    recipient: Account
+    paymentGatewayTransactionID: Long
 }
 
-class BusinessCarCalendar {
-    getFreeTimeSlots(interval: TimeSlot): List<TimeSlot>
-    getReservedTimeSlots(): List<TimeSlot>
-    reserveTimeSlot(timeSlot: TimeSlot): void
-    releaseTimeSlot(timeSlot: TimeSlot): void
+enum PaymentType {
+    CASH
+    CARD
+    PARTNER_PAYMENT
+    kITTY_PAYMENT
 }
 
-class TimeSlot {
-    startTime: DateTime
-    endTime: DateTime
-    driverId: Int
-    getDuration(): Duration
+enum CarType {
+    PREMIUM
+    VAN
+    SPECIALIST
+    LITE
 }
 
-User <|-- Rider
-User <|-- Driver
-Rider "1" - "*" Place
-Driver -[hidden]r- Rider
-Driver " * " -- " *  " BusinessCar
-Car <|- BusinessCar
-BusinessCar "1" - "1" BusinessCarCalendar
-BusinessCarCalendar o- TimeSlot
+class Review {
+    id: Int
+    rating: Int
+    comment: String
+    author: Account
+    recipient: Account
+}
+
+Account <|--- Rider
+Account <|--- Driver
+Rider "1" - "*" Place : Saved Places
+Rider "1" - "*" Place : Recent Places
+Driver "*" - "*" Rider: Favorite Drivers
+Driver " * " --- " *  " Car
+Subscription "1" - "1" Driver : Current subscription
+'BusinessAccount "1" -- "* " BusinessCar
+'Car <|- BusinessCar
+'BusinessCar "1" - "1" BusinessCarCalendar
+'BusinessCarCalendar "1 " o-- " * " TimeSlot
 Booking "1" - "1" Trip
 Trip "1" - "1" TripStatus
 Car "1" --- "*" Booking
-UserAccountStatus "1" - "1" User
+CarType "1" - "1" Car
+UserAccountStatus "1" - "1" Account
+'DriverGenderPreference "1" -- "1" Rider
+PaymentType "1" - "1" Payment
+Payment "1" - "1" Booking
+Account - Review
+Subscription -[hidden]- DriverGenderPreference
 
 @enduml
