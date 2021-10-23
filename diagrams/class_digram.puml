@@ -2,7 +2,7 @@
 
 skinparam nodesep 100
 skinparam defaultFontSize 14
-skinparam titleFontSize 24
+skinparam titleFontSize 30
 title "Hamba class diagram v1\n"
 
 class Account {
@@ -12,7 +12,7 @@ class Account {
     nickname: String
     email: String
     phoneNumber: Long
-    bookings: List<Booking>
+    bookingIds: List<Int>
     registeredAt: Date
     balance: Double
     role: UserRole
@@ -50,28 +50,65 @@ class Driver {
     isSouthAfricanCitizen: Boolean
     address: String
     alternativePhoneNumber: Long
-    activeCar: Car
-    getCars(): List<Car>
-    setActiveCar(car: Car): void
+    onlineStatus: OnlineStatus
+    priceByMinute: double
+    priceByKm: double
+    setFareSettings(priceByMinute: double, priceByKm: double)
 }
 
 class Rider {
     driverGenderPreference: DriverGenderPreference
+    getRecentPlaces()
+    getSavedPlaces(page: Int, numberOfPlaces: Int)
+    getPreviousBookings(page: Int, numberOfBookings: Int)
 }
-
 
 class Booking {
     id: Int
-    bookedAt: Long
-    driver: Driver
-    rider: Rider
+    bookedAt: DateTime
+    driverId: Int
+    riderId: Int
+    departureAddress: String
+    destinationAddress: String
+    book(dispatcher: Dispatcher)
+    bookDriver(driver: Driver)
+    bookReturn()
+    bookReturnWithTheSameDriver()
+}
+
+class OnlineStatus {
+    isOnline: Boolean
+    goOnline(driverId: Int)
+    goOffline(driverId: Int)
+}
+
+class Dispatcher {
+    dispatch()
+}
+
+class CasualDispatcher {
+}
+
+class StandardDispatcher {
+}
+
+class PremiumDispatcher {
+}
+
+class VanDispatcher {
+}
+
+class SpecialistDispatcher {
+}
+
+class LiteDispatcher {
 }
 
 class Subscription {
     id: Int
-    amount: Double
-    startedAt: Long
-    endAt: Long
+    price: Double
+    startedAt: DateTime
+    endAt: DateTime
     paymentGatewayTransactionID: Long
     isSubscriptionValid(): Boolean
 }
@@ -84,18 +121,21 @@ enum DriverGenderPreference {
 
 class Trip {
     id: Int
-    startedAt: Long
-    finishedAt: Long
+    startedAt: DateTime
+    finishedAt: DateTime
     securityVideoURl: String
     getEstimateTimeOfArrival(): DateTime
+    startTrip()
+    endTrip()
+    addStop(place: Place)
+    shareTrip(watcherEmail: String)
 }
 
-class Place {
-    address: String
-    latitude: Double
-    longitude: Double
-}
-
+'class Place {
+'    address: String
+'    latitude: Double
+'    longitude: Double
+'}
 
 enum TripStatus {
     DRIVER_ON_THE_WAY
@@ -112,41 +152,66 @@ class Car {
     color: String
     numberOfSeats: Int
     additionalInfo: String
+}
+
+class BusinessCar {
     isAvailable: Boolean
 }
 
-'class BusinessCar {
-'}
-'
-'class BusinessCarCalendar {
-'    getFreeTimeSlots(interval: TimeSlot): List<TimeSlot>
-'    getReservedTimeSlots(): List<TimeSlot>
-'    releaseTimeSlot(timeSlot: TimeSlot): void
-'}
-'
-'class TimeSlot {
-'    startTime: DateTime
-'    endTime: DateTime
-'    assignedDriver: Driver
-'    getDuration(): Duration
-'}
-'class BusinessAccount {
-'    businessName
-'    businessPhoneNumber
-'    VATNumber
-'    numberOfDrivers
-'    subscription: Subscription
-'}
-'note right: Extend from Account. \nArrow absent for readability.
+class BusinessCarCalendar {
+    getFreeTimeSlots(interval: TimeSlot): List<TimeSlot>
+    getReservedTimeSlots(): List<TimeSlot>
+    releaseTimeSlot(timeSlot: TimeSlot): void
+}
 
-class Payment {
+class TimeSlot {
+    startTime: DateTime
+    endTime: DateTime
+    assignedDriver: Driver
+    getDuration(): Duration
+}
+class BusinessAccount {
+    businessName
+    businessPhoneNumber
+    VATNumber
+    numberOfDrivers
+    subscription: Subscription
+}
+note right: Extend from Account. \nArrow absent for readability.
+
+abstract class Payment {
     id: Int
     amount: Double
-    dateTime: Long
-    type: PaymentType
-    payer: Account
-    recipient: Account
+    dateTime: DateTime
+    payerId: Int
+    status: PaymentStatus
     paymentGatewayTransactionID: Long
+    makePayment()
+}
+
+class CardPayment {
+}
+
+class CashPayment {
+}
+
+class KittyPayment {
+    recipientId: Int
+    setMessageForTheRecipient(message: String)
+    acceptPayment()
+    refusePayment()
+}
+
+class PartnerPayment {
+    recipientID: Int
+    requestPayment(payerEmail: String, messageForThePayer: String)
+}
+
+enum PaymentStatus {
+    SUCCESS
+    FAILED
+    REFUSED
+    WAITING_FOR_CONFIRMATION
 }
 
 enum PaymentType {
@@ -157,6 +222,7 @@ enum PaymentType {
 }
 
 enum CarType {
+    STANDARD
     PREMIUM
     VAN
     SPECIALIST
@@ -167,30 +233,44 @@ class Review {
     id: Int
     rating: Int
     comment: String
-    author: Account
-    recipient: Account
+    authorId: Int
+    recipientId: Int
+    submit()
 }
 
 Account <|--- Rider
 Account <|--- Driver
-Rider "1" - "*" Place : Saved Places
-Rider "1" - "*" Place : Recent Places
+'Rider "1" - "*" Place : Saved Places
+'Rider "1" - "*" Place : Recent Places
 Driver "*" - "*" Rider: Favorite Drivers
 Driver " * " --- " *  " Car
 Subscription "1" - "1" Driver : Current subscription
-'BusinessAccount "1" -- "* " BusinessCar
-'Car <|- BusinessCar
-'BusinessCar "1" - "1" BusinessCarCalendar
-'BusinessCarCalendar "1 " o-- " * " TimeSlot
 Booking "1" - "1" Trip
 Trip "1" - "1" TripStatus
-Car "1" --- "*" Booking
+BusinessCar "1" --- "*" Booking
 CarType "1" - "1" Car
 UserAccountStatus "1" - "1" Account
-'DriverGenderPreference "1" -- "1" Rider
-PaymentType "1" - "1" Payment
 Payment "1" - "1" Booking
 Account - Review
 Subscription -[hidden]- DriverGenderPreference
+CardPayment --|> Payment
+Payment <|-- CashPayment
+Payment <|--- KittyPayment
+Payment <|-- PartnerPayment
+PaymentStatus -[hidden] CarType
+UserRole -[hidden] UserAccountStatus
+StandardDispatcher --|> Dispatcher
+Dispatcher <|-- CasualDispatcher
+Dispatcher <|- LiteDispatcher
+Dispatcher <|- SpecialistDispatcher
+VanDispatcher --|> Dispatcher
+Dispatcher <|-- PremiumDispatcher
+Car -[hidden] Dispatcher
+BusinessAccount "1" -- "* " BusinessCar
+Car <|- BusinessCar
+BusinessCar "1" - "1" BusinessCarCalendar
+BusinessCarCalendar "1 " o-- " * " TimeSlot
+PaymentType "1" - "1" Payment
+
 
 @enduml
