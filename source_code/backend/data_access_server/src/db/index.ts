@@ -1,4 +1,4 @@
-import { Pool } from 'pg';
+import {Pool} from 'pg';
 
 const dbClient = new Pool({
   user: 'postgres',
@@ -9,6 +9,7 @@ const dbClient = new Pool({
 });
 // TODO set the posgresql server's timezone the south africa's timezone.
 
-export const execQuery = async (query: string, queryParams: Array<any>): Promise<unknown> => {
-  return (await dbClient.query(query, queryParams)).rows
-}
+export const execQuery = async (query: string, queryParams?: Array<any>)
+: Promise<Array<any>> => {
+  return (await dbClient.query(query, queryParams)).rows;
+};
