@@ -1,5 +1,6 @@
 import express from "express";
-import userRoute from "./routes/user";
+import DriverRouter from "./routes/driver";
+import UserRouter from "./routes/user";
 import { isAdminUser, validateToken } from "./security";
 import { extractTokenFromHeader } from "./utils/http_utils";
 
@@ -29,7 +30,8 @@ app.delete("/", async (req, res, next) => {
 });
 
 
-app.use("/user", userRoute);
+app.use("/user", UserRouter);
+app.use("/driver", DriverRouter);
 
 const PORT = process.env.PORT || 8080;
 

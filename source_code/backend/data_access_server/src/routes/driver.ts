@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { createUser } from "../controllers/user_controller";
+import { createDriver } from "../controllers/driver_controller";
 
 const router = Router();
 
-router.post("/", createUser);
+router.post("/", createDriver);
 
 router.get("/:id", (req, res) => {
 
@@ -16,5 +16,7 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", (req, res) => {
 
 });
-const UserRouter = router
-export default UserRouter;
+
+const DriverRouter = router;
+
+export default DriverRouter;

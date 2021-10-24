@@ -9,7 +9,7 @@ import { buildInsertQueryFromJSON, handleDbQueryError } from "../utils/database_
 export const createUser = async (req: Request, res: Response) => {
   try {
     const requestBody = JSON.parse(req.body);
-    await execQuery(buildInsertQueryFromJSON("user", requestBody.user));
+    await execQuery(buildInsertQueryFromJSON("user", requestBody));
     res.send({ status: "success" });
   } catch (error) {
     handleDbQueryError(error, res);
