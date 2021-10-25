@@ -25,6 +25,7 @@ app.delete("/", async (req, res, next) => {
   if (!isAdmin) {
     res.status(401).end();
   } else {
+    res.locals.role = "admin";
     next();
   }
 });
