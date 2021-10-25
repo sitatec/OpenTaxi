@@ -1,13 +1,11 @@
 import { Router } from "express";
-import { createUser } from "../controllers/user_controller";
+import { createUser, getUser } from "../controllers/user_controller";
 
 const router = Router();
 
 router.post("/", createUser);
 
-router.get("/:id", (req, res) => {
-
-}); 
+router.get("/:id", getUser); 
 
 router.put("/:id", (req, res) => {
 

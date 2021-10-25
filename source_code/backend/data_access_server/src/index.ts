@@ -1,6 +1,6 @@
 import express from "express";
-import DriverRouter from "./routes/driver";
-import UserRouter from "./routes/user";
+import DriverRouter from "./routes/driver_route";
+import UserRouter from "./routes/user_route";
 import { isAdminUser, validateToken } from "./security";
 import { extractTokenFromHeader } from "./utils/http_utils";
 

@@ -1,5 +1,6 @@
 import { error } from "console";
 import { DatabaseError as PGDatabaseError, Pool } from "pg";
+import { JSObject } from "../utils/type_alias";
 import { DatabaseError } from "./error";
 
 const dbClient = new Pool({
@@ -14,7 +15,7 @@ const dbClient = new Pool({
 export const execQuery = async (
   query: string,
   queryParams?: Array<string | number>
-): Promise<Record<string, unknown>[]> => {
+): Promise<JSObject[]> => {
   try {
     return (await dbClient.query(query, queryParams)).rows;
   } catch (error) {
@@ -42,10 +43,6 @@ const convertToDatabaseError = (error: PGDatabaseError) => {
         error.code
       );
     default:
-      return new DatabaseError(
-        "unknown",
-        error.message,
-        error.code
-      );
+      return new DatabaseError("unknown", error.message, error.code);
   }
 };
