@@ -14,7 +14,8 @@ import {
 export const createUser = async (req: Request, res: Response) => {
   try {
     const requestBody = JSON.parse(req.body);
-    await execQuery(buildInsertQueryFromJSON("user", requestBody));
+    const query = buildInsertQueryFromJSON("user", requestBody);
+    await execQuery(query.text, query.paramValues);
     res.send({ status: "success" });
   } catch (error) {
     handleDbQueryError(error, res);
@@ -46,7 +47,7 @@ export const updateUser = async (req: Request, res: Response) => {
       delete requestBody.account_status; // Only an admin can change the status of an account.
     }
     const query = buildUpdateQueryFromJSON("user", requestBody);
-    await execQuery(query.text, query.params);
+    await execQuery(query.text, query.paramValues);
     res.send({ status: "success" });
   } catch (error) {
     handleDbQueryError(error, res);

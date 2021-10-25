@@ -4,20 +4,36 @@ import { DatabaseError } from "../db/error";
 import { JSObject } from "./type_alias";
 
 interface Query {
-  text: string;
-  params: Array<number | string>;
+  text: string
+  paramValues: Array<number | string>
 }
 
-export const buildInsertQueryFromJSON = (tableName: string, json: JSObject) => {
-  const columnNames = Object.keys(json).join();
-  const columnValues = Object.values(json).join();
-  return `INSERT INTO ${tableName} (${columnNames}) VALUES (${columnValues})`;
+interface DbColumns {
+  names: string
+  params: string
+  paramValues: (string | number)[]
+}
+
+export const buildInsertQueryFromJSON = (tableName: string, json: JSObject): Query => {
+  const columns = extractColumnNameAndValuesFromJSON(json);
+  return {
+    text: `INSERT INTO ${tableName} (${columns.names}) VALUES (${columns.params})`,
+    paramValues: columns.paramValues
+  };
 };
 
 export const buildUpdateQueryFromJSON = (
   tableName: string,
   json: JSObject
 ): Query => {
+  const columns = extractColumnNameAndValuesFromJSON(json);
+  return {
+    text: `UPDATE ${tableName} SET (${columns.names}) = (${columns.params})`,
+    paramValues: columns.paramValues,
+  };
+};
+
+const extractColumnNameAndValuesFromJSON = (json: JSObject): DbColumns => {
   const columnNames = Object.keys(json).join();
   const columnValues = Object.values(json);
   let columnParams = "";
@@ -26,12 +42,13 @@ export const buildUpdateQueryFromJSON = (
     columnParams += `$${i},`;
   }
   columnParams += `$${columnValues.length}`; // Add the last element without comma at the end.
-
+  
   return {
-    text: `UPDATE ${tableName} SET (${columnNames}) = (${columnParams})`,
-    params: columnValues as (number | string)[],
+    names: columnNames,
+    paramValues: columnValues as (string | number)[],
+    params: columnParams
   };
-};
+}
 
 export const handleDbQueryError = (error: unknown, res: Response) => {
   if (error instanceof DatabaseError) {
