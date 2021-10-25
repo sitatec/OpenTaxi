@@ -47,7 +47,8 @@ export const updateUser = async (req: Request, res: Response) => {
       delete requestBody.account_status; // Only an admin can change the status of an account.
     }
     const query = buildUpdateQueryFromJSON("user", requestBody);
-    await execQuery(query.text, query.paramValues);
+    const queryText = query.text + ` WHERE id = '${req.params.id}'`;
+    await execQuery(queryText, query.paramValues);
     res.send({ status: "success" });
   } catch (error) {
     handleDbQueryError(error, res);
