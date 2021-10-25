@@ -17,6 +17,4 @@ router.delete("/:id", (req, res) => {
 
 });
 
-const DriverRouter = router;
-
-export default DriverRouter;
+export default router;

@@ -8,13 +8,11 @@ import {
   handleDbQueryError,
 } from "../utils/database_utils";
 
-/**
- * Create a user, depending the role field it will be a driver, a rider or a admin.
- */
-export const createUser = async (req: Request, res: Response) => {
+
+export const createAccount = async (req: Request, res: Response) => {
   try {
     const requestBody = JSON.parse(req.body);
-    const query = buildInsertQueryFromJSON("user", requestBody);
+    const query = buildInsertQueryFromJSON("account", requestBody);
     await execQuery(query.text, query.paramValues);
     res.send({ status: "success" });
   } catch (error) {
@@ -22,9 +20,9 @@ export const createUser = async (req: Request, res: Response) => {
   }
 };
 
-export const getUser = async (req: Request, res: Response) => {
+export const getAccount = async (req: Request, res: Response) => {
   try {
-    const user = await getColumnById(req.params.id as string | number, "user");
+    const user = await getColumnById(req.params.id as string | number, "account");
     if (!user) {
       res.status(404).send(`User with id = ${req.params.id} not found.`);
     } else {
@@ -35,7 +33,7 @@ export const getUser = async (req: Request, res: Response) => {
   }
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateAccount = async (req: Request, res: Response) => {
   try {
     const requestBody = JSON.parse(req.body);
     delete requestBody.id; // The user id must not be changeable.
@@ -46,7 +44,7 @@ export const updateUser = async (req: Request, res: Response) => {
     // so we check first if the the `account_status` is part of the field to be updated.
       delete requestBody.account_status; // Only an admin can change the status of an account.
     }
-    const query = buildUpdateQueryFromJSON("user", requestBody);
+    const query = buildUpdateQueryFromJSON("account", requestBody);
     const queryText = query.text + ` WHERE id = '${req.params.id}'`;
     await execQuery(queryText, query.paramValues);
     res.send({ status: "success" });
@@ -55,9 +53,9 @@ export const updateUser = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteUser = async (req: Request, res: Response) => {
+export const deleteAccount = async (req: Request, res: Response) => {
   try {
-    await execQuery("DELETE FROM user WHERE id = $1", [req.params.id]);
+    await execQuery("DELETE FROM account WHERE id = $1", [req.params.id]);
     res.send({ status: "success" });
   } catch (error) {
     handleDbQueryError(error, res);
