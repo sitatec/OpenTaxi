@@ -3,6 +3,7 @@ import DriverRouter from "./routers/driver_router";
 import AccountRouter from "./routers/account_router";
 import { isAdminUser, validateToken } from "./security";
 import { extractTokenFromHeader } from "./utils/http_utils";
+import RiderRouter from "./routers/rider_router";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.delete("/", async (req, res, next) => {
 
 app.use("/account", AccountRouter);
 app.use("/driver", DriverRouter);
+app.use("/rider", RiderRouter)
 
 const PORT = process.env.PORT || 8080;
 
