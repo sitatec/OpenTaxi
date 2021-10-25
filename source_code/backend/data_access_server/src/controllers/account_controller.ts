@@ -8,13 +8,14 @@ import {
   getColumnById,
   handleDbQueryError,
 } from "../utils/database_utils";
+import { sendSuccessResponse } from "../utils/http_utils";
 
 export const createAccount = async (req: Request, res: Response) => {
   try {
     const requestBody = JSON.parse(req.body);
     const query = buildInsertQueryFromJSON("account", requestBody);
     await execQuery(query.text, query.paramValues);
-    res.locals.sendSuccessResponse(201);
+    sendSuccessResponse(res, 201);
   } catch (error) {
     handleDbQueryError(error, res);
   }
@@ -33,7 +34,7 @@ export const updateAccount = async (req: Request, res: Response) => {
       req.params.id
     );
     await execQuery(query.text, query.paramValues);
-    res.locals.sendSuccessResponse();
+    sendSuccessResponse(res);
   } catch (error) {
     handleDbQueryError(error, res);
   }
@@ -50,7 +51,7 @@ export const deleteAccount = async (req: Request, res: Response) => {
         status: "failure",
       });
     } else {
-      res.locals.sendSuccessResponse();
+      sendSuccessResponse(res);
     }
   } catch (error) {
     handleDbQueryError(error, res);

@@ -82,13 +82,8 @@ export const getRelationById = async (
   parentTable: string,
   childTable: string
 ): Promise<JSObject> => {
-  let result: JSObject = {};
-  await wrappeInTransaction(async (transactionClient) => {
-    const queryResult = await transactionClient.query(
-      `SELECT * FROM ${parentTable} JOIN ${childTable} ON ${parentTable}.id = ${childTable}.${parentTable}_id WHERE ${parentTable}.id = ${id}`
-    );
-    result = queryResult.rows[0];
-  });
-  return result;
+  const queryResult = await execQuery(
+    `SELECT * FROM ${parentTable} JOIN ${childTable} ON ${parentTable}.id = ${childTable}.${parentTable}_id WHERE ${parentTable}.id = ${id}`
+  );
+  return queryResult[0];
 };
-  

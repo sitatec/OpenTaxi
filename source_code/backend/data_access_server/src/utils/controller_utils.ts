@@ -1,10 +1,37 @@
 import { Request, Response } from "express";
+import { execQueriesInTransaction } from "../db";
 import {
+  buildInsertQueryFromJSON,
+  buildUpdateQueryFromJSON,
   getColumnById,
   getRelationById,
   handleDbQueryError,
 } from "./database_utils";
+import { sendSuccessResponse } from "./http_utils";
 import { JSObject } from "./type_alias";
+
+export const createEntityWithRelation = async (
+  parentEntityName: string,
+  childEntityName: string,
+  req: Request,
+  res: Response
+) => {
+  const data = JSON.parse(req.body);
+  const insertParentEntityQuery = buildInsertQueryFromJSON(
+    parentEntityName,
+    data[parentEntityName]
+  );
+  const insertChildEntityQuery = buildInsertQueryFromJSON(
+    childEntityName,
+    data[childEntityName]
+  );
+  try {
+    await execQueriesInTransaction([insertParentEntityQuery, insertChildEntityQuery]);
+    sendSuccessResponse(res, 201);
+  } catch (error) {
+    handleDbQueryError(error, res);
+  }
+};
 
 export const getEntity = async (
   entityName: string,
@@ -17,13 +44,13 @@ export const getEntity = async (
 };
 
 export const getEntityWithRelation = async (
-  parentEntity: string,
-  childEntity: string,
+  parentEntityName: string,
+  childEntityName: string,
   req: Request,
   res: Response
 ) => {
-  wrappeResponseHandling(parentEntity, req.params.id, res, async () => {
-    return getRelationById(req.params.id, parentEntity, childEntity);
+  wrappeResponseHandling(parentEntityName, req.params.id, res, async () => {
+    return getRelationById(req.params.id, parentEntityName, childEntityName);
   });
 };
 
@@ -43,6 +70,32 @@ export const wrappeResponseHandling = async (
     } else {
       res.status(200).send({ data: result, status: "success" });
     }
+  } catch (error) {
+    handleDbQueryError(error, res);
+  }
+};
+
+export const updateEntityWithRelation = async (
+  parentEntityName: string,
+  childEntityName: string,
+  req: Request,
+  res: Response
+) => {
+  const data = JSON.parse(req.body);
+  const updateParentEntityQuery = buildUpdateQueryFromJSON(
+    parentEntityName,
+    data[parentEntityName],
+    req.params.id
+  );
+  const updateChildEntityQuery = buildUpdateQueryFromJSON(
+    childEntityName,
+    data[childEntityName],
+    req.params.id
+  );
+
+  try {
+    await execQueriesInTransaction([updateParentEntityQuery, updateChildEntityQuery]);
+    sendSuccessResponse(res);
   } catch (error) {
     handleDbQueryError(error, res);
   }

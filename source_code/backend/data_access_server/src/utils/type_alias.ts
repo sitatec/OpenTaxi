@@ -1,1 +1,1 @@
-export type JSObject = Record<string, unknown>
+export type JSObject = Record<string, any>
