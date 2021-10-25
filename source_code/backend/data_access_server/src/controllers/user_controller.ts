@@ -53,3 +53,12 @@ export const updateUser = async (req: Request, res: Response) => {
     handleDbQueryError(error, res);
   }
 };
+
+export const deleteUser = async (req: Request, res: Response) => {
+  try {
+    await execQuery("DELETE FROM user WHERE id = $1", [req.params.id]);
+    res.send({ status: "success" });
+  } catch (error) {
+    handleDbQueryError(error, res);
+  }
+}
