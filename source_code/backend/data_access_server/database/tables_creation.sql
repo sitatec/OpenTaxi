@@ -73,10 +73,8 @@ CREATE TABLE public.trip (
 
 ALTER SEQUENCE public.trip_id_seq OWNED BY public.trip.id;
 
-CREATE SEQUENCE public.account_id_seq;
-
 CREATE TABLE public.account (
-                id INTEGER NOT NULL DEFAULT nextval('public.account_id_seq'),
+                id VARCHAR NOT NULL,
                 first_name VARCHAR NOT NULL,
                 surname VARCHAR NOT NULL,
                 nickname VARCHAR,
@@ -90,8 +88,6 @@ CREATE TABLE public.account (
 );
 
 
-ALTER SEQUENCE public.account_id_seq OWNED BY public.account.id;
-
 CREATE UNIQUE INDEX account_idx
  ON public.account
  ( email );
@@ -104,8 +100,8 @@ CREATE TABLE public.payment (
                 id INTEGER NOT NULL,
                 amount NUMERIC(11,2) NOT NULL,
                 date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-                recipient_id INTEGER,
-                payer_id INTEGER NOT NULL,
+                recipient_id VARCHAR,
+                payer_id VARCHAR NOT NULL,
                 status PAYMENT_STATUS NOT NULL,
                 payment_type PAYMENT_TYPE NOT NULL,
                 payment_gateway_transaction_id BIGINT NOT NULL,
@@ -115,16 +111,16 @@ CREATE TABLE public.payment (
 
 CREATE TABLE public.review (
                 id INTEGER NOT NULL,
-                author_id INTEGER NOT NULL,
+                author_id VARCHAR NOT NULL,
                 comment VARCHAR(140),
-                recipient_id INTEGER NOT NULL,
+                recipient_id VARCHAR NOT NULL,
                 rating SMALLINT NOT NULL,
                 CONSTRAINT review_pk PRIMARY KEY (id)
 );
 
 
 CREATE TABLE public.driver (
-                account_id INTEGER NOT NULL,
+                account_id VARCHAR NOT NULL,
                 idUrl VARCHAR NOT NULL,
                 address VARCHAR NOT NULL,
                 alternative_phone_number VARCHAR,
@@ -152,7 +148,7 @@ CREATE TABLE public.subscription (
                 started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
                 end_at TIMESTAMP NOT NULL,
                 payment_gateway_transaction_id BIGINT NOT NULL,
-                driver_id INTEGER NOT NULL,
+                driver_id VARCHAR NOT NULL,
                 CONSTRAINT subscription_pk PRIMARY KEY (id)
 );
 
@@ -169,7 +165,7 @@ CREATE TABLE public.car (
                 additional_info VARCHAR,
                 registration_number VARCHAR(15) NOT NULL,
                 color VARCHAR NOT NULL,
-                driver_id INTEGER NOT NULL,
+                driver_id VARCHAR NOT NULL,
                 type CAR_TYPE NOT NULL,
                 CONSTRAINT car_pk PRIMARY KEY (id)
 );
@@ -178,7 +174,7 @@ CREATE TABLE public.car (
 ALTER SEQUENCE public.car_id_seq OWNED BY public.car.id;
 
 CREATE TABLE public.rider (
-                account_id INTEGER NOT NULL,
+                account_id VARCHAR NOT NULL,
                 driver_gender_preference DRIVER_GENDER_PREFERENCE DEFAULT 'BOTH' NOT NULL,
                 recent_places VARCHAR[],
                 saved_places VARCHAR[],
@@ -187,8 +183,8 @@ CREATE TABLE public.rider (
 
 
 CREATE TABLE public.favorite_driver (
-                driver_id INTEGER NOT NULL,
-                rider_id INTEGER NOT NULL,
+                driver_id VARCHAR NOT NULL,
+                rider_id VARCHAR NOT NULL,
                 CONSTRAINT favorite_driver_pk PRIMARY KEY (driver_id, rider_id)
 );
 
@@ -196,8 +192,8 @@ CREATE TABLE public.favorite_driver (
 CREATE TABLE public.booking (
                 id INTEGER NOT NULL,
                 payment_id INTEGER NOT NULL,
-                rider_id INTEGER NOT NULL,
-                driver_id INTEGER NOT NULL,
+                rider_id VARCHAR NOT NULL,
+                driver_id VARCHAR NOT NULL,
                 booked_at TIMESTAMP NOT NULL,
                 departure_address VARCHAR NOT NULL,
                 destination_address VARCHAR NOT NULL,
