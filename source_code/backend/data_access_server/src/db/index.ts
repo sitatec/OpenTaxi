@@ -1,7 +1,7 @@
 import { error } from "console";
 import { DatabaseError as PGDatabaseError, Pool } from "pg";
 import { JSObject } from "../utils/type_alias";
-import { DatabaseError } from "./error";
+import { convertToDatabaseError, DatabaseError } from "./error";
 
 const dbClient = new Pool({
   user: "postgres",
@@ -33,16 +33,3 @@ export const beginTransaction = async () => {
   return transactionClient;
 };
 
-const convertToDatabaseError = (error: PGDatabaseError) => {
-  switch (error.code) {
-    // TODO handle more case.
-    case "42703":
-      return new DatabaseError(
-        error.name,
-        `Error: the field ${error.column} does not exist for the ${error.table} entity.`,
-        error.code
-      );
-    default:
-      return new DatabaseError("unknown", error.message, error.code);
-  }
-};

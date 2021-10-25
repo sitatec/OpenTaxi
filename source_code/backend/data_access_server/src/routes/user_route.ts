@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createUser, getUser, updateUser } from "../controllers/user_controller";
+import { createUser, deleteUser, getUser, updateUser } from "../controllers/user_controller";
 
 const router = Router();
 
@@ -9,8 +9,7 @@ router.get("/:id", getUser);
 
 router.put("/:id", updateUser);
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", deleteUser);
 
-});
 const UserRouter = router
 export default UserRouter;

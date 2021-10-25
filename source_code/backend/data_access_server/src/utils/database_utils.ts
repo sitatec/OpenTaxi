@@ -56,7 +56,7 @@ export const handleDbQueryError = (error: unknown, res: Response) => {
     if (error.name == "unknown") {
       statusCode = 500;
     }
-    res.status(statusCode).send(error.message);
+    res.status(statusCode).send({message: error.message, code: error.code});
   } else {
     throw error;
   }
