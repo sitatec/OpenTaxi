@@ -1,20 +1,19 @@
 import { Router } from "express";
-import { createDriver } from "../controllers/driver_controller";
+import {
+  createDriver,
+  deleteDriver,
+  getDriver,
+  updateDriver,
+} from "../controllers/driver_controller";
 
 const router = Router();
 
-router.post("/", createDriver);
+router.post("/", createDriver); // TODO add request data validation step.
 
-router.get("/:id", (req, res) => {
+router.get("/:id", getDriver);
 
-}); 
+router.put("/:id", updateDriver); // TODO add request data validation step.
 
-router.put("/:id", (req, res) => {
-
-});
-
-router.delete("/:id", (req, res) => {
-
-});
+router.delete("/:id", deleteDriver);
 
 export default router;

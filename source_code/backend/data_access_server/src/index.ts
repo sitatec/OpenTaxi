@@ -16,6 +16,9 @@ app.use(async (req, res, next) => {
     res.status(401).end();
   } else {
     res.locals.userId = tokenValidationResult.userId;
+    res.locals.sendSuccessResponse = (statusCode: number | undefined) => {
+      res.status(statusCode || 200).send({ status: "success" })
+    }
     next();
   }
 });
