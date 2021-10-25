@@ -10,7 +10,7 @@ const router = Router();
 
 router.post("/", createAccount); // TODO add request data validation step.
 
-router.get("/:id", getAccount);
+router.get("/", getAccount);
 
 router.put("/:id", updateAccount); // TODO add request data validation step.
 

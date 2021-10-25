@@ -10,7 +10,7 @@ const router = Router();
 
 router.post("/", createDriver); // TODO add request data validation step.
 
-router.get("/:id", getDriver);
+router.get("/", getDriver);
 
 router.put("/:id", updateDriver); // TODO add request data validation step.
 

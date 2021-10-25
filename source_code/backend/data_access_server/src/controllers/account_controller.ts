@@ -5,7 +5,7 @@ import { getEntity } from "../utils/controller_utils";
 import {
   buildInsertQueryFromJSON,
   buildUpdateQueryFromJSON,
-  getColumnById,
+  getRowByColumn,
   handleDbQueryError,
 } from "../utils/database_utils";
 import { sendSuccessResponse } from "../utils/http_utils";

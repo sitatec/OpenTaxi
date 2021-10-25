@@ -1,13 +1,8 @@
 import { DatabaseError as PGDatabaseError, Pool, PoolClient } from "pg";
-import { JSObject } from "../utils/type_alias";
+import { JSObject, Query } from "../types";
 import { convertToDatabaseError, DatabaseError } from "./error";
 
 // TODO Document.
-
-export type Query = {
-  text: string;
-  paramValues: Array<number | string>;
-}
 
 const dbClient = new Pool({
   user: "postgres",
@@ -53,7 +48,7 @@ export const beginTransaction = async () => {
 
 /**
  * Execute the given `queries[]` in the same order they are placed in the array.
- * A transaction is automatically opened, the queries are executed and then the 
+ * A transaction is automatically opened, the queries are executed and then the
  * transaction is automatically closed.
  */
 export const execQueriesInTransaction = async (queries: Query[]) => {
@@ -61,10 +56,12 @@ export const execQueriesInTransaction = async (queries: Query[]) => {
     for (const query of queries) {
       await dbTransactionClient.query(query.text, query.paramValues);
     }
-  })
+  });
 };
 
-export const wrappeInTransaction = async (queriesExecutor: (clien: PoolClient) => Promise<void>) => {
+export const wrappeInTransaction = async (
+  queriesExecutor: (clien: PoolClient) => Promise<void>
+) => {
   const dbTransactionClient = await beginTransaction();
   try {
     await queriesExecutor(dbTransactionClient);
@@ -75,7 +72,7 @@ export const wrappeInTransaction = async (queriesExecutor: (clien: PoolClient) =
   } finally {
     dbTransactionClient.release();
   }
-}
+};
 
 export const convertToDatabaseErrorIfNeeded = (error: any) => {
   if (error instanceof PGDatabaseError) {

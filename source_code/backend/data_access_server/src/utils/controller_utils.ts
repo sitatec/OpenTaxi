@@ -1,14 +1,14 @@
-import { Request, Response } from "express";
+import { Request, response, Response } from "express";
 import { execQueriesInTransaction } from "../db";
 import {
   buildInsertQueryFromJSON,
   buildUpdateQueryFromJSON,
-  getColumnById,
-  getRelationById,
+  getRowByColumn,
+  getRelationByColumn,
   handleDbQueryError,
 } from "./database_utils";
 import { sendSuccessResponse } from "./http_utils";
-import { JSObject } from "./type_alias";
+import { JSObject, Pair } from "../types";
 
 export const createEntityWithRelation = async (
   parentEntityName: string,
@@ -26,7 +26,10 @@ export const createEntityWithRelation = async (
     data[childEntityName]
   );
   try {
-    await execQueriesInTransaction([insertParentEntityQuery, insertChildEntityQuery]);
+    await execQueriesInTransaction([
+      insertParentEntityQuery,
+      insertChildEntityQuery,
+    ]);
     sendSuccessResponse(res, 201);
   } catch (error) {
     handleDbQueryError(error, res);
@@ -38,9 +41,33 @@ export const getEntity = async (
   req: Request,
   res: Response
 ) => {
-  wrappeResponseHandling(entityName, req.params.id, res, async () => {
-    return getColumnById(req.params.id as string | number, entityName);
+  const queryParam = getQueryParam(req);
+  if (!queryParam) {
+    return res.status(400).end();
+  }
+  wrappeResponseHandling(entityName, queryParam, res, async () => {
+    return getRowByColumn(queryParam.first, queryParam.second, entityName);
   });
+};
+
+const getQueryParam = (req: Request): Pair<string, string> | null => {
+  const queryParams = req.query;
+  if (queryParams.id) {
+    return {
+      first: "id",
+      second: queryParams.id as string,
+    };
+  } else if (queryParams.email) {
+    return {
+      first: "email",
+      second: queryParams.email as string,
+    };
+  } else if (queryParams.phone) {
+    return {
+      first: "phone_number",
+      second: queryParams.phone as string,
+    };
+  } else return null;
 };
 
 export const getEntityWithRelation = async (
@@ -49,14 +76,23 @@ export const getEntityWithRelation = async (
   req: Request,
   res: Response
 ) => {
-  wrappeResponseHandling(parentEntityName, req.params.id, res, async () => {
-    return getRelationById(req.params.id, parentEntityName, childEntityName);
+  const queryParam = getQueryParam(req);
+  if (!queryParam) {
+    return res.status(400).end();
+  }
+  wrappeResponseHandling(parentEntityName, queryParam, res, async () => {
+    return getRelationByColumn(
+      queryParam.first,
+      queryParam.second,
+      parentEntityName,
+      childEntityName
+    );
   });
 };
 
 export const wrappeResponseHandling = async (
   entityName: string,
-  id: string,
+  queryParam: Pair<string, string>,
   res: Response,
   fn: () => Promise<JSObject>
 ) => {
@@ -64,7 +100,7 @@ export const wrappeResponseHandling = async (
     const result = await fn();
     if (!result) {
       res.status(404).send({
-        message: `${entityName} with id = ${id} not found.`,
+        message: `${entityName} with ${queryParam.first} = ${queryParam.second} not found.`,
         status: "failure",
       });
     } else {
@@ -94,7 +130,10 @@ export const updateEntityWithRelation = async (
   );
 
   try {
-    await execQueriesInTransaction([updateParentEntityQuery, updateChildEntityQuery]);
+    await execQueriesInTransaction([
+      updateParentEntityQuery,
+      updateChildEntityQuery,
+    ]);
     sendSuccessResponse(res);
   } catch (error) {
     handleDbQueryError(error, res);

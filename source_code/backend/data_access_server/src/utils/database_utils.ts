@@ -1,19 +1,13 @@
 import { Response } from "express";
-import {
-  beginTransaction,
-  convertToDatabaseErrorIfNeeded,
-  execQuery,
-  Query,
-  wrappeInTransaction,
-} from "../db";
+import { execQuery } from "../db";
 import { DatabaseError } from "../db/error";
-import { JSObject } from "./type_alias";
+import { JSObject, Query } from "../types";
 
-interface DbColumns {
+type DbColumns = {
   names: string;
   params: string;
   paramValues: (string | number)[];
-}
+};
 
 export const buildInsertQueryFromJSON = (
   tableName: string,
@@ -69,21 +63,30 @@ export const handleDbQueryError = (error: unknown, res: Response) => {
   }
 };
 
-export const getColumnById = async (
-  id: string | number,
+export const getRowByColumn = async (
+  columnName: string,
+  columnValue: string | number,
   table: string
 ): Promise<JSObject> => {
-  const columns = await execQuery(`SELECT * FROM ${table} WHERE id = $1`, [id]);
+  const columns = await execQuery(
+    `SELECT * FROM ${table} WHERE ${columnName} = $1`,
+    [columnValue]
+  );
   return columns[0];
 };
 
-export const getRelationById = async (
-  id: string | number,
+/**
+ * Return the data of the relation formed by the given`parentTable` and `childTable`
+ *  arguments where the given `columnName` =`columnValue` in the `parentTable`.
+ */
+export const getRelationByColumn = async (
+  columnName: string,
+  columnValue: string | number,
   parentTable: string,
   childTable: string
 ): Promise<JSObject> => {
   const queryResult = await execQuery(
-    `SELECT * FROM ${parentTable} JOIN ${childTable} ON ${parentTable}.id = ${childTable}.${parentTable}_id WHERE ${parentTable}.id = ${id}`
+    `SELECT * FROM ${parentTable} JOIN ${childTable} ON ${parentTable}.id = ${childTable}.${parentTable}_id WHERE ${parentTable}.${columnName} = ${columnValue}`
   );
   return queryResult[0];
 };

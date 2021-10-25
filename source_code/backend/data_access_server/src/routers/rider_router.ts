@@ -5,7 +5,7 @@ const router = Router();
 
 router.post("/", createRider); // TODO add request data validation step.
 
-router.get("/:id", getRider);
+router.get("/", getRider);
 
 router.put("/:id", updateRider); // TODO add request data validation step.
 
