@@ -37,7 +37,8 @@ app.delete("/", async (httpRequest, httpResponse, next) => {
 
 app.use("/account", AccountRouter);
 app.use("/driver", DriverRouter);
-app.use("/rider", RiderRouter)
+app.use("/rider", RiderRouter);
+app.use("/review", RiderRouter);
 
 const PORT = process.env.PORT || 8080;
 
