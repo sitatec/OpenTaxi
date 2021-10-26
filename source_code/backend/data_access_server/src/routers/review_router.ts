@@ -1,6 +1,5 @@
 import { Router } from "express";
 import { createReview, deleteReview, getReview, updateReview } from "../controllers/review_controller";
-import { createRider, deleteRider, getRider, updateRider } from "../controllers/rider_controller";
 
 const router = Router();
 

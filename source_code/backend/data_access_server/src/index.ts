@@ -17,14 +17,11 @@ app.use(async (httpRequest, httpResponse, next) => {
     httpResponse.status(401).end();
   } else {
     httpResponse.locals.userId = tokenValidationResult.userId;
-    httpResponse.locals.sendSuccessResponse = (statusCode: number | undefined) => {
-      httpResponse.status(statusCode || 200).send({ status: "success" })
-    }
     next();
   }
 });
 
-app.delete("/", async (httpRequest, httpResponse, next) => {
+app.delete("/", async (_, httpResponse, next) => {
   const isAdmin = await isAdminUser(httpResponse.locals.userId);
   if (!isAdmin) {
     httpResponse.status(401).end();
@@ -34,11 +31,11 @@ app.delete("/", async (httpRequest, httpResponse, next) => {
   }
 });
 
-
 app.use("/account", AccountRouter);
 app.use("/driver", DriverRouter);
 app.use("/rider", RiderRouter);
 app.use("/review", RiderRouter);
+app.use("/payment", RiderRouter);
 
 const PORT = process.env.PORT || 8080;
 

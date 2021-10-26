@@ -1,5 +1,10 @@
 import { Request, Response } from "express";
-import { createEntity, deleteEntity, getEntity, updateEntity } from "./_generic_controllers";
+import {
+  createEntity,
+  deleteEntity,
+  getEntity,
+  updateEntity,
+} from "./_generic_controllers";
 
 export const createReview = async (
   httpRequest: Request,
