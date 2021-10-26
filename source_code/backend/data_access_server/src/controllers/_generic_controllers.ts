@@ -79,21 +79,23 @@ export const getEntityWithRelation = async (
   parentEntityName: string,
   childEntityName: string,
   httpRequest: Request,
-  httpResponse: Response
+  httpResponse: Response,
+  parentTablePrimaryKey: string = "id"
 ) => {
   const queryParams = getQueryParams(httpRequest);
   if (!queryParams) {
     return httpResponse.status(400).end();
   }
   return wrappeResponseHandling(
-    parentEntityName,
+    childEntityName,
     queryParams,
     httpResponse,
     async () => {
       return getRelationByColumns(
         queryParams,
         parentEntityName,
-        childEntityName
+        childEntityName,
+        parentTablePrimaryKey
       );
     }
   );

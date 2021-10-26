@@ -33,7 +33,9 @@ export const buildUpdateQueryFromJSON = (
   };
 };
 
-const extractColumnNameAndValuesFromJSON = (json: JSObject): DbQueryColumnsAndParams => {
+const extractColumnNameAndValuesFromJSON = (
+  json: JSObject
+): DbQueryColumnsAndParams => {
   const columnNames = Object.keys(json).join();
   const columnValues = Object.values(json);
   let columnParams = "";
@@ -77,13 +79,14 @@ export const getRowByColumns = async (
 };
 
 const getColumnNamesAndParams = (
-  columns: Pair<string, string | number>[]
+  columns: Pair<string, string | number>[],
+  tableName: string = ""
 ): Pair<string, (string | number)[]> => {
   let i = 1;
   let columnNamesAndParams = "";
   let columnParamValues = [];
   for (const colum of columns) {
-    columnNamesAndParams += `${colum.first} = $${i++}`;
+    columnNamesAndParams += `${tableName}.${colum.first} = $${i++}`;
     if (i < columns.length) {
       columnNamesAndParams += " AND ";
     }
@@ -102,12 +105,13 @@ const getColumnNamesAndParams = (
 export const getRelationByColumns = async (
   columns: Pair<string, string | number>[],
   parentTable: string,
-  childTable: string
+  childTable: string,
+  parentTablePrimaryKey: string = "id"
 ): Promise<JSObject> => {
-  const columnNamesAndParams = getColumnNamesAndParams(columns);
+  const columnNamesAndParams = getColumnNamesAndParams(columns, childTable);
   const queryResult = await execQuery(
     `SELECT * FROM ${parentTable} 
-    JOIN ${childTable} ON ${parentTable}.id = ${childTable}.${parentTable}_id 
+    JOIN ${childTable} ON ${parentTable}.${parentTablePrimaryKey} = ${childTable}.${parentTable}_${parentTablePrimaryKey}
     WHERE ${columnNamesAndParams.first}`,
     columnNamesAndParams.second
   );
