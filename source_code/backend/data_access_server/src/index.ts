@@ -36,6 +36,7 @@ app.use("/driver", DriverRouter);
 app.use("/rider", RiderRouter);
 app.use("/review", RiderRouter);
 app.use("/payment", RiderRouter);
+app.use("/subscription", RiderRouter);
 
 const PORT = process.env.PORT || 8080;
 
