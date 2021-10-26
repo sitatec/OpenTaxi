@@ -32,6 +32,7 @@ app.delete("/", async (_, httpResponse, next) => {
 });
 
 app.use("/car", RiderRouter);
+app.use("/trip", RiderRouter);
 app.use("/rider", RiderRouter);
 app.use("/driver", DriverRouter);
 app.use("/review", RiderRouter);
