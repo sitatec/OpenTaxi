@@ -7,29 +7,29 @@ import RiderRouter from "./routers/rider_router";
 
 const app = express();
 
-app.use(async (req, res, next) => {
-  const token = extractTokenFromHeader(req.headers);
+app.use(async (httpRequest, httpResponse, next) => {
+  const token = extractTokenFromHeader(httpRequest.headers);
   if (!token) {
-    res.status(401).end();
+    httpResponse.status(401).end();
   }
   const tokenValidationResult = await validateToken(token as string);
   if (!tokenValidationResult.isValidToken) {
-    res.status(401).end();
+    httpResponse.status(401).end();
   } else {
-    res.locals.userId = tokenValidationResult.userId;
-    res.locals.sendSuccessResponse = (statusCode: number | undefined) => {
-      res.status(statusCode || 200).send({ status: "success" })
+    httpResponse.locals.userId = tokenValidationResult.userId;
+    httpResponse.locals.sendSuccessResponse = (statusCode: number | undefined) => {
+      httpResponse.status(statusCode || 200).send({ status: "success" })
     }
     next();
   }
 });
 
-app.delete("/", async (req, res, next) => {
-  const isAdmin = await isAdminUser(res.locals.userId);
+app.delete("/", async (httpRequest, httpResponse, next) => {
+  const isAdmin = await isAdminUser(httpResponse.locals.userId);
   if (!isAdmin) {
-    res.status(401).end();
+    httpResponse.status(401).end();
   } else {
-    res.locals.role = "admin";
+    httpResponse.locals.role = "admin";
     next();
   }
 });

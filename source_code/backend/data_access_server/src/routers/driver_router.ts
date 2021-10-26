@@ -8,11 +8,11 @@ import {
 
 const router = Router();
 
-router.post("/", createDriver); // TODO add request data validation step.
+router.post("/", createDriver); // TODO add httpRequest data validation step.
 
 router.get("/", getDriver);
 
-router.put("/:id", updateDriver); // TODO add request data validation step.
+router.put("/:id", updateDriver); // TODO add httpRequest data validation step.
 
 router.delete("/:id", deleteDriver);
 

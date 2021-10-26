@@ -3,11 +3,11 @@ import { createRider, deleteRider, getRider, updateRider } from "../controllers/
 
 const router = Router();
 
-router.post("/", createRider); // TODO add request data validation step.
+router.post("/", createRider); // TODO add httpRequest data validation step.
 
 router.get("/", getRider);
 
-router.put("/:id", updateRider); // TODO add request data validation step.
+router.put("/:id", updateRider); // TODO add httpRequest data validation step.
 
 router.delete("/:id", deleteRider);
 

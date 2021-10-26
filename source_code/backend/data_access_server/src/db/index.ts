@@ -1,6 +1,6 @@
 import { DatabaseError as PGDatabaseError, Pool, PoolClient } from "pg";
 import { JSObject, Query } from "../types";
-import { convertToDatabaseError, DatabaseError } from "./error";
+import { convertToDatabaseError } from "./error";
 
 // TODO Document.
 
@@ -11,6 +11,7 @@ const dbClient = new Pool({
   password: "sitatech",
   port: 5432,
 });
+
 // TODO set the posgresql server's timezone the south africa's timezone.
 
 export async function execQuery(
@@ -53,19 +54,26 @@ export const beginTransaction = async () => {
  */
 export const execQueriesInTransaction = async (queries: Query[]) => {
   return wrappeInTransaction(async (dbTransactionClient) => {
+    const firstQuery = queries.shift() as Query;
+    const result = await dbTransactionClient.query(
+      firstQuery.text,
+      firstQuery.paramValues
+    );
     for (const query of queries) {
       await dbTransactionClient.query(query.text, query.paramValues);
     }
+    return result.rows;
   });
 };
 
 export const wrappeInTransaction = async (
-  queriesExecutor: (clien: PoolClient) => Promise<void>
+  queriesExecutor: (clien: PoolClient) => Promise<any>
 ) => {
   const dbTransactionClient = await beginTransaction();
   try {
-    await queriesExecutor(dbTransactionClient);
+    const result = await queriesExecutor(dbTransactionClient);
     await dbTransactionClient.query("COMMIT");
+    return result;
   } catch (error) {
     await dbTransactionClient.query("ROLLBACK");
     throw convertToDatabaseErrorIfNeeded(error);

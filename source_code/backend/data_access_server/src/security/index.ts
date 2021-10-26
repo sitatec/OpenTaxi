@@ -1,5 +1,5 @@
 import { execQuery } from "../db";
-import { JSObject } from "../utils/type_alias";
+import { JSObject } from "../types";
 
 export { validateToken } from "./token_validator";
 

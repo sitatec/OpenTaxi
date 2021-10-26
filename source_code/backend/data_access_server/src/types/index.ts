@@ -5,7 +5,9 @@ export type Query = {
   paramValues: Array<number | string>;
 }
 
-export type Pair<T,K> = {
-  first: T
-  second: K
+export class Pair<T,K> {
+
+  constructor(public first: T, public second: K) {}
+
+  toString = () => `${this.first} = ${this.second}`;
 }

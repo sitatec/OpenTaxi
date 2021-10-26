@@ -8,11 +8,11 @@ import {
 
 const router = Router();
 
-router.post("/", createAccount); // TODO add request data validation step.
+router.post("/", createAccount); // TODO add httpRequest data validation step.
 
 router.get("/", getAccount);
 
-router.put("/:id", updateAccount); // TODO add request data validation step.
+router.put("/:id", updateAccount); // TODO add httpRequest data validation step.
 
 router.delete("/:id", deleteAccount);
 
