@@ -10,3 +10,5 @@ router.get("/", getTrip);
 router.put("/:id", updateTrip); // TODO add httpRequest data validation step.
 
 router.delete("/:id", deleteTrip);
+
+export default router;

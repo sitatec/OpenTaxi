@@ -1,6 +1,12 @@
 import express from "express";
 import DriverRouter from "./routers/driver_router";
 import AccountRouter from "./routers/account_router";
+import CarRouter from "./routers/car_router";
+import TripRouter from "./routers/trip_router";
+import ReviewRouter from "./routers/review_router";
+import PaymentRouter from "./routers/payment_router";
+import BookingRouter from "./routers/booking_router";
+import SubscriptionRouter from "./routers/subscription_router";
 import { isAdminUser, validateToken } from "./security";
 import { extractTokenFromHeader } from "./utils/http_utils";
 import RiderRouter from "./routers/rider_router";
@@ -31,15 +37,15 @@ app.delete("/", async (_, httpResponse, next) => {
   }
 });
 
-app.use("/car", RiderRouter);
-app.use("/trip", RiderRouter);
+app.use("/car", CarRouter);
+app.use("/trip", TripRouter);
 app.use("/rider", RiderRouter);
-app.use("/review", RiderRouter);
-app.use("/payment", RiderRouter);
-app.use("/booking", RiderRouter);
+app.use("/review", ReviewRouter);
 app.use("/driver", DriverRouter);
+app.use("/payment", PaymentRouter);
+app.use("/booking", BookingRouter);
 app.use("/account", AccountRouter);
-app.use("/subscription", RiderRouter);
+app.use("/subscription", SubscriptionRouter);
 
 const PORT = process.env.PORT || 8080;
 
