@@ -31,10 +31,11 @@ app.delete("/", async (_, httpResponse, next) => {
   }
 });
 
-app.use("/account", AccountRouter);
-app.use("/driver", DriverRouter);
+app.use("/car", RiderRouter);
 app.use("/rider", RiderRouter);
+app.use("/driver", DriverRouter);
 app.use("/review", RiderRouter);
+app.use("/account", AccountRouter);
 app.use("/payment", RiderRouter);
 app.use("/subscription", RiderRouter);
 
