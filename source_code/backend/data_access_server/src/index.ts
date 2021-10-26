@@ -34,10 +34,11 @@ app.delete("/", async (_, httpResponse, next) => {
 app.use("/car", RiderRouter);
 app.use("/trip", RiderRouter);
 app.use("/rider", RiderRouter);
-app.use("/driver", DriverRouter);
 app.use("/review", RiderRouter);
-app.use("/account", AccountRouter);
 app.use("/payment", RiderRouter);
+app.use("/booking", RiderRouter);
+app.use("/driver", DriverRouter);
+app.use("/account", AccountRouter);
 app.use("/subscription", RiderRouter);
 
 const PORT = process.env.PORT || 8080;
