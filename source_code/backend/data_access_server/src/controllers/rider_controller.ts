@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import {
   createEntityWithRelation,
   getEntityWithRelation,
+  updateEntity,
   updateEntityWithRelation,
 } from "../controllers/_generic_controllers";
 import { deleteAccount } from "./account_controller";
@@ -29,7 +30,18 @@ export const getFavoriteDrivers = async (
 export const updateRider = async (
   httpRequest: Request,
   httpResponse: Response
-) => updateEntityWithRelation("account", "rider", httpRequest, httpResponse);
+) => {
+  if (httpRequest.body.account) {
+    return updateEntityWithRelation(
+      "account",
+      "rider",
+      httpRequest,
+      httpResponse
+    );
+  } else {
+    return updateEntity("rider", httpRequest, httpResponse);
+  }
+};
 
 export const deleteRider = deleteAccount; // Deleting the account will delete the
 // rider data too, because a CASCADE constraint is specified on the account_id
