@@ -20,8 +20,8 @@ export const createEntity = async (
 ) => {
   try {
     const query = buildInsertQueryFromJSON(entityName, httpRequest.body);
-    await execQuery(query.text, query.paramValues);
-    sendSuccessResponse(httpResponse, 201);
+    const queryResult = await execQuery(query.text, query.paramValues);
+    sendSuccessResponse(httpResponse, 201, queryResult.rowCount);
   } catch (error) {
     handleDbQueryError(error, httpResponse);
   }
@@ -121,14 +121,17 @@ export async function updateEntity(
 ): Promise<void> {
   if (!data) {
   }
-  const entityId = httpRequest.params.id;
+  let entityId = httpRequest.params.id;
+  if(entityName == "account"){
+    entityId = `'${entityId}'`;
+  }
   const query = buildUpdateQueryFromJSON(
     entityName,
     httpRequest.body,
     entityId
   );
 
-  wrappeResponseHandling(
+  return wrappeResponseHandling(
     entityName,
     [new Pair("id", entityId)],
     httpResponse,
@@ -157,17 +160,17 @@ export const updateEntityWithRelation = async (
     httpRequest.params.id
   );
 
-  wrappeResponseHandling(
+  return wrappeResponseHandling(
     childEntityName,
     [new Pair("id", entityId)],
     httpResponse,
-    async (): Promise<JSObject> => {
+    async (): Promise<number | JSObject> => {
       return (
         await execQueriesInTransaction([
           updateParentEntityQuery,
           updateChildEntityQuery,
         ])
-      )[0];
+      ).rowCount;
     }
   );
 };

@@ -5,7 +5,7 @@ import { JSObject } from "../types";
 
 export const isAdminUser = async (userId: string): Promise<boolean> => {
   const result = await execQuery(
-    "SELECT user.role FROM user WHERE user.id = $1",
+    "SELECT role FROM user WHERE id = $1",
     [userId]
   );
   return result.rows[0].role == "ADMIN";

@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteBooking = exports.updateBooking = exports.getBooking = exports.createBooking = void 0;
+const _generic_controllers_1 = require("./_generic_controllers");
+const createBooking = async (httpRequest, httpResponse) => (0, _generic_controllers_1.createEntity)("booking", httpRequest, httpResponse);
+exports.createBooking = createBooking;
+const getBooking = (httpRequest, httpResponse) => (0, _generic_controllers_1.getEntity)("booking", httpRequest, httpResponse);
+exports.getBooking = getBooking;
+const updateBooking = async (httpRequest, httpResponse) => (0, _generic_controllers_1.updateEntity)("booking", httpRequest, httpResponse);
+exports.updateBooking = updateBooking;
+const deleteBooking = async (httpRequest, httpResponse) => (0, _generic_controllers_1.deleteEntity)("booking", httpRequest, httpResponse);
+exports.deleteBooking = deleteBooking;

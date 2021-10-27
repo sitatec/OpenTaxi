@@ -14,7 +14,7 @@ export function sendSuccessResponse(httpResponse: Response, statusCode: number):
 export function sendSuccessResponse(
   httpResponse: Response,
   statusCode: number,
-  data: JSObject
+  data: any
 ): void;
 export function sendSuccessResponse(
   httpResponse: Response,

@@ -7,7 +7,7 @@ export const wrappeResponseHandling = async (
   entityName: string,
   queryParams: Pair<string, string>[],
   httpResponse: Response,
-  fn: () => Promise<JSObject>
+  fn: () => Promise<number | JSObject>
 ) => {
   try {
     const result = await fn();

@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteReview = exports.updateReview = exports.getReview = exports.createReview = void 0;
+const _generic_controllers_1 = require("./_generic_controllers");
+const createReview = async (httpRequest, httpResponse) => (0, _generic_controllers_1.createEntity)("review", httpRequest, httpResponse);
+exports.createReview = createReview;
+const getReview = (httpRequest, httpResponse) => (0, _generic_controllers_1.getEntity)("review", httpRequest, httpResponse);
+exports.getReview = getReview;
+const updateReview = async (httpRequest, httpResponse) => (0, _generic_controllers_1.updateEntity)("review", httpRequest, httpResponse);
+exports.updateReview = updateReview;
+const deleteReview = async (httpRequest, httpResponse) => (0, _generic_controllers_1.deleteEntity)("review", httpRequest, httpResponse);
+exports.deleteReview = deleteReview;

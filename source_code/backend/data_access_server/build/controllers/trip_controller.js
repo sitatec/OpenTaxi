@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteTrip = exports.updateTrip = exports.getTrip = exports.createTrip = void 0;
+const _generic_controllers_1 = require("./_generic_controllers");
+const createTrip = async (httpRequest, httpResponse) => (0, _generic_controllers_1.createEntity)("trip", httpRequest, httpResponse);
+exports.createTrip = createTrip;
+const getTrip = (httpRequest, httpResponse) => (0, _generic_controllers_1.getEntity)("trip", httpRequest, httpResponse);
+exports.getTrip = getTrip;
+const updateTrip = async (httpRequest, httpResponse) => (0, _generic_controllers_1.updateEntity)("trip", httpRequest, httpResponse);
+exports.updateTrip = updateTrip;
+const deleteTrip = async (httpRequest, httpResponse) => (0, _generic_controllers_1.deleteEntity)("trip", httpRequest, httpResponse);
+exports.deleteTrip = deleteTrip;

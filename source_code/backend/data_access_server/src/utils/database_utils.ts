@@ -29,7 +29,7 @@ export const buildUpdateQueryFromJSON = (
   const columns = extractColumnNameAndValuesFromJSON(json);
   return {
     text: `UPDATE ${tableName} SET (${columns.names}) = (${columns.params}) 
-    WHERE id = '${rowId}'`,
+    WHERE id = ${rowId}`,
     paramValues: columns.paramValues,
   };
 };
@@ -71,7 +71,7 @@ export const getRowByColumns = async (
   columns: Pair<string, string>[],
   table: string
 ): Promise<JSObject> => {
-  const columnNamesAndParams = getColumnNamesAndParams(columns);
+  const columnNamesAndParams = getColumnNamesAndParams(columns, table);
   const result = await execQuery(
     `SELECT * FROM ${table} WHERE ${columnNamesAndParams.first}`,
     columnNamesAndParams.second
@@ -81,7 +81,7 @@ export const getRowByColumns = async (
 
 const getColumnNamesAndParams = (
   columns: Pair<string, string | number>[],
-  tableName: string = ""
+  tableName: string
 ): Pair<string, (string | number)[]> => {
   let i = 1;
   let columnNamesAndParams = "";

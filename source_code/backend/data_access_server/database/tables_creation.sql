@@ -82,8 +82,8 @@ CREATE TABLE public.account (
                 role USER_ROLE NOT NULL,
                 notification_token VARCHAR,
                 account_status ACCOUNT_STATUS NOT NULL,
-                phone_number VARCHAR NOT NULL,
-                balance NUMERIC(14,2) DEFAULT 0 NOT NULL,
+                phone_number NUMERIC(15) NOT NULL,
+                balance DECIMAL(14,2) DEFAULT 0 NOT NULL,
                 CONSTRAINT account_pk PRIMARY KEY (id)
 );
 
@@ -92,9 +92,6 @@ CREATE UNIQUE INDEX account_idx
  ON public.account
  ( email );
 
-CREATE UNIQUE INDEX account_idx1
- ON public.account
- ( phone_number );
 
 CREATE TABLE public.payment (
                 id INTEGER NOT NULL,

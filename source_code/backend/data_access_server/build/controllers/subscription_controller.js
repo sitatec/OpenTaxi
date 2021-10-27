@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteSubscription = exports.updateSubscription = exports.getSubscription = exports.createSubscription = void 0;
+const _generic_controllers_1 = require("./_generic_controllers");
+const createSubscription = async (httpRequest, httpResponse) => (0, _generic_controllers_1.createEntity)("subscription", httpRequest, httpResponse);
+exports.createSubscription = createSubscription;
+const getSubscription = (httpRequest, httpResponse) => (0, _generic_controllers_1.getEntity)("subscription", httpRequest, httpResponse);
+exports.getSubscription = getSubscription;
+const updateSubscription = async (httpRequest, httpResponse) => (0, _generic_controllers_1.updateEntity)("subscription", httpRequest, httpResponse);
+exports.updateSubscription = updateSubscription;
+const deleteSubscription = async (httpRequest, httpResponse) => (0, _generic_controllers_1.deleteEntity)("subscription", httpRequest, httpResponse);
+exports.deleteSubscription = deleteSubscription;

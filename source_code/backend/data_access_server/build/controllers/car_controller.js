@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.deleteCar = exports.updateCar = exports.getCar = exports.createCar = void 0;
+const _generic_controllers_1 = require("./_generic_controllers");
+const createCar = async (httpRequest, httpResponse) => (0, _generic_controllers_1.createEntity)("car", httpRequest, httpResponse);
+exports.createCar = createCar;
+const getCar = (httpRequest, httpResponse) => (0, _generic_controllers_1.getEntity)("car", httpRequest, httpResponse);
+exports.getCar = getCar;
+const updateCar = async (httpRequest, httpResponse) => (0, _generic_controllers_1.updateEntity)("car", httpRequest, httpResponse);
+exports.updateCar = updateCar;
+const deleteCar = async (httpRequest, httpResponse) => (0, _generic_controllers_1.deleteEntity)("car", httpRequest, httpResponse);
+exports.deleteCar = deleteCar;

@@ -1,4 +1,4 @@
-import { DatabaseError as PGDatabaseError, Pool, PoolClient } from "pg";
+import { DatabaseError as PGDatabaseError, Pool, PoolClient, types } from "pg";
 import { Query, QueryResult } from "../types/db";
 import { convertToDatabaseError } from "./error";
 
@@ -10,6 +10,19 @@ const dbClient = new Pool({
   database: "postgres",
   password: "sitatech",
   port: 5432,
+});
+
+
+types.setTypeParser(types.builtins.NUMERIC, (val) => {
+  if(val.length < 16) {
+    if(val.includes(".")){
+      return parseFloat(val);
+    }else{
+      return parseInt(val);
+    }
+  }else {
+    return BigInt(val);
+  }
 });
 
 // TODO set the posgresql server's timezone the south africa's timezone.
@@ -66,12 +79,15 @@ export const execQueriesInTransaction = async (queries: Query[]) => {
     for (const query of queries) {
       await dbTransactionClient.query(query.text, query.paramValues);
     }
-    return result.rows;
+    return {
+      rows: result.rows,
+      rowCount: result.rowCount
+    };
   });
 };
 
 export const wrappeInTransaction = async (
-  queriesExecutor: (clien: PoolClient) => Promise<any>
+  queriesExecutor: (clien: PoolClient) => Promise<QueryResult>
 ) => {
   const dbTransactionClient = await beginTransaction();
   try {
