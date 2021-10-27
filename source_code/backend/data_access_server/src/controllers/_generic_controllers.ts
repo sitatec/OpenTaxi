@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { execQueriesInTransaction, execQuery } from "../db";
-import { JSObject } from "../types";
+import { JSObject, Pair } from "../types";
 import { wrappeResponseHandling } from "../utils/controller_utils";
 import {
   buildInsertQueryFromJSON,
@@ -19,8 +19,7 @@ export const createEntity = async (
   httpResponse: Response
 ) => {
   try {
-    const requestBody = JSON.parse(httpRequest.body);
-    const query = buildInsertQueryFromJSON(entityName, requestBody);
+    const query = buildInsertQueryFromJSON(entityName, httpRequest.body);
     await execQuery(query.text, query.paramValues);
     sendSuccessResponse(httpResponse, 201);
   } catch (error) {
@@ -34,7 +33,7 @@ export const createEntityWithRelation = async (
   httpRequest: Request,
   httpResponse: Response
 ) => {
-  const data = JSON.parse(httpRequest.body);
+  const data = httpRequest.body;
   const insertParentEntityQuery = buildInsertQueryFromJSON(
     parentEntityName,
     data[parentEntityName]
@@ -121,21 +120,20 @@ export async function updateEntity(
   data?: JSObject
 ): Promise<void> {
   if (!data) {
-    data = JSON.parse(httpRequest.body);
   }
   const entityId = httpRequest.params.id;
   const query = buildUpdateQueryFromJSON(
     entityName,
-    data as JSObject,
+    httpRequest.body,
     entityId
   );
 
   wrappeResponseHandling(
     entityName,
-    [{ first: "id", second: entityId }],
+    [new Pair("id", entityId)],
     httpResponse,
-    async (): Promise<JSObject> => {
-      return (await execQuery(query.text, query.paramValues))[0];
+    async (): Promise<any> => {
+      return (await execQuery(query.text, query.paramValues)).rowCount;
     }
   );
 }
@@ -147,7 +145,7 @@ export const updateEntityWithRelation = async (
   httpResponse: Response
 ) => {
   const entityId = httpRequest.params.id;
-  const data = JSON.parse(httpRequest.body);
+  const data = httpRequest.body;
   const updateParentEntityQuery = buildUpdateQueryFromJSON(
     parentEntityName,
     data[parentEntityName],
@@ -161,7 +159,7 @@ export const updateEntityWithRelation = async (
 
   wrappeResponseHandling(
     childEntityName,
-    [{ first: "id", second: entityId }],
+    [new Pair("id", entityId)],
     httpResponse,
     async (): Promise<JSObject> => {
       return (
@@ -184,12 +182,12 @@ export const deleteEntity = async (
   const entityId = httpRequest.params.id;
   return wrappeResponseHandling(
     entityName,
-    [{ first: "id", second: entityId }],
+    [new Pair("id", entityId)],
     httpResponse,
-    async (): Promise<JSObject> => {
+    async (): Promise<any> => {
       return (
         await execQuery("DELETE FROM account WHERE id = $1", [entityId])
-      )[0];
+      ).rowCount;
     }
   );
 };

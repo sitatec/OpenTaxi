@@ -1,7 +1,8 @@
 import { Response } from "express";
 import { execQuery } from "../db";
 import { DatabaseError } from "../db/error";
-import { JSObject, Pair, Query } from "../types";
+import { JSObject, Pair } from "../types";
+import { Query } from "../types/db";
 
 type DbQueryColumnsAndParams = {
   names: string;
@@ -75,7 +76,7 @@ export const getRowByColumns = async (
     `SELECT * FROM ${table} WHERE ${columnNamesAndParams.first}`,
     columnNamesAndParams.second
   );
-  return result[0];
+  return result.rows[0];
 };
 
 const getColumnNamesAndParams = (
@@ -115,5 +116,5 @@ export const getRelationByColumns = async (
     WHERE ${columnNamesAndParams.first}`,
     columnNamesAndParams.second
   );
-  return queryResult[0];
+  return queryResult.rows[0];
 };

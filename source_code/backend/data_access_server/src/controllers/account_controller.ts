@@ -19,7 +19,7 @@ export const updateAccount = async (
   httpRequest: Request,
   httpResponse: Response
 ) => {
-  const requestBody = JSON.parse(httpRequest.body);
+  const requestBody = httpRequest.body;
   preventUnauthorizedAccountUpdate(requestBody, httpResponse.locals.userId);
   return updateEntity("account", httpRequest, httpResponse, requestBody);
 };

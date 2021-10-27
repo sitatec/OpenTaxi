@@ -1,14 +1,14 @@
 import { execQuery } from "../db";
 import { JSObject } from "../types";
 
-export { validateToken } from "./token_validator";
+// export { validateToken } from "./token_validator";
 
 export const isAdminUser = async (userId: string): Promise<boolean> => {
   const result = await execQuery(
     "SELECT user.role FROM user WHERE user.id = $1",
     [userId]
   );
-  return result[0].role == "ADMIN";
+  return result.rows[0].role == "ADMIN";
 };
 
 export const preventUnauthorizedAccountUpdate = async (requesData: JSObject, userId: string) => {

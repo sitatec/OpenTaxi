@@ -1,5 +1,5 @@
 import { DatabaseError as PGDatabaseError, Pool, PoolClient } from "pg";
-import { JSObject, Query } from "../types";
+import { Query, QueryResult } from "../types/db";
 import { convertToDatabaseError } from "./error";
 
 // TODO Document.
@@ -17,14 +17,14 @@ const dbClient = new Pool({
 export async function execQuery(
   query: string,
   queryParams?: Array<string | number>
-): Promise<JSObject[]>;
+): Promise<QueryResult>;
 
-export async function execQuery(query: Query): Promise<JSObject[]>;
+export async function execQuery(query: Query): Promise<QueryResult>;
 
 export async function execQuery(
   query: any,
   queryParams?: any
-): Promise<JSObject[]> {
+): Promise<QueryResult> {
   let text: string;
   let params: (string | number)[];
   if (typeof query === "string") {
@@ -35,7 +35,11 @@ export async function execQuery(
     params = query.paramValues;
   }
   try {
-    return (await dbClient.query(text, params)).rows;
+    const queryResult = (await dbClient.query(text, params));
+    return {
+      rows: queryResult.rows,
+      rowCount: queryResult.rowCount
+    }
   } catch (error) {
     throw convertToDatabaseErrorIfNeeded(error);
   }
