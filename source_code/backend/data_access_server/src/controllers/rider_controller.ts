@@ -1,10 +1,15 @@
 import { Request, Response } from "express";
 import {
   createEntityWithRelation,
+  deleteEntity,
   getEntityWithRelation,
   updateEntity,
   updateEntityWithRelation,
 } from "../controllers/_generic_controllers";
+import { execQuery } from "../db";
+import { wrappeResponseHandling } from "../utils/controller_utils";
+import { getColumnNamesAndParams } from "../utils/database_utils";
+import { getQueryParams } from "../utils/http_utils";
 import { deleteAccount } from "./account_controller";
 
 export const createRider = async (
@@ -26,6 +31,45 @@ export const getFavoriteDrivers = async (
     httpResponse,
     "account_id"
   );
+
+export const addFavoriteDriver = async (
+  httpRequest: Request,
+  httpResponse: Response
+) =>
+  createEntityWithRelation(
+    "driver",
+    "favorite_driver",
+    httpRequest,
+    httpResponse
+  );
+
+export const deleteFavoriteDriver = async (
+  httpRequest: Request,
+  httpResponse: Response
+) => {
+  const queryParams = getQueryParams(httpRequest);
+  if (queryParams.length === 0) {
+    return httpResponse.status(400).end();
+  }
+  const columnNamesAndParams = getColumnNamesAndParams(
+    queryParams,
+    "favorite_driver"
+  );
+
+  wrappeResponseHandling(
+    "favorite_driver",
+    queryParams,
+    httpResponse,
+    async () => {
+      return (
+        await execQuery(
+          `DELETE FROM favorite_driver WHERE ${columnNamesAndParams.first}`,
+          columnNamesAndParams.second
+        )
+      ).rowCount;
+    }
+  );
+};
 
 export const updateRider = async (
   httpRequest: Request,

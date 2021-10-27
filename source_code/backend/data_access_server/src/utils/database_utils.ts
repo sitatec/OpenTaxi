@@ -80,7 +80,7 @@ export const getRowByColumns = async (
   return result.rows[0];
 };
 
-const getColumnNamesAndParams = (
+export const getColumnNamesAndParams = (
   columns: Pair<string, string | number>[],
   tableName: string
 ): Pair<string, (string | number)[]> => {

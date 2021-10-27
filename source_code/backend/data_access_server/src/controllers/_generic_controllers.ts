@@ -108,9 +108,8 @@ export async function updateEntity(
   httpRequest: Request,
   httpResponse: Response
 ): Promise<void> {
-
   let [entityPrimaryKeyName, entityId] = Object.entries(httpRequest.params)[0];
-  if(ENTITIES_WITH_STRING_ID.includes(entityName)){
+  if (ENTITIES_WITH_STRING_ID.includes(entityName)) {
     entityId = `'${entityId}'`;
   }
   const query = buildUpdateQueryFromJSON(
@@ -139,11 +138,11 @@ export const updateEntityWithRelation = async (
   let [entityPrimaryKeyName, entityId] = Object.entries(httpRequest.params)[0];
   const data = httpRequest.body;
 
-  if(ENTITIES_WITH_STRING_ID.includes(parentEntityName)){
+  if (ENTITIES_WITH_STRING_ID.includes(parentEntityName)) {
     entityId = `'${entityId}'`;
   }
 
-  delete data[parentEntityName]["id"] // IDs must not be modified.
+  delete data[parentEntityName]["id"]; // IDs must not be modified.
 
   const updateParentEntityQuery = buildUpdateQueryFromJSON(
     parentEntityName,
@@ -151,7 +150,7 @@ export const updateEntityWithRelation = async (
     entityId
   );
 
-  delete data[childEntityName][entityPrimaryKeyName] // IDs must not be modified.
+  delete data[childEntityName][entityPrimaryKeyName]; // IDs must not be modified.
 
   const updateChildEntityQuery = buildUpdateQueryFromJSON(
     childEntityName,
@@ -188,9 +187,8 @@ export const deleteEntity = async (
     [new Pair("id", entityId)],
     httpResponse,
     async (): Promise<any> => {
-      return (
-        await execQuery("DELETE FROM account WHERE id = $1", [entityId])
-      ).rowCount;
+      return (await execQuery("DELETE FROM account WHERE id = $1", [entityId]))
+        .rowCount;
     }
   );
 };

@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createRider, deleteRider, getFavoriteDrivers, getRider, updateRider } from "../controllers/rider_controller";
+import { addFavoriteDriver, createRider, deleteFavoriteDriver, deleteRider, getFavoriteDrivers, getRider, updateRider } from "../controllers/rider_controller";
 
 const router = Router();
 
@@ -7,10 +7,18 @@ router.post("/", createRider); // TODO add httpRequest data validation step.
 
 router.get("/", getRider);
 
-router.get("/favorite_drivers", getFavoriteDrivers);
-
 router.put("/:account_id", updateRider); // TODO add httpRequest data validation step.
 
 router.delete("/:id", deleteRider);
+
+router.post("/")
+
+const favoriteDriversRouter = Router()
+
+router.use("/favorite_drivers", favoriteDriversRouter);
+
+favoriteDriversRouter.post("/", addFavoriteDriver);
+favoriteDriversRouter.get("/", getFavoriteDrivers);
+favoriteDriversRouter.delete("/", deleteFavoriteDriver);
 
 export default router;
