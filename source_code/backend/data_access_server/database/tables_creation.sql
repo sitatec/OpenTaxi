@@ -80,6 +80,7 @@ CREATE TABLE public.account (
                 registred_at DATE DEFAULT CURRENT_DATE NOT NULL,
                 email VARCHAR NOT NULL,
                 role USER_ROLE NOT NULL,
+                notification_token VARCHAR,
                 account_status ACCOUNT_STATUS NOT NULL,
                 phone_number VARCHAR NOT NULL,
                 balance NUMERIC(14,2) DEFAULT 0 NOT NULL,
