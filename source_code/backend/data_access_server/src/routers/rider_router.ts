@@ -9,7 +9,7 @@ router.get("/", getRider);
 
 router.get("/favorite_drivers", getFavoriteDrivers);
 
-router.put("/:id", updateRider); // TODO add httpRequest data validation step.
+router.put("/:account_id", updateRider); // TODO add httpRequest data validation step.
 
 router.delete("/:id", deleteRider);
 

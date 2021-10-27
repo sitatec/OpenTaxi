@@ -19,9 +19,8 @@ export const updateAccount = async (
   httpRequest: Request,
   httpResponse: Response
 ) => {
-  const requestBody = httpRequest.body;
-  preventUnauthorizedAccountUpdate(requestBody, httpResponse.locals.userId);
-  return updateEntity("account", httpRequest, httpResponse, requestBody);
+  preventUnauthorizedAccountUpdate(httpRequest.body, httpResponse.locals.userId);
+  return updateEntity("account", httpRequest, httpResponse);
 };
 
 export const deleteAccount = async (

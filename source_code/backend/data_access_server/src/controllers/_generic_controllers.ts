@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { ENTITIES_WITH_STRING_ID } from "../constants";
 import { execQueriesInTransaction, execQuery } from "../db";
 import { JSObject, Pair } from "../types";
 import { wrappeResponseHandling } from "../utils/controller_utils";
@@ -43,11 +44,11 @@ export const createEntityWithRelation = async (
     data[childEntityName]
   );
   try {
-    await execQueriesInTransaction([
+    const queryResult = await execQueriesInTransaction([
       insertParentEntityQuery,
       insertChildEntityQuery,
     ]);
-    sendSuccessResponse(httpResponse, 201);
+    sendSuccessResponse(httpResponse, 201, queryResult.rowCount);
   } catch (error) {
     handleDbQueryError(error, httpResponse);
   }
@@ -106,34 +107,22 @@ export async function updateEntity(
   entityName: string,
   httpRequest: Request,
   httpResponse: Response
-): Promise<void>;
-export async function updateEntity(
-  entityName: string,
-  httpRequest: Request,
-  httpResponse: Response,
-  requestBody: JSObject
-): Promise<void>;
-export async function updateEntity(
-  entityName: string,
-  httpRequest: Request,
-  httpResponse: Response,
-  data?: JSObject
 ): Promise<void> {
-  if (!data) {
-  }
-  let entityId = httpRequest.params.id;
-  if(entityName == "account"){
+
+  let [entityPrimaryKeyName, entityId] = Object.entries(httpRequest.params)[0];
+  if(ENTITIES_WITH_STRING_ID.includes(entityName)){
     entityId = `'${entityId}'`;
   }
   const query = buildUpdateQueryFromJSON(
     entityName,
     httpRequest.body,
-    entityId
+    entityId,
+    entityPrimaryKeyName
   );
 
   return wrappeResponseHandling(
     entityName,
-    [new Pair("id", entityId)],
+    [new Pair(entityPrimaryKeyName, entityId)],
     httpResponse,
     async (): Promise<any> => {
       return (await execQuery(query.text, query.paramValues)).rowCount;
@@ -147,17 +136,28 @@ export const updateEntityWithRelation = async (
   httpRequest: Request,
   httpResponse: Response
 ) => {
-  const entityId = httpRequest.params.id;
+  let [entityPrimaryKeyName, entityId] = Object.entries(httpRequest.params)[0];
   const data = httpRequest.body;
+
+  if(ENTITIES_WITH_STRING_ID.includes(parentEntityName)){
+    entityId = `'${entityId}'`;
+  }
+
+  delete data[parentEntityName]["id"] // IDs must not be modified.
+
   const updateParentEntityQuery = buildUpdateQueryFromJSON(
     parentEntityName,
     data[parentEntityName],
-    httpRequest.params.id
+    entityId
   );
+
+  delete data[childEntityName][entityPrimaryKeyName] // IDs must not be modified.
+
   const updateChildEntityQuery = buildUpdateQueryFromJSON(
     childEntityName,
     data[childEntityName],
-    httpRequest.params.id
+    entityId,
+    entityPrimaryKeyName
   );
 
   return wrappeResponseHandling(

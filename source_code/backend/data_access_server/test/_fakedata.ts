@@ -1,5 +1,6 @@
+const ACCOUNT_ID = "sljf45Esfjsllsfksl45"; 
 export const ACCOUNT = {
-  id: "sljf45Esfjsllsfksl45",
+  id: ACCOUNT_ID,
   first_name: "Steve",
   surname: "Jobs",
   nickname: "steve jobs",
@@ -9,4 +10,17 @@ export const ACCOUNT = {
   account_status: "LIVE",
   role: "RIDER",
   balance: 0.0
+};
+
+export const RIDER = {
+  account_id: ACCOUNT_ID,
+  driver_gender_preference: "FEMALE",
+  recent_places: [
+    "Labé",
+    "Québec"
+  ],
+  saved_places: [
+    "Labé",
+    "Québec"
+  ] 
 };

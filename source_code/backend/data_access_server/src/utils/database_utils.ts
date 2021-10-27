@@ -24,12 +24,13 @@ export const buildInsertQueryFromJSON = (
 export const buildUpdateQueryFromJSON = (
   tableName: string,
   json: JSObject,
-  rowId: string
+  rowId: string,
+  primaryKeyName = "id"
 ): Query => {
   const columns = extractColumnNameAndValuesFromJSON(json);
   return {
     text: `UPDATE ${tableName} SET (${columns.names}) = (${columns.params}) 
-    WHERE id = ${rowId}`,
+    WHERE ${primaryKeyName} = ${rowId}`,
     paramValues: columns.paramValues,
   };
 };

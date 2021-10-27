@@ -1,0 +1,1 @@
+export const ENTITIES_WITH_STRING_ID = ["account", "driver", "rider"];

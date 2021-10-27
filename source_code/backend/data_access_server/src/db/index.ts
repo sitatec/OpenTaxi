@@ -1,8 +1,12 @@
-import { DatabaseError as PGDatabaseError, Pool, PoolClient, types } from "pg";
+import { DatabaseError as PGDatabaseError, Pool, PoolClient, PoolConfig, types } from "pg";
 import { Query, QueryResult } from "../types/db";
 import { convertToDatabaseError } from "./error";
 
 // TODO Document.
+
+interface NewPooConfig extends PoolConfig {
+  allowExitOnIdle: boolean;
+}
 
 const dbClient = new Pool({
   user: "postgres",
@@ -10,8 +14,8 @@ const dbClient = new Pool({
   database: "postgres",
   password: "sitatech",
   port: 5432,
-});
-
+  allowExitOnIdle: true
+} as NewPooConfig);
 
 types.setTypeParser(types.builtins.NUMERIC, (val) => {
   if(val.length < 16) {
