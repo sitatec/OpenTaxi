@@ -28,9 +28,15 @@ export const buildUpdateQueryFromJSON = (
   primaryKeyName = "id"
 ): Query => {
   const columns = extractColumnNameAndValuesFromJSON(json);
+  let queryText;
+  if (columns.paramValues.length > 1) {
+    // If we are updating many column together we must wrappe their names and values with parentheses.
+    queryText = `UPDATE ${tableName} SET (${columns.names}) = (${columns.params})`;
+  } else {
+    queryText = `UPDATE ${tableName} SET ${columns.names} = ${columns.params}`;
+  }
   return {
-    text: `UPDATE ${tableName} SET (${columns.names}) = (${columns.params}) 
-    WHERE ${primaryKeyName} = ${rowId}`,
+    text: `${queryText} WHERE ${primaryKeyName} = ${rowId}`,
     paramValues: columns.paramValues,
   };
 };

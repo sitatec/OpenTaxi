@@ -47,15 +47,35 @@ describe("ENDPOINT: DRIVER", () => {
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
 
-  it("Should successfully update only one field of a driver.", async () => {
-    // await createDriver(); // Create it first
+  it("Should update a driver with account data.", async () => {
+    await createDriver(); // Create it first
 
-    // // End then update it.
-    // const response = await Axios.put(getUrlWithQuery("/" + DRIVER.account_id), {
-    //   surname: "Musk",
-    // });
-    // expect(response.status).toBe(200);
-    // expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+    const newDriver = cloneObjec(DRIVER);
+    newDriver.id_url = 'url';   
+
+    const newAccount = cloneObjec(ACCOUNT);
+    newAccount.first_name = "Elon";
+    newAccount.surname = "Musk";
+    delete newAccount.account_status; // To prevent security check because only 
+    //admin users are able to change the status of an account.
+
+    const response = await Axios.put(
+      getUrlWithQuery("/" + DRIVER.account_id),
+      {account: newAccount, driver: newDriver}
+    );
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  });// End then update it.
+
+  it("Should successfully update only one field of a driver.", async () => {
+    await createDriver(); // Create it first
+
+    // End then update it.
+    const response = await Axios.put(getUrlWithQuery("/" + DRIVER.account_id), {
+      id_url: "url.url/url",
+    });
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
 
   it("Should successfully delete a driver.", async () => {

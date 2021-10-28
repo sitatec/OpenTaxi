@@ -12,15 +12,14 @@ const createAccount = async () => {
   expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
 };
 
-describe("ACCOUNT ENDPOINT", () => {
-
+describe("ENDPOINT: ACCOUNT", () => {
   beforeEach(async () => {
     await execQuery("DELETE FROM account");
   });
 
-  test("Should successfully create an account.", createAccount);
+  it("Should successfully create an account.", createAccount);
 
-  test("Should successfully get an account.", async () => {
+  it("Should successfully get an account.", async () => {
     await createAccount(); // Create it first
     // End then get it.
     const response = await Axios.get(getUrlWithQuery("?id=" + ACCOUNT.id));
@@ -28,14 +27,14 @@ describe("ACCOUNT ENDPOINT", () => {
     expect(response.data).toMatchObject(getSuccessResponse(ACCOUNT));
   });
 
-  test("Should successfully update an account.", async () => {
+  it("Should successfully update an account.", async () => {
     await createAccount(); // Create it first
     const newAccount = cloneObjec(ACCOUNT);
     newAccount.first_name = "Elon";
     newAccount.surname = "Musk";
-    delete newAccount.account_status; // To prevent security check because only 
+    delete newAccount.account_status; // To prevent security check because only
     //admin users are able to change the status of an account.
-    
+
     // End then update it.
     const response = await Axios.put(
       getUrlWithQuery("/" + ACCOUNT.id),
@@ -45,7 +44,18 @@ describe("ACCOUNT ENDPOINT", () => {
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
 
-  test("Should successfully delete an account.", async () => {
+  it("Should successfully update only one field of an account.", async () => {
+    await createAccount(); // Create it first
+
+    // End then update it.
+    const response = await Axios.put(getUrlWithQuery("/" + ACCOUNT.id), {
+      surname: "Musk",
+    });
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  });
+
+  it("Should successfully delete an account.", async () => {
     await createAccount(); // Create it first
     // End then delete it.
     const response = await Axios.delete(getUrlWithQuery("/" + ACCOUNT.id));

@@ -15,16 +15,16 @@ const createRider = async () => {
   expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
 };
 
-describe("RIDER ENDPOINT", () => {
+describe("ENDPOINT: RIDER", () => {
   beforeEach(async () => {
     await execQuery("DELETE FROM account");// Deleting the account will delete the
     // rider data too, because a CASCADE constraint is specified on the account_id
     // column.
   });
 
-  test("Should successfully create a rider.", createRider);
+  it("Should successfully create a rider.", createRider);
 
-  test("Should successfully get a rider.", async () => {
+  it("Should successfully get a rider.", async () => {
     await createRider(); // Create it first
     // End then get it.
     const response = await Axios.get(
@@ -34,7 +34,7 @@ describe("RIDER ENDPOINT", () => {
     expect(response.data).toMatchObject(getSuccessResponse(RIDER));
   });
 
-  test("Should individually update a rider.", async () => {
+  it("Should individually update a rider.", async () => {
     await createRider(); // Create it first
     const newRider = cloneObjec(RIDER);
     newRider.driver_gender_preference = 'MALE';
@@ -47,7 +47,7 @@ describe("RIDER ENDPOINT", () => {
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
 
-  test("Should update a rider with account data.", async () => {
+  it("Should update a rider with account data.", async () => {
     await createRider(); // Create it first
 
     const newRider = cloneObjec(RIDER);
@@ -68,7 +68,18 @@ describe("RIDER ENDPOINT", () => {
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
 
-  test("Should successfully delete a rider.", async () => {
+  it("Should successfully update only one field of a driver.", async () => {
+    await createRider(); // Create it first
+
+    const response = await Axios.put(getUrlWithQuery("/" + RIDER.account_id), {
+      driver_gender_preference: "FEMALE",
+    });// End then update it.
+
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  });
+
+  it("Should successfully delete a rider.", async () => {
     await createRider(); // Create it first
     // End then delete it.
     const response = await Axios.delete(
@@ -77,4 +88,21 @@ describe("RIDER ENDPOINT", () => {
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
+
+  describe("FAVORITE_DRIVER", () => {
+
+    beforeEach(() => {
+      
+    });
+  
+    it("Should successfully add a rider's favorite driver", async () => {
+      
+    });
+
+    it("Should successfully get rider's favorite drivers", async () => {
+      
+    });
+
+  })
+
 });

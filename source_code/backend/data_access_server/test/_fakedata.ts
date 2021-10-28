@@ -27,7 +27,6 @@ export const RIDER = {
 
 export const DRIVER = {
   account_id: ACCOUNT_ID,
-  id_image_url: "id_image.url",
   bio: "some fake bio sljfksjfk", // test if the bio has more than 140
   address: "fake address",
   price_by_km: 75.65,

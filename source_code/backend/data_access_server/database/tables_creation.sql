@@ -123,7 +123,6 @@ CREATE TABLE public.driver (
   alternative_phone_number NUMERIC(15),
   is_south_african_citizen BOOLEAN NOT NULL,
   profile_picture_url VARCHAR NOT NULL,
-  id_image_url VARCHAR NOT NULL,
   driver_licence_url VARCHAR NOT NULL,
   proof_of_residence_url VARCHAR NOT NULL,
   bank_account_confirmation_url VARCHAR NOT NULL,
