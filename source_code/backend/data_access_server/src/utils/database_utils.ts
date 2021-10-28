@@ -95,7 +95,7 @@ export const getColumnNamesAndParams = (
   let columnParamValues = [];
   for (const colum of columns) {
     columnNamesAndParams += `${tableName}.${colum.first} = $${i++}`;
-    if (i < columns.length) {
+    if (i <= columns.length) {
       columnNamesAndParams += " AND ";
     }
     columnParamValues.push(colum.second);
@@ -114,12 +114,20 @@ export const getRelationByColumns = async (
   columns: Pair<string, string | number>[],
   parentTable: string,
   childTable: string,
-  parentTablePrimaryKey: string = "id"
+  parentTablePrimaryKey: string = "id",
+  childTableForeignKey?: string,
+  returnOnlyColunmOfTable = ""
 ): Promise<JSObject> => {
   const columnNamesAndParams = getColumnNamesAndParams(columns, childTable);
+  if(!childTableForeignKey){
+    childTableForeignKey = `${parentTable}_${parentTablePrimaryKey}`;
+  }
+  if(returnOnlyColunmOfTable) {
+    returnOnlyColunmOfTable += ".";
+  }
   const queryResult = await execQuery(
-    `SELECT * FROM ${parentTable} 
-    JOIN ${childTable} ON ${parentTable}.${parentTablePrimaryKey} = ${childTable}.${parentTable}_${parentTablePrimaryKey}
+    `SELECT ${returnOnlyColunmOfTable}* FROM ${parentTable} 
+    JOIN ${childTable} ON ${parentTable}.${parentTablePrimaryKey} = ${childTable}.${childTableForeignKey}
     WHERE ${columnNamesAndParams.first}`,
     columnNamesAndParams.second
   );

@@ -80,7 +80,9 @@ export const getEntityWithRelation = async (
   childEntityName: string,
   httpRequest: Request,
   httpResponse: Response,
-  parentTablePrimaryKey = "id"
+  parentTablePrimaryKey = "id",
+  childTableForeignKey?: string,
+  returnOnlyColunmOfTable = ""
 ) => {
   const queryParams = getQueryParams(httpRequest);
   if (!queryParams) {
@@ -95,7 +97,9 @@ export const getEntityWithRelation = async (
         queryParams,
         parentEntityName,
         childEntityName,
-        parentTablePrimaryKey
+        parentTablePrimaryKey,
+        childTableForeignKey,
+        returnOnlyColunmOfTable
       );
     }
   );

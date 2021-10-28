@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import {
+  createEntity,
   createEntityWithRelation,
-  deleteEntity,
   getEntityWithRelation,
   updateEntity,
   updateEntityWithRelation,
@@ -29,19 +29,18 @@ export const getFavoriteDrivers = async (
     "favorite_driver",
     httpRequest,
     httpResponse,
-    "account_id"
+    "account_id",
+    "driver_id",
+    "driver"
   );
 
 export const addFavoriteDriver = async (
   httpRequest: Request,
   httpResponse: Response
-) =>
-  createEntityWithRelation(
-    "driver",
-    "favorite_driver",
-    httpRequest,
-    httpResponse
-  );
+) => {
+  httpRequest.body = httpRequest.query
+  return createEntity("favorite_driver", httpRequest, httpResponse);
+}
 
 export const deleteFavoriteDriver = async (
   httpRequest: Request,

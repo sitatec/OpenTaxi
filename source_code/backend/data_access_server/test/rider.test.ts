@@ -1,6 +1,6 @@
 import Axios from "axios";
-import { RIDER_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
-import { ACCOUNT, RIDER } from "./_fakedata";
+import { RIDER_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "./_constants";
+import { ACCOUNT, DRIVER, RIDER } from "./_fakedata";
 import { execQuery } from "../src/db";
 import { cloneObjec, getSuccessResponse } from "./_utils";
 
@@ -17,7 +17,7 @@ const createRider = async () => {
 
 describe("ENDPOINT: RIDER", () => {
   beforeEach(async () => {
-    await execQuery("DELETE FROM account");// Deleting the account will delete the
+    await execQuery("DELETE FROM account"); // Deleting the account will delete the
     // rider data too, because a CASCADE constraint is specified on the account_id
     // column.
   });
@@ -37,7 +37,7 @@ describe("ENDPOINT: RIDER", () => {
   it("Should individually update a rider.", async () => {
     await createRider(); // Create it first
     const newRider = cloneObjec(RIDER);
-    newRider.driver_gender_preference = 'MALE';
+    newRider.driver_gender_preference = "MALE";
     // End then update it.
     const response = await Axios.put(
       getUrlWithQuery("/" + RIDER.account_id),
@@ -51,19 +51,19 @@ describe("ENDPOINT: RIDER", () => {
     await createRider(); // Create it first
 
     const newRider = cloneObjec(RIDER);
-    newRider.driver_gender_preference = 'MALE';   
+    newRider.driver_gender_preference = "MALE";
 
     const newAccount = cloneObjec(ACCOUNT);
     newAccount.first_name = "Elon";
     newAccount.surname = "Musk";
-    delete newAccount.account_status; // To prevent security check because only 
+    delete newAccount.account_status; // To prevent security check because only
     //admin users are able to change the status of an account.
     // End then update it.
 
-    const response = await Axios.put(
-      getUrlWithQuery("/" + RIDER.account_id),
-      {account: newAccount, rider: newRider}
-    );
+    const response = await Axios.put(getUrlWithQuery("/" + RIDER.account_id), {
+      account: newAccount,
+      rider: newRider,
+    });
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
@@ -73,7 +73,7 @@ describe("ENDPOINT: RIDER", () => {
 
     const response = await Axios.put(getUrlWithQuery("/" + RIDER.account_id), {
       driver_gender_preference: "FEMALE",
-    });// End then update it.
+    }); // End then update it.
 
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
@@ -88,21 +88,93 @@ describe("ENDPOINT: RIDER", () => {
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
+});
 
-  describe("FAVORITE_DRIVER", () => {
+describe("ENDPOINT: RIDER/FAVORITE_DRIVERS", () => {
+  const FAVORITE_DRIVER = cloneObjec(DRIVER) as typeof DRIVER;
 
-    beforeEach(() => {
-      
+  const createDriver = async () => {
+    const account = cloneObjec(ACCOUNT) as typeof ACCOUNT;
+    account.id = ACCOUNT.id + "driver";
+    account.email = "new@email.com";
+    account.phone_number = 888888;
+
+    FAVORITE_DRIVER.account_id = account.id;
+
+    const response = await Axios.post(DRIVER_URL, {
+      account: account,
+      driver: FAVORITE_DRIVER,
     });
-  
-    it("Should successfully add a rider's favorite driver", async () => {
-      
-    });
 
-    it("Should successfully get rider's favorite drivers", async () => {
-      
-    });
+    expect(response.status).toBe(201);
+    expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  };
 
-  })
+  const addFavoriteDriver = async () => {
+    const response = await Axios.post(
+      getUrlWithQuery(
+        `/favorite_drivers?driver_id=${FAVORITE_DRIVER.account_id}&rider_id=${RIDER.account_id}`
+      )
+    );
+    expect(response.status).toBe(201);
+    expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  };
 
+  beforeAll(async () => {
+    await execQuery("DELETE FROM account"); // Deleting the accounts will delete the
+    // rider and the driver data too, because a CASCADE constraint is specified
+    // on the account_id column.
+    await createRider();
+    await createDriver();
+  });
+
+  beforeEach(async () => {
+    await execQuery("DELETE FROM favorite_driver");
+  });
+
+  it("Should successfully add a rider's favorite drivers", addFavoriteDriver);
+
+  it("Should successfully get all rider's favorite drivers", async () => {
+    await addFavoriteDriver(); // Add the favorite driver first.
+
+    const response = await Axios.get(
+      getUrlWithQuery(`/favorite_drivers?rider_id=${RIDER.account_id}`)
+    );
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(getSuccessResponse(FAVORITE_DRIVER));
+  });
+
+  it("Should successfully get one rider's favorite driver", async () => {
+    await addFavoriteDriver(); // Add the favorite driver first.
+
+    const response = await Axios.get(
+      getUrlWithQuery(
+        `/favorite_drivers?driver_id=${FAVORITE_DRIVER.account_id}&rider_id=${RIDER.account_id}`
+      )
+    );
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(getSuccessResponse(FAVORITE_DRIVER));
+  });
+
+  it("Should successfully delete all rider's favorite drivers", async () => {
+    await addFavoriteDriver(); // Add the favorite driver first.
+
+    const response = await Axios.delete(
+      getUrlWithQuery(`/favorite_drivers?rider_id=${RIDER.account_id}`)
+    );
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  });
+
+  it("Should successfully delete one rider's favorite driver", async () => {
+    await addFavoriteDriver(); // Add the favorite driver first.
+
+    const response = await Axios.delete(
+      getUrlWithQuery(
+        `/favorite_drivers?driver_id=${FAVORITE_DRIVER.account_id}&rider_id=${RIDER.account_id}`
+      )
+    );
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  });
 });
