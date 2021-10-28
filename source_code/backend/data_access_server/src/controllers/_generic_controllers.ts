@@ -112,6 +112,7 @@ export async function updateEntity(
   if (ENTITIES_WITH_STRING_ID.includes(entityName)) {
     entityId = `'${entityId}'`;
   }
+  delete httpRequest.body[entityPrimaryKeyName] // IDs must not be modified.
   const query = buildUpdateQueryFromJSON(
     entityName,
     httpRequest.body,
@@ -141,17 +142,13 @@ export const updateEntityWithRelation = async (
   if (ENTITIES_WITH_STRING_ID.includes(parentEntityName)) {
     entityId = `'${entityId}'`;
   }
-
   delete data[parentEntityName]["id"]; // IDs must not be modified.
-
   const updateParentEntityQuery = buildUpdateQueryFromJSON(
     parentEntityName,
     data[parentEntityName],
     entityId
   );
-
   delete data[childEntityName][entityPrimaryKeyName]; // IDs must not be modified.
-
   const updateChildEntityQuery = buildUpdateQueryFromJSON(
     childEntityName,
     data[childEntityName],
@@ -187,7 +184,7 @@ export const deleteEntity = async (
     [new Pair("id", entityId)],
     httpResponse,
     async (): Promise<any> => {
-      return (await execQuery("DELETE FROM account WHERE id = $1", [entityId]))
+      return (await execQuery(`DELETE FROM ${entityName} WHERE id = $1`, [entityId]))
         .rowCount;
     }
   );

@@ -16,7 +16,7 @@ export const convertToDatabaseError = (error: PGDatabaseError) => {
     case "42703":
       return new DatabaseError(
         error.name,
-        `Error: the field ${error.column} does not exist for the ${error.table} entity.`,
+        error.message,// `Error: the field ${error.column} does not exist for the ${error.table} entity.`,
         error.code
       );
     case "23502":
