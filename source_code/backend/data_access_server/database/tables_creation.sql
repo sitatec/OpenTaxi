@@ -65,6 +65,7 @@ CREATE TABLE public.trip (
   started_at TIMESTAMP,
   finished_at TIMESTAMP,
   security_video_url VARCHAR,
+  booking_id INTEGER NOT NULL,
   status TRIP_STATUS NOT NULL,
   CONSTRAINT trip_pk PRIMARY KEY (id)
 );
@@ -194,15 +195,14 @@ CREATE TABLE public.booking (
   booked_at TIMESTAMP NOT NULL,
   departure_address VARCHAR NOT NULL,
   destination_address VARCHAR NOT NULL,
-  trip_id INTEGER NOT NULL,
   CONSTRAINT booking_pk PRIMARY KEY (id)
 );
 
 
-ALTER TABLE public.booking ADD CONSTRAINT trip_booking_fk
-FOREIGN KEY (trip_id)
-REFERENCES public.trip (id)
-ON DELETE NO ACTION
+ALTER TABLE public.trip ADD CONSTRAINT booking_trip_fk
+FOREIGN KEY (booking_id)
+REFERENCES public.booking (id)
+ON DELETE CASCADE
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 

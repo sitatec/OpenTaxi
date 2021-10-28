@@ -43,3 +43,37 @@ export const DRIVER = {
   gender: "MALE",
   id_url: "slfjlksjflks"
 };
+
+const PAYMENT_ID = 43;
+
+export const PAYMENT = {
+  payment_gateway_transaction_id: "354634643",
+  amount: 45364,
+  date_time: "2004-10-19T10:23:54.000Z",
+  status: "SUCCESS",
+  payment_type: "CARD",
+  id: PAYMENT_ID,
+  recipient_id: null,
+  payer_id: ACCOUNT_ID
+};
+
+const BOOKING_ID = 366;
+
+export const BOOKING = {
+  departure_address: "sdf",
+  destination_address: "lsdjfs",
+  payment_id: PAYMENT_ID,
+  booked_at: "2004-10-19 10:23:54",
+  id: BOOKING_ID,
+  rider_id: RIDER.account_id,
+  driver_id: DRIVER.account_id + "driver",
+};
+
+export const TRIP = {
+  id: 1,
+  status: "IN_PROGRESS",
+  booking_id: BOOKING_ID,
+  security_video_url: "url",
+  started_at: "2004-10-19 10:23:54",
+  finished_at: "2004-10-19 10:23:54"
+}

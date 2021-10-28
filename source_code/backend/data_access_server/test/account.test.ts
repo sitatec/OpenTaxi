@@ -2,12 +2,12 @@ import Axios from "axios";
 import { ACCOUNT_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
 import { ACCOUNT } from "./_fakedata";
 import { execQuery } from "../src/db";
-import { cloneObjec, getSuccessResponse } from "./_utils";
+import { cloneObjec, createTheDefaultAccount, getSuccessResponse } from "./_utils";
 
 const getUrlWithQuery = (queryParams: string) => ACCOUNT_URL + queryParams;
 
 const createAccount = async () => {
-  const response = await Axios.post(ACCOUNT_URL, ACCOUNT);
+  const response = await createTheDefaultAccount();
   expect(response.status).toBe(201);
   expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
 };
