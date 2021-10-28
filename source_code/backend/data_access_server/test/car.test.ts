@@ -1,6 +1,6 @@
 import Axios from "axios";
-import { CAR_URL, DEFAULT_SUCCESS_RESPONSE, ACCOUNT_URL, DRIVER_URL } from "./_constants";
-import { ACCOUNT, ACCOUNT_1, CAR, DRIVER } from "./_fakedata";
+import { CAR_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "./_constants";
+import { ACCOUNT_1, CAR, DRIVER } from "./_fakedata";
 import { execQuery } from "../src/db";
 import { cloneObjec, deleteAllAccounts, getSuccessResponse } from "./_utils";
 

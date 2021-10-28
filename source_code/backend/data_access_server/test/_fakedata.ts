@@ -102,3 +102,11 @@ export const CAR = {
   color: 'RED',
   brand: 'TESLA'
 }
+
+export const REVIEW = {
+  recipient_id: DRIVER.account_id,
+  id: 1,
+  rating: 3,
+  comment: "slfjslkf",
+  author_id: RIDER.account_id
+}

@@ -16,4 +16,6 @@ export const PAYMENT_URL = `${BASE_URL}/payment`;
 
 export const CAR_URL = `${BASE_URL}/car`;
 
+export const REVIEW_URL = `${BASE_URL}/review`;
+
 export const DEFAULT_SUCCESS_RESPONSE = getSuccessResponse(1);
