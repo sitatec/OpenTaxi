@@ -2,7 +2,7 @@ import Axios from "axios";
 import { CAR_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "./_constants";
 import { ACCOUNT_1, CAR, DRIVER } from "./_fakedata";
 import { execQuery } from "../src/db";
-import { cloneObjec, deleteAllAccounts, getSuccessResponse } from "./_utils";
+import { cloneObjec, createDriver, deleteAllAccounts, getSuccessResponse } from "./_utils";
 
 const getUrlWithQuery = (queryParams: string) => CAR_URL + queryParams;
 
@@ -17,7 +17,7 @@ describe("ENDPOINT: CAR", () => {
   beforeAll(async () => {
     await execQuery("DELETE FROM car");
     await deleteAllAccounts();
-    await Axios.post(DRIVER_URL, {driver: DRIVER, account: ACCOUNT_1});
+    await createDriver();
   });
 
   afterAll(async () => {

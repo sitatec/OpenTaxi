@@ -23,7 +23,7 @@ export const ACCOUNT_1 = {
   account_status: "LIVE",
   role: "DRIVER",
   balance: 0.0
-}
+};
 
 export const RIDER = {
   account_id: ACCOUNT.id,
@@ -89,7 +89,7 @@ export const TRIP = {
   security_video_url: "url",
   started_at: "2004-10-19T10:23:54.000Z",
   finished_at: "2004-10-19T10:23:54.000Z"
-}
+};
 
 export const CAR = {
   id:1,
@@ -101,7 +101,7 @@ export const CAR = {
   registration_number: "XS-456",
   color: 'RED',
   brand: 'TESLA'
-}
+};
 
 export const REVIEW = {
   recipient_id: DRIVER.account_id,
@@ -109,4 +109,13 @@ export const REVIEW = {
   rating: 3,
   comment: "slfjslkf",
   author_id: RIDER.account_id
-}
+};
+
+export const SUBSCRIPTION = {
+  end_at: "2004-10-19T10:23:54.000Z",
+  id: 1,
+  payment_gateway_transaction_id: "3526424342354",
+  started_at: "2004-10-19T10:23:54.000Z",
+  driver_id: DRIVER.account_id,
+  price: 34.45
+};

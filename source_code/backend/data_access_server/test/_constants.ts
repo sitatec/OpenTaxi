@@ -18,4 +18,6 @@ export const CAR_URL = `${BASE_URL}/car`;
 
 export const REVIEW_URL = `${BASE_URL}/review`;
 
+export const SUBSCRIPTION_URL = `${BASE_URL}/subscription`;
+
 export const DEFAULT_SUCCESS_RESPONSE = getSuccessResponse(1);
