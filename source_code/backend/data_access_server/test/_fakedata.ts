@@ -90,3 +90,15 @@ export const TRIP = {
   started_at: "2004-10-19T10:23:54.000Z",
   finished_at: "2004-10-19T10:23:54.000Z"
 }
+
+export const CAR = {
+  id:1,
+  number_of_seats: 4,
+  type: 'STANDARD',
+  model: "S",
+  driver_id: DRIVER.account_id,
+  additional_info: "slfsf",
+  registration_number: "XS-456",
+  color: 'RED',
+  brand: 'TESLA'
+}

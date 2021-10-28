@@ -1,5 +1,10 @@
 import { Router } from "express";
-import { createCar, deleteCar, getCar, updateCar } from "../controllers/car_controller";
+import {
+  createCar,
+  deleteCar,
+  getCar,
+  updateCar,
+} from "../controllers/car_controller";
 
 const router = Router();
 

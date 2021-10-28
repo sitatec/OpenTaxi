@@ -14,4 +14,6 @@ export const BOOKING_URL = `${BASE_URL}/booking`;
 
 export const PAYMENT_URL = `${BASE_URL}/payment`;
 
+export const CAR_URL = `${BASE_URL}/car`;
+
 export const DEFAULT_SUCCESS_RESPONSE = getSuccessResponse(1);

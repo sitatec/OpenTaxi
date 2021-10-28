@@ -160,7 +160,7 @@ CREATE TABLE public.car (
   brand VARCHAR NOT NULL,
   model VARCHAR NOT NULL,
   number_of_seats SMALLINT NOT NULL,
-  additional_info VARCHAR,
+  additional_info VARCHAR(150),
   registration_number VARCHAR(15) NOT NULL,
   color VARCHAR NOT NULL,
   driver_id VARCHAR NOT NULL,

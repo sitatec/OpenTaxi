@@ -13,9 +13,7 @@ export const getSuccessResponse = (responseData: any) => ({
 });
 
 
-export const deleteAllAccounts = async () => {
-  await execQuery("DELETE FROM account");
-};
+export const deleteAllAccounts = async () => execQuery("DELETE FROM account");
 
 export const createTheDefaultAccount =  () => Axios.post(ACCOUNT_URL, ACCOUNT);
 
