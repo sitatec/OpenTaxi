@@ -20,7 +20,7 @@ export const deleteAllAccounts = async () => {
 export const createTheDefaultAccount =  () => Axios.post(ACCOUNT_URL, ACCOUNT);
 
 
-export const createBooking = async () => {
+export const createBookingWithParentTables = async () => {
   await Axios.post(RIDER_URL, {
     account: ACCOUNT,
     rider: RIDER,
