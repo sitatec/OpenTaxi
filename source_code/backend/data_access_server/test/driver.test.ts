@@ -1,6 +1,6 @@
 import Axios from "axios";
 import { DRIVER_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
-import { ACCOUNT, DRIVER } from "./_fakedata";
+import { ACCOUNT, ACCOUNT_1, DRIVER } from "./_fakedata";
 import { execQuery } from "../src/db";
 import { cloneObjec, getSuccessResponse } from "./_utils";
 
@@ -8,7 +8,7 @@ const getUrlWithQuery = (queryParams: string) => DRIVER_URL + queryParams;
 
 const createDriver = async () => {
   const response = await Axios.post(DRIVER_URL, {
-    account: ACCOUNT,
+    account: ACCOUNT_1,
     driver: DRIVER
   });
   expect(response.status).toBe(201);

@@ -12,8 +12,21 @@ export const ACCOUNT = {
   balance: 0.0
 };
 
+export const ACCOUNT_1 = {
+  id: ACCOUNT_ID + "1",
+  first_name: "Elon",
+  surname: "Musk",
+  nickname: "elon musk",
+  email: "elon@tesla.com",
+  phone_number: 9999999999,
+  notification_token: "2sjf_sEjflsji4-436lsj_",
+  account_status: "LIVE",
+  role: "DRIVER",
+  balance: 0.0
+}
+
 export const RIDER = {
-  account_id: ACCOUNT_ID,
+  account_id: ACCOUNT.id,
   driver_gender_preference: "FEMALE",
   recent_places: [
     "Labé",
@@ -26,7 +39,7 @@ export const RIDER = {
 };
 
 export const DRIVER = {
-  account_id: ACCOUNT_ID,
+  account_id: ACCOUNT_1.id,
   bio: "some fake bio sljfksjfk", // test if the bio has more than 140
   address: "fake address",
   price_by_km: 75.65,
@@ -63,10 +76,10 @@ export const BOOKING = {
   departure_address: "sdf",
   destination_address: "lsdjfs",
   payment_id: PAYMENT_ID,
-  booked_at: "2004-10-19 10:23:54",
+  booked_at: "2004-10-19T10:23:54.000Z",
   id: BOOKING_ID,
   rider_id: RIDER.account_id,
-  driver_id: DRIVER.account_id + "driver",
+  driver_id: DRIVER.account_id
 };
 
 export const TRIP = {
@@ -74,6 +87,6 @@ export const TRIP = {
   status: "IN_PROGRESS",
   booking_id: BOOKING_ID,
   security_video_url: "url",
-  started_at: "2004-10-19 10:23:54",
-  finished_at: "2004-10-19 10:23:54"
+  started_at: "2004-10-19T10:23:54.000Z",
+  finished_at: "2004-10-19T10:23:54.000Z"
 }
