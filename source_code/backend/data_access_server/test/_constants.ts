@@ -1,7 +1,11 @@
 import { getSuccessResponse } from "./_utils";
 
 export const BASE_URL = "http://localhost:8080";
+
 export const ACCOUNT_URL = `${BASE_URL}/account`;
+
 export const RIDER_URL = `${BASE_URL}/rider`;
+
+export const DRIVER_URL = `${BASE_URL}/driver`;
 
 export const DEFAULT_SUCCESS_RESPONSE = getSuccessResponse(1);

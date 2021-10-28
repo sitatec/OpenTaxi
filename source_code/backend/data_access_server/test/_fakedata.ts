@@ -24,3 +24,23 @@ export const RIDER = {
     "Québec"
   ] 
 };
+
+export const DRIVER = {
+  account_id: ACCOUNT_ID,
+  id_image_url: "id_image.url",
+  bio: "some fake bio sljfksjfk", // test if the bio has more than 140
+  address: "fake address",
+  price_by_km: 75.65,
+  additional_certification_urls: ["slfjskfsfs", "lsjfldjksfs"],
+  driver_licence_url: "lskfjsfs",
+  proof_of_residence_url: "lsjfdkfjs",
+  profile_picture_url: "sljfksf",
+  alternative_phone_number: 2453675674543,
+  bank_account_confirmation_url: "skldjflksjfk",
+  is_south_african_citizen: true,
+  is_online: false,
+  other_platform_rating_url: "lsjfds",
+  price_by_minunte: 29.34,
+  gender: "MALE",
+  id_url: "slfjlksjflks"
+};
