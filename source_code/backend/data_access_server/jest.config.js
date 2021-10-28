@@ -8,6 +8,9 @@ module.exports = {
 
   globalSetup: "./test/__setup.ts",
   globalTeardown: "./test/__teardown.ts",
+  coverageDirectory: "test/coverage",
+  collectCoverageFrom: ["src/**/*.ts"],
+  coverageProvider: "v8"
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "test": "jest -i",
+    "test_coverage": "jest -i --coverage",
     "jest_clear": "jest --clearCache"
   },
   "author": "Sita Bérété, Freelance Full-Stack Engineer",
