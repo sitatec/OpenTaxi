@@ -12,7 +12,7 @@ class Account {
     nickname: String
     email: String
     phoneNumber: Long
-    bookingIds: List<Int>
+    notification_token: String
     registeredAt: Date
     balance: Double
     role: UserRole
