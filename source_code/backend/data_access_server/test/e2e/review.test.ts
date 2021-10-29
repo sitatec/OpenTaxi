@@ -1,14 +1,13 @@
 import Axios from "axios";
-import { REVIEW_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
-import { REVIEW } from "./_fakedata";
-import { execQuery } from "./_utils";
+import { REVIEW_URL, DEFAULT_SUCCESS_RESPONSE } from "../constants";
+import { REVIEW } from "../fakedata";
+import { execQuery } from "../utils";
 import {
   cloneObjec,
-  createDriver,
   createUsers,
   deleteAllAccounts,
   getSuccessResponse,
-} from "./_utils";
+} from "../utils";
 
 const getUrlWithQuery = (queryParams: string) => REVIEW_URL + queryParams;
 

@@ -109,7 +109,7 @@ export const getColumnNamesAndParams = (
 
 /**
  * Return the data of the relation formed by the given`parentTable` and `childTable`
- *  arguments where the given `columnName` =`columnValue` in the `parentTable`.
+ *  arguments where the given `columnName` = `columnValue` in the `childTable`.
  */
 export const getRelationByColumns = async (
   columns: Pair<string, string | number>[],

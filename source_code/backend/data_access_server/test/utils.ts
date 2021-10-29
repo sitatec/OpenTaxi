@@ -6,7 +6,7 @@ import {
   DRIVER_URL,
   PAYMENT_URL,
   RIDER_URL,
-} from "./_constants";
+} from "./constants";
 import {
   ACCOUNT,
   ACCOUNT_1,
@@ -14,7 +14,7 @@ import {
   DRIVER,
   PAYMENT,
   RIDER,
-} from "./_fakedata";
+} from "./fakedata";
 import { Database } from "../src/db";
 
 export const cloneObjec = (object: JSObject) =>

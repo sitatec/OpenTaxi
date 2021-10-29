@@ -1,8 +1,8 @@
 import Axios from "axios";
-import { DRIVER_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
-import { ACCOUNT, ACCOUNT_1, DRIVER } from "./_fakedata";
-import { execQuery } from "./_utils";
-import { cloneObjec, getSuccessResponse } from "./_utils";
+import { DRIVER_URL, DEFAULT_SUCCESS_RESPONSE } from "../constants";
+import { ACCOUNT_1, DRIVER } from "../fakedata";
+import { execQuery } from "../utils";
+import { cloneObjec, getSuccessResponse } from "../utils";
 
 const getUrlWithQuery = (queryParams: string) => DRIVER_URL + queryParams;
 

@@ -1,8 +1,8 @@
 import Axios from "axios";
-import { PAYMENT_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
-import { PAYMENT } from "./_fakedata";
-import { execQuery } from "./_utils";
-import { cloneObjec, createTheDefaultAccount, deleteAllAccounts, getSuccessResponse } from "./_utils";
+import { PAYMENT_URL, DEFAULT_SUCCESS_RESPONSE } from "../constants";
+import { PAYMENT } from "../fakedata";
+import { execQuery } from "../utils";
+import { cloneObjec, createTheDefaultAccount, deleteAllAccounts, getSuccessResponse } from "../utils";
 
 const getUrlWithQuery = (queryParams: string) => PAYMENT_URL + queryParams;
 

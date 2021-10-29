@@ -1,4 +1,4 @@
-import { getSuccessResponse } from "./_utils";
+import { getSuccessResponse } from "./utils";
 
 export const BASE_URL = "http://localhost:8080";
 

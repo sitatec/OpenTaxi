@@ -1,9 +1,8 @@
 import Axios from "axios";
-import { Database } from "../src/db";
-import { SUBSCRIPTION_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "./_constants";
-import { SUBSCRIPTION } from "./_fakedata";
-import { execQuery } from "./_utils";
-import { cloneObjec, createDriver, deleteAllAccounts, getSuccessResponse } from "./_utils";
+import { SUBSCRIPTION_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "../constants";
+import { SUBSCRIPTION } from "../fakedata";
+import { execQuery } from "../utils";
+import { cloneObjec, createDriver, deleteAllAccounts, getSuccessResponse } from "../utils";
 
 const getUrlWithQuery = (queryParams: string) => SUBSCRIPTION_URL + queryParams;
 

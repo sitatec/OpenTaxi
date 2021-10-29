@@ -1,13 +1,13 @@
 import Axios from "axios";
-import { BOOKING_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
-import { BOOKING } from "./_fakedata";
+import { BOOKING_URL, DEFAULT_SUCCESS_RESPONSE } from "../constants";
+import { BOOKING } from "../fakedata";
 import {
   cloneObjec,
   createBookingWithParentTables,
   deleteAllAccounts,
   execQuery,
   getSuccessResponse,
-} from "./_utils";
+} from "../utils";
 
 const getUrlWithQuery = (queryParams: string) => BOOKING_URL + queryParams;
 
