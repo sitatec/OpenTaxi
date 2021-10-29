@@ -5,6 +5,5 @@ declare module global {
 }
 
 export default async function () {
-  // await stopDb();
   global.__SERVER__.stop();
 }
