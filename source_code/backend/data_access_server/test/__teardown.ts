@@ -1,5 +1,4 @@
-import { Server } from "http";
-// import { stopDb } from "../src/db";
+import Server from "../src/server";
 
 declare module global {
   let __SERVER__: Server
@@ -7,5 +6,5 @@ declare module global {
 
 export default async function () {
   // await stopDb();
-  global.__SERVER__.close();
+  global.__SERVER__.stop();
 }
