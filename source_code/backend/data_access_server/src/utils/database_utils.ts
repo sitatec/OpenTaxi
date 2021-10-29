@@ -3,6 +3,7 @@ import { Database } from "../db";
 import { DatabaseError } from "../db/error";
 import { JSObject, Pair } from "../types";
 import { Query } from "../types/db";
+import { handleUnknownError } from "./controller_utils";
 
 type DbQueryColumnsAndParams = {
   names: string;
@@ -70,7 +71,7 @@ export const handleDbQueryError = (error: unknown, httpResponse: Response) => {
       .status(statusCode)
       .send({ message: error.message, code: error.code, status: "failure" });
   } else {
-    throw error;
+    handleUnknownError(error, httpResponse);
   }
 };
 

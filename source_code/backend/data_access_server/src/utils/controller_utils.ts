@@ -23,3 +23,6 @@ export const wrappeResponseHandling = async (
     handleDbQueryError(error, httpResponse);
   }
 };
+
+export const handleUnknownError = (error: any, res: Response) =>
+  res.status(500).send("Server Error.");
