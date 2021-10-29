@@ -1,19 +1,16 @@
 import { Router } from "express";
-import {
-  createAccount,
-  deleteAccount,
-  getAccount,
-  updateAccount,
-} from "../controllers/account_controller";
+import AccountController from "../controllers/account_controller";
 
 const router = Router();
 
-router.post("/", createAccount); // TODO add httpRequest data validation step.
+const accountController = new AccountController();
 
-router.get("/", getAccount);
+router.post("/", accountController.createAccount); // TODO add httpRequest data validation step.
 
-router.put("/:id", updateAccount); // TODO add httpRequest data validation step.
+router.get("/", accountController.getAccount);
 
-router.delete("/:id", deleteAccount);
+router.put("/:id", accountController.updateAccount); // TODO add httpRequest data validation step.
+
+router.delete("/:id", accountController.deleteAccount);
 
 export default router;

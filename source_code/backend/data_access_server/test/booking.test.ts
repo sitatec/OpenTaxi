@@ -1,10 +1,11 @@
 import Axios from "axios";
 import { BOOKING_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
 import { BOOKING } from "./_fakedata";
-import { execQuery } from "../src/db";
 import {
   cloneObjec,
   createBookingWithParentTables,
+  deleteAllAccounts,
+  execQuery,
   getSuccessResponse,
 } from "./_utils";
 
@@ -19,14 +20,14 @@ const createBooking = async () => {
 describe("ENDPOINT: BOOKING", () => {
   beforeAll(async () => {
     await execQuery("DELETE FROM payment");
-    await execQuery("DELETE FROM account");
+    await deleteAllAccounts();
     await createBookingWithParentTables();
   });
 
   afterAll(async () => {
     await execQuery("DELETE FROM booking");
-    await execQuery("DELETE FROM payment");
-    await execQuery("DELETE FROM account");
+    await execQuery("DELETE FROM payment");    
+    await deleteAllAccounts();
   });
 
   beforeEach(async () => {

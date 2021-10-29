@@ -1,5 +1,5 @@
 import { Response } from "express";
-import { execQuery } from "../db";
+import { Database } from "../db";
 import { DatabaseError } from "../db/error";
 import { JSObject, Pair } from "../types";
 import { Query } from "../types/db";
@@ -76,10 +76,11 @@ export const handleDbQueryError = (error: unknown, httpResponse: Response) => {
 
 export const getRowByColumns = async (
   columns: Pair<string, string>[],
-  table: string
+  table: string,
+  db = Database.initialize()
 ): Promise<JSObject> => {
   const columnNamesAndParams = getColumnNamesAndParams(columns, table);
-  const result = await execQuery(
+  const result = await db.execQuery(
     `SELECT * FROM ${table} WHERE ${columnNamesAndParams.first}`,
     columnNamesAndParams.second
   );
@@ -116,7 +117,8 @@ export const getRelationByColumns = async (
   childTable: string,
   parentTablePrimaryKey: string = "id",
   childTableForeignKey?: string,
-  returnOnlyColunmOfTable = ""
+  returnOnlyColunmOfTable = "",
+  db = Database.initialize()
 ): Promise<JSObject> => {
   const columnNamesAndParams = getColumnNamesAndParams(columns, childTable);
   if(!childTableForeignKey){
@@ -125,7 +127,7 @@ export const getRelationByColumns = async (
   if(returnOnlyColunmOfTable) {
     returnOnlyColunmOfTable += ".";
   }
-  const queryResult = await execQuery(
+  const queryResult = await db.execQuery(
     `SELECT ${returnOnlyColunmOfTable}* FROM ${parentTable} 
     JOIN ${childTable} ON ${parentTable}.${parentTablePrimaryKey} = ${childTable}.${childTableForeignKey}
     WHERE ${columnNamesAndParams.first}`,

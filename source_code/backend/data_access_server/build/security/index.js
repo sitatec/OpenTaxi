@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.preventUnauthorizedAccountUpdate = exports.isAdminUser = void 0;
 const db_1 = require("../db");
 // export { validateToken } from "./token_validator";
-const isAdminUser = async (userId) => {
-    const result = await (0, db_1.execQuery)("SELECT user.role FROM user WHERE user.id = $1", [userId]);
+const isAdminUser = async (userId, db = db_1.Database.instance) => {
+    const result = await db.execQuery("SELECT role FROM user WHERE id = $1", [userId]);
     return result.rows[0].role == "ADMIN";
 };
 exports.isAdminUser = isAdminUser;

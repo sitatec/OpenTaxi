@@ -96,7 +96,7 @@ CREATE UNIQUE INDEX account_idx
 
 CREATE TABLE public.payment (
   id INTEGER NOT NULL,
-  amount NUMERIC(11,2) NOT NULL,
+  amount DECIMAL(11,2) NOT NULL,
   date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   recipient_id VARCHAR,
   payer_id VARCHAR NOT NULL,

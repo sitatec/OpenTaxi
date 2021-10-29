@@ -1,12 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteReview = exports.updateReview = exports.getReview = exports.createReview = void 0;
-const _generic_controllers_1 = require("./_generic_controllers");
-const createReview = async (httpRequest, httpResponse) => (0, _generic_controllers_1.createEntity)("review", httpRequest, httpResponse);
-exports.createReview = createReview;
-const getReview = (httpRequest, httpResponse) => (0, _generic_controllers_1.getEntity)("review", httpRequest, httpResponse);
-exports.getReview = getReview;
-const updateReview = async (httpRequest, httpResponse) => (0, _generic_controllers_1.updateEntity)("review", httpRequest, httpResponse);
-exports.updateReview = updateReview;
-const deleteReview = async (httpRequest, httpResponse) => (0, _generic_controllers_1.deleteEntity)("review", httpRequest, httpResponse);
-exports.deleteReview = deleteReview;
+const controller_1 = __importDefault(require("./controller"));
+class ReviewController extends controller_1.default {
+    constructor() {
+        super(...arguments);
+        this.createReview = async (httpRequest, httpResponse) => this.entityManager.createEntity("review", httpRequest, httpResponse);
+        this.getReview = (httpRequest, httpResponse) => this.entityManager.getEntity("review", httpRequest, httpResponse);
+        this.updateReview = async (httpRequest, httpResponse) => this.entityManager.updateEntity("review", httpRequest, httpResponse);
+        this.deleteReview = async (httpRequest, httpResponse) => this.entityManager.deleteEntity("review", httpRequest, httpResponse);
+    }
+}
+exports.default = ReviewController;

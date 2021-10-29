@@ -1,25 +1,16 @@
 import { Request, Response } from "express";
-import {
-  createEntity,
-  deleteEntity,
-  getEntity,
-  updateEntity,
-} from "./_generic_controllers";
+import Controller from "./controller";
 
-export const createTrip = async (
-  httpRequest: Request,
-  httpResponse: Response
-) => createEntity("trip", httpRequest, httpResponse);
+export default class TripController extends Controller {
+  createTrip = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.createEntity("trip", httpRequest, httpResponse);
 
-export const getTrip = (httpRequest: Request, httpResponse: Response) =>
-  getEntity("trip", httpRequest, httpResponse);
+  getTrip = (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.getEntity("trip", httpRequest, httpResponse);
 
-export const updateTrip = async (
-  httpRequest: Request,
-  httpResponse: Response
-) => updateEntity("trip", httpRequest, httpResponse);
+  updateTrip = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.updateEntity("trip", httpRequest, httpResponse);
 
-export const deleteTrip = async (
-  httpRequest: Request,
-  httpResponse: Response
-) => deleteEntity("trip", httpRequest, httpResponse);
+  deleteTrip = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.deleteEntity("trip", httpRequest, httpResponse);
+}

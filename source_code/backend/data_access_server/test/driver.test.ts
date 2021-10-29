@@ -1,7 +1,7 @@
 import Axios from "axios";
 import { DRIVER_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
 import { ACCOUNT, ACCOUNT_1, DRIVER } from "./_fakedata";
-import { execQuery } from "../src/db";
+import { execQuery } from "./_utils";
 import { cloneObjec, getSuccessResponse } from "./_utils";
 
 const getUrlWithQuery = (queryParams: string) => DRIVER_URL + queryParams;
@@ -36,7 +36,7 @@ describe("ENDPOINT: DRIVER", () => {
     await createDriver(); // Create it first
     const newDriver = cloneObjec(DRIVER);
     newDriver.id_url = "lkjfls";
-    newDriver.alternative_phone_number = 3646375432;
+    newDriver.alternative_phone_number = "3646375432";
 
     // End then update it.
     const response = await Axios.put(
@@ -53,7 +53,7 @@ describe("ENDPOINT: DRIVER", () => {
     const newDriver = cloneObjec(DRIVER);
     newDriver.id_url = 'url';   
 
-    const newAccount = cloneObjec(ACCOUNT);
+    const newAccount = cloneObjec(ACCOUNT_1);
     newAccount.first_name = "Elon";
     newAccount.surname = "Musk";
     delete newAccount.account_status; // To prevent security check because only 

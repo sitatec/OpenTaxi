@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Response } from "express";
 import { handleDbQueryError } from "./database_utils";
 import { JSObject, Pair } from "../types";
 import { sendSuccessResponse } from "./http_utils";

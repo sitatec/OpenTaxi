@@ -1,7 +1,7 @@
 import Axios from "axios";
 import { REVIEW_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
 import { REVIEW } from "./_fakedata";
-import { execQuery } from "../src/db";
+import { execQuery } from "./_utils";
 import {
   cloneObjec,
   createDriver,

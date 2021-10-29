@@ -1,12 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteTrip = exports.updateTrip = exports.getTrip = exports.createTrip = void 0;
-const _generic_controllers_1 = require("./_generic_controllers");
-const createTrip = async (httpRequest, httpResponse) => (0, _generic_controllers_1.createEntity)("trip", httpRequest, httpResponse);
-exports.createTrip = createTrip;
-const getTrip = (httpRequest, httpResponse) => (0, _generic_controllers_1.getEntity)("trip", httpRequest, httpResponse);
-exports.getTrip = getTrip;
-const updateTrip = async (httpRequest, httpResponse) => (0, _generic_controllers_1.updateEntity)("trip", httpRequest, httpResponse);
-exports.updateTrip = updateTrip;
-const deleteTrip = async (httpRequest, httpResponse) => (0, _generic_controllers_1.deleteEntity)("trip", httpRequest, httpResponse);
-exports.deleteTrip = deleteTrip;
+const controller_1 = __importDefault(require("./controller"));
+class TripController extends controller_1.default {
+    constructor() {
+        super(...arguments);
+        this.createTrip = async (httpRequest, httpResponse) => this.entityManager.createEntity("trip", httpRequest, httpResponse);
+        this.getTrip = (httpRequest, httpResponse) => this.entityManager.getEntity("trip", httpRequest, httpResponse);
+        this.updateTrip = async (httpRequest, httpResponse) => this.entityManager.updateEntity("trip", httpRequest, httpResponse);
+        this.deleteTrip = async (httpRequest, httpResponse) => this.entityManager.deleteEntity("trip", httpRequest, httpResponse);
+    }
+}
+exports.default = TripController;

@@ -1,10 +1,10 @@
-import { execQuery } from "../db";
+import { Database } from "../db";
 import { JSObject } from "../types";
 
 // export { validateToken } from "./token_validator";
 
-export const isAdminUser = async (userId: string): Promise<boolean> => {
-  const result = await execQuery(
+export const isAdminUser = async (userId: string, db = Database.instance): Promise<boolean> => {
+  const result = await db.execQuery(
     "SELECT role FROM user WHERE id = $1",
     [userId]
   );

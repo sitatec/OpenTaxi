@@ -1,14 +1,16 @@
 import { Router } from "express";
-import { createSubscription, deleteSubscription, getSubscription, updateSubscription } from "../controllers/subscription_controller";
+import SubscriptionController from "../controllers/subscription_controller";
+
+const subscriptionController = new SubscriptionController();
 
 const router = Router();
 
-router.post("/", createSubscription); // TODO add httpRequest data validation step.
+router.post("/", subscriptionController.createSubscription); // TODO add httpRequest data validation step.
 
-router.get("/", getSubscription);
+router.get("/", subscriptionController.getSubscription);
 
-router.put("/:id", updateSubscription); // TODO add httpRequest data validation step.
+router.put("/:id", subscriptionController.updateSubscription); // TODO add httpRequest data validation step.
 
-router.delete("/:id", deleteSubscription);
+router.delete("/:id", subscriptionController.deleteSubscription);
 
 export default router;

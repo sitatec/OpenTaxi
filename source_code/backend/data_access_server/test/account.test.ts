@@ -1,8 +1,7 @@
 import Axios from "axios";
 import { ACCOUNT_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
 import { ACCOUNT } from "./_fakedata";
-import { execQuery } from "../src/db";
-import { cloneObjec, createTheDefaultAccount, getSuccessResponse } from "./_utils";
+import { cloneObjec, createTheDefaultAccount, deleteAllAccounts, getSuccessResponse } from "./_utils";
 
 const getUrlWithQuery = (queryParams: string) => ACCOUNT_URL + queryParams;
 
@@ -14,7 +13,7 @@ const createAccount = async () => {
 
 describe("ENDPOINT: ACCOUNT", () => {
   beforeEach(async () => {
-    await execQuery("DELETE FROM account");
+    await deleteAllAccounts();
   });
 
   it("Should successfully create an account.", createAccount);

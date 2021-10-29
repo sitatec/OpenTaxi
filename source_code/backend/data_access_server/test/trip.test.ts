@@ -1,7 +1,7 @@
 import Axios from "axios";
 import { TRIP_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
 import { TRIP } from "./_fakedata";
-import { execQueriesInTransaction, execQuery } from "../src/db";
+import { execQuery } from "./_utils";
 import { cloneObjec, createBookingWithParentTables, getSuccessResponse } from "./_utils";
 
 const getUrlWithQuery = (queryParams: string) => TRIP_URL + queryParams;

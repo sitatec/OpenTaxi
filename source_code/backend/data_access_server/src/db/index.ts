@@ -15,8 +15,9 @@ interface NewPooConfig extends PoolConfig {
 }
 
 export class Database {
-  private static _instance: Database;
+  private static initialized = false;
 
+  private static _instance: Database;
   static get instance(): Database {
     return this._instance;
   }
@@ -26,7 +27,7 @@ export class Database {
   }
 
   private constructor(private client: Pool) {
-    
+
   }
 
   static initialize(
@@ -38,7 +39,7 @@ export class Database {
       port: 5432,
     })
   ) {
-    if (!this.instance) {
+    if (!this.initialized) {
       if (process.env.NODE_ENV === "test") {
         client = new Pool({
           user: "postgres",
@@ -58,8 +59,9 @@ export class Database {
         });
       }
       this.instance = new Database(client);
-      return this.instance;
+      this.initialized = true;
     }
+    return this.instance;
   }
 
   async execQuery(

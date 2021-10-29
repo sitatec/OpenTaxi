@@ -1,15 +1,8 @@
 import { Router } from "express";
-import {
-  addFavoriteDriver,
-  createRider,
-  deleteFavoriteDriver,
-  deleteRider,
-  getFavoriteDrivers,
-  getRider,
-  updateRider,
-} from "../controllers/rider_controller";
-
+import RiderController from "../controllers/rider_controller";
 const router = Router();
+
+const riderController = new RiderController();
 
 const favoriteDriversRouter = Router();
 
@@ -17,18 +10,18 @@ const favoriteDriversRouter = Router();
 // some routes like "rider/:id" will be resolved as "rider/favorite_drivers"
 router.use("/favorite_drivers", favoriteDriversRouter);
 
-router.post("/", createRider); // TODO add httpRequest data validation step.
+router.post("/", riderController.createRider); // TODO add httpRequest data validation step.
 
-router.get("/", getRider);
+router.get("/", riderController.getRider);
 
-router.put("/:account_id", updateRider); // TODO add httpRequest data validation step.
+router.put("/:account_id", riderController.updateRider); // TODO add httpRequest data validation step.
 
-router.delete("/:id", deleteRider);
+router.delete("/:id", riderController.deleteRider);
 
-favoriteDriversRouter.post("/", addFavoriteDriver);
+favoriteDriversRouter.post("/", riderController.addFavoriteDriver);
 
-favoriteDriversRouter.get("/", getFavoriteDrivers);
+favoriteDriversRouter.get("/", riderController.getFavoriteDrivers);
 
-favoriteDriversRouter.delete("/", deleteFavoriteDriver);
+favoriteDriversRouter.delete("/", riderController.deleteFavoriteDriver);
 
 export default router;

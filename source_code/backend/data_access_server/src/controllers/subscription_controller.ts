@@ -1,25 +1,16 @@
 import { Request, Response } from "express";
-import {
-  createEntity,
-  deleteEntity,
-  getEntity,
-  updateEntity,
-} from "./_generic_controllers";
+import Controller from "./controller";
 
-export const createSubscription = async (
-  httpRequest: Request,
-  httpResponse: Response
-) => createEntity("subscription", httpRequest, httpResponse);
+export default class SubscriptionController extends Controller {
+  createSubscription = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.createEntity("subscription", httpRequest, httpResponse);
 
-export const getSubscription = (httpRequest: Request, httpResponse: Response) =>
-  getEntity("subscription", httpRequest, httpResponse);
+  getSubscription = (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.getEntity("subscription", httpRequest, httpResponse);
 
-export const updateSubscription = async (
-  httpRequest: Request,
-  httpResponse: Response
-) => updateEntity("subscription", httpRequest, httpResponse);
+  updateSubscription = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.updateEntity("subscription", httpRequest, httpResponse);
 
-export const deleteSubscription = async (
-  httpRequest: Request,
-  httpResponse: Response
-) => deleteEntity("subscription", httpRequest, httpResponse);
+  deleteSubscription = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.deleteEntity("subscription", httpRequest, httpResponse);
+}

@@ -1,7 +1,7 @@
 import Axios from "axios";
 import { RIDER_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "./_constants";
 import { ACCOUNT, DRIVER, RIDER } from "./_fakedata";
-import { execQuery } from "../src/db";
+import { execQuery } from "./_utils";
 import { cloneObjec, getSuccessResponse } from "./_utils";
 
 const getUrlWithQuery = (queryParams: string) => RIDER_URL + queryParams;
@@ -97,7 +97,7 @@ describe("ENDPOINT: RIDER/FAVORITE_DRIVERS", () => {
     const account = cloneObjec(ACCOUNT) as typeof ACCOUNT;
     account.id = ACCOUNT.id + "driver";
     account.email = "new@email.com";
-    account.phone_number = 888888;
+    account.phone_number = "888888";
 
     FAVORITE_DRIVER.account_id = account.id;
 

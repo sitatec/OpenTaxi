@@ -1,12 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteCar = exports.updateCar = exports.getCar = exports.createCar = void 0;
-const _generic_controllers_1 = require("./_generic_controllers");
-const createCar = async (httpRequest, httpResponse) => (0, _generic_controllers_1.createEntity)("car", httpRequest, httpResponse);
-exports.createCar = createCar;
-const getCar = (httpRequest, httpResponse) => (0, _generic_controllers_1.getEntity)("car", httpRequest, httpResponse);
-exports.getCar = getCar;
-const updateCar = async (httpRequest, httpResponse) => (0, _generic_controllers_1.updateEntity)("car", httpRequest, httpResponse);
-exports.updateCar = updateCar;
-const deleteCar = async (httpRequest, httpResponse) => (0, _generic_controllers_1.deleteEntity)("car", httpRequest, httpResponse);
-exports.deleteCar = deleteCar;
+const controller_1 = __importDefault(require("./controller"));
+class CarController extends controller_1.default {
+    constructor() {
+        super(...arguments);
+        this.createCar = async (httpRequest, httpResponse) => this.entityManager.createEntity("car", httpRequest, httpResponse);
+        this.getCar = (httpRequest, httpResponse) => this.entityManager.getEntity("car", httpRequest, httpResponse);
+        this.updateCar = async (httpRequest, httpResponse) => this.entityManager.updateEntity("car", httpRequest, httpResponse);
+        this.deleteCar = async (httpRequest, httpResponse) => this.entityManager.deleteEntity("car", httpRequest, httpResponse);
+    }
+}
+exports.default = CarController;

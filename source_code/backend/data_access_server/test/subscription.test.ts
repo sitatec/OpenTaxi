@@ -1,7 +1,8 @@
 import Axios from "axios";
+import { Database } from "../src/db";
 import { SUBSCRIPTION_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "./_constants";
-import { ACCOUNT_1, SUBSCRIPTION, DRIVER } from "./_fakedata";
-import { execQuery } from "../src/db";
+import { SUBSCRIPTION } from "./_fakedata";
+import { execQuery } from "./_utils";
 import { cloneObjec, createDriver, deleteAllAccounts, getSuccessResponse } from "./_utils";
 
 const getUrlWithQuery = (queryParams: string) => SUBSCRIPTION_URL + queryParams;
@@ -42,7 +43,7 @@ describe("ENDPOINT: SUBSCRIPTION", () => {
   it("Should successfully update an subscription.", async () => {
     await createSubscription(); // Create it first
     const newSubscription = cloneObjec(SUBSCRIPTION) as typeof SUBSCRIPTION;
-    newSubscription.price = 34.32;
+    newSubscription.price = "34.32";
 
     // End then update it.
     const response = await Axios.put(

@@ -1,4 +1,4 @@
-import express, { Application }from "express";
+import express, { Application } from "express";
 import DriverRouter from "./routers/driver_router";
 import AccountRouter from "./routers/account_router";
 import CarRouter from "./routers/car_router";
@@ -12,14 +12,12 @@ import SubscriptionRouter from "./routers/subscription_router";
 import RiderRouter from "./routers/rider_router";
 import { Server as HttpServer } from "http";
 
-  
 const PORT = process.env.PORT || 8080;
 
 export default class Server {
+  private httpServer?: HttpServer;
 
-  private httpServer?: HttpServer; 
-
-  constructor(private app: Application = express()){
+  constructor(private app: Application = express()) {
     app.use(express.json());
     this.setupRouters();
   }
@@ -42,9 +40,7 @@ export default class Server {
     });
   }
 
-  stop(){
+  stop() {
     this.httpServer?.close();
   }
-
-
 }

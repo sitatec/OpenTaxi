@@ -1,5 +1,4 @@
 import Axios from "axios";
-import { execQuery } from "../src/db";
 import { JSObject } from "../src/types";
 import {
   ACCOUNT_URL,
@@ -16,6 +15,7 @@ import {
   PAYMENT,
   RIDER,
 } from "./_fakedata";
+import { Database } from "../src/db";
 
 export const cloneObjec = (object: JSObject) =>
   JSON.parse(JSON.stringify(object));
@@ -25,7 +25,16 @@ export const getSuccessResponse = (responseData: any) => ({
   status: "success",
 });
 
-export const deleteAllAccounts = async () => execQuery("DELETE FROM account");
+export function execQuery (
+  query: string,
+  queryParams?: Array<string | number>
+) {
+  return Database.initialize().execQuery(query, queryParams);
+}
+
+export async function deleteAllAccounts () {
+ return  execQuery("DELETE FROM account");
+}
 
 export const createTheDefaultAccount = () => Axios.post(ACCOUNT_URL, ACCOUNT);
 
@@ -44,7 +53,7 @@ export const createRider = () =>
 export const createUsers = async () => {
   await createRider();
   return createDriver();
-}
+};
 
 export const createBookingWithParentTables = async () => {
   await createRider();

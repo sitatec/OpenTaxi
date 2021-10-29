@@ -12,14 +12,17 @@ import {
 } from "./utils/database_utils";
 import { getQueryParams, sendSuccessResponse } from "./utils/http_utils";
 
+// TODO delegate the http response handling to the controllers and handle only
+// the entity management (i.e: building queries and executing them using the db instance)
+// within this class.
 export default class EntityManager {
-  constructor(private db = Database.instance) {}
+  constructor(private db = Database.initialize()) {}
 
-  createEntity = async (
+  async createEntity(
     entityName: string,
     httpRequest: Request,
     httpResponse: Response
-  ) => {
+  ) {
     try {
       const query = buildInsertQueryFromJSON(entityName, httpRequest.body);
       const queryResult = await this.db.execQuery(
@@ -30,7 +33,7 @@ export default class EntityManager {
     } catch (error) {
       handleDbQueryError(error, httpResponse);
     }
-  };
+  }
 
   createEntityWithRelation = async (
     parentEntityName: string,
@@ -60,7 +63,7 @@ export default class EntityManager {
 
   // ---------------------- READ ---------------------- //
 
-  getEntity = async (
+  getEntity = (
     entityName: string,
     httpRequest: Request,
     httpResponse: Response
@@ -79,7 +82,7 @@ export default class EntityManager {
     );
   };
 
-  getEntityWithRelation = async (
+  getEntityWithRelation = (
     parentEntityName: string,
     childEntityName: string,
     httpRequest: Request,
@@ -111,28 +114,28 @@ export default class EntityManager {
 
   // ---------------------- UPDATE ---------------------- //
 
-  updateEntity = async (
+  updateEntity = (
     entityName: string,
     httpRequest: Request,
     httpResponse: Response
   ): Promise<void> => {
-    let [entityPrimaryKeyName, entityId] = Object.entries(
+    let [entityPrimaryKeyName, entityPrimaryKeyValue] = Object.entries(
       httpRequest.params
     )[0];
     if (ENTITIES_WITH_STRING_ID.includes(entityName)) {
-      entityId = `'${entityId}'`;
+      entityPrimaryKeyValue = `'${entityPrimaryKeyValue}'`;
     }
     delete httpRequest.body[entityPrimaryKeyName]; // IDs must not be modified.
     const query = buildUpdateQueryFromJSON(
       entityName,
       httpRequest.body,
-      entityId,
+      entityPrimaryKeyValue,
       entityPrimaryKeyName
     );
 
     return wrappeResponseHandling(
       entityName,
-      [new Pair(entityPrimaryKeyName, entityId)],
+      [new Pair(entityPrimaryKeyName, entityPrimaryKeyValue)],
       httpResponse,
       async (): Promise<any> => {
         return (await this.db.execQuery(query.text, query.paramValues))
@@ -141,36 +144,36 @@ export default class EntityManager {
     );
   };
 
-  updateEntityWithRelation = async (
+  updateEntityWithRelation = (
     parentEntityName: string,
     childEntityName: string,
     httpRequest: Request,
     httpResponse: Response
   ) => {
-    let [entityPrimaryKeyName, entityId] = Object.entries(
+    let [entityPrimaryKeyName, entityPrimaryKeyValue] = Object.entries(
       httpRequest.params
     )[0];
     const data = httpRequest.body;
     if (ENTITIES_WITH_STRING_ID.includes(parentEntityName)) {
-      entityId = `'${entityId}'`;
+      entityPrimaryKeyValue = `'${entityPrimaryKeyValue}'`;
     }
     delete data[parentEntityName]["id"]; // IDs must not be modified.
     const updateParentEntityQuery = buildUpdateQueryFromJSON(
       parentEntityName,
       data[parentEntityName],
-      entityId
+      entityPrimaryKeyValue
     );
     delete data[childEntityName][entityPrimaryKeyName]; // IDs must not be modified.
     const updateChildEntityQuery = buildUpdateQueryFromJSON(
       childEntityName,
       data[childEntityName],
-      entityId,
+      entityPrimaryKeyValue,
       entityPrimaryKeyName
     );
 
     return wrappeResponseHandling(
       childEntityName,
-      [new Pair("id", entityId)],
+      [new Pair("id", entityPrimaryKeyValue)],
       httpResponse,
       async (): Promise<number | JSObject> => {
         return (
@@ -185,7 +188,7 @@ export default class EntityManager {
 
   // ---------------------- DELETE ---------------------- //
 
-  deleteEntity = async (
+  deleteEntity = (
     entityName: string,
     httpRequest: Request,
     httpResponse: Response
@@ -204,4 +207,7 @@ export default class EntityManager {
       }
     );
   };
+
+  execCustomQuery = (query: string, queryParams?: (string | number)[]) =>
+    this.db.execQuery(query, queryParams);
 }

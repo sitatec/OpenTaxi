@@ -1,25 +1,16 @@
 import { Request, Response } from "express";
-import {
-  createEntity,
-  deleteEntity,
-  getEntity,
-  updateEntity,
-} from "./_generic_controllers";
+import Controller from "./controller";
 
-export const createCar = async (
-  httpRequest: Request,
-  httpResponse: Response
-) => createEntity("car", httpRequest, httpResponse);
+export default class CarController extends Controller {
+  createCar = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.createEntity("car", httpRequest, httpResponse);
 
-export const getCar = (httpRequest: Request, httpResponse: Response) =>
-  getEntity("car", httpRequest, httpResponse);
+  getCar = (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.getEntity("car", httpRequest, httpResponse);
 
-export const updateCar = async (
-  httpRequest: Request,
-  httpResponse: Response
-) => updateEntity("car", httpRequest, httpResponse);
+  updateCar = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.updateEntity("car", httpRequest, httpResponse);
 
-export const deleteCar = async (
-  httpRequest: Request,
-  httpResponse: Response
-) => deleteEntity("car", httpRequest, httpResponse);
+  deleteCar = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.deleteEntity("car", httpRequest, httpResponse);
+}

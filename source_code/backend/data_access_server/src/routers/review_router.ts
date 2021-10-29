@@ -1,14 +1,16 @@
 import { Router } from "express";
-import { createReview, deleteReview, getReview, updateReview } from "../controllers/review_controller";
+import ReviewController from "../controllers/review_controller";
+
+const reviewController = new ReviewController();
 
 const router = Router();
 
-router.post("/", createReview); // TODO add httpRequest data validation step.
+router.post("/", reviewController.createReview); // TODO add httpRequest data validation step.
 
-router.get("/", getReview);
+router.get("/", reviewController.getReview);
 
-router.put("/:id", updateReview); // TODO add httpRequest data validation step.
+router.put("/:id", reviewController.updateReview); // TODO add httpRequest data validation step.
 
-router.delete("/:id", deleteReview);
+router.delete("/:id", reviewController.deleteReview);
 
 export default router;

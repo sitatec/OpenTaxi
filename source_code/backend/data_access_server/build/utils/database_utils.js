@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getRelationByColumns = exports.getRowByColumns = exports.handleDbQueryError = exports.buildUpdateQueryFromJSON = exports.buildInsertQueryFromJSON = void 0;
+exports.getRelationByColumns = exports.getColumnNamesAndParams = exports.getRowByColumns = exports.handleDbQueryError = exports.buildUpdateQueryFromJSON = exports.buildInsertQueryFromJSON = void 0;
 const db_1 = require("../db");
 const error_1 = require("../db/error");
 const buildInsertQueryFromJSON = (tableName, json) => {
@@ -11,11 +11,18 @@ const buildInsertQueryFromJSON = (tableName, json) => {
     };
 };
 exports.buildInsertQueryFromJSON = buildInsertQueryFromJSON;
-const buildUpdateQueryFromJSON = (tableName, json, rowId) => {
+const buildUpdateQueryFromJSON = (tableName, json, rowId, primaryKeyName = "id") => {
     const columns = extractColumnNameAndValuesFromJSON(json);
+    let queryText;
+    if (columns.paramValues.length > 1) {
+        // If we are updating many column together we must wrappe their names and values with parentheses.
+        queryText = `UPDATE ${tableName} SET (${columns.names}) = (${columns.params})`;
+    }
+    else {
+        queryText = `UPDATE ${tableName} SET ${columns.names} = ${columns.params}`;
+    }
     return {
-        text: `UPDATE ${tableName} SET (${columns.names}) = (${columns.params}) 
-    WHERE id = '${rowId}'`,
+        text: `${queryText} WHERE ${primaryKeyName} = ${rowId}`,
         paramValues: columns.paramValues,
     };
 };
@@ -49,9 +56,9 @@ const handleDbQueryError = (error, httpResponse) => {
     }
 };
 exports.handleDbQueryError = handleDbQueryError;
-const getRowByColumns = async (columns, table) => {
-    const columnNamesAndParams = getColumnNamesAndParams(columns, table);
-    const result = await (0, db_1.execQuery)(`SELECT * FROM ${table} WHERE ${columnNamesAndParams.first}`, columnNamesAndParams.second);
+const getRowByColumns = async (columns, table, db = db_1.Database.instance) => {
+    const columnNamesAndParams = (0, exports.getColumnNamesAndParams)(columns, table);
+    const result = await db.execQuery(`SELECT * FROM ${table} WHERE ${columnNamesAndParams.first}`, columnNamesAndParams.second);
     return result.rows[0];
 };
 exports.getRowByColumns = getRowByColumns;
@@ -61,7 +68,7 @@ const getColumnNamesAndParams = (columns, tableName) => {
     let columnParamValues = [];
     for (const colum of columns) {
         columnNamesAndParams += `${tableName}.${colum.first} = $${i++}`;
-        if (i < columns.length) {
+        if (i <= columns.length) {
             columnNamesAndParams += " AND ";
         }
         columnParamValues.push(colum.second);
@@ -71,14 +78,21 @@ const getColumnNamesAndParams = (columns, tableName) => {
         second: columnParamValues,
     };
 };
+exports.getColumnNamesAndParams = getColumnNamesAndParams;
 /**
  * Return the data of the relation formed by the given`parentTable` and `childTable`
  *  arguments where the given `columnName` =`columnValue` in the `parentTable`.
  */
-const getRelationByColumns = async (columns, parentTable, childTable, parentTablePrimaryKey = "id") => {
-    const columnNamesAndParams = getColumnNamesAndParams(columns, childTable);
-    const queryResult = await (0, db_1.execQuery)(`SELECT * FROM ${parentTable} 
-    JOIN ${childTable} ON ${parentTable}.${parentTablePrimaryKey} = ${childTable}.${parentTable}_${parentTablePrimaryKey}
+const getRelationByColumns = async (columns, parentTable, childTable, parentTablePrimaryKey = "id", childTableForeignKey, returnOnlyColunmOfTable = "", db = db_1.Database.instance) => {
+    const columnNamesAndParams = (0, exports.getColumnNamesAndParams)(columns, childTable);
+    if (!childTableForeignKey) {
+        childTableForeignKey = `${parentTable}_${parentTablePrimaryKey}`;
+    }
+    if (returnOnlyColunmOfTable) {
+        returnOnlyColunmOfTable += ".";
+    }
+    const queryResult = await db.execQuery(`SELECT ${returnOnlyColunmOfTable}* FROM ${parentTable} 
+    JOIN ${childTable} ON ${parentTable}.${parentTablePrimaryKey} = ${childTable}.${childTableForeignKey}
     WHERE ${columnNamesAndParams.first}`, columnNamesAndParams.second);
     return queryResult.rows[0];
 };

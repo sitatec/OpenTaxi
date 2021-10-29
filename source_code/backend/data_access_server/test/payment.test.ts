@@ -1,7 +1,7 @@
 import Axios from "axios";
-import { PAYMENT_URL, DEFAULT_SUCCESS_RESPONSE, ACCOUNT_URL } from "./_constants";
-import { ACCOUNT, PAYMENT } from "./_fakedata";
-import { execQuery } from "../src/db";
+import { PAYMENT_URL, DEFAULT_SUCCESS_RESPONSE } from "./_constants";
+import { PAYMENT } from "./_fakedata";
+import { execQuery } from "./_utils";
 import { cloneObjec, createTheDefaultAccount, deleteAllAccounts, getSuccessResponse } from "./_utils";
 
 const getUrlWithQuery = (queryParams: string) => PAYMENT_URL + queryParams;
@@ -41,7 +41,7 @@ describe("ENDPOINT: PAYMENT", () => {
   it("Should successfully update an payment.", async () => {
     await createPayment(); // Create it first
     const newPayment = cloneObjec(PAYMENT) as typeof PAYMENT;
-    newPayment.amount = 0;
+    newPayment.amount = "0.00";
 
     // End then update it.
     const response = await Axios.put(

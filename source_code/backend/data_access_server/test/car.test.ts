@@ -1,7 +1,7 @@
 import Axios from "axios";
 import { CAR_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "./_constants";
 import { ACCOUNT_1, CAR, DRIVER } from "./_fakedata";
-import { execQuery } from "../src/db";
+import { execQuery } from "./_utils";
 import { cloneObjec, createDriver, deleteAllAccounts, getSuccessResponse } from "./_utils";
 
 const getUrlWithQuery = (queryParams: string) => CAR_URL + queryParams;

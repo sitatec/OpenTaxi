@@ -1,12 +1,16 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteSubscription = exports.updateSubscription = exports.getSubscription = exports.createSubscription = void 0;
-const _generic_controllers_1 = require("./_generic_controllers");
-const createSubscription = async (httpRequest, httpResponse) => (0, _generic_controllers_1.createEntity)("subscription", httpRequest, httpResponse);
-exports.createSubscription = createSubscription;
-const getSubscription = (httpRequest, httpResponse) => (0, _generic_controllers_1.getEntity)("subscription", httpRequest, httpResponse);
-exports.getSubscription = getSubscription;
-const updateSubscription = async (httpRequest, httpResponse) => (0, _generic_controllers_1.updateEntity)("subscription", httpRequest, httpResponse);
-exports.updateSubscription = updateSubscription;
-const deleteSubscription = async (httpRequest, httpResponse) => (0, _generic_controllers_1.deleteEntity)("subscription", httpRequest, httpResponse);
-exports.deleteSubscription = deleteSubscription;
+const controller_1 = __importDefault(require("./controller"));
+class SubscriptionController extends controller_1.default {
+    constructor() {
+        super(...arguments);
+        this.createSubscription = async (httpRequest, httpResponse) => this.entityManager.createEntity("subscription", httpRequest, httpResponse);
+        this.getSubscription = (httpRequest, httpResponse) => this.entityManager.getEntity("subscription", httpRequest, httpResponse);
+        this.updateSubscription = async (httpRequest, httpResponse) => this.entityManager.updateEntity("subscription", httpRequest, httpResponse);
+        this.deleteSubscription = async (httpRequest, httpResponse) => this.entityManager.deleteEntity("subscription", httpRequest, httpResponse);
+    }
+}
+exports.default = SubscriptionController;
