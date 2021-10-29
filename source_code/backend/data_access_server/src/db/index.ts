@@ -15,7 +15,7 @@ interface NewPooConfig extends PoolConfig {
 }
 
 export class Database {
-  static _instance: Database;
+  private static _instance: Database;
 
   static get instance(): Database {
     return this._instance;
@@ -25,7 +25,9 @@ export class Database {
     this._instance = value;
   }
 
-  private constructor(private client: Pool) {}
+  private constructor(private client: Pool) {
+    
+  }
 
   static initialize(
     client = new Pool({
@@ -56,6 +58,7 @@ export class Database {
         });
       }
       this.instance = new Database(client);
+      return this.instance;
     }
   }
 

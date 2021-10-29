@@ -1,11 +1,5 @@
 import { Request, Response } from "express";
 import { preventUnauthorizedAccountUpdate } from "../security";
-import {
-  createEntity,
-  deleteEntity,
-  getEntity,
-  updateEntity,
-} from "../controllers/_generic_controllers";
 
 export const createAccount = async (
   httpRequest: Request,
