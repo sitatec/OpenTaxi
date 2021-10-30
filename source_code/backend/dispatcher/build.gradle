@@ -4,8 +4,8 @@ plugins {
 }
 
 group "com.hamba"
-version "0.0.1"
-mainClassName = "com.hamba.ApplicationKt"
+version "1.0.0"
+mainClassName = "com.hamba.dispatcher.ApplicationKt"
 
 repositories {
     mavenCentral()
@@ -17,6 +17,6 @@ dependencies {
     implementation "ch.qos.logback:logback-classic:$logback_version"
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
-
+    implementation "io.ktor:ktor-serialization:$ktor_version"
     implementation 'net.enovea:ks2-geometry:1.0.0'
 }
