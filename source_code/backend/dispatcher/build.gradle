@@ -19,4 +19,6 @@ dependencies {
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     implementation "io.ktor:ktor-serialization:$ktor_version"
     implementation 'net.enovea:ks2-geometry:1.0.0'
+    implementation "io.ktor:ktor-client-core:1.6.4"
+    implementation "io.ktor:ktor-client-cio:1.6.4"
 }
