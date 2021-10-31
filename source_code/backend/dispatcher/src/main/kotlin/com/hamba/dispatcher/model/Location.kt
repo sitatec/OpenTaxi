@@ -5,8 +5,17 @@ import kotlinx.serialization.Serializable
 import dilivia.s2.S2LatLng
 
 @Serializable
-class Location(val latitude: Double, val longitude: Double) {
+class Location(private val lat: Double, private val lng: Double, private val placeId: String? = null) {
     fun toS2Point(): S2Point {
-        return S2LatLng.fromDegrees(latitude, longitude).toPoint();
+        return S2LatLng.fromDegrees(lat, lng).toPoint();
     }
+
+    override fun toString(): String {
+        return if(placeId != null) "place_id:$placeId" else "$lat,$lng"
+    }
+}
+
+fun S2Point.toLocation(): Location {
+    val latLong = S2LatLng.fromPoint(this)
+    return Location(latLong.latRadians, latLong.lngRadians)
 }
