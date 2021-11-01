@@ -22,7 +22,7 @@ class DispatchData(
     }
 
     fun getStops(): List<String> {
-g
+
     }
 
 }
