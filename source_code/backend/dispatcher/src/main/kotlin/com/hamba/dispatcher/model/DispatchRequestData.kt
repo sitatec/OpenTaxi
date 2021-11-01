@@ -3,11 +3,11 @@ package com.hamba.dispatcher.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-class DispatchRequestData(
+class  DispatchRequestData(
     val riderId: String,
     var location: Location,
     val gender: String,
     val carType: String,
     val stops: List<String>,
-    destination: String,
+    val destination: String,
 )

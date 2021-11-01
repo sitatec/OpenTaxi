@@ -1,13 +1,10 @@
 package com.hamba.dispatcher
 
 import com.hamba.dispatcher.model.DistanceMatrixResponse
-import com.hamba.dispatcher.model.Element
 import com.hamba.dispatcher.model.Location
 import io.ktor.client.*
-import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 
 const val API_KEY = ""
 
@@ -31,7 +28,7 @@ class RouteApiClient(private val httpClient: HttpClient = HttpClient(CIO)) {
         return indexOfTheClosestLocation;
     }
 
-    suspend fun findDirection(origin: Location, destination: Location, stops: List<Location>): String {
+    suspend fun findDirection(origin: Location, destination: Location, stops: List<String>): String {
         val url = "$DIRECTION_URL&origin=$origin&destination=$destination&waypoints=${stops.joinToString("|")}"
         return httpClient.get(url)
     }

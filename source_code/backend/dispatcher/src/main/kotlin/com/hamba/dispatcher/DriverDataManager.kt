@@ -1,21 +1,23 @@
 package com.hamba.dispatcher
 
-import com.hamba.dispatcher.model.RequestData
+import com.hamba.dispatcher.model.DriverData
 import com.hamba.dispatcher.model.Location
 import dilivia.s2.index.point.PointData
 import dilivia.s2.index.point.S2PointIndex
 
-class DriverDataManager(private val dispatcher: Dispatcher, val locationIndex: S2PointIndex<String>) {
+class DriverDataManager(val locationIndex: S2PointIndex<String>) {
 
-    private val driverData = mutableMapOf<String, RequestData>()
+    private val driverData = mutableMapOf<String, DriverData>()
     private val dataChangeListener = mutableListOf<DataChangeListener>()
 
     fun addDataChangeListener(listener: DataChangeListener) = dataChangeListener.add(listener)
 
+    fun getDriverData(driverId: String) = driverData[driverId]
+
     @Synchronized
-    fun addDriverData(data: RequestData) {
-        val pointData = PointData(data.location.toS2Point(), data.id)
-        driverData[data.id] = data
+    fun addDriverData(data: DriverData) {
+        val pointData = PointData(data.location.toS2Point(), data.driverId)
+        driverData[data.driverId] = data
         locationIndex.add(pointData)
         dataChangeListener.forEach {
             it.onDataAdded()
@@ -24,12 +26,13 @@ class DriverDataManager(private val dispatcher: Dispatcher, val locationIndex: S
 
     @Synchronized
     fun updateDriverData(driverId: String, location: Location) {
-        val data = driverData[driverId]
-        locationIndex.remove(data!!.location.toS2Point(), driverId)
-        data.location = location
-        locationIndex.add(location.toS2Point(), driverId)
         dataChangeListener.forEach {
-            it.onDataDeleted()
+            it.onDataUpdateNeeded {
+                val data = driverData[driverId]
+                locationIndex.remove(data!!.location.toS2Point(), driverId)
+                data.location = location
+                locationIndex.add(location.toS2Point(), driverId)
+            }
         }
     }
 
@@ -40,7 +43,7 @@ class DriverDataManager(private val dispatcher: Dispatcher, val locationIndex: S
         locationIndex.iterator().init(locationIndex)
         driverData.remove(driverId)
         dataChangeListener.forEach {
-            it.onDataUpdated()
+            it.onDataDeleted()
         }
     }
 }
