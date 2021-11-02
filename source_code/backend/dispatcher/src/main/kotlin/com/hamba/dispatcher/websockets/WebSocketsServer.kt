@@ -1,8 +1,11 @@
 package com.hamba.dispatcher.websockets
 
+import com.hamba.dispatcher.Dispatcher
+import com.hamba.dispatcher.DistanceCalculator
 import com.hamba.dispatcher.DriverDataManager
 import com.hamba.dispatcher.RouteApiClient
 import com.hamba.dispatcher.model.DispatchData
+import com.hamba.dispatcher.model.DispatchRequestData
 import com.hamba.dispatcher.model.DriverData
 import com.hamba.dispatcher.model.Location
 import dilivia.s2.index.point.S2PointIndex
@@ -21,9 +24,12 @@ fun Application.webSocketsServer() {
     val locationIndex = S2PointIndex<String>()
     val driverDataManager = DriverDataManager(locationIndex)
     val routeApiClient = RouteApiClient()
+    val distanceCalculator = DistanceCalculator(driverDataManager, routeApiClient);
+
     routing {
         val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
         val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
+        val dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient)
         webSocket("driver") {
             var receivedText: String
             var driverId: String? = null
@@ -59,14 +65,7 @@ fun Application.webSocketsServer() {
                             if (dispatchData == null) {// Invalid id or that data have been already removed
                                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
                             } else {
-                                dispatchData.riderConnection.send("yes")
-                                val directionData = routeApiClient.findDirection(
-                                    dispatchData.getClosestCandidateLocation(),
-                                    dispatchData.getDestination(),
-                                    dispatchData.getStops()
-                                )
-                                dispatchData.riderConnection.send(directionData)
-                                send(directionData)
+                                dispatcher.onBookingAccepted(dispatchData)
                             }
                         }
                         "no" /*REFUSE BOOKING*/ -> {
@@ -75,10 +74,8 @@ fun Application.webSocketsServer() {
                             if (dispatchData == null) {// Invalid id or that data have been already removed
                                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
                             } else {
-                                dispatchData.riderConnection.send("no:1")
-                                // Retry.
+                                dispatcher.onBookingRefused(dispatchData)
                             }
-
                         }
                     }
                 }
@@ -95,6 +92,36 @@ fun Application.webSocketsServer() {
 
         webSocket("dispatch") {
             // TODO include the rider location to the stop's list.
+            var riderId = ""
+            var receivedText: String
+            try {
+                for (frame in incoming) {
+                    if (frame !is Frame.Text) continue
+                    receivedText = frame.readText()
+                    when (receivedText.substringBefore(":")) {
+                        "d" /*DISPATCH REQUEST*/ -> {
+                            val dispatchRequestData =
+                                Json.decodeFromString<DispatchRequestData>(receivedText.substringAfter(":"))
+                            riderId = dispatchRequestData.riderId
+                            dispatcher.dispatch(dispatchRequestData, dispatchDataList, this)
+                        }
+                        "c" /*CANCEL*/ -> {
+                            val dispatchData = dispatchDataList[riderId]
+                            if(dispatchData == null) {
+                                // TODO handle
+                            }else {
+                                dispatcher.onBookingCanceled(riderId, dispatchDataList)
+                            }
+                        }
+                    }
+                }
+            } catch (e: ClosedReceiveChannelException) {
+                println("riderId = $riderId | message = Connection closed for ${closeReason.await()}")
+            } catch (e: Exception) {
+                println("driverId = $riderId | message = ${e.localizedMessage}")
+            } finally {
+                dispatchDataList.remove(riderId)
+            }
         }
     }
     routeApiClient.release()
