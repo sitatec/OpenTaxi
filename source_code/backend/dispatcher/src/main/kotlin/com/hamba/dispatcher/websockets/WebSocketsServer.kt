@@ -18,18 +18,17 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.util.*
 
-fun Application.webSocketsServer() {
+
+fun Application.webSocketsServer(
+    driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
+    driverDataManager: DriverDataManager,
+    dispatchDataList: MutableMap<String, DispatchData>,
+    dispatcher: Dispatcher,
+) {
     // TODO Take into account cancellation
     install(WebSockets)
-    val locationIndex = S2PointIndex<String>()
-    val driverDataManager = DriverDataManager(locationIndex)
-    val routeApiClient = RouteApiClient()
-    val distanceCalculator = DistanceCalculator(driverDataManager, routeApiClient);
 
     routing {
-        val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
-        val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
-        val dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient)
         webSocket("driver") {
             var receivedText: String
             var driverId: String? = null
@@ -107,9 +106,9 @@ fun Application.webSocketsServer() {
                         }
                         "c" /*CANCEL*/ -> {
                             val dispatchData = dispatchDataList[riderId]
-                            if(dispatchData == null) {
+                            if (dispatchData == null) {
                                 // TODO handle
-                            }else {
+                            } else {
                                 dispatcher.onBookingCanceled(riderId, dispatchDataList)
                             }
                         }
@@ -124,5 +123,4 @@ fun Application.webSocketsServer() {
             }
         }
     }
-    routeApiClient.release()
 }
