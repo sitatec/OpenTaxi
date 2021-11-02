@@ -7,6 +7,7 @@ import dilivia.s2.index.S2MinDistance
 import dilivia.s2.index.S2MinDistancePointTarget
 import dilivia.s2.index.point.S2ClosestPointQuery
 import kotlinx.coroutines.runBlocking
+import java.util.concurrent.atomic.AtomicInteger
 
 class DistanceCalculator(private val driverDataManager: DriverDataManager, private val routeApiClient: RouteApiClient) {
 
@@ -15,13 +16,20 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
         S2ClosestPointQuery.Options(maxDistance = S2MinDistance(S1Angle.degrees(S2Earth.kmToRadians(3.0))))
     )
 
+    private var numberOfDistanceCalculationRunning = 0
     private val availableUpdates = mutableListOf<() -> Unit>()
 
     init {
         val dataChangeListener = DataChangeListener(
             onDataAdded = distanceCalculator::reInit,
             onDataDeleted = distanceCalculator::reInit,
-            onDataUpdateNeeded = availableUpdates::add,
+            onDataUpdateNeeded = { update ->
+                if(numberOfDistanceCalculationRunning > 0) {
+                    availableUpdates.add(update)
+                }else {
+                    update()
+                }
+            },
         )
         driverDataManager.addDataChangeListener(dataChangeListener)
     }
@@ -29,11 +37,13 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
     fun getClosestDriverDistance(requestData: DispatchRequestData): List<Pair<DriverData, Element>> {
         var closestDriverAsTheCrowFlies: List<DriverData>
         synchronized(this) {
+            numberOfDistanceCalculationRunning++
             closestDriverAsTheCrowFlies = if (requestData.gender.isBlank() && requestData.carType.isNotBlank()) {
                 findClosestDistanceAsTheCrowFlies(requestData.location)
             } else {
                 findClosestDistanceAsTheCrowFlies(requestData)
             }
+            numberOfDistanceCalculationRunning--
             availableUpdates.forEach { updateData -> updateData() }
         }
         return findClosestDistanceOnRoad(closestDriverAsTheCrowFlies, requestData.location)
