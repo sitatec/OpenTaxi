@@ -56,7 +56,7 @@ fun Application.webSocketsServer(
                                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
                             }
                             driverDataManager.deleteDriverData(driverId!!)
-                            close(CloseReason(CloseReason.Codes.NORMAL, "Data deleted!"))
+                            close(CloseReason(CloseReason.Codes.NORMAL, ""))
                         }
                         "yes" /*ACCEPT BOOKING*/ -> {
                             val dispatchDataId = receivedText.substringAfter(":")

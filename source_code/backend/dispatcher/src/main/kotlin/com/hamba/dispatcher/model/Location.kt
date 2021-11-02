@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 import dilivia.s2.S2LatLng
 
 @Serializable
-class Location(private val lat: Double, private val lng: Double, private val placeId: String? = null) {
+data class Location(private val lat: Double, private val lng: Double, private val placeId: String? = null) {
     fun toS2Point(): S2Point {
         return S2LatLng.fromDegrees(lat, lng).toPoint();
     }
