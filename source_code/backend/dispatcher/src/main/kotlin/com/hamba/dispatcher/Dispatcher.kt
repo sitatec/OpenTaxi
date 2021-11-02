@@ -1,88 +1,71 @@
 package com.hamba.dispatcher
 
+import com.hamba.dispatcher.model.DispatchData
 import com.hamba.dispatcher.model.DispatchRequestData
-import com.hamba.dispatcher.model.Location
-import com.hamba.dispatcher.model.DriverData
-import com.hamba.dispatcher.model.toLocation
-import dilivia.s2.S1Angle
-import dilivia.s2.S2Earth
-import dilivia.s2.index.S2MinDistance
-import dilivia.s2.index.S2MinDistancePointTarget
-import dilivia.s2.index.point.S2ClosestPointQuery
-import kotlinx.coroutines.runBlocking
+import io.ktor.http.cio.websocket.*
+import io.ktor.websocket.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-class Dispatcher(private val driverDataManager: DriverDataManager, private val routeApiClient: RouteApiClient) {
+class Dispatcher(
+    private val distanceCalculator: DistanceCalculator,
+    private val driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
+    private val routeApiClient: RouteApiClient
+) {
+    suspend fun dispatch(
+        dispatchRequestData: DispatchRequestData,
+        dispatchDataList: MutableMap<String, DispatchData>,
+        riderConnection: DefaultWebSocketServerSession
+    ) {
+        val closestDrivers = distanceCalculator.getClosestDriverDistance(dispatchRequestData)
+        val dispatchData = DispatchData(closestDrivers, dispatchRequestData, riderConnection)
+        dispatchDataList[dispatchRequestData.riderId] = dispatchData
+        makeBookingRequest(dispatchData)
+    }
 
-    private val distanceCalculator = S2ClosestPointQuery(
-        driverDataManager.locationIndex,
-        S2ClosestPointQuery.Options(maxDistance = S2MinDistance(S1Angle.degrees(S2Earth.kmToRadians(3.0))))
-    )
+    private suspend fun makeBookingRequest(dispatchData: DispatchData) {
+        val closestDriver = dispatchData.getNextClosestCandidateOrNull()
+        if (closestDriver == null) {
+            //TODO Handle
+        } else {
+            val closestDriverConnection = driverConnections[closestDriver.first.driverId]!! // TODO handle when null
+            closestDriverConnection.send("b:")
+            val driverDataAsJson = Json.encodeToString(closestDriver)
+            dispatchData.riderConnection.send(/* bs = BOOKING SENT*/"bs:${driverDataAsJson}")
+        }
 
-    private val availableUpdates = mutableListOf<() -> Unit>()
+    }
 
-    init {
-        val dataChangeListener = DataChangeListener(
-            onDataAdded = distanceCalculator::reInit,
-            onDataDeleted = distanceCalculator::reInit,
-            onDataUpdateNeeded = availableUpdates::add,
+    suspend fun onBookingAccepted(dispatchData: DispatchData) {
+        dispatchData.riderConnection.send("yes")
+        val directionData = routeApiClient.findDirection(
+            dispatchData.getCurrentCandidate().first.location,
+            dispatchData.getDestination(),
+            dispatchData.getStops()
         )
-        driverDataManager.addDataChangeListener(dataChangeListener)
+        dispatchData.riderConnection.send("dir:$directionData")
+        val driverConnection = driverConnections[dispatchData.getCurrentCandidate().first.driverId]
+        if (driverConnection == null) {
+            // TODO handle
+        } else {
+            driverConnection.send("dir:$directionData")
+        }
     }
 
-    fun dispatch(requestData: DispatchRequestData) {
-        var closestDriverAsTheCrowFlies: List<Pair<String, Location>>
-        synchronized(this) {
-            closestDriverAsTheCrowFlies = if (requestData.gender.isBlank() && requestData.carType.isNotBlank()) {
-                findClosestDistanceAsTheCrowFlies(requestData.location)
-            } else {
-                findClosestDistanceAsTheCrowFlies(requestData)
-            }
-            availableUpdates.forEach { updateData -> updateData() }
-        }
-        val closestDriverOnTheRoad = findClosestDistanceOnRoad(closestDriverAsTheCrowFlies, requestData.location)
+    suspend fun onBookingRefused(dispatchData: DispatchData) {
+        dispatchData.riderConnection.send("no:${dispatchData.nextCandidateIndex}")
+        makeBookingRequest(dispatchData)
     }
 
-    private fun findClosestDistanceAsTheCrowFlies(data: DispatchRequestData): List<Pair<String, Location>> {
-        val target = S2MinDistancePointTarget(data.location.toS2Point())
-        val closestPoint = distanceCalculator.findClosestPoints(target).filter {
-            val driverData = driverDataManager.getDriverData(it.data())
-            if (data.gender.isNotBlank() && data.gender != driverData?.gender) {
-                return@filter false
-            }
-            if (data.carType.isNotBlank() && data.carType != driverData?.carType) {
-                return@filter false
-            }
-            true
+    suspend fun onBookingCanceled(riderId: String, dispatchDataList: MutableMap<String, DispatchData>) {
+        val dispatchData = dispatchDataList[riderId]
+        if(dispatchData == null) {
+            // TODO handle
+        }else {
+            val driverConnection = driverConnections[dispatchData.getCurrentCandidate().first.driverId]
+            driverConnection?.send("c:$riderId" /*CANCEL*/)
+            dispatchData.riderConnection.close(CloseReason(CloseReason.Codes.NORMAL, ""))
         }
-        if (closestPoint.isEmpty()) {
-            return emptyList()
-        }
-        val closestDriver = closestPoint.sorted()
-        val result = mutableListOf<Pair<String, Location>>()
-        repeat(4) {
-            result.add(Pair(closestDriver[it].data(), closestDriver[it].point().toLocation()))
-        }
-        return result
+        dispatchDataList.remove(riderId)
     }
-
-    private fun findClosestDistanceAsTheCrowFlies(location: Location): List<Pair<String, Location>> {
-        val target = S2MinDistancePointTarget(location.toS2Point())
-        distanceCalculator.options().setMaxResult(4)
-        val closestPoint = distanceCalculator.findClosestPoints(target)
-        return closestPoint.map { Pair(it.data(), it.point().toLocation()) }
-    }
-
-    private fun findClosestDistanceOnRoad(
-        driversData: List<Pair<String, Location>>,
-        riderLocation: Location
-    ): DriverData {
-        val driverLocations = driversData.map { it.second }
-        val idOfTheClosestDriver: String
-        runBlocking {
-            val indexOfTheClosestDriver = routeApiClient.distanceMatrix(driverLocations, riderLocation)
-            idOfTheClosestDriver = driversData[indexOfTheClosestDriver].first
-        }
-        return driverDataManager.getDriverData(idOfTheClosestDriver)!!
-    }
-
 }
