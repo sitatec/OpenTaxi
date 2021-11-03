@@ -10,6 +10,7 @@ import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.util.*
@@ -34,10 +35,10 @@ class ApplicationTest {
         distanceCalculator = DistanceCalculator(driverDataManager, routeApiClient)
         driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
         dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
-        dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient)
+        dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataManager)
     }
 
-    //TODO test cancellation for both the rider and driver side.
+    // TODO test cancellation for both the rider and driver side.
 
     @Test
     fun testDriverDataManagement() {
@@ -100,6 +101,7 @@ class ApplicationTest {
         }
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun testDispatching() {
         withTestApplication({ webSocketsServer(driverConnections, driverDataManager, dispatchDataList, dispatcher) }) {
@@ -120,7 +122,7 @@ class ApplicationTest {
                                     outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
                                     assertEquals("dir"/*DIRECTION*/, directionDataMessage.substringBefore(":"))
-                                    //TODO check that it contains the direction api response.
+                                    // TODO check that it contains the direction api response.
                                 }
                             }
                         }
@@ -137,17 +139,19 @@ class ApplicationTest {
                 outgoing.send(Frame.Text("d:${fakeDispatchRequestData.toJson()}"))
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
+                assertNull(driverDataManager.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
+                // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
+
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals(
-                    "yes",
-                    receivedMessage
-                )// TODO when a driver accept a booking it should be removed and won't be able receive booking request until he complete the current one.
+                assertEquals("yes", receivedMessage)
+
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("dir"/*DIRECTION*/, receivedMessage.substringBefore(":"))
                 println("\ndirection response = ${receivedMessage.substringAfter(":")}")
-                //TODO check that it contains the direction api response.
+                // TODO check that it contains the direction api response.
             }
         }
     }

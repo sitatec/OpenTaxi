@@ -1,14 +1,11 @@
 package com.hamba.dispatcher.websockets
 
 import com.hamba.dispatcher.Dispatcher
-import com.hamba.dispatcher.DistanceCalculator
 import com.hamba.dispatcher.DriverDataManager
-import com.hamba.dispatcher.RouteApiClient
 import com.hamba.dispatcher.model.DispatchData
 import com.hamba.dispatcher.model.DispatchRequestData
 import com.hamba.dispatcher.model.DriverData
 import com.hamba.dispatcher.model.Location
-import dilivia.s2.index.point.S2PointIndex
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
@@ -18,7 +15,6 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.util.*
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -121,7 +117,7 @@ fun Application.webSocketsServer(
             } catch (e: ClosedReceiveChannelException) {
                 println("riderId = $riderId | message = Connection closed for ${closeReason.await()}")
             } catch (e: Exception) {
-                println("riderId = $riderId | message = ${e.localizedMessage } \n trace = ")
+                println("riderId = $riderId | message = ${e.localizedMessage} \n trace = ")
                 e.printStack()
             } finally {
                 dispatchDataList.remove(riderId)

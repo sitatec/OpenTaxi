@@ -1,8 +1,6 @@
 package com.hamba.dispatcher.model
 
 import io.ktor.websocket.*
-import java.util.concurrent.atomic.AtomicInteger
-
 
 class DispatchData(
     candidates: List<Pair<DriverData, Element>>,
@@ -10,16 +8,13 @@ class DispatchData(
     val riderConnection: DefaultWebSocketServerSession
 ) {
     var nextCandidateIndex = 0
-    private val candidates = candidates.sortedBy { it.second.duration.value }
-
-    companion object {
-        var nextId = AtomicInteger(0) // Using AtomicInteger for thread safety.
-    }
+    private val candidates = candidates.sortedBy { it.second.duration.value }.toMutableList()
 
     fun getNextClosestCandidateOrNull():Pair<DriverData, Element>? {
         if(nextCandidateIndex >= candidates.size) {
             return null
         }
+        candidates.removeAt(nextCandidateIndex - 1 /*Current Candidate Index*/)
         return candidates[nextCandidateIndex++]
     }
 

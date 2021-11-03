@@ -4,13 +4,15 @@ import com.hamba.dispatcher.model.DispatchData
 import com.hamba.dispatcher.model.DispatchRequestData
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class Dispatcher(
     private val distanceCalculator: DistanceCalculator,
     private val driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
-    private val routeApiClient: RouteApiClient
+    private val routeApiClient: RouteApiClient,
+    private val driverDataManager: DriverDataManager
 ) {
     suspend fun dispatch(
         dispatchRequestData: DispatchRequestData,
@@ -23,6 +25,7 @@ class Dispatcher(
         makeBookingRequest(dispatchData)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     private suspend fun makeBookingRequest(dispatchData: DispatchData) {
         val closestDriver = dispatchData.getNextClosestCandidateOrNull()
         if (closestDriver == null) {
@@ -31,6 +34,8 @@ class Dispatcher(
             val closestDriverConnection = driverConnections[closestDriver.first.driverId]!! // TODO handle when null
             val dispatchRequestDataJson = Json.encodeToString(dispatchData.dispatchRequestData)
             closestDriverConnection.send("b:$dispatchRequestDataJson")
+            driverDataManager.deleteDriverData(closestDriver.first.driverId) // Once we send a booking request to the
+            // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
             val driverDataAsJson = Json.encodeToString(closestDriver)
             dispatchData.riderConnection.send(/* bs = BOOKING SENT*/"bs:${driverDataAsJson}")
         }
@@ -54,6 +59,7 @@ class Dispatcher(
     }
 
     suspend fun onBookingRefused(dispatchData: DispatchData) {
+        driverDataManager.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
         dispatchData.riderConnection.send("no:${dispatchData.nextCandidateIndex}")
         makeBookingRequest(dispatchData)
     }

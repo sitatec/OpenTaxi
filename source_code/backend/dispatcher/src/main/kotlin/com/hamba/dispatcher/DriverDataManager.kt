@@ -28,8 +28,8 @@ class DriverDataManager(val locationIndex: S2PointIndex<String>) {
     fun updateDriverData(driverId: String, location: Location) {
         dataChangeListener.forEach {
             it.onDataUpdateNeeded {
-                val data = driverData[driverId]
-                locationIndex.remove(data!!.location.toS2Point(), driverId)
+                val data = driverData[driverId] ?: return@onDataUpdateNeeded
+                locationIndex.remove(data.location.toS2Point(), driverId)
                 data.location = location
                 locationIndex.add(location.toS2Point(), driverId)
             }
