@@ -15,11 +15,13 @@ import io.ktor.routing.*
 import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.util.*
 
 
+@OptIn(ExperimentalSerializationApi::class)
 fun Application.webSocketsServer(
     driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
     driverDataManager: DriverDataManager,
@@ -52,7 +54,7 @@ fun Application.webSocketsServer(
                             val location = Location(latitude.toDouble(), longitude.toDouble())
                             driverDataManager.updateDriverData(driverId!!, location)
                         }
-                        "d" /*DELETE*/ -> {
+                        "d" /*DELETE/DISCONNECT*/ -> {
                             if (driverId == null) {// Should add data before deleting it
                                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
                             }
@@ -86,6 +88,7 @@ fun Application.webSocketsServer(
             } finally {
                 driverId?.let {
                     driverConnections.remove(it)
+                    driverDataManager.deleteDriverData(it)
                 }
             }
         }

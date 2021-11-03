@@ -106,8 +106,8 @@ class ApplicationTest {
             // Simulate connected drivers
             for (fakeDriverData in fakeDriverDataList) {
                 println("driver = ${fakeDriverData.driverId}")
-                    launch {
-                        try {
+                launch {
+                    try {
                         handleWebSocketConversation("/driver") { incoming, outgoing ->
                             outgoing.send(Frame.Text("a:${fakeDriverData.toJson()}"))
                             val rawMessage = incoming.receive()
@@ -124,11 +124,11 @@ class ApplicationTest {
                                 }
                             }
                         }
-                    }catch (e: ClosedReceiveChannelException){
+                    } catch (e: ClosedReceiveChannelException) {
                         // Not all the drivers will receive a booking request because we dispatch to the closest ones. So
                         // trying to receive a booking message will throw an ClosedReceiveChannelException for the driver that are not close to the rider.
                     }
-                    }
+                }
             }
 
             // Simulate a rider connection
@@ -140,7 +140,10 @@ class ApplicationTest {
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("yes", receivedMessage)
+                assertEquals(
+                    "yes",
+                    receivedMessage
+                )// TODO when a driver accept a booking it should be removed and won't be able receive booking request until he complete the current one.
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("dir"/*DIRECTION*/, receivedMessage.substringBefore(":"))
                 println("\ndirection response = ${receivedMessage.substringAfter(":")}")

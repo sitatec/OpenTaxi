@@ -38,8 +38,8 @@ class DriverDataManager(val locationIndex: S2PointIndex<String>) {
 
     @Synchronized
     fun deleteDriverData(driverId: String) {
-        val data = driverData[driverId]
-        locationIndex.remove(data!!.location.toS2Point(), driverId)
+        val data = driverData[driverId] ?: return
+        locationIndex.remove(data.location.toS2Point(), driverId)
         locationIndex.iterator().init(locationIndex)
         driverData.remove(driverId)
         dataChangeListener.forEach {
