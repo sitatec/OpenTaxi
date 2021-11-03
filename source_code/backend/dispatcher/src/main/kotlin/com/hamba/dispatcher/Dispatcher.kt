@@ -29,7 +29,8 @@ class Dispatcher(
             //TODO Handle
         } else {
             val closestDriverConnection = driverConnections[closestDriver.first.driverId]!! // TODO handle when null
-            closestDriverConnection.send("b:")
+            val dispatchRequestDataJson = Json.encodeToString(dispatchData.dispatchRequestData)
+            closestDriverConnection.send("b:$dispatchRequestDataJson")
             val driverDataAsJson = Json.encodeToString(closestDriver)
             dispatchData.riderConnection.send(/* bs = BOOKING SENT*/"bs:${driverDataAsJson}")
         }

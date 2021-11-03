@@ -7,7 +7,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 
-const val API_KEY = ""
+const val API_KEY = "AIzaSyAwvDFbXeO-hMSzDldugtisPhk_MArmztA"
 
 private const val BASE_URL = "https://maps.googleapis.com/maps/api/"
 private const val DISTANCE_MATRIX_URL = "$BASE_URL/distancematrix/json?key=$API_KEY"

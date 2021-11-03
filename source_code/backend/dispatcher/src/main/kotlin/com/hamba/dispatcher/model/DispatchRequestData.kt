@@ -8,6 +8,6 @@ class  DispatchRequestData(
     var location: Location,
     val stops: List<String>,
     val destination: String,
-    val gender: String = "",
-    val carType: String = "",
+    val gender: String? = null,
+    val carType: String? = null,
 )

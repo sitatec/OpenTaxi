@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class DispatchData(
     candidates: List<Pair<DriverData, Element>>,
-    private val dispatchRequestData: DispatchRequestData,
+    val dispatchRequestData: DispatchRequestData,
     val riderConnection: DefaultWebSocketServerSession
 ) {
     var nextCandidateIndex = 0
