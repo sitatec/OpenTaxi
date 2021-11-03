@@ -1,10 +1,14 @@
 package com.hamba.dispatcher.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 class DistanceMatrixResponse (
+    @SerialName("destination_addresses")
     val destinationAddresses: List<String>,
+
+    @SerialName("origin_addresses")
     val originAddresses: List<String>,
 
     val rows: List<Row>,

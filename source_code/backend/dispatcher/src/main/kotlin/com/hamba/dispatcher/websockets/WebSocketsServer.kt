@@ -12,6 +12,7 @@ import dilivia.s2.index.point.S2PointIndex
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
+import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.decodeFromString
@@ -117,7 +118,8 @@ fun Application.webSocketsServer(
             } catch (e: ClosedReceiveChannelException) {
                 println("riderId = $riderId | message = Connection closed for ${closeReason.await()}")
             } catch (e: Exception) {
-                println("driverId = $riderId | message = ${e.localizedMessage}")
+                println("riderId = $riderId | message = ${e.localizedMessage } \n trace = ")
+                e.printStack()
             } finally {
                 dispatchDataList.remove(riderId)
             }

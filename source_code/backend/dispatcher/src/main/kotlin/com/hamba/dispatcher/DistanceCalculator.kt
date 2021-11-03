@@ -13,7 +13,7 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
 
     private val distanceCalculator = S2ClosestPointQuery(
         driverDataManager.locationIndex,
-        S2ClosestPointQuery.Options(maxDistance = S2MinDistance(S1Angle.degrees(S2Earth.kmToRadians(3.0))))
+//        S2ClosestPointQuery.Options(maxDistance = S2MinDistance(S1Angle.degrees(S2Earth.kmToRadians(3.0))))
     )
 
     private var numberOfDistanceCalculationRunning = 0
@@ -38,7 +38,7 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
         var closestDriverAsTheCrowFlies: List<DriverData>
         synchronized(this) {
             numberOfDistanceCalculationRunning++
-            closestDriverAsTheCrowFlies = if (requestData.gender.isBlank() && requestData.carType.isNotBlank()) {
+            closestDriverAsTheCrowFlies = if (requestData.gender == null && requestData.carType == null) {
                 findClosestDistanceAsTheCrowFlies(requestData.location)
             } else {
                 findClosestDistanceAsTheCrowFlies(requestData)
@@ -50,13 +50,13 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
     }
 
     private fun findClosestDistanceAsTheCrowFlies(data: DispatchRequestData): List<DriverData> {
-        val target = S2MinDistancePointTarget(data.location.toS2Point())
+        val target = S2ClosestPointQuery.S2ClosestPointQueryPointTarget(data.location.toS2Point())
         val closestPoint = distanceCalculator.findClosestPoints(target).filter {
             val driverData = driverDataManager.getDriverData(it.data())
-            if (data.gender.isNotBlank() && data.gender != driverData?.gender) {
+            if (data.gender != driverData?.gender) {
                 return@filter false
             }
-            if (data.carType.isNotBlank() && data.carType != driverData?.carType) {
+            if (data.carType != driverData?.carType) {
                 return@filter false
             }
             true
@@ -76,7 +76,7 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
     }
 
     private fun findClosestDistanceAsTheCrowFlies(location: Location): List<DriverData> {
-        val target = S2MinDistancePointTarget(location.toS2Point())
+        val target = S2ClosestPointQuery.S2ClosestPointQueryPointTarget(location.toS2Point())
         distanceCalculator.options().setMaxResult(4)
         val closestPoint = distanceCalculator.findClosestPoints(target)
         return closestPoint.map { driverDataManager.getDriverData(it.data())!! }// TODO Handle the case the driverDataManager return null.
