@@ -35,7 +35,7 @@ class ApplicationTest {
         distanceCalculator = DistanceCalculator(driverDataManager, routeApiClient)
         driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
         dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
-        dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataManager)
+        dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataManager, dispatchDataList)
     }
 
     // TODO test cancellation for both the rider and driver side.

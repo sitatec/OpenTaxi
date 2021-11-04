@@ -1,5 +1,6 @@
 package com.hamba.dispatcher.model
 
+import com.hamba.dispatcher.Dispatcher
 import io.ktor.websocket.*
 
 class DispatchData(
@@ -8,10 +9,10 @@ class DispatchData(
     val riderConnection: DefaultWebSocketServerSession
 ) {
     var nextCandidateIndex = 0
-    private val candidates = candidates.sortedBy { it.second.duration.value }.toMutableList()
+    val candidates = candidates.sortedBy { it.second.duration.value }.toMutableList()
 
-    fun getNextClosestCandidateOrNull():Pair<DriverData, Element>? {
-        if(nextCandidateIndex >= candidates.size) {
+    fun getNextClosestCandidateOrNull(): Pair<DriverData, Element>? {
+        if (nextCandidateIndex >= candidates.size) {
             return null
         }
         candidates.removeAt(nextCandidateIndex - 1 /*Current Candidate Index*/)
@@ -24,7 +25,7 @@ class DispatchData(
     fun getStops() = dispatchRequestData.stops
 
     fun getCurrentCandidate(): Pair<DriverData, Element> {
-        if(nextCandidateIndex == 0) return candidates.first()
+        if (nextCandidateIndex == 0) return candidates.first()
         return candidates[nextCandidateIndex - 1]
     }
 }

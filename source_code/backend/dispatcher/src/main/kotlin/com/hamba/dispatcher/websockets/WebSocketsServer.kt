@@ -12,6 +12,7 @@ import io.ktor.routing.*
 import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -81,11 +82,9 @@ fun Application.webSocketsServer(
                 println("driverId = $driverId | message = Connection closed for ${closeReason.await()}")
             } catch (e: Exception) {
                 println("driverId = $driverId | message = ${e.localizedMessage}")
+                e.printStack()
             } finally {
-                driverId?.let {
-                    driverConnections.remove(it)
-                    driverDataManager.deleteDriverData(it)
-                }
+                driverId?.let {dispatcher.onDriverDisconnect(it)}
             }
         }
 
@@ -102,14 +101,14 @@ fun Application.webSocketsServer(
                             val dispatchRequestData =
                                 Json.decodeFromString<DispatchRequestData>(receivedText.substringAfter(":"))
                             riderId = dispatchRequestData.riderId
-                            dispatcher.dispatch(dispatchRequestData, dispatchDataList, this)
+                            dispatcher.dispatch(dispatchRequestData, this)
                         }
                         "c" /*CANCEL*/ -> {
                             val dispatchData = dispatchDataList[riderId]
                             if (dispatchData == null) {
                                 // TODO handle
                             } else {
-                                dispatcher.onBookingCanceled(riderId, dispatchDataList)
+                                dispatcher.onBookingCanceled(riderId)
                             }
                         }
                     }
@@ -120,7 +119,7 @@ fun Application.webSocketsServer(
                 println("riderId = $riderId | message = ${e.localizedMessage} \n trace = ")
                 e.printStack()
             } finally {
-                dispatchDataList.remove(riderId)
+                dispatcher.onRiderDisconnect(riderId)
             }
         }
     }
