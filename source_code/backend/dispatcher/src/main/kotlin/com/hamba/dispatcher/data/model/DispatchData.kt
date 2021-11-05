@@ -1,6 +1,5 @@
-package com.hamba.dispatcher.model
+package com.hamba.dispatcher.data.model
 
-import com.hamba.dispatcher.Dispatcher
 import io.ktor.websocket.*
 
 class DispatchData(

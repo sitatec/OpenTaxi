@@ -1,11 +1,11 @@
-package com.hamba.dispatcher
+package com.hamba.dispatcher.data
 
-import com.hamba.dispatcher.model.DriverData
-import com.hamba.dispatcher.model.Location
+import com.hamba.dispatcher.data.model.DriverData
+import com.hamba.dispatcher.data.model.Location
 import dilivia.s2.index.point.PointData
 import dilivia.s2.index.point.S2PointIndex
 
-class DriverDataManager(val locationIndex: S2PointIndex<String>) {
+class DriverDataRepository(val locationIndex: S2PointIndex<String>) {
 
     private val driverData = mutableMapOf<String, DriverData>()
     private val dataChangeListener = mutableListOf<DataChangeListener>()

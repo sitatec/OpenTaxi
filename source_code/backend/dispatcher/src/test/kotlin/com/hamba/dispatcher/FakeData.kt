@@ -1,8 +1,8 @@
 package com.hamba.dispatcher
 
-import com.hamba.dispatcher.model.DispatchRequestData
-import com.hamba.dispatcher.model.DriverData
-import com.hamba.dispatcher.model.Location
+import com.hamba.dispatcher.data.model.DispatchRequestData
+import com.hamba.dispatcher.data.model.DriverData
+import com.hamba.dispatcher.data.model.Location
 
 val fakeDriverData = DriverData("nearSala", Location(11.310777, -12.312727)/*Near SALA*/, "MALE", "STANDARD")
 

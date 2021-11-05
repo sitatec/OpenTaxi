@@ -1,7 +1,8 @@
 package com.hamba.dispatcher.e2e
 
 import com.hamba.dispatcher.*
-import com.hamba.dispatcher.model.*
+import com.hamba.dispatcher.data.DriverDataRepository
+import com.hamba.dispatcher.data.model.*
 import com.hamba.dispatcher.websockets.webSocketsServer
 import dilivia.s2.index.point.S2PointIndex
 import io.ktor.http.cio.websocket.*
@@ -14,15 +15,13 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.util.*
-import java.util.concurrent.Executors
-import kotlin.coroutines.CoroutineContext
 
 class ApplicationTest {
     // TODO Test Thread safety.
 
     private var routeApiClient = RouteApiClient()
     private lateinit var locationIndex: S2PointIndex<String>
-    private lateinit var driverDataManager: DriverDataManager
+    private lateinit var driverDataRepository: DriverDataRepository
     private lateinit var distanceCalculator: DistanceCalculator
     private lateinit var driverConnections: MutableMap<String, DefaultWebSocketServerSession>
     private lateinit var dispatchDataList: MutableMap<String, DispatchData>
@@ -31,18 +30,18 @@ class ApplicationTest {
     @BeforeTest
     fun initData() {
         locationIndex = S2PointIndex()
-        driverDataManager = DriverDataManager(locationIndex)
-        distanceCalculator = DistanceCalculator(driverDataManager, routeApiClient)
+        driverDataRepository = DriverDataRepository(locationIndex)
+        distanceCalculator = DistanceCalculator(driverDataRepository, routeApiClient)
         driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
         dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
-        dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataManager, dispatchDataList)
+        dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
     }
 
     // TODO test cancellation for both the rider and driver side.
 
     @Test
     fun testDriverDataManagement() {
-        withTestApplication({ webSocketsServer(driverConnections, driverDataManager, dispatchDataList, dispatcher) }) {
+        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher) }) {
             handleWebSocketConversation("/driver") { _, outgoing ->
 
                 assertEquals(
@@ -62,11 +61,11 @@ class ApplicationTest {
 
                 // TEST driver send location update frame
                 val newLocation = Location(23.453543, -24.454643)
-                var driverLocation = driverDataManager.getDriverData(fakeDriverData.driverId)!!.location
+                var driverLocation = driverDataRepository.getDriverData(fakeDriverData.driverId)!!.location
                 assertNotEquals(newLocation, driverLocation)
                 outgoing.send(Frame.Text("u:$newLocation"))
                 delay(25)
-                driverLocation = driverDataManager.getDriverData(fakeDriverData.driverId)!!.location
+                driverLocation = driverDataRepository.getDriverData(fakeDriverData.driverId)!!.location
                 assertEquals(newLocation, driverLocation)
 
                 // Test driver deleting his location data
@@ -79,7 +78,7 @@ class ApplicationTest {
 
     @Test
     fun `Trying to update data without first add it should close connection`() {
-        withTestApplication({ webSocketsServer(driverConnections, driverDataManager, dispatchDataList, dispatcher) }) {
+        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher) }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
                 val location = Location(23.453543, -24.454643)
                 outgoing.send(Frame.Text("u:$location"))
@@ -91,7 +90,7 @@ class ApplicationTest {
 
     @Test
     fun `Trying to delete data without first add it should close connection`() {
-        withTestApplication({ webSocketsServer(driverConnections, driverDataManager, dispatchDataList, dispatcher) }) {
+        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher) }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
                 outgoing.send(Frame.Text("d:"))
                 val closeReasonCode = (incoming.receive() as Frame.Close).readReason()?.code
@@ -104,7 +103,7 @@ class ApplicationTest {
     @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun testDispatching() {
-        withTestApplication({ webSocketsServer(driverConnections, driverDataManager, dispatchDataList, dispatcher) }) {
+        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher) }) {
             // Simulate connected drivers
             for (fakeDriverData in fakeDriverDataList) {
                 println("driver = ${fakeDriverData.driverId}")
@@ -142,7 +141,7 @@ class ApplicationTest {
 
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
-                assertNull(driverDataManager.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
+                assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()

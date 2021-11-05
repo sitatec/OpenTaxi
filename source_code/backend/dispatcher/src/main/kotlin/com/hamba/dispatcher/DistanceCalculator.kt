@@ -1,16 +1,18 @@
 package com.hamba.dispatcher
 
-import com.hamba.dispatcher.model.*
+import com.hamba.dispatcher.data.DataChangeListener
+import com.hamba.dispatcher.data.DriverDataRepository
+import com.hamba.dispatcher.data.model.*
 import dilivia.s2.S1Angle
 import dilivia.s2.S2Earth
 import dilivia.s2.index.S2MinDistance
 import dilivia.s2.index.point.S2ClosestPointQuery
 import kotlinx.coroutines.runBlocking
 
-class DistanceCalculator(private val driverDataManager: DriverDataManager, private val routeApiClient: RouteApiClient) {
+class DistanceCalculator(private val driverDataRepository: DriverDataRepository, private val routeApiClient: RouteApiClient) {
 
     private val closestPointQuery = S2ClosestPointQuery(
-        driverDataManager.locationIndex,
+        driverDataRepository.locationIndex,
         S2ClosestPointQuery.Options(maxDistance = S2MinDistance(S1Angle.radians(S2Earth.kmToRadians(3.0))))
     )
 
@@ -29,7 +31,7 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
                 }
             },
         )
-        driverDataManager.addDataChangeListener(dataChangeListener)
+        driverDataRepository.addDataChangeListener(dataChangeListener)
     }
 
     fun getClosestDriverDistance(requestData: DispatchRequestData): List<Pair<DriverData, Element>> {
@@ -50,7 +52,7 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
     private fun findClosestDistanceAsTheCrowFlies(data: DispatchRequestData): List<DriverData> {
         val target = S2ClosestPointQuery.S2ClosestPointQueryPointTarget(data.location.toS2Point())
         val closestPoint = closestPointQuery.findClosestPoints(target).filter {
-            val driverData = driverDataManager.getDriverData(it.data())
+            val driverData = driverDataRepository.getDriverData(it.data())
             if (data.gender != driverData?.gender) {
                 return@filter false
             }
@@ -66,7 +68,7 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
         val result = mutableListOf<DriverData>()
         var driverData: DriverData
         repeat(4) {
-            driverData = driverDataManager.getDriverData(closestDriver[it].data())!!
+            driverData = driverDataRepository.getDriverData(closestDriver[it].data())!!
             // TODO Handle the case the driverDataManager return null ^.
             result.add(driverData)
         }
@@ -77,7 +79,7 @@ class DistanceCalculator(private val driverDataManager: DriverDataManager, priva
         val target = S2ClosestPointQuery.S2ClosestPointQueryPointTarget(location.toS2Point())
         closestPointQuery.options().setMaxResult(4)
         val closestPoint = closestPointQuery.findClosestPoints(target)
-        return closestPoint.map { driverDataManager.getDriverData(it.data())!! }// TODO Handle the case the driverDataManager return null.
+        return closestPoint.map { driverDataRepository.getDriverData(it.data())!! }// TODO Handle the case the driverDataManager return null.
     }
 
     private fun findClosestDistanceOnRoad(

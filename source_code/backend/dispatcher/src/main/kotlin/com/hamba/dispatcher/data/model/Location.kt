@@ -1,4 +1,4 @@
-package com.hamba.dispatcher.model
+package com.hamba.dispatcher.data.model
 
 import dilivia.s2.S2Point
 import kotlinx.serialization.Serializable

@@ -1,7 +1,7 @@
 package com.hamba.dispatcher
 
-import com.hamba.dispatcher.model.DispatchRequestData
-import com.hamba.dispatcher.model.DriverData
+import com.hamba.dispatcher.data.model.DispatchRequestData
+import com.hamba.dispatcher.data.model.DriverData
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json

@@ -1,8 +1,8 @@
 package com.hamba.dispatcher
 
-import com.hamba.dispatcher.model.DistanceMatrixResponse
-import com.hamba.dispatcher.model.Element
-import com.hamba.dispatcher.model.Location
+import com.hamba.dispatcher.data.model.DistanceMatrixResponse
+import com.hamba.dispatcher.data.model.Element
+import com.hamba.dispatcher.data.model.Location
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*

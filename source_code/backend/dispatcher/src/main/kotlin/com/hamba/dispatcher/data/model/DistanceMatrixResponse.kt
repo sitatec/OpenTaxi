@@ -1,4 +1,4 @@
-package com.hamba.dispatcher.model
+package com.hamba.dispatcher.data.model
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

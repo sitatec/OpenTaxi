@@ -1,18 +1,17 @@
 package com.hamba.dispatcher.websockets
 
 import com.hamba.dispatcher.Dispatcher
-import com.hamba.dispatcher.DriverDataManager
-import com.hamba.dispatcher.model.DispatchData
-import com.hamba.dispatcher.model.DispatchRequestData
-import com.hamba.dispatcher.model.DriverData
-import com.hamba.dispatcher.model.Location
+import com.hamba.dispatcher.data.DriverDataRepository
+import com.hamba.dispatcher.data.model.DispatchData
+import com.hamba.dispatcher.data.model.DispatchRequestData
+import com.hamba.dispatcher.data.model.DriverData
+import com.hamba.dispatcher.data.model.Location
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
 import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.launch
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -21,7 +20,7 @@ import kotlinx.serialization.json.Json
 @OptIn(ExperimentalSerializationApi::class)
 fun Application.webSocketsServer(
     driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
-    driverDataManager: DriverDataManager,
+    driverDataRepository: DriverDataRepository,
     dispatchDataList: MutableMap<String, DispatchData>,
     dispatcher: Dispatcher,
 ) {
@@ -40,7 +39,7 @@ fun Application.webSocketsServer(
                         "a" /*ADD*/ -> {
                             val driverData = Json.decodeFromString<DriverData>(receivedText.substringAfter(":"))
                             driverConnections[driverData.driverId] = this
-                            driverDataManager.addDriverData(driverData)
+                            driverDataRepository.addDriverData(driverData)
                             driverId = driverData.driverId
                         }
                         "u" /*UPDATE*/ -> {
@@ -49,13 +48,13 @@ fun Application.webSocketsServer(
                             }
                             val (latitude, longitude) = receivedText.substringAfter(":").split(",")
                             val location = Location(latitude.toDouble(), longitude.toDouble())
-                            driverDataManager.updateDriverData(driverId!!, location)
+                            driverDataRepository.updateDriverData(driverId!!, location)
                         }
                         "d" /*DELETE/DISCONNECT*/ -> {
                             if (driverId == null) {// Should add data before deleting it
                                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
                             }
-                            driverDataManager.deleteDriverData(driverId!!)
+                            driverDataRepository.deleteDriverData(driverId!!)
                             close(CloseReason(CloseReason.Codes.NORMAL, ""))
                         }
                         "yes" /*ACCEPT BOOKING*/ -> {

@@ -1,12 +1,12 @@
 package com.hamba.dispatcher
 
-import com.hamba.dispatcher.model.DispatchData
-import com.hamba.dispatcher.model.DispatchRequestData
+import com.hamba.dispatcher.data.DriverDataRepository
+import com.hamba.dispatcher.data.model.DispatchData
+import com.hamba.dispatcher.data.model.DispatchRequestData
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -15,7 +15,7 @@ class Dispatcher(
     private val distanceCalculator: DistanceCalculator,
     private val driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
     private val routeApiClient: RouteApiClient,
-    private val driverDataManager: DriverDataManager,
+    private val driverDataRepository: DriverDataRepository,
     private val dispatchDataList: MutableMap<String, DispatchData>
 ) {
 
@@ -38,7 +38,7 @@ class Dispatcher(
             val closestDriverConnection = driverConnections[closestDriver.first.driverId]!! // TODO handle when null
             val dispatchRequestDataJson = Json.encodeToString(dispatchData.dispatchRequestData)
             closestDriverConnection.send("b:$dispatchRequestDataJson")
-            driverDataManager.deleteDriverData(closestDriver.first.driverId) // Once we send a booking request to the
+            driverDataRepository.deleteDriverData(closestDriver.first.driverId) // Once we send a booking request to the
             // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
             val driverDataAsJson = Json.encodeToString(closestDriver)
             dispatchData.riderConnection.send(/* bs = BOOKING SENT */"bs:${driverDataAsJson}")
@@ -63,7 +63,7 @@ class Dispatcher(
     }
 
     suspend fun onBookingRefused(dispatchData: DispatchData) {
-        driverDataManager.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
+        driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
         dispatchData.riderConnection.send("no:${dispatchData.nextCandidateIndex}")
         bookNextClosestDriver(dispatchData)
     }
@@ -75,7 +75,7 @@ class Dispatcher(
         } else {
             val driverConnection = driverConnections[dispatchData.getCurrentCandidate().first.driverId]
             driverConnection?.send("c:$riderId" /*CANCEL*/)
-            driverDataManager.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
+            driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
             dispatchData.riderConnection.close(CloseReason(CloseReason.Codes.NORMAL, ""))
         }
         dispatchDataList.remove(riderId)
@@ -86,7 +86,7 @@ class Dispatcher(
             val currentCandidateConnection = driverConnections[it.getCurrentCandidate().first.driverId]
             currentCandidateConnection?.send(/*DISCONNECTED*/"dis:$riderId")// Notify the driver that we sent a
             // booking request that the rider is disconnected
-            driverDataManager.addDriverData(it.getCurrentCandidate().first) // Available for new bookings.
+            driverDataRepository.addDriverData(it.getCurrentCandidate().first) // Available for new bookings.
         }
         dispatchDataList.remove(riderId)
     }
@@ -94,7 +94,7 @@ class Dispatcher(
     suspend fun onDriverDisconnect(driverId: String) {
         // TODO Refactor, test and document
         driverConnections.remove(driverId)
-        driverDataManager.deleteDriverData(driverId)
+        driverDataRepository.deleteDriverData(driverId)
         dispatchDataList.forEach { (_, dispatchData) ->
             dispatchData.candidates.removeIf {
                 if (it.first.driverId == driverId) {
