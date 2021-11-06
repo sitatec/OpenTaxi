@@ -1,13 +1,14 @@
 package com.hamba.dispatcher.data.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 class  DispatchRequestData(
-    val riderId: String,
-    var location: Location,
-    val stops: List<String>,
-    val destination: String,
-    val gender: String? = null,
-    val carType: String? = null,
+    @SerialName("id") val riderId: String,
+    @SerialName("loc") var location: Location,
+    @SerialName("stp") val stops: List<String>,
+    @SerialName("des") val destination: String,
+    @SerialName("gnr") val gender: String? = null,
+    @SerialName("crT") val carType: String? = null,
 )
