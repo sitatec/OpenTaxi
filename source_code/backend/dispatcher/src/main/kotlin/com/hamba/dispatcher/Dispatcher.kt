@@ -3,6 +3,7 @@ package com.hamba.dispatcher
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
+import com.hamba.dispatcher.services.api.RouteApiClient
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.launch

@@ -1,5 +1,6 @@
 package com.hamba.dispatcher.data.model
 
+import dilivia.s2.S2CellId
 import dilivia.s2.S2Point
 import kotlinx.serialization.Serializable
 import dilivia.s2.S2LatLng
@@ -11,8 +12,8 @@ data class Location(
     @SerialName("lng") private val longitude: Double,
     @SerialName("pId") private val placeId: String? = null
 ) {
-    fun toS2Point(): S2Point {
-        return S2LatLng.fromDegrees(latitude, longitude).toPoint();
+    fun toCellID(): S2CellId {
+        return S2CellId.fromLatLng(S2LatLng.fromDegrees(latitude, longitude))
     }
 
     override fun toString(): String {
@@ -20,7 +21,7 @@ data class Location(
     }
 }
 
-fun S2Point.toLocation(): Location {
-    val latLong = S2LatLng.fromPoint(this)
+fun ULong.toLocation(): Location {
+    val latLong = S2CellId(this).toLatLng()
     return Location(latLong.latRadians, latLong.lngRadians)
 }

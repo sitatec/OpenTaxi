@@ -3,6 +3,8 @@ package com.hamba.dispatcher.e2e
 import com.hamba.dispatcher.*
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.*
+import com.hamba.dispatcher.services.api.FirebaseDatabaseClient
+import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.websockets.webSocketsServer
 import dilivia.s2.index.point.S2PointIndex
 import io.ktor.http.cio.websocket.*
@@ -14,13 +16,14 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import org.junit.AfterClass
 import java.util.*
 
 class ApplicationTest {
     // TODO Test Thread safety.
 
-    private var routeApiClient = RouteApiClient()
-    private lateinit var locationIndex: S2PointIndex<String>
+    private val routeApiClient = RouteApiClient()
+    private val firebaseDatabaseClient = FirebaseDatabaseClient()
     private lateinit var driverDataRepository: DriverDataRepository
     private lateinit var distanceCalculator: DistanceCalculator
     private lateinit var driverConnections: MutableMap<String, DefaultWebSocketServerSession>
@@ -29,12 +32,17 @@ class ApplicationTest {
 
     @BeforeTest
     fun initData() {
-        locationIndex = S2PointIndex()
-        driverDataRepository = DriverDataRepository(locationIndex)
+        driverDataRepository = DriverDataRepository(firebaseDatabaseClient)
         distanceCalculator = DistanceCalculator(driverDataRepository, routeApiClient)
         driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
         dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
         dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
+    }
+
+    @AfterClass
+    fun release() {
+        routeApiClient.release()
+        firebaseDatabaseClient.release()
     }
 
     // TODO test cancellation for both the rider and driver side.
@@ -46,7 +54,7 @@ class ApplicationTest {
 
                 assertEquals(
                     0,
-                    locationIndex.numPoints(),
+                    firebaseDatabaseClient.getData(FirebaseDatabaseClient.QueryBuilder("drivers")).decodeFromJson<List<DriverData>>().size,
                     "The location index must be empty when the server is just started."
                 )
 
@@ -55,23 +63,23 @@ class ApplicationTest {
                 delay(25)
                 assertEquals(
                     1,
-                    locationIndex.numPoints(),
+                    firebaseDatabaseClient.getData(FirebaseDatabaseClient.QueryBuilder("drivers")).decodeFromJson<List<DriverData>>().size,
                     "The number of location/Point in the index must be equal to the number of driver that have sent their location to the server."
                 )
 
                 // TEST driver send location update frame
                 val newLocation = Location(23.453543, -24.454643)
-                var driverLocation = driverDataRepository.getDriverData(fakeDriverData.driverId)!!.location
+                var driverLocation = driverDataRepository.getDriverData(fakeDriverData.driverId).location
                 assertNotEquals(newLocation, driverLocation)
                 outgoing.send(Frame.Text("u:$newLocation"))
                 delay(25)
-                driverLocation = driverDataRepository.getDriverData(fakeDriverData.driverId)!!.location
+                driverLocation = driverDataRepository.getDriverData(fakeDriverData.driverId).location
                 assertEquals(newLocation, driverLocation)
 
                 // Test driver deleting his location data
                 outgoing.send(Frame.Text("d:"))
                 delay(25)
-                assertEquals(0, locationIndex.numPoints())
+                assertEquals(0, firebaseDatabaseClient.getData(FirebaseDatabaseClient.QueryBuilder("drivers")).decodeFromJson<List<DriverData>>().size)
             }
         }
     }

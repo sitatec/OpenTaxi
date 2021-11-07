@@ -48,7 +48,7 @@ fun Application.webSocketsServer(
                             }
                             val (latitude, longitude) = receivedText.substringAfter(":").split(",")
                             val location = Location(latitude.toDouble(), longitude.toDouble())
-                            driverDataRepository.updateDriverData(driverId!!, location)
+                            driverDataRepository.updateDriverLocation(driverId!!, location)
                         }
                         "d" /*DELETE/DISCONNECT*/ -> {
                             if (driverId == null) {// Should add data before deleting it

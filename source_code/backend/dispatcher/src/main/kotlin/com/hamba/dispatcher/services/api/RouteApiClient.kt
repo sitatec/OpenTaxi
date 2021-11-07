@@ -1,4 +1,4 @@
-package com.hamba.dispatcher
+package com.hamba.dispatcher.services.api
 
 import com.hamba.dispatcher.data.model.DistanceMatrixResponse
 import com.hamba.dispatcher.data.model.Element
@@ -6,6 +6,8 @@ import com.hamba.dispatcher.data.model.Location
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -19,14 +21,19 @@ class RouteApiClient(private val httpClient: HttpClient = HttpClient(CIO)) {
 
     suspend fun distanceMatrix(origins: List<Location>, destination: Location): List<Element> {
         val url = "$DISTANCE_MATRIX_URL&origins=${origins.joinToString("|")}&destinations=$destination"
-        val httpRawResponse: String = httpClient.get(url)
-        val httpJsonResponse = Json.decodeFromString<DistanceMatrixResponse>(httpRawResponse)
-        return httpJsonResponse.rows.map { it.elements.first() }
+        return withContext(Dispatchers.IO) {
+            val httpRawResponse: String = httpClient.get(url)
+            val httpJsonResponse = Json.decodeFromString<DistanceMatrixResponse>(httpRawResponse)
+            httpJsonResponse.rows.map { it.elements.first() }
+        }
     }
 
     suspend fun findDirection(origin: Location, destination: String, stops: List<String>): String {
         val url = "$DIRECTION_URL&origin=$origin&destination=$destination&waypoints=${stops.joinToString("|")}"
-        return httpClient.get(url)
+        return withContext(Dispatchers.IO) {
+            httpClient.get(url)
+        }
+
     }
 
     fun release() {

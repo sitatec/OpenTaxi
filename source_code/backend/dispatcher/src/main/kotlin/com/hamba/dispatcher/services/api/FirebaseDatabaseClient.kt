@@ -1,13 +1,14 @@
 package com.hamba.dispatcher.services.api
 
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class FirebaseDatabaseClient(
-    private val httpClient: HttpClient,
+    private val httpClient: HttpClient = HttpClient(CIO),
     private val baseUrl: String = "https://hamba-project-default-rtdb.firebaseio.com/"
 ) {
     suspend fun getData(queryBuilder: QueryBuilder): String {
@@ -44,9 +45,9 @@ class FirebaseDatabaseClient(
 
     fun release() = httpClient.close()
 
-    class QueryBuilder(private var path: String) {
+    class QueryBuilder(private var path: String, timeout: String = "1s") {
         init {
-            path += ".json?"
+            path += ".json?timeout=$timeout&"
         }
 
         fun orderBy(child: String) = apply {

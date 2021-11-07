@@ -5,9 +5,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class DriverData(
-    @SerialName("id") var driverId: String? = null,
     @SerialName("loc") var location: Location,
     @SerialName("gnr") val gender: String,
     @SerialName("crT") val carType: String,
-    @SerialName("cID") val cellId: ULong? = null
-)
+    @SerialName("id") var driverId: String = "",
+    @SerialName("cID") var cellId: ULong = 0UL
+) : Comparable<DriverData> {
+    override fun compareTo(other: DriverData): Int {
+        return cellId.compareTo(other.cellId)
+    }
+
+}
