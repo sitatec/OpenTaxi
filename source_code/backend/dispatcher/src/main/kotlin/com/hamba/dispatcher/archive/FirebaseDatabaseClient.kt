@@ -1,4 +1,4 @@
-package com.hamba.dispatcher.services.api
+package com.hamba.dispatcher.archive
 
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 //TODO put all api keys and secret in local.properties
-class FirebaseDatabaseClient(
+private class FirebaseDatabaseClient(
     private val httpClient: HttpClient = HttpClient(CIO),
     private val baseUrl: String = "https://hamba-project-default-rtdb.firebaseio.com/"
 ) {

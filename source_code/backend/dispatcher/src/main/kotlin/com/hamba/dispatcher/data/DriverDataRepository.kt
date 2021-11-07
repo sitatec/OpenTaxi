@@ -2,62 +2,55 @@ package com.hamba.dispatcher.data
 
 import com.hamba.dispatcher.data.model.DriverData
 import com.hamba.dispatcher.data.model.Location
-import com.hamba.dispatcher.services.api.FirebaseDatabaseClient
+import com.hamba.dispatcher.services.api.FirebaseDatabaseWrapper
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalSerializationApi::class)
-class DriverDataRepository(private val firebaseDatabaseClient: FirebaseDatabaseClient) {
+class DriverDataRepository(private val firebaseDatabaseClient: FirebaseDatabaseWrapper) {
     // TODO create a utils package with JsonUtils file on it and refactor all json conversion
-    private val dataChangeListener = mutableListOf<DataChangeListener>()
-
-    fun addDataChangeListener(listener: DataChangeListener) = dataChangeListener.add(listener)
 
     suspend fun getDriverData(driverId: String): DriverData {
         // TODO handle where driver with `driverId` doesn't exist
-        val queryBuilder = FirebaseDatabaseClient.QueryBuilder("drivers/$driverId")
-        val driverJsonData = firebaseDatabaseClient.getData(queryBuilder)
-        return Json.decodeFromString<DriverData>(driverJsonData).apply { this.driverId = driverId }
+        return firebaseDatabaseClient.getData<DriverData>("drivers/$driverId").apply { this.driverId = driverId }
     }
 
     suspend fun getAllData(): List<DriverData> {
-        val queryBuilder = FirebaseDatabaseClient.QueryBuilder("drivers")
-        val driversJsonData = firebaseDatabaseClient.getData(queryBuilder)
-        return Json.decodeFromString<Map<String, Map<String, Any>>>(driversJsonData).toDriverData()
+        val driversJsonData: Map<String, Any> = firebaseDatabaseClient.getData("drivers")
+        return driversJsonData.toDriverData()
     }
 
-    suspend fun addDriverData(data: DriverData) {
-        val queryBuilder = FirebaseDatabaseClient.QueryBuilder("drivers/${data.driverId}")
+    fun addDriverData(data: DriverData) {
         data.cellId = data.location.toCellID().id
-        firebaseDatabaseClient.putData(queryBuilder, data.toJsonForFirebaseDb())
+        firebaseDatabaseClient.putData("drivers/${data.driverId}", data.toJsonForFirebaseDb())
     }
 
-    suspend fun updateDriverLocation(driverId: String, location: Location) {
-        val queryBuilder = FirebaseDatabaseClient.QueryBuilder("drivers/$driverId")
+    fun updateDriverLocation(driverId: String, location: Location) {
         val cellId = location.toCellID().id
         val locationJson = Json.encodeToString(location)
-        val jsonData = "{loc: $locationJson, cID: $cellId}"
-        firebaseDatabaseClient.patchData(queryBuilder, jsonData)
+        val jsonData = mapOf("loc" to locationJson, "cID" to cellId)
+        firebaseDatabaseClient.patchData("drivers/$driverId", jsonData)
     }
 
-    suspend fun deleteDriverData(driverId: String) {
-        val queryBuilder = FirebaseDatabaseClient.QueryBuilder("drivers/$driverId")
-        firebaseDatabaseClient.deleteData(queryBuilder)
+    fun deleteDriverData(driverId: String) {
+        firebaseDatabaseClient.deleteData("drivers/$driverId")
     }
 
-    suspend fun findDriversByCellId(minCellId: Long, maxCellId: Long, maxResult: Int = 0): List<DriverData> {
-        val queryBuilder = FirebaseDatabaseClient.QueryBuilder(path = "drivers", timeout = "3s")
-            .orderBy("cID")
-            .startAt(minCellId)
-            .endAt(maxCellId)
-            .limitToFirst(maxResult)
-        return Json.decodeFromString(firebaseDatabaseClient.getData(queryBuilder))
+    fun onDriverAdded(): Flow<DriverData> = firebaseDatabaseClient.onChildAdd<DriverData>("drivers").map {
+        it.second.driverId = it.first
+        it.second
     }
 
-    private fun Map<String, Map<String, Any>>.toDriverData(): List<DriverData> {
+    fun onDriverDeleted(): Flow<String> = firebaseDatabaseClient.onChildDeleted("drivers")
+
+    fun onDriverUpdated(vararg fields: String): Flow<Map<String, Any>> = firebaseDatabaseClient.onChildUpdated("drivers", *fields)
+
+    private fun Map<String, Any>.toDriverData(): List<DriverData> {
         return map { (driverId, driverData) ->
+            driverData as Map<*, *>
             val locationMap = driverData["loc"] as Map<*, *>
             val location = Location(locationMap["lat"] as Double, locationMap["lng"] as Double)
             DriverData(

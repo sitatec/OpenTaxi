@@ -3,10 +3,10 @@ package com.hamba.dispatcher.e2e
 import com.hamba.dispatcher.*
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.*
-import com.hamba.dispatcher.services.api.FirebaseDatabaseClient
+import com.hamba.dispatcher.archive.FirebaseDatabaseClient
+import com.hamba.dispatcher.services.api.FirebaseDatabaseWrapper
 import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.websockets.webSocketsServer
-import dilivia.s2.index.point.S2PointIndex
 import io.ktor.http.cio.websocket.*
 import kotlin.test.*
 import io.ktor.server.testing.*
@@ -23,7 +23,7 @@ class ApplicationTest {
     // TODO Test Thread safety.
 
     private val routeApiClient = RouteApiClient()
-    private val firebaseDatabaseClient = FirebaseDatabaseClient()
+    private val firebaseDatabaseClient = FirebaseDatabaseWrapper()
     private lateinit var driverDataRepository: DriverDataRepository
     private lateinit var distanceCalculator: DistanceCalculator
     private lateinit var driverConnections: MutableMap<String, DefaultWebSocketServerSession>

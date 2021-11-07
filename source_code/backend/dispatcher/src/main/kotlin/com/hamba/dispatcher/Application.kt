@@ -2,10 +2,9 @@ package com.hamba.dispatcher
 
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
-import com.hamba.dispatcher.services.api.FirebaseDatabaseClient
+import com.hamba.dispatcher.services.api.FirebaseDatabaseWrapper
 import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.websockets.webSocketsServer
-import dilivia.s2.index.point.S2PointIndex
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.server.engine.*
@@ -15,7 +14,7 @@ import java.util.*
 
 fun main() {
     val httpClient = HttpClient(CIO)
-    val firebaseDatabaseClient = FirebaseDatabaseClient(httpClient)
+    val firebaseDatabaseClient = FirebaseDatabaseWrapper()
     val driverDataRepository = DriverDataRepository(firebaseDatabaseClient)
     val routeApiClient = RouteApiClient(httpClient)
     val distanceCalculator = DistanceCalculator(driverDataRepository, routeApiClient)

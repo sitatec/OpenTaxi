@@ -28,6 +28,7 @@ dependencies {
     implementation "io.ktor:ktor-client-cio:1.6.4"
 
     implementation 'net.enovea:ks2-geometry:1.0.0'
+    implementation 'com.google.firebase:firebase-admin:8.1.0'
 
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
