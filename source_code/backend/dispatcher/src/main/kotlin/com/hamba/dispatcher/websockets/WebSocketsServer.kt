@@ -12,9 +12,12 @@ import io.ktor.routing.*
 import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.util.*
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -23,9 +26,12 @@ fun Application.webSocketsServer(
     driverDataRepository: DriverDataRepository,
     dispatchDataList: MutableMap<String, DispatchData>,
     dispatcher: Dispatcher,
+    driverDataCache: SortedSet<DriverData>
 ) {
     // TODO Take into account cancellation
     install(WebSockets)
+
+    initDataChangeListeners(driverDataRepository, driverDataCache)
 
     routing {
         webSocket("driver") {
@@ -120,6 +126,21 @@ fun Application.webSocketsServer(
             } finally {
                 dispatcher.onRiderDisconnect(riderId)
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalSerializationApi::class)
+fun initDataChangeListeners(driverDataRepository: DriverDataRepository, driverDataCache: SortedSet<DriverData>) = runBlocking {
+    driverDataRepository.onDriverAdded().collect(driverDataCache::add)
+    driverDataRepository.onDriverDeleted().collect{ driverId ->
+        driverDataCache.removeIf { it.driverId ==  driverId} // TODO optimize time complexity
+    }
+    driverDataRepository.onDriverUpdated("loc", "cID").collect{ fields ->
+        // TODO optimize time complexity
+        driverDataCache.first { it.driverId == fields.first }.apply {
+            location = Json.decodeFromString(fields.second["loc"]!!)
+            cellId = fields.second["cID"]!!.toULong()
         }
     }
 }

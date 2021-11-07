@@ -104,7 +104,7 @@ class FirebaseDatabaseWrapper(val databaseReference: DatabaseReference = Firebas
         }
     }
 
-    fun onChildUpdated(path: String, vararg childrenNames: String): Flow<Map<String, String>> {
+    fun onChildUpdated(path: String, vararg childrenNames: String): Flow<Pair<String, Map<String, String>>> {
         return flow {
             databaseReference.child(path).addChildEventListener(object : ChildEventListener {
                 override fun onChildAdded(snapshot: DataSnapshot?, previousChildName: String?) {}
@@ -116,7 +116,7 @@ class FirebaseDatabaseWrapper(val databaseReference: DatabaseReference = Firebas
                             result[key] = snapshot.child(key).getValue(String::class.java)
                         }
                         runBlocking {
-                            emit(result)
+                            emit(Pair(snapshot.key, result))
                         }
                     }
                 }

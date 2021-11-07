@@ -11,16 +11,9 @@ import kotlin.math.max
 
 class DistanceCalculator(
     private val driverDataRepository: DriverDataRepository,
-    private val routeApiClient: RouteApiClient
+    private val routeApiClient: RouteApiClient,
+    private val driverDataList: SortedSet<DriverData>
 ) {
-
-    private val driverDataList = Collections.synchronizedSortedSet(sortedSetOf<DriverData>())
-
-    init {
-        runBlocking {
-            driverDataList.addAll(driverDataRepository.getAllData())
-        }
-    }
 
     fun getClosestDriverDistance(requestData: DispatchRequestData): List<Pair<DriverData, Element>> {
         val closestDriverAsTheCrowFlies = if (requestData.carType == null && requestData.gender == null) {

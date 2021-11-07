@@ -3,7 +3,6 @@ package com.hamba.dispatcher.e2e
 import com.hamba.dispatcher.*
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.*
-import com.hamba.dispatcher.archive.FirebaseDatabaseClient
 import com.hamba.dispatcher.services.api.FirebaseDatabaseWrapper
 import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.websockets.webSocketsServer
@@ -22,6 +21,7 @@ import java.util.*
 class ApplicationTest {
     // TODO Test Thread safety.
 
+    private val driverDataCache = Collections.synchronizedSortedSet(sortedSetOf<DriverData>())
     private val routeApiClient = RouteApiClient()
     private val firebaseDatabaseClient = FirebaseDatabaseWrapper()
     private lateinit var driverDataRepository: DriverDataRepository
@@ -33,7 +33,7 @@ class ApplicationTest {
     @BeforeTest
     fun initData() {
         driverDataRepository = DriverDataRepository(firebaseDatabaseClient)
-        distanceCalculator = DistanceCalculator(driverDataRepository, routeApiClient)
+        distanceCalculator = DistanceCalculator(driverDataRepository, routeApiClient, driverDataCache)
         driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
         dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
         dispatcher = Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
@@ -42,19 +42,18 @@ class ApplicationTest {
     @AfterClass
     fun release() {
         routeApiClient.release()
-        firebaseDatabaseClient.release()
     }
 
     // TODO test cancellation for both the rider and driver side.
 
     @Test
     fun testDriverDataManagement() {
-        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher) }) {
+        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher, driverDataCache) }) {
             handleWebSocketConversation("/driver") { _, outgoing ->
 
                 assertEquals(
                     0,
-                    firebaseDatabaseClient.getData(FirebaseDatabaseClient.QueryBuilder("drivers")).decodeFromJson<List<DriverData>>().size,
+                    driverDataCache.size,
                     "The location index must be empty when the server is just started."
                 )
 
@@ -63,7 +62,7 @@ class ApplicationTest {
                 delay(25)
                 assertEquals(
                     1,
-                    firebaseDatabaseClient.getData(FirebaseDatabaseClient.QueryBuilder("drivers")).decodeFromJson<List<DriverData>>().size,
+                    driverDataCache.size,
                     "The number of location/Point in the index must be equal to the number of driver that have sent their location to the server."
                 )
 
@@ -79,14 +78,14 @@ class ApplicationTest {
                 // Test driver deleting his location data
                 outgoing.send(Frame.Text("d:"))
                 delay(25)
-                assertEquals(0, firebaseDatabaseClient.getData(FirebaseDatabaseClient.QueryBuilder("drivers")).decodeFromJson<List<DriverData>>().size)
+                assertEquals(0, driverDataCache.size)
             }
         }
     }
 
     @Test
     fun `Trying to update data without first add it should close connection`() {
-        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher) }) {
+        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher, driverDataCache) }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
                 val location = Location(23.453543, -24.454643)
                 outgoing.send(Frame.Text("u:$location"))
@@ -98,7 +97,7 @@ class ApplicationTest {
 
     @Test
     fun `Trying to delete data without first add it should close connection`() {
-        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher) }) {
+        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher, driverDataCache) }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
                 outgoing.send(Frame.Text("d:"))
                 val closeReasonCode = (incoming.receive() as Frame.Close).readReason()?.code
@@ -111,7 +110,7 @@ class ApplicationTest {
     @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun testDispatching() {
-        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher) }) {
+        withTestApplication({ webSocketsServer(driverConnections, driverDataRepository, dispatchDataList, dispatcher, driverDataCache) }) {
             // Simulate connected drivers
             for (fakeDriverData in fakeDriverDataList) {
                 println("driver = ${fakeDriverData.driverId}")

@@ -46,7 +46,7 @@ class DriverDataRepository(private val firebaseDatabaseClient: FirebaseDatabaseW
 
     fun onDriverDeleted(): Flow<String> = firebaseDatabaseClient.onChildDeleted("drivers")
 
-    fun onDriverUpdated(vararg fields: String): Flow<Map<String, Any>> = firebaseDatabaseClient.onChildUpdated("drivers", *fields)
+    fun onDriverUpdated(vararg fields: String): Flow<Pair<String, Map<String, String>>> = firebaseDatabaseClient.onChildUpdated("drivers", *fields)
 
     private fun Map<String, Any>.toDriverData(): List<DriverData> {
         return map { (driverId, driverData) ->
