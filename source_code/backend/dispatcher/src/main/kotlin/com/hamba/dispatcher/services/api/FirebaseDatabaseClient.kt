@@ -7,6 +7,7 @@ import io.ktor.client.statement.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
+//TODO put all api keys and secret in local.properties
 class FirebaseDatabaseClient(
     private val httpClient: HttpClient = HttpClient(CIO),
     private val baseUrl: String = "https://hamba-project-default-rtdb.firebaseio.com/"
@@ -46,6 +47,8 @@ class FirebaseDatabaseClient(
     fun release() = httpClient.close()
 
     class QueryBuilder(private var path: String, timeout: String = "1s") {
+        private var authSet = false
+
         init {
             path += ".json?timeout=$timeout&"
         }
@@ -86,7 +89,17 @@ class FirebaseDatabaseClient(
             path += "equalTo=$value&"
         }
 
-        fun build() = path.dropLast(1) // Remove the last & character.
+        fun auth(secret: String) = apply {
+            path += "auth=$secret&"
+            authSet = true
+        }
+
+        fun build(): String {
+            if(!authSet){
+                auth("TBgdTNbAZjCSEKkwFvVLTw0L75876p8fwaRWsLsZ")
+            }
+            return path.dropLast(1) // Remove the last "&" character.
+        }
 
     }
 }
