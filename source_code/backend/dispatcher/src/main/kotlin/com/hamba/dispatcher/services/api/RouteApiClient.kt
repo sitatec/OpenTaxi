@@ -8,6 +8,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -19,6 +20,7 @@ private const val DIRECTION_URL = "$BASE_URL/directions/json?key=$API_KEY"
 
 class RouteApiClient(private val httpClient: HttpClient = HttpClient(CIO)) {
 
+    @OptIn(ExperimentalSerializationApi::class)
     suspend fun distanceMatrix(origins: List<Location>, destination: Location): List<Element> {
         val url = "$DISTANCE_MATRIX_URL&origins=${origins.joinToString("|")}&destinations=$destination"
         return withContext(Dispatchers.IO) {

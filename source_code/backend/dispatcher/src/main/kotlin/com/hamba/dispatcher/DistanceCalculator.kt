@@ -1,16 +1,11 @@
 package com.hamba.dispatcher
 
-import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.*
 import com.hamba.dispatcher.services.api.RouteApiClient
-import com.hamba.dispatcher.utils.closestOrExactIndexOf
-import dilivia.s2.S2CellId
 import kotlinx.coroutines.runBlocking
 import java.util.*
-import kotlin.math.max
 
 class DistanceCalculator(
-    private val driverDataRepository: DriverDataRepository,
     private val routeApiClient: RouteApiClient,
     private val driverDataList: SortedSet<DriverData>
 ) {
@@ -25,6 +20,7 @@ class DistanceCalculator(
     }
 
     private fun findClosestDistanceAsTheCrowFlies(data: DispatchRequestData): List<DriverData> {
+        require(driverDataList.isNotEmpty())
         val cellId = data.location.toCellID()
         val minBoundary = indexOfDriverClosestToCellId(cellId.parent(12/*From 3 to 5 Km radius*/).rangeMin().id)
         val maxBoundary = indexOfDriverClosestToCellId(cellId.parent(12/*From 3 to 5 Km radius*/).rangeMax().id)
@@ -95,6 +91,7 @@ class DistanceCalculator(
     }
 
     private fun findClosestDistanceAsTheCrowFlies(location: Location): List<DriverData> {
+        require(driverDataList.isNotEmpty())
         val closestDrivers = mutableListOf<DriverData>()
         val cellId = location.toCellID().id
         var minIndex = indexOfDriverClosestToCellId(cellId)
@@ -130,7 +127,7 @@ class DistanceCalculator(
     private fun indexOfDriverClosestToCellId(
         cellId: ULong,
         startIndex: Int = 0,
-        endIndex: Int = driverDataList.size
+        endIndex: Int = driverDataList.size - 1
     ): Int {
         // Binary Search
         if (startIndex > endIndex) return startIndex

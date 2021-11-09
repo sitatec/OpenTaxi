@@ -1,5 +1,6 @@
 package com.hamba.dispatcher.data.model
 
+import dilivia.s2.index.point.PointData
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -12,7 +13,8 @@ class DriverData(
     @SerialName("cID") var cellId: ULong = 0UL
 ) : Comparable<DriverData> {
     override fun compareTo(other: DriverData): Int {
-        return cellId.compareTo(other.cellId)
+        val cellIdComparison = cellId.compareTo(other.cellId)
+        return if(cellIdComparison == 0) driverId.compareTo(other.driverId) else cellIdComparison
     }
 
 }

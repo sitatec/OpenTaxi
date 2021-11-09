@@ -8,8 +8,8 @@ import kotlinx.serialization.SerialName
 
 @Serializable
 data class Location(
-    @SerialName("lat") private val latitude: Double,
-    @SerialName("lng") private val longitude: Double,
+    @SerialName("lat")  val latitude: Double,
+    @SerialName("lng")  val longitude: Double,
     @SerialName("pId") private val placeId: String? = null
 ) {
     fun toCellID(): S2CellId {

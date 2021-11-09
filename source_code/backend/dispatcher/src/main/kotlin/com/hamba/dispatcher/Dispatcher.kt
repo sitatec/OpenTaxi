@@ -32,6 +32,7 @@ class Dispatcher(
 
     @OptIn(ExperimentalSerializationApi::class)
     private suspend fun bookNextClosestDriver(dispatchData: DispatchData) {
+        // TODO make a timeout for the current closest drivers to be invalidated a new ones found.
         val closestDriver = dispatchData.getNextClosestCandidateOrNull()
         if (closestDriver == null) {// All the closest driver have refused or not responded to the booking request.
             dispatchData.riderConnection.send("no:")
@@ -61,11 +62,12 @@ class Dispatcher(
         } else {
             driverConnection.send("dir:$directionData")
         }
+        // TODO when accepted create trip tracking "room" and delete all data related to this booking.
     }
 
     suspend fun onBookingRefused(dispatchData: DispatchData) {
         driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
-        dispatchData.riderConnection.send("no:${dispatchData.nextCandidateIndex}")
+        dispatchData.riderConnection.send("no:${dispatchData.nextClosestCandidateIndex}")
         bookNextClosestDriver(dispatchData)
     }
 
@@ -83,17 +85,16 @@ class Dispatcher(
     }
 
     suspend fun onRiderDisconnect(riderId: String) {
-        dispatchDataList[riderId]?.let {
+        dispatchDataList.remove(riderId)?.let {
             val currentCandidateConnection = driverConnections[it.getCurrentCandidate().first.driverId]
             currentCandidateConnection?.send(/*DISCONNECTED*/"dis:$riderId")// Notify the driver that we sent a
             // booking request that the rider is disconnected
             driverDataRepository.addDriverData(it.getCurrentCandidate().first) // Available for new bookings.
         }
-        dispatchDataList.remove(riderId)
     }
 
     suspend fun onDriverDisconnect(driverId: String) {
-        // TODO Refactor, test and document
+        // TODO Refactor, test, and document
         driverConnections.remove(driverId)
         driverDataRepository.deleteDriverData(driverId)
         dispatchDataList.forEach { (_, dispatchData) ->

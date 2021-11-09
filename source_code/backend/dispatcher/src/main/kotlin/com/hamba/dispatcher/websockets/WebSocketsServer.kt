@@ -1,19 +1,24 @@
 package com.hamba.dispatcher.websockets
 
+import com.google.cloud.firestore.DocumentChange
+import com.google.cloud.firestore.DocumentChange.Type.*
+import com.google.common.collect.TreeMultiset
 import com.hamba.dispatcher.Dispatcher
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
 import com.hamba.dispatcher.data.model.DriverData
 import com.hamba.dispatcher.data.model.Location
+import com.hamba.dispatcher.data.toDriverData
+import com.hamba.dispatcher.services.api.FirebaseFirestoreWrapper
 import io.ktor.application.*
+import io.ktor.http.LinkHeader.Parameters.Type
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
 import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.isActive
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -26,12 +31,13 @@ fun Application.webSocketsServer(
     driverDataRepository: DriverDataRepository,
     dispatchDataList: MutableMap<String, DispatchData>,
     dispatcher: Dispatcher,
-    driverDataCache: SortedSet<DriverData>
+    driverDataCache: SortedSet<DriverData>,
+    firebaseFirestoreWrapper: FirebaseFirestoreWrapper
 ) {
     // TODO Take into account cancellation
     install(WebSockets)
 
-    initDataChangeListeners(driverDataRepository, driverDataCache)
+    initDriversDataChangeListeners(firebaseFirestoreWrapper, driverDataCache)
 
     routing {
         webSocket("driver") {
@@ -87,9 +93,9 @@ fun Application.webSocketsServer(
                 println("driverId = $driverId | message = Connection closed for ${closeReason.await()}")
             } catch (e: Exception) {
                 println("driverId = $driverId | message = ${e.localizedMessage}")
-                e.printStack()
+                e.printStackTrace()
             } finally {
-                driverId?.let {dispatcher.onDriverDisconnect(it)}
+                driverId?.let { dispatcher.onDriverDisconnect(it) }
             }
         }
 
@@ -103,10 +109,14 @@ fun Application.webSocketsServer(
                     receivedText = frame.readText()
                     when (receivedText.substringBefore(":")) {
                         "d" /*DISPATCH REQUEST*/ -> {
-                            val dispatchRequestData =
-                                Json.decodeFromString<DispatchRequestData>(receivedText.substringAfter(":"))
-                            riderId = dispatchRequestData.riderId
-                            dispatcher.dispatch(dispatchRequestData, this)
+                            if (driverDataCache.isEmpty()) {
+                                send("no:")
+                            } else {
+                                val dispatchRequestData =
+                                    Json.decodeFromString<DispatchRequestData>(receivedText.substringAfter(":"))
+                                riderId = dispatchRequestData.riderId
+                                dispatcher.dispatch(dispatchRequestData, this)
+                            }
                         }
                         "c" /*CANCEL*/ -> {
                             val dispatchData = dispatchDataList[riderId]
@@ -131,16 +141,29 @@ fun Application.webSocketsServer(
 }
 
 @OptIn(ExperimentalSerializationApi::class)
-fun initDataChangeListeners(driverDataRepository: DriverDataRepository, driverDataCache: SortedSet<DriverData>) = runBlocking {
-    driverDataRepository.onDriverAdded().collect(driverDataCache::add)
-    driverDataRepository.onDriverDeleted().collect{ driverId ->
-        driverDataCache.removeIf { it.driverId ==  driverId} // TODO optimize time complexity
-    }
-    driverDataRepository.onDriverUpdated("loc", "cID").collect{ fields ->
-        // TODO optimize time complexity
-        driverDataCache.first { it.driverId == fields.first }.apply {
-            location = Json.decodeFromString(fields.second["loc"]!!)
-            cellId = fields.second["cID"]!!.toULong()
+fun initDriversDataChangeListeners(
+    firebaseFirestoreWrapper: FirebaseFirestoreWrapper,
+    driverDataCache: SortedSet<DriverData>
+) {
+    firebaseFirestoreWrapper.firestoreClient.collection("drivers").addSnapshotListener { querySnapshot, error ->
+        if (error != null) {
+            //TODO handle
+        }
+        if (querySnapshot == null) {
+            // TODO handle
+        } else {
+            querySnapshot.documentChanges.forEach { driverDocumentChange ->
+                val driverDocument = driverDocumentChange.document
+                val driverData = driverDocument.data.toDriverData(driverDocument.id)
+                when (driverDocumentChange.type) {
+                    ADDED -> driverDataCache.add(driverData)
+                    MODIFIED -> {// TODO optimize time complexity (the update/modified event is the most frequent as it si dispatched each time a driver location is updated)
+                        driverDataCache.remove(driverDataCache.first { it.driverId == driverDocument.id })
+                        driverDataCache.add(driverData)
+                    }
+                    REMOVED -> driverDataCache.remove(driverData)
+                }
+            }
         }
     }
 }
