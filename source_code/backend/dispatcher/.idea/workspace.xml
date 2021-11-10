@@ -5,18 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Application.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Application.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/DriverDataRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/DriverDataRepository.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchData.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DriverData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DriverData.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/Location.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/Location.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/services/api/FirebaseDatabaseWrapper.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/services/api/FirebaseFirestoreWrapper.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/services/api/RouteApiClient.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/services/api/RouteApiClient.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/FakeData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/FakeData.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/TestUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/TestUtils.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -45,8 +40,9 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Kotlin Data Class" />
-        <option value="Kotlin Class" />
         <option value="Kotlin File" />
+        <option value="Class" />
+        <option value="Kotlin Class" />
       </list>
     </option>
   </component>
@@ -87,13 +83,34 @@
       <recent name="com.hamba.dispatcher.model" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.ApplicationTest">
-    <configuration name="ApplicationTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+  <component name="RunManager" selected="Gradle.ApplicationTest.testIndex">
+    <configuration name="ApplicationTest.Test dispatching with car type specified" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest&quot;" />
+        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test dispatching with car type specified&quot;" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value=":test" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="ApplicationTest.Test dispatching with driver gender specified" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test dispatching with driver gender specified&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -151,33 +168,12 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="ApplicationTest.testDriverDataManagement_FAILURE" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ApplicationTest.testIndex" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.testDriverDataManagement_FAILURE&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="ApplicationTest.testDriverDataManagement_SUCCESS" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.testDriverDataManagement_SUCCESS&quot;" />
+        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.testIndex&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -206,11 +202,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.ApplicationTest" />
+        <item itemvalue="Gradle.ApplicationTest.testIndex" />
+        <item itemvalue="Gradle.ApplicationTest.Test dispatching with driver gender specified" />
+        <item itemvalue="Gradle.ApplicationTest.Test dispatching with car type specified" />
         <item itemvalue="Gradle.ApplicationTest.testDispatching" />
         <item itemvalue="Gradle.ApplicationTest.testDriverDataManagement" />
-        <item itemvalue="Gradle.ApplicationTest.testDriverDataManagement_FAILURE" />
-        <item itemvalue="Gradle.ApplicationTest.testDriverDataManagement_SUCCESS" />
       </list>
     </recent_temporary>
   </component>
@@ -244,6 +240,30 @@
           <url>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.firebase/firebase-admin/8.1.0/8202178c19f9339339e1780b241ec7a3c0fa2260/firebase-admin-8.1.0-sources.jar!/com/google/firebase/database/core/ChildEventRegistration.java</url>
           <line>75</line>
           <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <breakpoint enabled="true" type="java-exception">
+          <properties class="java.util.ConcurrentModificationException" package="java.util" />
+          <option name="timeStamp" value="28" />
+        </breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt</url>
+          <line>155</line>
+          <option name="timeStamp" value="35" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt</url>
+          <line>19</line>
+          <option name="timeStamp" value="36" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt</url>
+          <line>34</line>
+          <option name="timeStamp" value="37" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/PointIndex.kt</url>
+          <line>144</line>
+          <option name="timeStamp" value="38" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

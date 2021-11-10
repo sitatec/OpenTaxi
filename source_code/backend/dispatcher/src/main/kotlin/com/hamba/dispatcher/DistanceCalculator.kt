@@ -16,6 +16,7 @@ class DistanceCalculator(
         } else {
             findClosestDistanceAsTheCrowFlies(requestData)
         }
+        // TODO if their is only one driver near the rider avoid distance matrix request.
         return findClosestDistanceOnRoad(closestDriverAsTheCrowFlies, requestData.location)
     }
 
@@ -24,44 +25,44 @@ class DistanceCalculator(
         val cellId = data.location.toCellID()
         val minBoundary = indexOfDriverClosestToCellId(cellId.parent(12/*From 3 to 5 Km radius*/).rangeMin().id)
         val maxBoundary = indexOfDriverClosestToCellId(cellId.parent(12/*From 3 to 5 Km radius*/).rangeMax().id)
-        val minIndex = indexOfDriverClosestToCellId(cellId.id)
-        val maxIndex = minIndex + 1
+        val minIndex = IntWrapper(indexOfDriverClosestToCellId(cellId.id))
+        val maxIndex = IntWrapper(minIndex.value + 1)
         val closestDrivers = mutableListOf<DriverData>()
-        var driverAtMaxIndex = getNextFilteredClosestDriver(arrayOf(maxIndex), data, 1)
-        var driverAtMinIndex = getNextFilteredClosestDriver(arrayOf(minIndex), data, -1)
+        var driverAtMaxIndex = getNextFilteredClosestDriver(maxIndex, data, 1)
+        var driverAtMinIndex = getNextFilteredClosestDriver(minIndex, data, -1)
         var difference: Long
         while (closestDrivers.size < 4 && driverAtMaxIndex != null && driverAtMinIndex != null) {
             difference = ((cellId.id - driverAtMinIndex.cellId).toLong()
                     - (driverAtMaxIndex.cellId - cellId.id).toLong())
             if (difference < 0) {
                 closestDrivers.add(driverAtMinIndex)
-                driverAtMinIndex = getNextFilteredClosestDriver(arrayOf(minIndex), data, -1, maxBoundary, minBoundary)
-                    ?: break // Return null when no driver match filter in that direction and start of the list reached.
+                driverAtMinIndex = getNextFilteredClosestDriver(minIndex, data, -1, maxBoundary, minBoundary)
+                // Return null when no driver match filter in that direction and start of the list reached.
             } else if (difference > 0) {
                 closestDrivers.add(driverAtMaxIndex)
-                driverAtMaxIndex = getNextFilteredClosestDriver(arrayOf(maxIndex), data, 1, maxBoundary, minBoundary)
-                    ?: break // Return null when no driver match filter in that direction and end of the list reached.
+                driverAtMaxIndex = getNextFilteredClosestDriver(maxIndex, data, 1, maxBoundary, minBoundary)
+                // Return null when no driver match filter in that direction and end of the list reached.
             } else {
                 closestDrivers.add(driverAtMinIndex)
                 closestDrivers.add(driverAtMaxIndex)
-                driverAtMinIndex = getNextFilteredClosestDriver(arrayOf(minIndex), data, -1, maxBoundary, minBoundary)
-                    ?: break // Return null when no driver match filter in that direction and start of the list reached.
-                driverAtMaxIndex = getNextFilteredClosestDriver(arrayOf(maxIndex), data, 1, maxBoundary, minBoundary)
-                    ?: break // Return null when no driver match filter in that direction and end of the list reached.
+                driverAtMinIndex = getNextFilteredClosestDriver(minIndex, data, -1, maxBoundary, minBoundary)
+                // Return null when no driver match filter in that direction and start of the list reached.
+                driverAtMaxIndex = getNextFilteredClosestDriver(maxIndex, data, 1, maxBoundary, minBoundary)
+                // Return null when no driver match filter in that direction and end of the list reached.
             }
         }
 
         if (driverAtMaxIndex == null) {
             while (closestDrivers.size < 4 && driverAtMinIndex != null) {
                 closestDrivers.add(driverAtMinIndex)
-                driverAtMinIndex = getNextFilteredClosestDriver(arrayOf(minIndex), data, -1, maxBoundary, minBoundary)
-                    ?: break // Return null when no driver match filter in that direction and start of the list reached.
+                driverAtMinIndex = getNextFilteredClosestDriver(minIndex, data, -1, maxBoundary, minBoundary)
+                // Return null when no driver match filter in that direction and start of the list reached.
             }
         } else if (driverAtMinIndex == null) {
             while (closestDrivers.size < 4 && driverAtMaxIndex != null) {
                 closestDrivers.add(driverAtMaxIndex)
-                driverAtMaxIndex = getNextFilteredClosestDriver(arrayOf(maxIndex), data, 1, maxBoundary, minBoundary)
-                    ?: break // Return null when no driver match filter in that direction and end of the list reached.
+                driverAtMaxIndex = getNextFilteredClosestDriver(maxIndex, data, 1, maxBoundary, minBoundary)
+                // Return null when no driver match filter in that direction and end of the list reached.
             }
         }
 
@@ -69,23 +70,21 @@ class DistanceCalculator(
     }
 
     private fun getNextFilteredClosestDriver(
-        indexWrapper: Array<Int>,
+        index: IntWrapper,
         data: DispatchRequestData,
         step: Int,
         maxIndex: Int = driverDataList.size - 1,
         minIndex: Int = 0
     ): DriverData? {
-        var index = indexWrapper[0]
         var driverData: DriverData
-        while (index in minIndex..maxIndex) {
-            driverData = driverDataList.elementAt(index)
+        while (index.value in minIndex..maxIndex) {
+            driverData = driverDataList.elementAt(index.value)
+            index.value += step
             if ((data.gender == null || data.gender == driverData.gender)
                 && (data.carType == null || data.carType == driverData.carType)
             ) {
                 return driverData
             }
-            indexWrapper[0] += step
-            index = indexWrapper[0]
         }
         return null
     }
@@ -156,5 +155,7 @@ class DistanceCalculator(
         }
         return closestDriver
     }
+
+    private class IntWrapper(var value: Int)
 
 }

@@ -1,6 +1,7 @@
 package com.hamba.dispatcher.data.model
 
 import io.ktor.websocket.*
+import java.util.*
 
 class DispatchData(
     candidates: List<Pair<DriverData, Element>>,
@@ -18,8 +19,9 @@ class DispatchData(
         if (nextClosestCandidateIndex >= candidates.size) {
             return null
         }
-        if(nextClosestCandidateIndex > 0) {
+        if (nextClosestCandidateIndex > 0) {
             candidates.removeAt(nextClosestCandidateIndex - 1 /*Current Candidate Index*/)
+            return candidates[nextClosestCandidateIndex]
         }
         return candidates[nextClosestCandidateIndex++]
     }
