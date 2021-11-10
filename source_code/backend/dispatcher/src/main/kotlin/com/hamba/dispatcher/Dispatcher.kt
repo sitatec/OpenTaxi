@@ -3,6 +3,8 @@ package com.hamba.dispatcher
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
+import com.hamba.dispatcher.data.model.DriverData
+import com.hamba.dispatcher.data.model.Element
 import com.hamba.dispatcher.services.api.RouteApiClient
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
@@ -97,20 +99,20 @@ class Dispatcher(
         // TODO Refactor, test, and document
         driverConnections.remove(driverId)
         driverDataRepository.deleteDriverData(driverId)
+        var notifyRiderAndBookNext: suspend () -> Unit = {}
         dispatchDataList.forEach { (_, dispatchData) ->
-            dispatchData.candidates.removeIf {
-                if (it.first.driverId == driverId) {
+            dispatchData.candidates.removeIf { candidate ->
+                if (candidate.first.driverId == driverId) {
                     if (dispatchData.getCurrentCandidate().first.driverId == driverId) {
-                        runBlocking {
-                            launch {
-                                dispatchData.riderConnection.send("dis:$driverId")
-                                bookNextClosestDriver(dispatchData)
-                            }
+                        notifyRiderAndBookNext = {
+                            dispatchData.riderConnection.send("dis:$driverId")
+                            bookNextClosestDriver(dispatchData)
                         }
                     }
                     true
                 } else false
             }
         }
+        notifyRiderAndBookNext()
     }
 }
