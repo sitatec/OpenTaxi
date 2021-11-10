@@ -3,6 +3,8 @@ package com.hamba.dispatcher.data
 import com.hamba.dispatcher.data.model.DriverData
 import com.hamba.dispatcher.data.model.Location
 import com.hamba.dispatcher.services.api.FirebaseFirestoreWrapper
+import com.hamba.dispatcher.utils.toDriverData
+import com.hamba.dispatcher.utils.toJsonForFirebaseDb
 import kotlinx.serialization.ExperimentalSerializationApi
 
 @OptIn(ExperimentalSerializationApi::class)

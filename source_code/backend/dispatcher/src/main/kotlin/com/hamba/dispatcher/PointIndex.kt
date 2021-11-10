@@ -37,6 +37,8 @@ class PointIndex<T : Comparable<T>>(val map: TreeMap<S2CellId, SortedMultiset<Po
         return removed
     }
 
+    fun isEmpty() = numPoints() == 0
+
     // Resets the index to its original empty state.  Invalidates all iterators.
     fun clear(): Unit = map.clear()
 

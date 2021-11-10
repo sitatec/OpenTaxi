@@ -1,5 +1,6 @@
 package com.hamba.dispatcher.data.model
 
+import com.hamba.dispatcher.utils.toCellId
 import dilivia.s2.index.point.PointData
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -17,4 +18,5 @@ class DriverData(
         return if(cellIdComparison == 0) driverId.compareTo(other.driverId) else cellIdComparison
     }
 
+    fun toPointData() = PointData(cellId.toCellId().toPoint(), this)
 }

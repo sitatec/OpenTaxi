@@ -5,13 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Application.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Application.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchData.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/FakeData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/FakeData.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/TestUtils.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/TestUtils.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/PointIndex.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/PointIndex.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/Converters.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/DriverDataRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/DriverDataRepository.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DriverData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DriverData.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -27,6 +29,9 @@
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand />
@@ -40,8 +45,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Kotlin Data Class" />
-        <option value="Kotlin File" />
         <option value="Class" />
+        <option value="Kotlin File" />
         <option value="Kotlin Class" />
       </list>
     </option>
@@ -83,13 +88,13 @@
       <recent name="com.hamba.dispatcher.model" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.ApplicationTest.testIndex">
-    <configuration name="ApplicationTest.Test dispatching with car type specified" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+  <component name="RunManager" selected="Gradle.ApplicationTest">
+    <configuration name="ApplicationTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test dispatching with car type specified&quot;" />
+        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -105,12 +110,12 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="ApplicationTest.Test dispatching with driver gender specified" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ApplicationTest.Trying to delete data without first add it should close connection" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test dispatching with driver gender specified&quot;" />
+        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Trying to delete data without first add it should close connection&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -202,11 +207,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Gradle.ApplicationTest.testIndex" />
-        <item itemvalue="Gradle.ApplicationTest.Test dispatching with driver gender specified" />
-        <item itemvalue="Gradle.ApplicationTest.Test dispatching with car type specified" />
-        <item itemvalue="Gradle.ApplicationTest.testDispatching" />
+        <item itemvalue="Gradle.ApplicationTest" />
         <item itemvalue="Gradle.ApplicationTest.testDriverDataManagement" />
+        <item itemvalue="Gradle.ApplicationTest.testDispatching" />
+        <item itemvalue="Gradle.ApplicationTest.testIndex" />
+        <item itemvalue="Gradle.ApplicationTest.Trying to delete data without first add it should close connection" />
       </list>
     </recent_temporary>
   </component>
@@ -247,23 +252,11 @@
         </breakpoint>
         <line-breakpoint enabled="true" type="kotlin-line">
           <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt</url>
-          <line>155</line>
-          <option name="timeStamp" value="35" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt</url>
-          <line>19</line>
-          <option name="timeStamp" value="36" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt</url>
-          <line>34</line>
-          <option name="timeStamp" value="37" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/PointIndex.kt</url>
-          <line>144</line>
-          <option name="timeStamp" value="38" />
+          <line>42</line>
+          <properties>
+            <option name="lambda-ordinal" value="-1" />
+          </properties>
+          <option name="timeStamp" value="48" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

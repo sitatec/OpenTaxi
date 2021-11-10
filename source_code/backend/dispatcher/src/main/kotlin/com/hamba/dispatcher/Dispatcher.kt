@@ -27,6 +27,9 @@ class Dispatcher(
         riderConnection: DefaultWebSocketServerSession
     ) {
         val closestDrivers = distanceCalculator.getClosestDriverDistance(dispatchRequestData)
+        if (closestDrivers.isEmpty()){
+            riderConnection.send("no:")
+        }
         val dispatchData = DispatchData(closestDrivers, dispatchRequestData, riderConnection)
         dispatchDataList[dispatchRequestData.riderId] = dispatchData
         bookNextClosestDriver(dispatchData)

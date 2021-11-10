@@ -13,7 +13,6 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.websocket.*
 import java.util.*
-import kotlin.Comparator
 
 fun main() {
     val httpClient = HttpClient(CIO)
@@ -21,8 +20,7 @@ fun main() {
     val firebaseDatabaseClient = FirebaseFirestoreWrapper()
     val driverDataRepository = DriverDataRepository(firebaseDatabaseClient)
     val routeApiClient = RouteApiClient(httpClient)
-    val driverDataCache =
-        Collections.synchronizedSortedSet(sortedSetOf<DriverData>({ first, second -> first.cellId.compareTo(second.cellId) }))
+    val driverDataCache = DriverPointDataCache()
     val distanceCalculator = DistanceCalculator(routeApiClient, driverDataCache)
     val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
     val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())

@@ -8,9 +8,7 @@ import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.api.initializeFirebase
 import com.hamba.dispatcher.websockets.webSocketsServer
 import dilivia.s2.S2LatLng
-import dilivia.s2.S2Point
 import dilivia.s2.index.point.S2ClosestPointQuery
-import dilivia.s2.index.point.S2PointIndex
 import io.ktor.http.cio.websocket.*
 import kotlin.test.*
 import io.ktor.server.testing.*
@@ -27,7 +25,7 @@ import java.util.*
 class ApplicationTest {
     // TODO Test Thread safety.
     // TODO handle JobCancellation exception thrown on `testDispatching`
-    private val driverDataCache = Collections.synchronizedSortedSet(sortedSetOf<DriverData>())
+    private val driverDataCache = DriverPointDataCache()
     private val firebaseDatabaseClient = FirebaseFirestoreWrapper()
     private lateinit var driverDataRepository: DriverDataRepository
     private lateinit var distanceCalculator: DistanceCalculator
@@ -67,26 +65,24 @@ class ApplicationTest {
     // TODO test driver refusing booking
     // TODO test for more than 1000 drivers simultaneously connected
 
-    @Test
-    fun testIndex() {
-        val index = PointIndex<DriverData>(TreeMap()){
-            it?.gender == "FEMALE"
-        }
-        fakeDriverDataList.forEach {
-            index.add(S2LatLng.fromDegrees(it.location.latitude, it.location.longitude).toPoint(), it)
-        }
-        val options = ClosestPointQuery.Options(maxResult = 4)
-        val closestPointQuery = ClosestPointQuery(index, options)
-        val target = S2ClosestPointQuery.S2ClosestPointQueryPointTarget(
-            S2LatLng.fromDegrees(
-                fakeDispatchRequestData.location.latitude,
-                fakeDispatchRequestData.location.longitude
-            ).toPoint()
-        )
-        closestPointQuery.findClosestPoints(target).forEach {
-            println(it.data().driverId)
-        }
-    }
+//    @Test
+//    fun testIndex() {
+//        val index = PointIndex<DriverData>(TreeMap())
+//        fakeDriverDataList.forEach {
+//            index.add(S2LatLng.fromDegrees(it.location.latitude, it.location.longitude).toPoint(), it)
+//        }
+//        val options = ClosestPointQuery.Options(maxResult = 4)
+//        val closestPointQuery = ClosestPointQuery(index, options)
+//        val target = ClosestPointQuery.S2ClosestPointQueryPointTarget(
+//            S2LatLng.fromDegrees(
+//                fakeDispatchRequestData.location.latitude,
+//                fakeDispatchRequestData.location.longitude
+//            ).toPoint()
+//        )
+//        closestPointQuery.findClosestPoints(target).forEach {
+//            println(it.data().driverId)
+//        }
+//    }
 
     @Test
     fun testDriverDataManagement() {
@@ -240,7 +236,7 @@ class ApplicationTest {
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 delay(1_000)
-                assertFalse(driverDataCache.contains(closestDriverData.first))
+                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
@@ -308,7 +304,7 @@ class ApplicationTest {
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("pharmacieNdiolou", closestDriverData.first.driverId)
                 delay(1_000)
-                assertFalse(driverDataCache.contains(closestDriverData.first))
+                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
@@ -375,7 +371,7 @@ class ApplicationTest {
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
                 delay(1_000)
-                assertFalse(driverDataCache.contains(closestDriverData.first))
+                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 

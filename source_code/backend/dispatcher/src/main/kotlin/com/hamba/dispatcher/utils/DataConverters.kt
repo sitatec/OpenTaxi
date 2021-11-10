@@ -1,7 +1,8 @@
-package com.hamba.dispatcher.data
+package com.hamba.dispatcher.utils
 
 import com.hamba.dispatcher.data.model.DriverData
 import com.hamba.dispatcher.data.model.Location
+import dilivia.s2.S2CellId
 
 
 fun Map<String, Any>.toDriverData(driverId: String = this["id"] as String): DriverData {
@@ -24,3 +25,5 @@ fun DriverData.toJsonForFirebaseDb(): Map<String, *> {
 }
 
 fun Location.toJsonForFirebaseDb() = mapOf("lat" to latitude, "lng" to longitude)
+
+fun ULong.toCellId() = S2CellId(this)

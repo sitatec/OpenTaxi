@@ -1,7 +1,6 @@
 package com.hamba.dispatcher.data.model
 
 import io.ktor.websocket.*
-import java.util.*
 
 class DispatchData(
     candidates: List<Pair<DriverData, Element>>,

@@ -1,28 +1,24 @@
 package com.hamba.dispatcher.websockets
 
-import com.google.cloud.firestore.DocumentChange
 import com.google.cloud.firestore.DocumentChange.Type.*
-import com.google.common.collect.TreeMultiset
+import com.hamba.dispatcher.DriverPointDataCache
 import com.hamba.dispatcher.Dispatcher
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
 import com.hamba.dispatcher.data.model.DriverData
 import com.hamba.dispatcher.data.model.Location
-import com.hamba.dispatcher.data.toDriverData
 import com.hamba.dispatcher.services.api.FirebaseFirestoreWrapper
+import com.hamba.dispatcher.utils.toDriverData
 import io.ktor.application.*
-import io.ktor.http.LinkHeader.Parameters.Type
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
 import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
-import kotlinx.coroutines.isActive
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.util.*
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -31,7 +27,7 @@ fun Application.webSocketsServer(
     driverDataRepository: DriverDataRepository,
     dispatchDataList: MutableMap<String, DispatchData>,
     dispatcher: Dispatcher,
-    driverDataCache: SortedSet<DriverData>,
+    driverDataCache: DriverPointDataCache,
     firebaseFirestoreWrapper: FirebaseFirestoreWrapper
 ) {
     // TODO Take into account cancellation
@@ -57,17 +53,19 @@ fun Application.webSocketsServer(
                         "u" /*UPDATE*/ -> {
                             if (driverId == null) {// Should add data before updating it.
                                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
+                            } else {
+                                val (latitude, longitude) = receivedText.substringAfter(":").split(",")
+                                val location = Location(latitude.toDouble(), longitude.toDouble())
+                                driverDataRepository.updateDriverLocation(driverId, location)
                             }
-                            val (latitude, longitude) = receivedText.substringAfter(":").split(",")
-                            val location = Location(latitude.toDouble(), longitude.toDouble())
-                            driverDataRepository.updateDriverLocation(driverId!!, location)
                         }
                         "d" /*DELETE/DISCONNECT*/ -> {
                             if (driverId == null) {// Should add data before deleting it
                                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
+                            }else {
+                                driverDataRepository.deleteDriverData(driverId)
+                                close(CloseReason(CloseReason.Codes.NORMAL, ""))
                             }
-                            driverDataRepository.deleteDriverData(driverId!!)
-                            close(CloseReason(CloseReason.Codes.NORMAL, ""))
                         }
                         "yes" /*ACCEPT BOOKING*/ -> {
                             val dispatchDataId = receivedText.substringAfter(":")
@@ -143,7 +141,7 @@ fun Application.webSocketsServer(
 @OptIn(ExperimentalSerializationApi::class)
 fun initDriversDataChangeListeners(
     firebaseFirestoreWrapper: FirebaseFirestoreWrapper,
-    driverDataCache: SortedSet<DriverData>
+    driverDataCache: DriverPointDataCache
 ) {
     firebaseFirestoreWrapper.firestoreClient.collection("drivers").addSnapshotListener { querySnapshot, error ->
         if (error != null) {
@@ -157,10 +155,7 @@ fun initDriversDataChangeListeners(
                 val driverData = driverDocument.data.toDriverData(driverDocument.id)
                 when (driverDocumentChange.type) {
                     ADDED -> driverDataCache.add(driverData)
-                    MODIFIED -> {// TODO optimize time complexity (the update/modified event is the most frequent as it si dispatched each time a driver location is updated)
-                        driverDataCache.remove(driverDataCache.first { it.driverId == driverDocument.id })
-                        driverDataCache.add(driverData)
-                    }
+                    MODIFIED -> driverDataCache.update(driverData)
                     REMOVED -> driverDataCache.remove(driverData)
                 }
             }
