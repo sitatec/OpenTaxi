@@ -24,6 +24,8 @@ class Row (
 class Element (
     val distance: Distance,
     val duration: Distance,
+    @SerialName("duration_in_traffic")
+    val durationInTraffic: Distance,
     val status: String
 )
 
@@ -34,4 +36,4 @@ class Distance (
 )
 
 private val EmptyDistance = Distance("", 0)
-val EmptyElement = Element(EmptyDistance, EmptyDistance, "")
+val EmptyElement = Element(EmptyDistance, EmptyDistance, EmptyDistance,"")

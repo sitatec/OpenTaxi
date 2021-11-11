@@ -16,7 +16,7 @@ class DispatchData(
     var currentBookingRequestTimeout: TimerTask? = null
     var numberOfCandidateProvided = 0
     val candidates: MutableList<Pair<DriverData, Element>> =
-        Collections.synchronizedList(candidates.sortedBy { it.second.duration.value }.toMutableList())
+        Collections.synchronizedList(candidates.sortedBy { it.second.durationInTraffic.value }.toMutableList())
 
     fun getNextClosestCandidateOrNull(): Pair<DriverData, Element>? {
         if (candidates.isEmpty()) return null
