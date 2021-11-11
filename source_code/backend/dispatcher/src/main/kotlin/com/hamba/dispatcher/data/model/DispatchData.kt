@@ -1,6 +1,7 @@
 package com.hamba.dispatcher.data.model
 
 import io.ktor.websocket.*
+import java.util.*
 
 class DispatchData(
     candidates: List<Pair<DriverData, Element>>,
@@ -11,8 +12,10 @@ class DispatchData(
         require(candidates.isNotEmpty())
     }
 
+    var currentBookingRequestTimeout: TimerTask? = null
     var numberOfCandidateProvided = 0
-    val candidates = candidates.sortedBy { it.second.duration.value }.toMutableList()
+    val candidates: MutableList<Pair<DriverData, Element>> =
+        Collections.synchronizedList(candidates.sortedBy { it.second.duration.value }.toMutableList())
 
     fun getNextClosestCandidateOrNull(): Pair<DriverData, Element>? {
         if (candidates.isEmpty()) return null

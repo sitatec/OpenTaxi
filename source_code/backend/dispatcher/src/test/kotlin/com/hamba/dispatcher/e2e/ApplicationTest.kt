@@ -410,7 +410,7 @@ class ApplicationTest {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
-                                    if(currentDriverIndex == 0) {
+                                    if (currentDriverIndex == 0) {
                                         currentDriverIndex++
                                         // The closest driver refuse the booking.
                                         outgoing.send(Frame.Text("no:${bookingData.riderId}"))
@@ -457,6 +457,110 @@ class ApplicationTest {
                 assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
 
                 closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
+                assertEquals("garageMalal", closestDriverData.first.driverId)
+                delay(1_000)
+                assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
+                // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
+                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+
+                receivedMessage = (incoming.receive() as Frame.Text).readText()
+                assertEquals("yes", receivedMessage) // The second-closest driver accept the booking
+
+                delay(1_000)
+
+                receivedMessage = (incoming.receive() as Frame.Text).readText()
+                assertEquals("dir"/*DIRECTION*/, receivedMessage.substringBefore(":"))
+                println("\ndirection response = ${receivedMessage.substringAfter(":")}")
+                // TODO check that it contains the direction api response.
+            }
+        }
+    }
+
+
+    @OptIn(ExperimentalSerializationApi::class)
+    @Test
+    fun `Test if a driver doesn't accept a booking after the set timeout, a new booking request should be sent to the next closest driver if any`() {
+        withTestApplication({
+            webSocketsServer(
+                driverConnections,
+                driverDataRepository,
+                dispatchDataList,
+                Dispatcher(
+                    distanceCalculator,
+                    driverConnections,
+                    routeApiClient,
+                    driverDataRepository,
+                    dispatchDataList,
+                    10_000/*10 seconds timeout*/
+                ),
+                driverDataCache,
+                firebaseDatabaseClient
+            )
+        }) {
+            var currentDriverIndex = 0
+            // Simulate connected drivers
+            for (fakeDriverData in fakeDriverDataList) {
+                println("driver = ${fakeDriverData.driverId}")
+                launch {
+                    try {
+                        handleWebSocketConversation("/driver") { incoming, outgoing ->
+                            outgoing.send(Frame.Text("a:${fakeDriverData.toJson()}"))
+                            val rawMessage = incoming.receive()
+                            if (rawMessage is Frame.Text) {
+                                val message = rawMessage.readText()
+                                if (message.substringBefore(":") == "b"/*BOOKING*/) {
+                                    delay(20) // Wait until the rider receive the booking confirmation.
+                                    val bookingData =
+                                        Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
+                                    if (currentDriverIndex == 0) {
+                                        currentDriverIndex++
+                                        // The closest driver doesn't accept the booking after 10 second.
+                                        delay(10_000)
+                                        val msg = (incoming.receive() as Frame.Text).readText()
+                                        assertEquals("to:" /*Timeout*/, msg)
+                                        incoming.receive() // prevent disconnection
+                                    } else {
+                                        outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
+                                        val directionDataMessage = (incoming.receive() as Frame.Text).readText()
+                                        assertEquals("dir"/*DIRECTION*/, directionDataMessage.substringBefore(":"))
+                                    }
+                                }
+                            }
+                        }
+                    } catch (e: ClosedReceiveChannelException) {
+                        // Not all the drivers will receive a booking request because we dispatch to the closest ones. So
+                        // trying to receive a booking message will throw an ClosedReceiveChannelException for the driver that are not close to the rider.
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+            // Simulate a rider making booking with driver's gender specified
+            handleWebSocketConversation("/dispatch") { incoming, outgoing ->
+                delay(6_000)// Wait until all fake drivers have been connected.
+                outgoing.send(Frame.Text("d:${fakeDispatchRequestData.toJson()}"))
+                var receivedMessage = (incoming.receive() as Frame.Text).readText()
+                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+
+                var closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
+                assertEquals("nearHome", closestDriverData.first.driverId)
+                assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
+                // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
+                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+
+                receivedMessage = (incoming.receive() as Frame.Text).readText()
+                assertEquals("to:1", receivedMessage) // The first driver doesn't respond the booking request
+                delay(1_000)
+                assertNotNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// When a driver
+                // refuse a booking he/she should be available again for new bookings
+                assertTrue(driverDataCache.contains(closestDriverData.first.toPointData()))
+
+                // ------------------------- SECOND CLOSEST DRIVER -----------------------------//
+
+                receivedMessage = (incoming.receive() as Frame.Text).readText()
+                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+
+                closestDriverData = receivedMessage.substringAfter(":").decodeFromJson()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
                 delay(1_000)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the

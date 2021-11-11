@@ -6,17 +6,23 @@ import com.hamba.dispatcher.data.model.DispatchRequestData
 import com.hamba.dispatcher.services.api.RouteApiClient
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.util.*
+import kotlin.concurrent.schedule
 
 class Dispatcher(
     private val distanceCalculator: DistanceCalculator,
     private val driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
     private val routeApiClient: RouteApiClient,
     private val driverDataRepository: DriverDataRepository,
-    private val dispatchDataList: MutableMap<String, DispatchData>
+    private val dispatchDataList: MutableMap<String, DispatchData>,
+    private val bookingRequestTimeoutMs: Long = 60_000
 ) {
+
+    private val bookingTimeoutScheduler = Timer()
 
     suspend fun dispatch(
         dispatchRequestData: DispatchRequestData,
@@ -33,8 +39,8 @@ class Dispatcher(
 
     @OptIn(ExperimentalSerializationApi::class)
     private suspend fun bookNextClosestDriver(dispatchData: DispatchData) {
-        // TODO make a timeout for the current closest drivers to be invalidated a new ones found.
         val closestDriver = dispatchData.getNextClosestCandidateOrNull()
+        // TODO check first if the `closestDriver` is present in cache to make sure he is present.
         if (closestDriver == null) {// All the closest driver have refused or not responded to the booking request.
             // TODO handle in case the rider remake a dispatch request to skip the ones that have already refused in the previous request
             //  (only if there is less than some amount of time elapsed between the two request)
@@ -44,35 +50,47 @@ class Dispatcher(
             val closestDriverConnection = driverConnections[closestDriver.first.driverId]!! // TODO handle when null
             val dispatchRequestDataJson = Json.encodeToString(dispatchData.dispatchRequestData)
             closestDriverConnection.send("b:$dispatchRequestDataJson")
-            driverDataRepository.deleteDriverData(closestDriver.first.driverId) // Once we send a booking request to the
-            // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
+            dispatchData.currentBookingRequestTimeout = bookingTimeoutScheduler.schedule(bookingRequestTimeoutMs) {
+                runBlocking {
+                    closestDriverConnection.send("to:"/*TIMEOUT*/)
+                    dispatchData.riderConnection.send("to:${dispatchData.numberOfCandidateProvided}")
+                    driverDataRepository.addDriverData(closestDriver.first) // Available again for new booking
+                    bookNextClosestDriver(dispatchData)
+                }
+            }
             val driverDataAsJson = Json.encodeToString(closestDriver)
             dispatchData.riderConnection.send(/* bs = BOOKING SENT */"bs:${driverDataAsJson}")
+            driverDataRepository.deleteDriverData(closestDriver.first.driverId) // Once we send a booking request to the
+            // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
         }
 
     }
 
     suspend fun onBookingAccepted(dispatchData: DispatchData) {
-        dispatchData.riderConnection.send("yes")
-        val directionData = routeApiClient.findDirection(
-            dispatchData.getCurrentCandidate().first.location,
-            dispatchData.getDestination(),
-            dispatchData.getStops()
-        )
-        dispatchData.riderConnection.send("dir:$directionData")
-        val driverConnection = driverConnections[dispatchData.getCurrentCandidate().first.driverId]
-        if (driverConnection == null) {
-            // TODO handle
-        } else {
-            driverConnection.send("dir:$directionData")
+        if (dispatchData.currentBookingRequestTimeout?.cancel() != false) {
+            dispatchData.riderConnection.send("yes")
+            val directionData = routeApiClient.findDirection(
+                dispatchData.getCurrentCandidate().first.location,
+                dispatchData.getDestination(),
+                dispatchData.getStops()
+            )
+            dispatchData.riderConnection.send("dir:$directionData")
+            val driverConnection = driverConnections[dispatchData.getCurrentCandidate().first.driverId]
+            if (driverConnection == null) {
+                // TODO handle
+            } else {
+                driverConnection.send("dir:$directionData")
+            }
+            // TODO when accepted create trip tracking "room" and delete all data related to this booking.
         }
-        // TODO when accepted create trip tracking "room" and delete all data related to this booking.
     }
 
     suspend fun onBookingRefused(dispatchData: DispatchData) {
-        driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
-        dispatchData.riderConnection.send("no:${dispatchData.numberOfCandidateProvided}")
-        bookNextClosestDriver(dispatchData)
+        if (dispatchData.currentBookingRequestTimeout?.cancel() != false) {
+            driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
+            dispatchData.riderConnection.send("no:${dispatchData.numberOfCandidateProvided}")
+            bookNextClosestDriver(dispatchData)
+        }
     }
 
     suspend fun onDispatchCanceled(riderId: String) {
@@ -108,7 +126,9 @@ class Dispatcher(
                     if (dispatchData.getCurrentCandidate().first.driverId == driverId) {
                         notifyRiderAndBookNext = {
                             dispatchData.riderConnection.send("dis:$driverId")
-                            bookNextClosestDriver(dispatchData)
+                            if (dispatchData.currentBookingRequestTimeout?.cancel() != false){
+                                bookNextClosestDriver(dispatchData)
+                            }
                         }
                     }
                     true

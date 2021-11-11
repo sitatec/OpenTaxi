@@ -51,7 +51,7 @@ class FirebaseFirestoreWrapper(val firestoreClient: Firestore = FirestoreClient.
         }
     }
 
-    suspend inline fun <reified T> Future<T>.await(timeoutMs: Int = 60_000): T? {
+    suspend inline fun <reified T> Future<T>.await(timeoutMs: Int = 30_000/* 30s timeout in case it a huge data*/): T? {
         val start = System.currentTimeMillis()
         while (!isDone) {
             if (System.currentTimeMillis() - start > timeoutMs) {
