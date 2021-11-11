@@ -1,4 +1,4 @@
-package com.hamba.dispatcher
+package com.hamba.dispatcher.geometry
 
 import com.google.common.collect.SortedMultiset
 import com.google.common.collect.TreeMultiset

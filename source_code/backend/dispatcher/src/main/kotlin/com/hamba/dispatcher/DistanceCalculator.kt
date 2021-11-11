@@ -1,10 +1,10 @@
 package com.hamba.dispatcher
 
+import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.*
+import com.hamba.dispatcher.geometry.ClosestPointQuery
+import com.hamba.dispatcher.geometry.PointIndex
 import com.hamba.dispatcher.services.api.RouteApiClient
-import dilivia.s2.S1Angle
-import dilivia.s2.S2Earth
-import dilivia.s2.index.S2MinDistance
 import kotlinx.coroutines.runBlocking
 
 class DistanceCalculator(

@@ -1,8 +1,7 @@
-package com.hamba.dispatcher.websockets
+package com.hamba.dispatcher
 
 import com.google.cloud.firestore.DocumentChange.Type.*
-import com.hamba.dispatcher.DriverPointDataCache
-import com.hamba.dispatcher.Dispatcher
+import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
@@ -30,7 +29,7 @@ fun Application.webSocketsServer(
     driverDataCache: DriverPointDataCache,
     firebaseFirestoreWrapper: FirebaseFirestoreWrapper
 ) {
-    // TODO Take into account cancellation
+    // TODO Refactor
     install(WebSockets)
 
     initDriversDataChangeListeners(firebaseFirestoreWrapper, driverDataCache)

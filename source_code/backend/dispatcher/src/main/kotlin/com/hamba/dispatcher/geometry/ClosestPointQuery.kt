@@ -1,4 +1,4 @@
-package com.hamba.dispatcher
+package com.hamba.dispatcher.geometry
 
 import dilivia.s2.S1Angle
 import dilivia.s2.S1ChordAngle

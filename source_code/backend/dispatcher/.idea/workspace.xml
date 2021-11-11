@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" afterDir="false" />
-    </list>
+    <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -76,13 +71,14 @@
       <recent name="C:\Development\Projects\Professional\Hamba\source_code\backend\dispatcher\src\test\kotlin\com\hamba\dispatcher\e2e" />
     </key>
     <key name="MoveKotlinTopLevelDeclarationsDialog.RECENTS_KEY">
-      <recent name="com.hamba.dispatcher.archive" />
       <recent name="com.hamba.dispatcher.data" />
+      <recent name="com.hamba.dispatcher.geometry" />
+      <recent name="com.hamba.dispatcher.archive" />
       <recent name="com.hamba.dispatcher" />
       <recent name="com.hamba.dispatcher.model" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.ApplicationTest.Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any">
+  <component name="RunManager" selected="Gradle.ApplicationTest.Test dispatching with car type specified">
     <configuration name="ApplicationTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -125,12 +121,12 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="ApplicationTest.testDispatching" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ApplicationTest.Test dispatching with car type specified" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.testDispatching&quot;" />
+        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test dispatching with car type specified&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -146,12 +142,12 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="ApplicationTest.testDriverDataManagement" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ApplicationTest.Test when all closest drivers reject the booking request" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.testDriverDataManagement&quot;" />
+        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test when all closest drivers reject the booking request&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -167,12 +163,12 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="ApplicationTest.testIndex" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ApplicationTest.Test when the rider cancel the dispatching process" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.testIndex&quot;" />
+        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test when the rider cancel the dispatching process&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -201,11 +197,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.ApplicationTest.Test dispatching with car type specified" />
         <item itemvalue="Gradle.ApplicationTest.Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any" />
-        <item itemvalue="Gradle.ApplicationTest.testDispatching" />
         <item itemvalue="Gradle.ApplicationTest" />
-        <item itemvalue="Gradle.ApplicationTest.testDriverDataManagement" />
-        <item itemvalue="Gradle.ApplicationTest.testIndex" />
+        <item itemvalue="Gradle.ApplicationTest.Test when all closest drivers reject the booking request" />
+        <item itemvalue="Gradle.ApplicationTest.Test when the rider cancel the dispatching process" />
       </list>
     </recent_temporary>
   </component>
@@ -244,7 +240,27 @@
           <properties class="java.util.ConcurrentModificationException" package="java.util" />
           <option name="timeStamp" value="28" />
         </breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt</url>
+          <line>84</line>
+          <option name="timeStamp" value="52" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt</url>
+          <line>157</line>
+          <option name="timeStamp" value="56" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="kotlin-line">
+          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt</url>
+          <line>155</line>
+          <option name="timeStamp" value="58" />
+        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <pin-to-top-manager>
+      <pinned-members>
+        <PinnedItemInfo parentTag="com.hamba.dispatcher.DriverPointDataCache" memberName="size" />
+      </pinned-members>
+    </pin-to-top-manager>
   </component>
 </project>

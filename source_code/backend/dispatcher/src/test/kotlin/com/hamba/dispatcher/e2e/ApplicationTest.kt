@@ -2,11 +2,12 @@ package com.hamba.dispatcher.e2e
 
 import com.hamba.dispatcher.*
 import com.hamba.dispatcher.data.DriverDataRepository
+import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.*
 import com.hamba.dispatcher.services.api.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.api.initializeFirebase
-import com.hamba.dispatcher.websockets.webSocketsServer
+import com.hamba.dispatcher.webSocketsServer
 import io.ktor.http.cio.websocket.*
 import kotlin.test.*
 import io.ktor.server.testing.*
