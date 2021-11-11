@@ -11,26 +11,23 @@ class DispatchData(
         require(candidates.isNotEmpty())
     }
 
-    var nextClosestCandidateIndex = 0
+    var numberOfCandidateProvided = 0
     val candidates = candidates.sortedBy { it.second.duration.value }.toMutableList()
 
     fun getNextClosestCandidateOrNull(): Pair<DriverData, Element>? {
-        if (nextClosestCandidateIndex >= candidates.size) {
-            return null
+        if (candidates.isEmpty()) return null
+
+        if (numberOfCandidateProvided > 0) {
+            candidates.removeFirst()
+            if (candidates.isEmpty()) return null
         }
-        if (nextClosestCandidateIndex > 0) {
-            candidates.removeAt(nextClosestCandidateIndex - 1 /*Current Candidate Index*/)
-            return candidates[nextClosestCandidateIndex]
-        }
-        return candidates[nextClosestCandidateIndex++]
+        numberOfCandidateProvided++
+        return candidates.first()
     }
 
     fun getDestination() = dispatchRequestData.destination
 
     fun getStops() = dispatchRequestData.stops
 
-    fun getCurrentCandidate(): Pair<DriverData, Element> {
-        if (nextClosestCandidateIndex == 0) return candidates.first()
-        return candidates[nextClosestCandidateIndex - 1]
-    }
+    fun getCurrentCandidate() = candidates.first()
 }
