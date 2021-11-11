@@ -71,7 +71,7 @@ fun Application.webSocketsServer(
                             val dispatchDataId = receivedText.substringAfter(":")
                             val dispatchData = dispatchDataList[dispatchDataId]
                             if (dispatchData == null) {// Invalid id or that data have been already removed
-                                close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
+                                send(/* i = INVALID */"i:$dispatchDataId")
                             } else {
                                 dispatcher.onBookingAccepted(dispatchData)
                             }
@@ -79,9 +79,7 @@ fun Application.webSocketsServer(
                         "no" /*REFUSE BOOKING*/ -> {
                             val dispatchDataId = receivedText.substringAfter(":")
                             val dispatchData = dispatchDataList[dispatchDataId]
-                            if (dispatchData == null) {// Invalid id or that data have been already removed
-                                close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
-                            } else {
+                            if (dispatchData != null) {
                                 dispatcher.onBookingRefused(dispatchData)
                             }
                         }
@@ -118,10 +116,11 @@ fun Application.webSocketsServer(
                         }
                         "c" /*CANCEL*/ -> {
                             val dispatchData = dispatchDataList[riderId]
-                            if (dispatchData == null) {
+                            if (dispatchData == null) { // The dispatching have not been initialized first (distance calculation is probably in progress).
+                                close(CloseReason(CloseReason.Codes.NORMAL, ""))
                                 // TODO handle
                             } else {
-                                dispatcher.onBookingCanceled(riderId)
+                                dispatcher.onDispatchCanceled(riderId)
                             }
                         }
                     }

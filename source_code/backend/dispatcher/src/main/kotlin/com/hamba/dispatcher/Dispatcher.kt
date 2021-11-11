@@ -3,13 +3,9 @@ package com.hamba.dispatcher
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
-import com.hamba.dispatcher.data.model.DriverData
-import com.hamba.dispatcher.data.model.Element
 import com.hamba.dispatcher.services.api.RouteApiClient
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -27,7 +23,7 @@ class Dispatcher(
         riderConnection: DefaultWebSocketServerSession
     ) {
         val closestDrivers = distanceCalculator.getClosestDriverDistance(dispatchRequestData)
-        if (closestDrivers.isEmpty()){
+        if (closestDrivers.isEmpty()) {
             riderConnection.send("no:")
         }
         val dispatchData = DispatchData(closestDrivers, dispatchRequestData, riderConnection)
@@ -40,7 +36,10 @@ class Dispatcher(
         // TODO make a timeout for the current closest drivers to be invalidated a new ones found.
         val closestDriver = dispatchData.getNextClosestCandidateOrNull()
         if (closestDriver == null) {// All the closest driver have refused or not responded to the booking request.
+            // TODO handle in case the rider remake a dispatch request to skip the ones that have already refused in the previous request
+            //  (only if there is less than some amount of time elapsed between the two request)
             dispatchData.riderConnection.send("no:")
+            // TODO remove all data related to this booking (but make verifications first and do it properly)
         } else {
             val closestDriverConnection = driverConnections[closestDriver.first.driverId]!! // TODO handle when null
             val dispatchRequestDataJson = Json.encodeToString(dispatchData.dispatchRequestData)
@@ -72,20 +71,20 @@ class Dispatcher(
 
     suspend fun onBookingRefused(dispatchData: DispatchData) {
         driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
-        dispatchData.riderConnection.send("no:${dispatchData.nextClosestCandidateIndex}")
+        dispatchData.riderConnection.send("no:${dispatchData.numberOfCandidateProvided}")
         bookNextClosestDriver(dispatchData)
     }
 
-    suspend fun onBookingCanceled(riderId: String) {
+    suspend fun onDispatchCanceled(riderId: String) {
         val dispatchData = dispatchDataList[riderId]
-        if (dispatchData == null) {
-            // TODO handle
-        } else {
-            val driverConnection = driverConnections[dispatchData.getCurrentCandidate().first.driverId]
-            driverConnection?.send("c:$riderId" /*CANCEL*/)
-            driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
-            dispatchData.riderConnection.close(CloseReason(CloseReason.Codes.NORMAL, ""))
-        }
+            ?: throw IllegalStateException("A Dispatching process that have not been initialized cannot be cancelled.\nYou may see this exception if you are trying to cancel a dispatch who's not in the dis")
+
+        val currentCandidate = dispatchData.getCurrentCandidate().first
+        val driverConnection = driverConnections[currentCandidate.driverId]
+        driverConnection?.send("c:$riderId" /*CANCEL*/)
+        driverDataRepository.addDriverData(currentCandidate) // Available for new bookings.
+        dispatchData.riderConnection.close(CloseReason(CloseReason.Codes.NORMAL, ""))
+
         dispatchDataList.remove(riderId)
     }
 

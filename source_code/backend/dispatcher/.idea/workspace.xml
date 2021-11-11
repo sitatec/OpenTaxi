@@ -6,13 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Application.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Application.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/PointIndex.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/PointIndex.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/Converters.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/DriverDataRepository.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/DriverDataRepository.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DriverData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DriverData.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/websockets/WebSocketsServer.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" afterDir="false" />
     </list>
@@ -88,7 +82,7 @@
       <recent name="com.hamba.dispatcher.model" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.ApplicationTest">
+  <component name="RunManager" selected="Gradle.ApplicationTest.Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any">
     <configuration name="ApplicationTest" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -110,12 +104,12 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="ApplicationTest.Trying to delete data without first add it should close connection" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+    <configuration name="ApplicationTest.Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Trying to delete data without first add it should close connection&quot;" />
+        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -207,11 +201,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.ApplicationTest.Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any" />
+        <item itemvalue="Gradle.ApplicationTest.testDispatching" />
         <item itemvalue="Gradle.ApplicationTest" />
         <item itemvalue="Gradle.ApplicationTest.testDriverDataManagement" />
-        <item itemvalue="Gradle.ApplicationTest.testDispatching" />
         <item itemvalue="Gradle.ApplicationTest.testIndex" />
-        <item itemvalue="Gradle.ApplicationTest.Trying to delete data without first add it should close connection" />
       </list>
     </recent_temporary>
   </component>
@@ -250,14 +244,6 @@
           <properties class="java.util.ConcurrentModificationException" package="java.util" />
           <option name="timeStamp" value="28" />
         </breakpoint>
-        <line-breakpoint enabled="true" type="kotlin-line">
-          <url>file://$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt</url>
-          <line>42</line>
-          <properties>
-            <option name="lambda-ordinal" value="-1" />
-          </properties>
-          <option name="timeStamp" value="48" />
-        </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
