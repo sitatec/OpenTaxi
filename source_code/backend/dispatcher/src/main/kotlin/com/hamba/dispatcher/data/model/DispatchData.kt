@@ -29,9 +29,8 @@ class DispatchData(
         return candidates.first()
     }
 
-    fun getDestination() = dispatchRequestData.destination
+    fun getDestination() = dispatchRequestData.location
 
-    fun getStops() = dispatchRequestData.stops
 
     fun getCurrentCandidate() = candidates.first()
 }

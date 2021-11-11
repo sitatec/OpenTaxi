@@ -22,6 +22,7 @@ class RouteApiClient(private val httpClient: HttpClient = HttpClient(CIO)) {
 
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun distanceMatrix(origins: List<Location>, destination: Location): List<Element> {
+        // TODO add traffic data to the request
         val url = "$DISTANCE_MATRIX_URL&origins=${origins.joinToString("|")}&destinations=$destination"
         return withContext(Dispatchers.IO) {
             val httpRawResponse: String = httpClient.get(url)
@@ -30,12 +31,12 @@ class RouteApiClient(private val httpClient: HttpClient = HttpClient(CIO)) {
         }
     }
 
-    suspend fun findDirection(origin: Location, destination: String, stops: List<String>): String {
-        val url = "$DIRECTION_URL&origin=$origin&destination=$destination&waypoints=${stops.joinToString("|")}"
+    suspend fun findDirection(origin: Location, destination: String): String {
+        // TODO add traffic data to the request
+        val url = "$DIRECTION_URL&origin=$origin&destination=$destination"
         return withContext(Dispatchers.IO) {
             httpClient.get(url)
         }
-
     }
 
     fun release() {

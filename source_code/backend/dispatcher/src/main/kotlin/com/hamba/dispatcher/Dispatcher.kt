@@ -84,8 +84,7 @@ class Dispatcher(
                 dispatchData.riderConnection.send("yes")
                 val directionData = routeApiClient.findDirection(
                     dispatchData.getCurrentCandidate().first.location,
-                    dispatchData.getDestination(),
-                    dispatchData.getStops()
+                    dispatchData.getDestination().toString(),
                 )
                 dispatchData.riderConnection.send("dir:$directionData")
                 driverConnection.send("dir:$directionData")
