@@ -41,7 +41,14 @@ class ApplicationTest {
         driverDataRepository = DriverDataRepository(firebaseDatabaseClient)
         distanceCalculator = DistanceCalculator(routeApiClient, driverDataCache)
         dispatcher =
-            Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
+            Dispatcher(
+                distanceCalculator,
+                driverConnections,
+                routeApiClient,
+                driverDataRepository,
+                dispatchDataList,
+                driverDataCache
+            )
     }
 
     companion object {
@@ -232,7 +239,7 @@ class ApplicationTest {
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 delay(1_000)
-                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertFalse(driverDataCache.contains(closestDriverData.first))
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
@@ -300,7 +307,7 @@ class ApplicationTest {
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("pharmacieNdiolou", closestDriverData.first.driverId)
                 delay(1_000)
-                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertFalse(driverDataCache.contains(closestDriverData.first))
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
@@ -367,7 +374,7 @@ class ApplicationTest {
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
                 delay(1_000)
-                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertFalse(driverDataCache.contains(closestDriverData.first))
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
@@ -413,6 +420,7 @@ class ApplicationTest {
                                     if (currentDriverIndex == 0) {
                                         currentDriverIndex++
                                         // The closest driver refuse the booking.
+                                        delay(1_000) // Wait until the rider receive the bs (booking sent message)
                                         outgoing.send(Frame.Text("no:${bookingData.riderId}"))
                                         (incoming.receive() as Frame.Text).readText()
                                     } else {
@@ -442,14 +450,14 @@ class ApplicationTest {
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
-                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("no:1", receivedMessage) // The first driver rejected the booking request
                 delay(1_000)
                 assertNotNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// When a driver
                 // refuse a booking he/she should be available again for new bookings
-                assertTrue(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertTrue(driverDataCache.contains(closestDriverData.first))
 
                 // ------------------------- SECOND CLOSEST DRIVER -----------------------------//
 
@@ -461,7 +469,7 @@ class ApplicationTest {
                 delay(1_000)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
-                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("yes", receivedMessage) // The second-closest driver accept the booking
@@ -491,6 +499,7 @@ class ApplicationTest {
                     routeApiClient,
                     driverDataRepository,
                     dispatchDataList,
+                    driverDataCache,
                     10_000/*10 seconds timeout*/
                 ),
                 driverDataCache,
@@ -509,7 +518,7 @@ class ApplicationTest {
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
                                 if (message.substringBefore(":") == "b"/*BOOKING*/) {
-                                    delay(20) // Wait until the rider receive the booking confirmation.
+                                    delay(1_000) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
                                     if (currentDriverIndex == 0) {
@@ -546,14 +555,14 @@ class ApplicationTest {
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
-                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("to:1", receivedMessage) // The first driver doesn't respond the booking request
                 delay(1_000)
                 assertNotNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// When a driver
                 // refuse a booking he/she should be available again for new bookings
-                assertTrue(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertTrue(driverDataCache.contains(closestDriverData.first))
 
                 // ------------------------- SECOND CLOSEST DRIVER -----------------------------//
 
@@ -565,7 +574,7 @@ class ApplicationTest {
                 delay(1_000)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
-                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("yes", receivedMessage) // The second-closest driver accept the booking
@@ -629,7 +638,7 @@ class ApplicationTest {
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
                 delay(1_000)
-                assertFalse(driverDataCache.contains(closestDriverData.first.toPointData()))
+                assertFalse(driverDataCache.contains(closestDriverData.first))
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
@@ -640,7 +649,7 @@ class ApplicationTest {
 
                 delay(1_000)
 
-                assertTrue(driverDataCache.contains(closestDriverData.first.toPointData()))// When a rider
+                assertTrue(driverDataCache.contains(closestDriverData.first))// When a rider
                 // cancel the dispatching process the driver a booking have been sent to should be available again for new bookings
                 assertNotNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))
             }
@@ -649,7 +658,7 @@ class ApplicationTest {
 
     @OptIn(ExperimentalSerializationApi::class)
     @Test
-    fun `Test when all closest drivers reject the booking request`() {
+    fun  `Test when all closest drivers reject the booking request`() {
         withTestApplication({
             webSocketsServer(
                 driverConnections,
@@ -676,6 +685,7 @@ class ApplicationTest {
                                     val bookingData =
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
                                     // The closest driver refuse the booking.
+                                    delay(1_000) // Wait until the rider receive the bs (booking sent message)
                                     outgoing.send(Frame.Text("no:${bookingData.riderId}"))
                                     (incoming.receive() as Frame.Text).readText()
                                 }

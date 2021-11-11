@@ -5,7 +5,7 @@ import com.hamba.dispatcher.data.model.DriverData
 import com.hamba.dispatcher.data.model.Location
 
 val fakeDriverData = DriverData(Location(11.310777, -12.312727)/*Near SALA*/, "MALE", "STANDARD", "nearSala")
-// TODO change places names by distances for collaboration.
+// TODO replace places names by distances for collaboration.
 val fakeDriverDataList = mutableListOf<DriverData>().apply {
     add(DriverData( Location(11.307769, -12.315753) /*NEAR HOME*/, "FEMALE", "STANDARD", "nearHome"))
     add(DriverData(Location(11.312763, -12.320231) /*GARAGE MALAL*/, "MALE", "VAN", "garageMalal"))

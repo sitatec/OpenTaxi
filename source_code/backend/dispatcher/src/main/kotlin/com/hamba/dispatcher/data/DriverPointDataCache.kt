@@ -63,8 +63,8 @@ class DriverPointDataCache(
         key?.let { map.remove(key) }
     }
 
-    fun contains(pointData: PointData<DriverData>): Boolean {
-        val key = S2CellId.fromPoint(pointData.point)
+    fun contains(driverData: DriverData): Boolean {
+        val key = driverData.cellId.toCellId()
         return map.contains(key)
     }
 

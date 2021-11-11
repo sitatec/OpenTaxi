@@ -24,7 +24,7 @@ fun main() {
     val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
     val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
     val dispatcher =
-        Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
+        Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList, driverDataCache)
 
     embeddedServer(Netty, port = 8080, host = "localhost") {
         webSocketsServer(

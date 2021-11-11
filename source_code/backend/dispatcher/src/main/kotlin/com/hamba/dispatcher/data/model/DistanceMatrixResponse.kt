@@ -32,3 +32,6 @@ class Distance (
     val text: String,
     val value: Long
 )
+
+private val EmptyDistance = Distance("", 0)
+val EmptyElement = Element(EmptyDistance, EmptyDistance, "")

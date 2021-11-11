@@ -95,7 +95,6 @@ fun Application.webSocketsServer(
         }
 
         webSocket("dispatch") {
-            // TODO include the rider location to the stop's list.
             var riderId = ""
             var receivedText: String
             try {
@@ -117,7 +116,6 @@ fun Application.webSocketsServer(
                             val dispatchData = dispatchDataList[riderId]
                             if (dispatchData == null) { // The dispatching have not been initialized first (distance calculation is probably in progress).
                                 close(CloseReason(CloseReason.Codes.NORMAL, ""))
-                                // TODO handle
                             } else {
                                 dispatcher.onDispatchCanceled(riderId)
                             }
@@ -143,10 +141,10 @@ fun initDriversDataChangeListeners(
 ) {
     firebaseFirestoreWrapper.firestoreClient.collection("drivers").addSnapshotListener { querySnapshot, error ->
         if (error != null) {
-            //TODO handle
+            println(error.message)
         }
         if (querySnapshot == null) {
-            // TODO handle
+            println("Error firestore event returned a null querySnapshot")
         } else {
             querySnapshot.documentChanges.forEach { driverDocumentChange ->
                 val driverDocument = driverDocumentChange.document

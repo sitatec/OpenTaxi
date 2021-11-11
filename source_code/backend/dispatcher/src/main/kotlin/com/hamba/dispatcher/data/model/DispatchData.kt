@@ -4,6 +4,7 @@ import io.ktor.websocket.*
 import java.util.*
 
 class DispatchData(
+    val id: String,
     candidates: List<Pair<DriverData, Element>>,
     val dispatchRequestData: DispatchRequestData,
     val riderConnection: DefaultWebSocketServerSession
