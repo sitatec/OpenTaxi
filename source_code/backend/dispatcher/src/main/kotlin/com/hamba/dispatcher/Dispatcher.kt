@@ -5,6 +5,7 @@ import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
 import com.hamba.dispatcher.services.api.RouteApiClient
+import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.runBlocking
@@ -73,7 +74,7 @@ class Dispatcher(
 
     }
 
-    suspend fun onBookingAccepted(dispatchData: DispatchData) {
+    suspend fun onBookingAccepted(dispatchData: DispatchData, firebaseDatabaseWrapper: FirebaseDatabaseWrapper) {
         if (dispatchData.currentBookingRequestTimeout?.cancel() != false) {
             val driverId = dispatchData.getCurrentCandidate().first.driverId
             val driverConnection = driverConnections[driverId]
@@ -81,14 +82,16 @@ class Dispatcher(
                 dispatchData.riderConnection.send("dis:$driverId")
                 bookNextClosestDriver(dispatchData)
             } else {
-                dispatchData.riderConnection.send("yes")
                 val directionData = routeApiClient.findDirection(
                     dispatchData.getCurrentCandidate().first.location,
                     dispatchData.getDestination().toString(),
                 )
-                dispatchData.riderConnection.send("dir:$directionData")
-                driverConnection.send("dir:$directionData")
-                // TODO when accepted create trip tracking "room" and delete all data related to this booking.
+                val tripRoomData = mutableMapOf("driver" to driverId, "dir" to directionData)
+                firebaseDatabaseWrapper.putData("trip_rooms/${dispatchData.id}", tripRoomData)
+                dispatchData.riderConnection.send("yes")
+                dispatchData.riderConnection.close(CloseReason(CloseReason.Codes.NORMAL, ""))
+                driverConnection.send(/*ROOM*/"ro:${dispatchData.id}") // Send the trip room id to the driver
+                dispatchDataList.remove(dispatchData.id)
             }
         }
     }

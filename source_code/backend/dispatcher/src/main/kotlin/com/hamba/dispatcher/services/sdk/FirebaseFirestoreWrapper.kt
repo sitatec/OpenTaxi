@@ -1,25 +1,9 @@
-package com.hamba.dispatcher.services.api
+package com.hamba.dispatcher.services.sdk
 
-import com.google.auth.oauth2.GoogleCredentials
-import com.google.cloud.firestore.DocumentReference
-import com.google.cloud.firestore.DocumentSnapshot
 import com.google.cloud.firestore.Firestore
-import com.google.firebase.FirebaseApp
-import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.FirestoreClient
-import com.google.firebase.database.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.future.await
-import kotlinx.coroutines.runBlocking
-import java.io.FileInputStream
-import java.util.concurrent.CompletionStage
 import java.util.concurrent.Future
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 
 class FirebaseFirestoreWrapper(val firestoreClient: Firestore = FirestoreClient.getFirestore()) {
@@ -63,16 +47,4 @@ class FirebaseFirestoreWrapper(val firestoreClient: Firestore = FirestoreClient.
     }
 }
 
-fun initializeFirebase(
-    secretsPath: String = "",
-    projectId: String = "hamba-project",
-    databaseUrl: String = "https://hamba-project-default-rtdb.firebaseio.com/"
-) {
-    val firebaseOptions = FirebaseOptions.builder().setDatabaseUrl(databaseUrl).setProjectId(projectId)
-    if (secretsPath.isNotBlank()) {
-        val refreshToken = FileInputStream(secretsPath)
-        firebaseOptions.setCredentials(GoogleCredentials.fromStream(refreshToken))
-    }
-    FirebaseApp.initializeApp(firebaseOptions.build())
-}
 

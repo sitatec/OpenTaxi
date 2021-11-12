@@ -7,7 +7,8 @@ import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
 import com.hamba.dispatcher.data.model.DriverData
 import com.hamba.dispatcher.data.model.Location
-import com.hamba.dispatcher.services.api.FirebaseFirestoreWrapper
+import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
+import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.utils.toDriverData
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
@@ -27,7 +28,8 @@ fun Application.webSocketsServer(
     dispatchDataList: MutableMap<String, DispatchData>,
     dispatcher: Dispatcher,
     driverDataCache: DriverPointDataCache,
-    firebaseFirestoreWrapper: FirebaseFirestoreWrapper
+    firebaseFirestoreWrapper: FirebaseFirestoreWrapper,
+    firebaseDatabaseWrapper: FirebaseDatabaseWrapper
 ) {
     // TODO Refactor
     install(WebSockets)
@@ -72,7 +74,7 @@ fun Application.webSocketsServer(
                             if (dispatchData == null) {// Invalid id or that data have been already removed
                                 send(/* i = INVALID */"i:$dispatchDataId")
                             } else {
-                                dispatcher.onBookingAccepted(dispatchData)
+                                dispatcher.onBookingAccepted(dispatchData, firebaseDatabaseWrapper)
                             }
                         }
                         "no" /*REFUSE BOOKING*/ -> {

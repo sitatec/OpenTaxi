@@ -4,9 +4,10 @@ import com.hamba.dispatcher.*
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.*
-import com.hamba.dispatcher.services.api.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.services.api.RouteApiClient
-import com.hamba.dispatcher.services.api.initializeFirebase
+import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
+import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
+import com.hamba.dispatcher.services.sdk.initializeFirebase
 import com.hamba.dispatcher.webSocketsServer
 import io.ktor.http.cio.websocket.*
 import kotlin.test.*
@@ -27,6 +28,7 @@ class ApplicationTest {
     // TODO test for more than 1000 drivers simultaneously connected and memory consumption
     private val driverDataCache = DriverPointDataCache()
     private val firebaseDatabaseClient = FirebaseFirestoreWrapper()
+    private val firebaseDatabaseWrapper = FirebaseDatabaseWrapper()
     private lateinit var driverDataRepository: DriverDataRepository
     private lateinit var distanceCalculator: DistanceCalculator
     private val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
@@ -38,6 +40,7 @@ class ApplicationTest {
         driverDataCache.clear()
         driverConnections.clear()
         dispatchDataList.clear()
+        firebaseDatabaseWrapper.deleteData("trip_rooms")
         driverDataRepository = DriverDataRepository(firebaseDatabaseClient)
         distanceCalculator = DistanceCalculator(routeApiClient, driverDataCache)
         dispatcher =
@@ -47,7 +50,7 @@ class ApplicationTest {
                 routeApiClient,
                 driverDataRepository,
                 dispatchDataList,
-                driverDataCache
+                driverDataCache,
             )
     }
 
@@ -96,7 +99,8 @@ class ApplicationTest {
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             handleWebSocketConversation("/driver") { _, outgoing ->
@@ -153,7 +157,8 @@ class ApplicationTest {
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -174,7 +179,8 @@ class ApplicationTest {
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -196,7 +202,8 @@ class ApplicationTest {
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             // Simulate connected drivers
@@ -246,10 +253,8 @@ class ApplicationTest {
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("yes", receivedMessage)
 
-                receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("dir"/*DIRECTION*/, receivedMessage.substringBefore(":"))
-                println("\ndirection response = ${receivedMessage.substringAfter(":")}")
-                // TODO check that it contains the direction api response.
+                val closeReason = (incoming.receive() as Frame.Close).readReason()
+                assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
             }
         }
     }
@@ -264,7 +269,8 @@ class ApplicationTest {
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             // Simulate connected drivers
@@ -283,7 +289,7 @@ class ApplicationTest {
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
                                     outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
-                                    assertEquals("dir"/*DIRECTION*/, directionDataMessage.substringBefore(":"))
+                                    assertEquals("ro"/*ROOM*/, directionDataMessage.substringBefore(":"))
                                     // TODO check that it contains the direction api response.
                                 }
                             }
@@ -314,10 +320,8 @@ class ApplicationTest {
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("yes", receivedMessage)
 
-                receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("dir"/*DIRECTION*/, receivedMessage.substringBefore(":"))
-                println("\ndirection response = ${receivedMessage.substringAfter(":")}")
-                // TODO check that it contains the direction api response.
+                val closeReason = (incoming.receive() as Frame.Close).readReason()
+                assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
             }
         }
     }
@@ -332,7 +336,8 @@ class ApplicationTest {
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             // Simulate connected drivers
@@ -351,7 +356,7 @@ class ApplicationTest {
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
                                     outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
-                                    assertEquals("dir"/*DIRECTION*/, directionDataMessage.substringBefore(":"))
+                                    assertEquals("ro"/*ROOM*/, directionDataMessage.substringBefore(":"))
                                     // TODO check that it contains the direction api response.
                                 }
                             }
@@ -381,10 +386,8 @@ class ApplicationTest {
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("yes", receivedMessage)
 
-                receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("dir"/*DIRECTION*/, receivedMessage.substringBefore(":"))
-                println("\ndirection response = ${receivedMessage.substringAfter(":")}")
-                // TODO check that it contains the direction api response.
+                val closeReason = (incoming.receive() as Frame.Close).readReason()
+                assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
             }
         }
     }
@@ -399,7 +402,8 @@ class ApplicationTest {
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             var currentDriverIndex = 0
@@ -426,7 +430,7 @@ class ApplicationTest {
                                     } else {
                                         outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
                                         val directionDataMessage = (incoming.receive() as Frame.Text).readText()
-                                        assertEquals("dir"/*DIRECTION*/, directionDataMessage.substringBefore(":"))
+                                        assertEquals("ro"/*ROOM*/, directionDataMessage.substringBefore(":"))
                                     }
                                 }
                             }
@@ -476,10 +480,8 @@ class ApplicationTest {
 
                 delay(1_000)
 
-                receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("dir"/*DIRECTION*/, receivedMessage.substringBefore(":"))
-                println("\ndirection response = ${receivedMessage.substringAfter(":")}")
-                // TODO check that it contains the direction api response.
+                val closeReason = (incoming.receive() as Frame.Close).readReason()
+                assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
             }
         }
     }
@@ -503,7 +505,8 @@ class ApplicationTest {
                     10_000/*10 seconds timeout*/
                 ),
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             var currentDriverIndex = 0
@@ -531,7 +534,7 @@ class ApplicationTest {
                                     } else {
                                         outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
                                         val directionDataMessage = (incoming.receive() as Frame.Text).readText()
-                                        assertEquals("dir"/*DIRECTION*/, directionDataMessage.substringBefore(":"))
+                                        assertEquals("ro"/*ROOM*/, directionDataMessage.substringBefore(":"))
                                     }
                                 }
                             }
@@ -581,10 +584,8 @@ class ApplicationTest {
 
                 delay(1_000)
 
-                receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("dir"/*DIRECTION*/, receivedMessage.substringBefore(":"))
-                println("\ndirection response = ${receivedMessage.substringAfter(":")}")
-                // TODO check that it contains the direction api response.
+                val closeReason = (incoming.receive() as Frame.Close).readReason()
+                assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
             }
         }
     }
@@ -599,7 +600,8 @@ class ApplicationTest {
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             // Simulate connected drivers
@@ -666,7 +668,8 @@ class ApplicationTest {
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient
+                firebaseDatabaseClient,
+                firebaseDatabaseWrapper
             )
         }) {
             // Simulate connected drivers
