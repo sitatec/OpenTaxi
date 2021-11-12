@@ -129,8 +129,8 @@ class Dispatcher(
 
     suspend fun onDriverDisconnect(driverId: String) {
         // TODO Refactor, test, and document
-        driverConnections.remove(driverId)
         driverDataRepository.deleteDriverData(driverId)
+        driverConnections.remove(driverId)
         var notifyRiderAndBookNext: suspend () -> Unit = {}
         dispatchDataList.forEach { (_, dispatchData) ->
             dispatchData.candidates.removeIf { candidate ->

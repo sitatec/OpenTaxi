@@ -1,5 +1,6 @@
 package com.hamba.dispatcher
 
+import com.hamba.dispatcher.controllers.DriverController
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.DispatchData
@@ -30,8 +31,7 @@ fun main() {
 
     embeddedServer(Netty, port = 8080, host = "localhost") {
         webSocketsServer(
-            driverConnections,
-            driverDataRepository,
+            DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
             dispatchDataList,
             dispatcher,
             driverDataCache,

@@ -2,12 +2,11 @@ package com.hamba.dispatcher.websockets
 
 import com.google.cloud.firestore.DocumentChange.Type.*
 import com.hamba.dispatcher.Dispatcher
+import com.hamba.dispatcher.controllers.DriverController
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
-import com.hamba.dispatcher.data.model.DriverData
-import com.hamba.dispatcher.data.model.Location
 import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
 import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.utils.toDriverData
@@ -25,8 +24,7 @@ import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalSerializationApi::class)
 fun Application.webSocketsServer(
-    driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
-    driverDataRepository: DriverDataRepository,
+    driverController: DriverController,
     dispatchDataList: MutableMap<String, DispatchData>,
     dispatcher: Dispatcher,
     driverDataCache: DriverPointDataCache,
@@ -41,51 +39,21 @@ fun Application.webSocketsServer(
     routing {
         webSocket("driver") {
             var receivedText: String
+            var receivedData: String
             var driverId: String? = null
             try {
                 for (frame in incoming) {
                     if (frame !is Frame.Text) continue
                     receivedText = frame.readText()
+                    receivedData = receivedText.substringAfter(":")
                     when (FrameType.fromRawFrame(receivedText)) {
-                        ADD_DRIVER_DATA -> {
-                            val driverData = Json.decodeFromString<DriverData>(receivedText.substringAfter(":"))
-                            driverConnections[driverData.driverId] = this
-                            driverDataRepository.addDriverData(driverData)
-                            driverId = driverData.driverId
-                        }
-                        UPDATE_DRIVER_DATA -> {
-                            if (driverId == null) {// Should add data before updating it.
-                                close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
-                            } else {
-                                val (latitude, longitude) = receivedText.substringAfter(":").split(",")
-                                val location = Location(latitude.toDouble(), longitude.toDouble())
-                                driverDataRepository.updateDriverLocation(driverId, location)
-                            }
-                        }
-                        DELETE_DRIVER_DATA -> {
-                            if (driverId == null) {// Should add data before deleting it
-                                close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
-                            }else {
-                                driverDataRepository.deleteDriverData(driverId)
-                                close(CloseReason(CloseReason.Codes.NORMAL, ""))
-                            }
-                        }
+                        ADD_DRIVER_DATA -> driverId = driverController.addDriverData(receivedData, this)
+                        UPDATE_DRIVER_DATA -> driverController.updateDriverData(driverId, receivedData, this)
+                        DELETE_DRIVER_DATA -> driverController.deleteDriverData(driverId, this)
                         ACCEPT_BOOKING -> {
-                            val dispatchDataId = receivedText.substringAfter(":")
-                            val dispatchData = dispatchDataList[dispatchDataId]
-                            if (dispatchData == null) {// Invalid id or that data have been already removed
-                                send("$INVALID_DISPATCH_ID:$dispatchDataId")
-                            } else {
-                                dispatcher.onBookingAccepted(dispatchData, firebaseDatabaseWrapper)
-                            }
+                            driverController.acceptBooking(driverId, receivedData, firebaseDatabaseWrapper, this)
                         }
-                        REFUSE_BOOKING -> {
-                            val dispatchDataId = receivedText.substringAfter(":")
-                            val dispatchData = dispatchDataList[dispatchDataId]
-                            if (dispatchData != null) {
-                                dispatcher.onBookingRefused(dispatchData)
-                            }
-                        }
+                        REFUSE_BOOKING -> driverController.refuseBooking(driverId, receivedData, this)
                         else -> close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, "INVALID_FRAME_TYPE"))
                     }
                 }

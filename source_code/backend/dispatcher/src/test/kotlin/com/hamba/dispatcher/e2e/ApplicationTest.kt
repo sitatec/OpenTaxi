@@ -1,6 +1,7 @@
 package com.hamba.dispatcher.e2e
 
 import com.hamba.dispatcher.*
+import com.hamba.dispatcher.controllers.DriverController
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.*
@@ -29,7 +30,7 @@ class ApplicationTest {
     // TODO handle JobCancellation exception thrown on `testDispatching`
     // TODO test for more than 1000 drivers simultaneously connected and memory consumption
     private val driverDataCache = DriverPointDataCache()
-    private val firebaseDatabaseClient = FirebaseFirestoreWrapper()
+    private val firebaseFirestoreWrapper = FirebaseFirestoreWrapper()
     private val firebaseDatabaseWrapper = FirebaseDatabaseWrapper()
     private lateinit var driverDataRepository: DriverDataRepository
     private lateinit var distanceCalculator: DistanceCalculator
@@ -43,7 +44,7 @@ class ApplicationTest {
         driverConnections.clear()
         dispatchDataList.clear()
         firebaseDatabaseWrapper.deleteData("trip_rooms")
-        driverDataRepository = DriverDataRepository(firebaseDatabaseClient)
+        driverDataRepository = DriverDataRepository(firebaseFirestoreWrapper)
         distanceCalculator = DistanceCalculator(routeApiClient, driverDataCache)
         dispatcher =
             Dispatcher(
@@ -95,16 +96,15 @@ class ApplicationTest {
     fun testDriverDataManagement() {
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
-            handleWebSocketConversation("/driver") { _, outgoing ->
+            handleWebSocketConversation("/driver") { incoming, outgoing ->
 
                 assertEquals(
                     0,
@@ -142,6 +142,10 @@ class ApplicationTest {
 
                 // Test driver deleting his location data
                 outgoing.send(Frame.Text("${DELETE_DRIVER_DATA}:"))
+
+                val closeReason = (incoming.receive() as Frame.Close).readReason()
+                assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
+                outgoing.send(Frame.Close())
                 delay(5000)
                 assertEquals(0, driverDataCache.size)
                 assertEquals(0, driverDataRepository.getDriversAllData().size)
@@ -153,13 +157,12 @@ class ApplicationTest {
     fun `Trying to update data without first add it should close connection`() {
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -175,13 +178,12 @@ class ApplicationTest {
     fun `Trying to delete data without first add it should close connection`() {
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -198,13 +200,12 @@ class ApplicationTest {
     fun testDispatching() {
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
             // Simulate connected drivers
@@ -264,13 +265,12 @@ class ApplicationTest {
     fun `Test dispatching with car type specified`() {
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
             // Simulate connected drivers
@@ -330,13 +330,12 @@ class ApplicationTest {
     fun `Test dispatching with driver gender specified`() {
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
             // Simulate connected drivers
@@ -396,13 +395,12 @@ class ApplicationTest {
     fun `Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any`() {
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
             var currentDriverIndex = 0
@@ -489,22 +487,22 @@ class ApplicationTest {
     @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun `Test if a driver doesn't accept a booking after the set timeout, a new booking request should be sent to the next closest driver if any`() {
+        val dispatcher1 = Dispatcher(
+            distanceCalculator,
+            driverConnections,
+            routeApiClient,
+            driverDataRepository,
+            dispatchDataList,
+            10_000/*10 seconds timeout*/
+        )
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher1),
                 dispatchDataList,
-                Dispatcher(
-                    distanceCalculator,
-                    driverConnections,
-                    routeApiClient,
-                    driverDataRepository,
-                    dispatchDataList,
-                    10_000/*10 seconds timeout*/
-                ),
+                dispatcher1,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
             var currentDriverIndex = 0
@@ -559,7 +557,10 @@ class ApplicationTest {
                 assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("${BOOKING_REQUEST_TIMEOUT}:1", receivedMessage) // The first driver doesn't respond the booking request
+                assertEquals(
+                    "${BOOKING_REQUEST_TIMEOUT}:1",
+                    receivedMessage
+                ) // The first driver doesn't respond the booking request
                 delay(1_000)
                 assertNotNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// When a driver
                 // refuse a booking he/she should be available again for new bookings
@@ -593,13 +594,12 @@ class ApplicationTest {
     fun `Test when the rider cancel the dispatching process`() {
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
             // Simulate connected drivers
@@ -658,16 +658,15 @@ class ApplicationTest {
 
     @OptIn(ExperimentalSerializationApi::class)
     @Test
-    fun  `Test when all closest drivers reject the booking request`() {
+    fun `Test when all closest drivers reject the booking request`() {
         withTestApplication({
             webSocketsServer(
-                driverConnections,
-                driverDataRepository,
+                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
                 dispatchDataList,
                 dispatcher,
                 driverDataCache,
-                firebaseDatabaseClient,
-                firebaseDatabaseWrapper
+                firebaseFirestoreWrapper,
+                FirebaseDatabaseWrapper()
             )
         }) {
             // Simulate connected drivers
