@@ -7,6 +7,7 @@ import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
 import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.services.sdk.initializeFirebase
+import com.hamba.dispatcher.websockets.webSocketsServer
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.server.engine.*
@@ -25,7 +26,7 @@ fun main() {
     val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
     val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
     val dispatcher =
-        Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList, driverDataCache)
+        Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
 
     embeddedServer(Netty, port = 8080, host = "localhost") {
         webSocketsServer(

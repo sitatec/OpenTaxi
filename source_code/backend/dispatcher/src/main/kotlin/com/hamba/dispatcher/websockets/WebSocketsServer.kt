@@ -1,6 +1,7 @@
-package com.hamba.dispatcher
+package com.hamba.dispatcher.websockets
 
 import com.google.cloud.firestore.DocumentChange.Type.*
+import com.hamba.dispatcher.Dispatcher
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
@@ -10,6 +11,7 @@ import com.hamba.dispatcher.data.model.Location
 import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
 import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.utils.toDriverData
+import com.hamba.dispatcher.websockets.FrameType.*
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
@@ -44,14 +46,14 @@ fun Application.webSocketsServer(
                 for (frame in incoming) {
                     if (frame !is Frame.Text) continue
                     receivedText = frame.readText()
-                    when (receivedText.substringBefore(":")) {
-                        "a" /*ADD*/ -> {
+                    when (FrameType.fromRawFrame(receivedText)) {
+                        ADD_DRIVER_DATA -> {
                             val driverData = Json.decodeFromString<DriverData>(receivedText.substringAfter(":"))
                             driverConnections[driverData.driverId] = this
                             driverDataRepository.addDriverData(driverData)
                             driverId = driverData.driverId
                         }
-                        "u" /*UPDATE*/ -> {
+                        UPDATE_DRIVER_DATA -> {
                             if (driverId == null) {// Should add data before updating it.
                                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
                             } else {
@@ -60,7 +62,7 @@ fun Application.webSocketsServer(
                                 driverDataRepository.updateDriverLocation(driverId, location)
                             }
                         }
-                        "d" /*DELETE/DISCONNECT*/ -> {
+                        DELETE_DRIVER_DATA -> {
                             if (driverId == null) {// Should add data before deleting it
                                 close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
                             }else {
@@ -68,22 +70,23 @@ fun Application.webSocketsServer(
                                 close(CloseReason(CloseReason.Codes.NORMAL, ""))
                             }
                         }
-                        "yes" /*ACCEPT BOOKING*/ -> {
+                        ACCEPT_BOOKING -> {
                             val dispatchDataId = receivedText.substringAfter(":")
                             val dispatchData = dispatchDataList[dispatchDataId]
                             if (dispatchData == null) {// Invalid id or that data have been already removed
-                                send(/* i = INVALID */"i:$dispatchDataId")
+                                send("$INVALID_DISPATCH_ID:$dispatchDataId")
                             } else {
                                 dispatcher.onBookingAccepted(dispatchData, firebaseDatabaseWrapper)
                             }
                         }
-                        "no" /*REFUSE BOOKING*/ -> {
+                        REFUSE_BOOKING -> {
                             val dispatchDataId = receivedText.substringAfter(":")
                             val dispatchData = dispatchDataList[dispatchDataId]
                             if (dispatchData != null) {
                                 dispatcher.onBookingRefused(dispatchData)
                             }
                         }
+                        else -> close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, "INVALID_FRAME_TYPE"))
                     }
                 }
             } catch (e: ClosedReceiveChannelException) {
@@ -103,10 +106,10 @@ fun Application.webSocketsServer(
                 for (frame in incoming) {
                     if (frame !is Frame.Text) continue
                     receivedText = frame.readText()
-                    when (receivedText.substringBefore(":")) {
-                        "d" /*DISPATCH REQUEST*/ -> {
+                    when (FrameType.fromRawFrame(receivedText)) {
+                        DISPATCH_REQUEST -> {
                             if (driverDataCache.isEmpty()) {
-                                send("no:")
+                                send("$NO_MORE_DRIVER_AVAILABLE:")
                             } else {
                                 val dispatchRequestData =
                                     Json.decodeFromString<DispatchRequestData>(receivedText.substringAfter(":"))
@@ -114,7 +117,7 @@ fun Application.webSocketsServer(
                                 dispatcher.dispatch(dispatchRequestData, this)
                             }
                         }
-                        "c" /*CANCEL*/ -> {
+                        CANCEL_BOOKING -> {
                             val dispatchData = dispatchDataList[riderId]
                             if (dispatchData == null) { // The dispatching have not been initialized first (distance calculation is probably in progress).
                                 close(CloseReason(CloseReason.Codes.NORMAL, ""))
@@ -122,6 +125,7 @@ fun Application.webSocketsServer(
                                 dispatcher.onDispatchCanceled(riderId)
                             }
                         }
+                        else -> close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, "INVALID_FRAME_TYPE"))
                     }
                 }
             } catch (e: ClosedReceiveChannelException) {

@@ -8,9 +8,11 @@ import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
 import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.services.sdk.initializeFirebase
-import com.hamba.dispatcher.webSocketsServer
+import com.hamba.dispatcher.websockets.FrameType
+import com.hamba.dispatcher.websockets.webSocketsServer
 import io.ktor.http.cio.websocket.*
 import kotlin.test.*
+import com.hamba.dispatcher.websockets.FrameType.*
 import io.ktor.server.testing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
@@ -50,7 +52,6 @@ class ApplicationTest {
                 routeApiClient,
                 driverDataRepository,
                 dispatchDataList,
-                driverDataCache,
             )
     }
 
@@ -117,7 +118,7 @@ class ApplicationTest {
                 )
 
                 // Test driver sending his location data the first time
-                outgoing.send(Frame.Text("a:${fakeDriverData.toJson()}"))
+                outgoing.send(Frame.Text("${ADD_DRIVER_DATA}:${fakeDriverData.toJson()}"))
                 delay(5000)
                 assertEquals(
                     1,
@@ -134,13 +135,13 @@ class ApplicationTest {
                 val newLocation = Location(23.453543, -24.454643)
                 var driverLocation = driverDataRepository.getDriverData(fakeDriverData.driverId)!!.location
                 assertNotEquals(newLocation, driverLocation)
-                outgoing.send(Frame.Text("u:$newLocation"))
+                outgoing.send(Frame.Text("${UPDATE_DRIVER_DATA}:$newLocation"))
                 delay(25)
                 driverLocation = driverDataRepository.getDriverData(fakeDriverData.driverId)!!.location
                 assertEquals(newLocation, driverLocation)
 
                 // Test driver deleting his location data
-                outgoing.send(Frame.Text("d:"))
+                outgoing.send(Frame.Text("${DELETE_DRIVER_DATA}:"))
                 delay(5000)
                 assertEquals(0, driverDataCache.size)
                 assertEquals(0, driverDataRepository.getDriversAllData().size)
@@ -163,7 +164,7 @@ class ApplicationTest {
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
                 val location = Location(23.453543, -24.454643)
-                outgoing.send(Frame.Text("u:$location"))
+                outgoing.send(Frame.Text("${UPDATE_DRIVER_DATA}:$location"))
                 val closeReasonCode = (incoming.receive() as Frame.Close).readReason()?.code
                 assertEquals(closeReasonCode, CloseReason.Codes.CANNOT_ACCEPT.code)
             }
@@ -184,7 +185,7 @@ class ApplicationTest {
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
-                outgoing.send(Frame.Text("d:"))
+                outgoing.send(Frame.Text("${DELETE_DRIVER_DATA}:"))
                 val closeReasonCode = (incoming.receive() as Frame.Close).readReason()?.code
                 assertEquals(closeReasonCode, CloseReason.Codes.CANNOT_ACCEPT.code)
 
@@ -212,18 +213,17 @@ class ApplicationTest {
                 launch {
                     try {
                         handleWebSocketConversation("/driver") { incoming, outgoing ->
-                            outgoing.send(Frame.Text("a:${fakeDriverData.toJson()}"))
+                            outgoing.send(Frame.Text("${ADD_DRIVER_DATA}:${fakeDriverData.toJson()}"))
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (message.substringBefore(":") == "b"/*BOOKING*/) {
+                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
-                                    outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
+                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
-                                    assertEquals("dir"/*DIRECTION*/, directionDataMessage.substringBefore(":"))
-                                    // TODO check that it contains the direction api response.
+                                    assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                 }
                             }
                         }
@@ -239,9 +239,9 @@ class ApplicationTest {
             // Simulate a rider making a booking
             handleWebSocketConversation("/dispatch") { incoming, outgoing ->
                 delay(6_000)// Wait until all fake drivers have been connected.
-                outgoing.send(Frame.Text("d:${fakeDispatchRequestData.toJson()}"))
+                outgoing.send(Frame.Text("${DISPATCH_REQUEST}:${fakeDispatchRequestData.toJson()}"))
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
@@ -251,7 +251,7 @@ class ApplicationTest {
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("yes", receivedMessage)
+                assertEquals("${ACCEPT_BOOKING}:", receivedMessage)
 
                 val closeReason = (incoming.receive() as Frame.Close).readReason()
                 assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
@@ -279,18 +279,17 @@ class ApplicationTest {
                 launch {
                     try {
                         handleWebSocketConversation("/driver") { incoming, outgoing ->
-                            outgoing.send(Frame.Text("a:${driverData.toJson()}"))
+                            outgoing.send(Frame.Text("${ADD_DRIVER_DATA}:${driverData.toJson()}"))
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (message.substringBefore(":") == "b"/*BOOKING*/) {
+                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
-                                    outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
+                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
-                                    assertEquals("ro"/*ROOM*/, directionDataMessage.substringBefore(":"))
-                                    // TODO check that it contains the direction api response.
+                                    assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                 }
                             }
                         }
@@ -306,9 +305,9 @@ class ApplicationTest {
             // Simulate a rider making booking with car type specified
             handleWebSocketConversation("/dispatch") { incoming, outgoing ->
                 delay(6_000)// Wait until all fake drivers have been connected.
-                outgoing.send(Frame.Text("d:${fakeDispatchRequestDataWithCarFilter.toJson()}"))
+                outgoing.send(Frame.Text("${DISPATCH_REQUEST}:${fakeDispatchRequestDataWithCarFilter.toJson()}"))
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("pharmacieNdiolou", closestDriverData.first.driverId)
@@ -318,7 +317,7 @@ class ApplicationTest {
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("yes", receivedMessage)
+                assertEquals("${ACCEPT_BOOKING}:", receivedMessage)
 
                 val closeReason = (incoming.receive() as Frame.Close).readReason()
                 assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
@@ -346,17 +345,17 @@ class ApplicationTest {
                 launch {
                     try {
                         handleWebSocketConversation("/driver") { incoming, outgoing ->
-                            outgoing.send(Frame.Text("a:${fakeDriverData.toJson()}"))
+                            outgoing.send(Frame.Text("${ADD_DRIVER_DATA}:${fakeDriverData.toJson()}"))
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (message.substringBefore(":") == "b"/*BOOKING*/) {
+                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
-                                    outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
+                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
-                                    assertEquals("ro"/*ROOM*/, directionDataMessage.substringBefore(":"))
+                                    assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                     // TODO check that it contains the direction api response.
                                 }
                             }
@@ -372,9 +371,9 @@ class ApplicationTest {
             // Simulate a rider making booking with driver's gender specified
             handleWebSocketConversation("/dispatch") { incoming, outgoing ->
                 delay(6_000)// Wait until all fake drivers have been connected.
-                outgoing.send(Frame.Text("d:${fakeDispatchRequestDataWithGenderFilter.toJson()}"))
+                outgoing.send(Frame.Text("${DISPATCH_REQUEST}:${fakeDispatchRequestDataWithGenderFilter.toJson()}"))
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
 
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
@@ -384,7 +383,7 @@ class ApplicationTest {
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("yes", receivedMessage)
+                assertEquals("${ACCEPT_BOOKING}:", receivedMessage)
 
                 val closeReason = (incoming.receive() as Frame.Close).readReason()
                 assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
@@ -413,11 +412,11 @@ class ApplicationTest {
                 launch {
                     try {
                         handleWebSocketConversation("/driver") { incoming, outgoing ->
-                            outgoing.send(Frame.Text("a:${fakeDriverData.toJson()}"))
+                            outgoing.send(Frame.Text("${ADD_DRIVER_DATA}:${fakeDriverData.toJson()}"))
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (message.substringBefore(":") == "b"/*BOOKING*/) {
+                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
@@ -425,12 +424,12 @@ class ApplicationTest {
                                         currentDriverIndex++
                                         // The closest driver refuse the booking.
                                         delay(1_000) // Wait until the rider receive the bs (booking sent message)
-                                        outgoing.send(Frame.Text("no:${bookingData.riderId}"))
+                                        outgoing.send(Frame.Text("${REFUSE_BOOKING}:${bookingData.riderId}"))
                                         (incoming.receive() as Frame.Text).readText()
                                     } else {
-                                        outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
+                                        outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
                                         val directionDataMessage = (incoming.receive() as Frame.Text).readText()
-                                        assertEquals("ro"/*ROOM*/, directionDataMessage.substringBefore(":"))
+                                        assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                     }
                                 }
                             }
@@ -446,9 +445,9 @@ class ApplicationTest {
             // Simulate a rider making booking with driver's gender specified
             handleWebSocketConversation("/dispatch") { incoming, outgoing ->
                 delay(6_000)// Wait until all fake drivers have been connected.
-                outgoing.send(Frame.Text("d:${fakeDispatchRequestData.toJson()}"))
+                outgoing.send(Frame.Text("${DISPATCH_REQUEST}:${fakeDispatchRequestData.toJson()}"))
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 var closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
@@ -457,7 +456,7 @@ class ApplicationTest {
                 assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("no:1", receivedMessage) // The first driver rejected the booking request
+                assertEquals("${REFUSE_BOOKING}:1", receivedMessage) // The first driver rejected the booking request
                 delay(1_000)
                 assertNotNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// When a driver
                 // refuse a booking he/she should be available again for new bookings
@@ -466,7 +465,7 @@ class ApplicationTest {
                 // ------------------------- SECOND CLOSEST DRIVER -----------------------------//
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
@@ -476,7 +475,7 @@ class ApplicationTest {
                 assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("yes", receivedMessage) // The second-closest driver accept the booking
+                assertEquals("${ACCEPT_BOOKING}:", receivedMessage) // The second-closest driver accept the booking
 
                 delay(1_000)
 
@@ -501,7 +500,6 @@ class ApplicationTest {
                     routeApiClient,
                     driverDataRepository,
                     dispatchDataList,
-                    driverDataCache,
                     10_000/*10 seconds timeout*/
                 ),
                 driverDataCache,
@@ -516,11 +514,11 @@ class ApplicationTest {
                 launch {
                     try {
                         handleWebSocketConversation("/driver") { incoming, outgoing ->
-                            outgoing.send(Frame.Text("a:${fakeDriverData.toJson()}"))
+                            outgoing.send(Frame.Text("${ADD_DRIVER_DATA}:${fakeDriverData.toJson()}"))
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (message.substringBefore(":") == "b"/*BOOKING*/) {
+                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(1_000) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
@@ -529,12 +527,12 @@ class ApplicationTest {
                                         // The closest driver doesn't accept the booking after 10 second.
                                         delay(10_000)
                                         val msg = (incoming.receive() as Frame.Text).readText()
-                                        assertEquals("to:" /*Timeout*/, msg)
+                                        assertEquals("${BOOKING_REQUEST_TIMEOUT}:" /*Timeout*/, msg)
                                         incoming.receive() // prevent disconnection
                                     } else {
-                                        outgoing.send(Frame.Text("yes:${bookingData.riderId}"))
+                                        outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
                                         val directionDataMessage = (incoming.receive() as Frame.Text).readText()
-                                        assertEquals("ro"/*ROOM*/, directionDataMessage.substringBefore(":"))
+                                        assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                     }
                                 }
                             }
@@ -550,9 +548,9 @@ class ApplicationTest {
             // Simulate a rider making booking with driver's gender specified
             handleWebSocketConversation("/dispatch") { incoming, outgoing ->
                 delay(6_000)// Wait until all fake drivers have been connected.
-                outgoing.send(Frame.Text("d:${fakeDispatchRequestData.toJson()}"))
+                outgoing.send(Frame.Text("${DISPATCH_REQUEST}:${fakeDispatchRequestData.toJson()}"))
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 var closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
@@ -561,7 +559,7 @@ class ApplicationTest {
                 assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("to:1", receivedMessage) // The first driver doesn't respond the booking request
+                assertEquals("${BOOKING_REQUEST_TIMEOUT}:1", receivedMessage) // The first driver doesn't respond the booking request
                 delay(1_000)
                 assertNotNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// When a driver
                 // refuse a booking he/she should be available again for new bookings
@@ -570,7 +568,7 @@ class ApplicationTest {
                 // ------------------------- SECOND CLOSEST DRIVER -----------------------------//
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
 
                 closestDriverData = receivedMessage.substringAfter(":").decodeFromJson()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
@@ -580,7 +578,7 @@ class ApplicationTest {
                 assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("yes", receivedMessage) // The second-closest driver accept the booking
+                assertEquals("${ACCEPT_BOOKING}:", receivedMessage) // The second-closest driver accept the booking
 
                 delay(1_000)
 
@@ -610,14 +608,14 @@ class ApplicationTest {
                 launch {
                     try {
                         handleWebSocketConversation("/driver") { incoming, outgoing ->
-                            outgoing.send(Frame.Text("a:${fakeDriverData.toJson()}"))
+                            outgoing.send(Frame.Text("${ADD_DRIVER_DATA}:${fakeDriverData.toJson()}"))
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (message.substringBefore(":") == "b"/*BOOKING*/) {
+                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val cancellationMessage = (incoming.receive() as Frame.Text).readText()
-                                    assertEquals("c"/*CANCELLATION*/, cancellationMessage.substringBefore(":"))
+                                    assertEquals("$CANCEL_BOOKING", cancellationMessage.substringBefore(":"))
                                     incoming.receive()
                                 }
                             }
@@ -633,9 +631,9 @@ class ApplicationTest {
             // Simulate a rider making booking with driver's gender specified
             handleWebSocketConversation("/dispatch") { incoming, outgoing ->
                 delay(6_000)// Wait until all fake drivers have been connected.
-                outgoing.send(Frame.Text("d:${fakeDispatchRequestDataWithGenderFilter.toJson()}"))
+                outgoing.send(Frame.Text("${DISPATCH_REQUEST}:${fakeDispatchRequestDataWithGenderFilter.toJson()}"))
                 val receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
@@ -644,7 +642,7 @@ class ApplicationTest {
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
-                outgoing.send(Frame.Text("c:"))
+                outgoing.send(Frame.Text("${CANCEL_BOOKING}:"))
 
                 val closeReason = (incoming.receive() as Frame.Close).readReason()
                 assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
@@ -679,17 +677,17 @@ class ApplicationTest {
                     try {
 
                         handleWebSocketConversation("/driver") { incoming, outgoing ->
-                            outgoing.send(Frame.Text("a:${fakeDriverData.toJson()}"))
+                            outgoing.send(Frame.Text("${ADD_DRIVER_DATA}:${fakeDriverData.toJson()}"))
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (message.substringBefore(":") == "b"/*BOOKING*/) {
+                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
                                     // The closest driver refuse the booking.
                                     delay(1_000) // Wait until the rider receive the bs (booking sent message)
-                                    outgoing.send(Frame.Text("no:${bookingData.riderId}"))
+                                    outgoing.send(Frame.Text("${REFUSE_BOOKING}:${bookingData.riderId}"))
                                     (incoming.receive() as Frame.Text).readText()
                                 }
                             }
@@ -706,46 +704,46 @@ class ApplicationTest {
             // Simulate a rider making a booking
             handleWebSocketConversation("/dispatch") { incoming, outgoing ->
                 delay(6_000)// Wait until all fake drivers have been connected.
-                outgoing.send(Frame.Text("d:${fakeDispatchRequestData.toJson()}"))
+                outgoing.send(Frame.Text("${DISPATCH_REQUEST}:${fakeDispatchRequestData.toJson()}"))
 
                 // ------------------ DRIVER 1 ---------------- //
 
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("no:1", receivedMessage)
+                assertEquals("${REFUSE_BOOKING}:1", receivedMessage)
                 delay(1_000)
 
                 // ------------------ DRIVER 2 ---------------- //
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("no:2", receivedMessage)
+                assertEquals("${REFUSE_BOOKING}:2", receivedMessage)
                 delay(1_000)
 
                 // ------------------ DRIVER 3 ---------------- //
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("no:3", receivedMessage)
+                assertEquals("${REFUSE_BOOKING}:3", receivedMessage)
                 delay(1_000)
 
                 // ------------------ DRIVER 4 ---------------- //
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("bs"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
+                assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("no:4", receivedMessage)
+                assertEquals("${REFUSE_BOOKING}:4", receivedMessage)
                 delay(1_000)
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("no:", receivedMessage) // all drivers have refuse the booking
+                assertEquals("${NO_MORE_DRIVER_AVAILABLE}:", receivedMessage) // all drivers have refuse the booking
             }
         }
     }
