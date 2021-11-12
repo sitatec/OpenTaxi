@@ -21,7 +21,6 @@ class Dispatcher(
     private val routeApiClient: RouteApiClient,
     private val driverDataRepository: DriverDataRepository,
     private val dispatchDataList: MutableMap<String, DispatchData>,
-    private val driverPointDataCache: DriverPointDataCache,
     private val bookingRequestTimeoutMs: Long = 60_000
 ) {
 
