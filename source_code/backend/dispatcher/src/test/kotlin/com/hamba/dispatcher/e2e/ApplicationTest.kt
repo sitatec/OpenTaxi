@@ -1,6 +1,7 @@
 package com.hamba.dispatcher.e2e
 
 import com.hamba.dispatcher.*
+import com.hamba.dispatcher.controllers.DispatchController
 import com.hamba.dispatcher.controllers.DriverController
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.DriverPointDataCache
@@ -97,7 +98,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
@@ -158,7 +159,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
@@ -179,7 +180,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
@@ -201,7 +202,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
@@ -266,7 +267,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
@@ -331,7 +332,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
@@ -396,7 +397,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
@@ -498,7 +499,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher1),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher1, dispatchDataList),
                 dispatcher1,
                 driverDataCache,
                 firebaseFirestoreWrapper,
@@ -595,7 +596,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
@@ -662,7 +663,7 @@ class ApplicationTest {
         withTestApplication({
             webSocketsServer(
                 DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-                dispatchDataList,
+                DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,

@@ -2,6 +2,7 @@ package com.hamba.dispatcher.websockets
 
 import com.google.cloud.firestore.DocumentChange.Type.*
 import com.hamba.dispatcher.Dispatcher
+import com.hamba.dispatcher.controllers.DispatchController
 import com.hamba.dispatcher.controllers.DriverController
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.DriverDataRepository
@@ -25,13 +26,13 @@ import kotlinx.serialization.json.Json
 @OptIn(ExperimentalSerializationApi::class)
 fun Application.webSocketsServer(
     driverController: DriverController,
-    dispatchDataList: MutableMap<String, DispatchData>,
+    dispatchController: DispatchController,
     dispatcher: Dispatcher,
     driverDataCache: DriverPointDataCache,
     firebaseFirestoreWrapper: FirebaseFirestoreWrapper,
     firebaseDatabaseWrapper: FirebaseDatabaseWrapper
 ) {
-    // TODO Refactor
+    // TODO Use proper logging
     install(WebSockets)
 
     initDriversDataChangeListeners(firebaseFirestoreWrapper, driverDataCache)
@@ -70,29 +71,15 @@ fun Application.webSocketsServer(
         webSocket("dispatch") {
             var riderId = ""
             var receivedText: String
+            var receivedData: String
             try {
                 for (frame in incoming) {
                     if (frame !is Frame.Text) continue
                     receivedText = frame.readText()
+                    receivedData = receivedText.substringAfter(":")
                     when (FrameType.fromRawFrame(receivedText)) {
-                        DISPATCH_REQUEST -> {
-                            if (driverDataCache.isEmpty()) {
-                                send("$NO_MORE_DRIVER_AVAILABLE:")
-                            } else {
-                                val dispatchRequestData =
-                                    Json.decodeFromString<DispatchRequestData>(receivedText.substringAfter(":"))
-                                riderId = dispatchRequestData.riderId
-                                dispatcher.dispatch(dispatchRequestData, this)
-                            }
-                        }
-                        CANCEL_BOOKING -> {
-                            val dispatchData = dispatchDataList[riderId]
-                            if (dispatchData == null) { // The dispatching have not been initialized first (distance calculation is probably in progress).
-                                close(CloseReason(CloseReason.Codes.NORMAL, ""))
-                            } else {
-                                dispatcher.onDispatchCanceled(riderId)
-                            }
-                        }
+                        DISPATCH_REQUEST -> riderId = dispatchController.dispatch(receivedData, this)
+                        CANCEL_BOOKING -> dispatchController.cancelDispatch(riderId, this)
                         else -> close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, "INVALID_FRAME_TYPE"))
                     }
                 }

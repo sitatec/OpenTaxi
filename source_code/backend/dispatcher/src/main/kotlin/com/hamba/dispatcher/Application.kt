@@ -1,5 +1,6 @@
 package com.hamba.dispatcher
 
+import com.hamba.dispatcher.controllers.DispatchController
 import com.hamba.dispatcher.controllers.DriverController
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.DriverPointDataCache
@@ -32,7 +33,7 @@ fun main() {
     embeddedServer(Netty, port = 8080, host = "localhost") {
         webSocketsServer(
             DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
-            dispatchDataList,
+            DispatchController(driverDataCache, dispatcher, dispatchDataList),
             dispatcher,
             driverDataCache,
             firebaseDatabaseClient,
