@@ -48,6 +48,17 @@ class DioAdapter extends HttpClient {
   }
 
   @override
+  Future<HttpResponse> patch(
+    String path,
+    dynamic data, {
+    Map<String, dynamic>? headers,
+  }) {
+    return _wrapRequest(headers, (options) {
+      return _dio.patch(path, data: data, options: options);
+    });
+  }
+
+  @override
   Future<HttpResponse> delete(
     String path, {
     dynamic data,

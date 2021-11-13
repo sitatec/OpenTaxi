@@ -33,6 +33,12 @@ abstract class HttpClient {
     Map<String, dynamic>? headers,
   });
 
+  Future<HttpResponse> patch(
+      String path,
+      dynamic data, {
+        Map<String, dynamic>? headers,
+      });
+
   Future<HttpResponse> delete(String path, {Map<String, dynamic>? headers});
 }
 
