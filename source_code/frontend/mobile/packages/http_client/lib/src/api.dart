@@ -1,10 +1,9 @@
 import 'package:dio/dio.dart';
+import 'package:http_client/src/content_type.dart';
 import 'package:http_client/src/http_exception.dart';
 import 'package:meta/meta.dart';
 
 part 'dio_adapter.dart';
-
-const String dataAccessServerBaseURL = "http://localhost";
 
 abstract class HttpClient {
   String baseUrl;
@@ -15,8 +14,8 @@ abstract class HttpClient {
     this.defaultHeaders,
   });
 
-  factory HttpClient(String baseUrl, {Map<String, dynamic>? defaultHeaders}) {
-    return DioAdapter(baseUrl: baseUrl, defaultHeaders: defaultHeaders);
+  factory HttpClient(String baseUrl, {Map<String, dynamic> defaultHeaders = ContentType.json}) {
+    return DioAdapter(baseUrl, defaultHeaders: defaultHeaders);
   }
 
   Future<HttpResponse> get(String path, {Map<String, dynamic>? headers});

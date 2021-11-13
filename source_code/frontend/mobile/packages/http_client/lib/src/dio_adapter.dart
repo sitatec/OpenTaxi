@@ -4,8 +4,8 @@ part of 'api.dart';
 class DioAdapter extends HttpClient {
   late Dio _dio;
 
-  DioAdapter({
-    String baseUrl = dataAccessServerBaseURL,
+  DioAdapter(
+    String baseUrl, {
     Map<String, dynamic>? defaultHeaders,
   }) : super._internal(baseUrl: baseUrl, defaultHeaders: defaultHeaders) {
     _dio = Dio(BaseOptions(
