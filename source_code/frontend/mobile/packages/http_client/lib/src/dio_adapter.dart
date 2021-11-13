@@ -1,4 +1,4 @@
-part of "http_client.dart";
+part of 'api.dart';
 
 @internal
 class DioAdapter extends HttpClient {
