@@ -1,3 +1,4 @@
+import 'package:data_access/src/constants.dart';
 import 'package:http_client/http_client.dart';
 import '../type_alias.dart';
 import 'package:meta/meta.dart';
@@ -7,7 +8,8 @@ abstract class BaseRepository {
   final String entityPath;
   final HttpClient httpClient;
 
-  BaseRepository(this.entityPath, this.httpClient);
+  BaseRepository(this.entityPath, {HttpClient? httpClient})
+      : httpClient = httpClient ?? HttpClient(dataAccessBaseUrl);
 
   Future<void> create(JsonObject account) =>
       httpClient.post(entityPath, data: account);

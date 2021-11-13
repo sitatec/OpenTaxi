@@ -1,1 +1,1 @@
-const jsonContentType = {"Content-type": "application/json"};
+const dataAccessBaseUrl = "http://localhost";
