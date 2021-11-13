@@ -1,6 +1,8 @@
 import 'package:http_client/http_client.dart';
-import 'type_alias.dart';
+import '../type_alias.dart';
+import 'package:meta/meta.dart';
 
+@internal
 abstract class BaseRepository {
   final String entityPath;
   final HttpClient httpClient;
@@ -10,20 +12,18 @@ abstract class BaseRepository {
   Future<void> create(JsonObject account) =>
       httpClient.post(entityPath, data: account);
 
-  Future<JsonObject> get(String accountId, {JsonObject? filter}) async {
+  Future<List<JsonObject>> get(JsonObject filter) async {
     final response = await httpClient.get(_getPathWithQueryParams(filter));
     return response.data;
   }
 
-  Future<void> update(JsonObject data, {JsonObject? filter}) =>
-      httpClient.patch(_getPathWithQueryParams(filter), data);
+  Future<void> update(String id, JsonObject data) =>
+      httpClient.patch("$entityPath/$id", data);
 
-  Future<void> delete({JsonObject? filter}) =>
-      httpClient.delete(_getPathWithQueryParams(filter));
+  Future<void> delete(String id) => httpClient.delete("$entityPath/$id");
 
-  String _getPathWithQueryParams(JsonObject? queryParams) {
-    if (queryParams == null) return entityPath;
-    String path = "?";
+  String _getPathWithQueryParams(JsonObject queryParams) {
+    String path = "$entityPath?";
     queryParams
         .forEach((paramName, paramValue) => path += "$paramName=$paramValue");
     return path;
