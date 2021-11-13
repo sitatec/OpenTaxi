@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:http_client/src/http_exception.dart';
 import 'package:meta/meta.dart';
 
 part 'dio_adapter.dart';
@@ -20,8 +21,6 @@ abstract class HttpClient {
 
   Future<HttpResponse> get(String path, {Map<String, dynamic>? headers});
 
-  Future<HttpResponse> getJson(String path, {Map<String, dynamic>? headers});
-
   Future<HttpResponse> post(
     String path, {
     dynamic data,
@@ -39,8 +38,12 @@ abstract class HttpClient {
 
 class HttpResponse {
   final dynamic data;
-  final int status;
+  final int statusCode;
   final Map<String, dynamic> headers;
 
-  HttpResponse(this.data, this.status, this.headers);
+  HttpResponse(this.data, this.statusCode, this.headers);
+
+  @override
+  String toString() =>
+      "HttpResponse:\n  data = $data,\n  status code = $statusCode,\n  headers = $headers";
 }
