@@ -4,6 +4,8 @@ part of 'api.dart';
 class TripRoomImplementation extends TripRoom {
   final DatabaseReference _firebaseDb;
   final String _driverId;
+  bool _joined = false;
+  bool _watching = false;
   String _riderId = "";
   String? _viewerId;
   StreamSubscription<Event>? _roomStreamsSubscription;
@@ -20,12 +22,12 @@ class TripRoomImplementation extends TripRoom {
     Stream<Location>? locationSourceStream,
     Stream<double>? speedSourceStream,
   })  : _firebaseDb = firebaseDb ??
-            FirebaseDatabase.instance.reference().child("trip_rooms"),
+            FirebaseDatabase.instance.reference().child("trip_rooms/$id"),
         _driverId = id,
         // Currently the room id is the driver id.
         super._internal(id, locationSourceStream, speedSourceStream) {
     _firebaseDb
-        .child("$id/riderId")
+        .child("riderId")
         .once()
         .then((snapshot) => _riderId = snapshot.value);
     _listenToSourceStreams();
@@ -34,10 +36,10 @@ class TripRoomImplementation extends TripRoom {
   void _listenToSourceStreams() {
     _locationSourceStreamSubscription =
         _locationSourceStream?.listen((location) {
-      _firebaseDb.child("$id/location").set(location.toString());
+      _firebaseDb.child("location").set(location.toString());
     });
     _speedSourceStreamSubscription = _speedSourceStream?.listen((speed) {
-      _firebaseDb.child("$id/speed").set(speed);
+      _firebaseDb.child("speed").set(speed);
     });
   }
 
@@ -61,6 +63,7 @@ class TripRoomImplementation extends TripRoom {
 
   @override
   void join() {
+    if(_joined) return; // prevent joining twice.
     _roomStreamsSubscription =
         _firebaseDb.child(id).onChildChanged.listen((event) {
       final nodeKey = event.snapshot.key;
@@ -78,6 +81,15 @@ class TripRoomImplementation extends TripRoom {
       }
     });
     _tripEventStreamController.sink.add(TripEvent.joined);
+    _joined = true;
+  }
+
+  @override
+  void watch(String viewerId) {
+    if(_watching || _joined) return;
+    _firebaseDb.child("viewerId").set(viewerId);
+    join();
+    _watching = true;
   }
 
   @override

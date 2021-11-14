@@ -41,6 +41,8 @@ abstract class TripRoom {
 
   void join();
 
+  void watch(String viewerId);
+
   Future<void> leave();
 }
 
