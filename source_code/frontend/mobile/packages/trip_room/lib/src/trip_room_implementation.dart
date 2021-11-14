@@ -7,21 +7,38 @@ class TripRoomImplementation extends TripRoom {
   String _riderId = "";
   String? _viewerId;
   StreamSubscription<Event>? _roomStreamsSubscription;
+  StreamSubscription<Location>? _locationSourceStreamSubscription;
+  StreamSubscription<double>? _speedSourceStreamSubscription;
 
   final _locationStreamController = StreamController<Location>();
   final _speedStreamController = StreamController<double>();
   final _tripEventStreamController = StreamController<TripEvent>();
 
-  TripRoomImplementation(String id, {DatabaseReference? firebaseDb})
-      : _firebaseDb = firebaseDb ??
+  TripRoomImplementation(
+    String id, {
+    DatabaseReference? firebaseDb,
+    Stream<Location>? locationSourceStream,
+    Stream<double>? speedSourceStream,
+  })  : _firebaseDb = firebaseDb ??
             FirebaseDatabase.instance.reference().child("trip_rooms"),
         _driverId = id,
         // Currently the room id is the driver id.
-        super._internal(id) {
+        super._internal(id, locationSourceStream, speedSourceStream) {
     _firebaseDb
         .child("$id/riderId")
         .once()
         .then((snapshot) => _riderId = snapshot.value);
+    _listenToSourceStreams();
+  }
+
+  void _listenToSourceStreams() {
+    _locationSourceStreamSubscription =
+        _locationSourceStream?.listen((location) {
+      _firebaseDb.child("$id/location").set(location.toString());
+    });
+    _speedSourceStreamSubscription = _speedSourceStream?.listen((speed) {
+      _firebaseDb.child("$id/speed").set(speed);
+    });
   }
 
   @override
@@ -65,7 +82,9 @@ class TripRoomImplementation extends TripRoom {
 
   @override
   Future<void> leave() async {
-    await _roomStreamsSubscription!.cancel();
+    await _roomStreamsSubscription?.cancel();
+    await _speedSourceStreamSubscription?.cancel();
+    await _locationSourceStreamSubscription?.cancel();
     await _tripEventStreamController.close();
     await _speedStreamController.close();
     await _locationStreamController.close();
