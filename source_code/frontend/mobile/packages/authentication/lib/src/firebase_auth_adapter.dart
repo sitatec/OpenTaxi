@@ -149,15 +149,16 @@ class FirebaseAuthProvider
       _switchState(AuthState.unauthenticated);
     }
     if (exception is FirebaseAuthException) {
-      return _convertFirebaseAuthException(exception);
+      return exception.toAuthenticationException();
     }
     // TODO: implement error reporting.
     return exception;
   }
+}
 
-  AuthenticationException _convertFirebaseAuthException(
-      FirebaseAuthException exception) {
-    switch (exception.code) {
+extension Converter on FirebaseAuthException {
+  AuthenticationException toAuthenticationException() {
+    switch (code) {
       case 'account-exists-with-different-credential':
         return const AuthenticationException
             .accountExistsWithDifferentCredential();
