@@ -66,10 +66,7 @@ class FirebaseAuthProvider
       }
     } catch (e) {
       //TODO: rapport error.
-      if (_firebaseAuth.currentUser != null &&
-          authState != AuthState.authenticated) {
-        _switchState(AuthState.authenticated);
-      }
+      signOut();
     }
   }
 

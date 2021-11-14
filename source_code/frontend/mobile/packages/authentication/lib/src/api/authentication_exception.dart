@@ -80,8 +80,17 @@ class AuthenticationException implements Exception {
 
   const AuthenticationException.tooManyRequests()
       : this(
-            exceptionType: AuthenticationExceptionType.tooManyRequests,
-            message: 'Too many attempts, please try again later.');
+          exceptionType: AuthenticationExceptionType.tooManyRequests,
+          message: 'Too many attempts, please try again later.',
+        );
+
+  const AuthenticationException.verifyingPhoneNumberWhileUserSignedOut()
+      : this(
+          exceptionType: AuthenticationExceptionType
+              .verifyingPhoneNumberWhileUserSignedOut,
+          message:
+              'The user must be signed in before verifying his phone number.',
+        );
 }
 
 enum AuthenticationExceptionType {
@@ -96,5 +105,6 @@ enum AuthenticationExceptionType {
   invalidCredential,
   accountExistsWithDifferentCredential,
   facebookLoginFailed,
-  tooManyRequests
+  tooManyRequests,
+  verifyingPhoneNumberWhileUserSignedOut,
 }
