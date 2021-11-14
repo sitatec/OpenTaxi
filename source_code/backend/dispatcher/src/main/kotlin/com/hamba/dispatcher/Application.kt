@@ -27,12 +27,19 @@ fun main() {
     val distanceCalculator = DistanceCalculator(routeApiClient, driverDataCache)
     val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
     val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
+    val driverOnlineStatusManager = DriverOnlineStatusManager(httpClient)
     val dispatcher =
         Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
 
     embeddedServer(Netty, port = 8080, host = "localhost") {
         webSocketsServer(
-            DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+            DriverController(
+                driverDataRepository,
+                driverConnections,
+                dispatchDataList,
+                dispatcher,
+                driverOnlineStatusManager
+            ),
             DispatchController(driverDataCache, dispatcher, dispatchDataList),
             dispatcher,
             driverDataCache,

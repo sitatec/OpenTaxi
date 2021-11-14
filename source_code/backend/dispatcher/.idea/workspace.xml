@@ -4,7 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="" />
+    <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DriverOnlineStatusManager.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../data_access_server/database/tables_creation.sql" beforeDir="false" afterPath="$PROJECT_DIR$/../data_access_server/database/tables_creation.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Application.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Application.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/controllers/DriverController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/controllers/DriverController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/kotlin/com/hamba/dispatcher/e2e/ApplicationTest.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/authentication/lib/src/firebase_auth_adapter.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/authentication/lib/src/firebase_auth_adapter.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/data_access/lib/data_access.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/data_access/lib/data_access.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/data_access/lib/src/repositories/base_repository.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/data_access/lib/src/repositories/base_repository.dart" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />

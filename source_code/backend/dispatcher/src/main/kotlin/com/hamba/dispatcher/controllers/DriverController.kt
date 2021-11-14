@@ -1,6 +1,7 @@
 package com.hamba.dispatcher.controllers
 
 import com.hamba.dispatcher.Dispatcher
+import com.hamba.dispatcher.DriverOnlineStatusManager
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DriverData
@@ -9,6 +10,7 @@ import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
 import com.hamba.dispatcher.websockets.FrameType
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
@@ -16,12 +18,15 @@ class DriverController(
     private val driverDataRepository: DriverDataRepository,
     private val driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
     private val dispatchDataList: MutableMap<String, DispatchData>,
-    private val dispatcher: Dispatcher
+    private val dispatcher: Dispatcher,
+    private val driverOnlineStatusManager: DriverOnlineStatusManager,
 ) {
-    fun addDriverData(jsonData: String, driverSession: DefaultWebSocketServerSession): String {
+    @OptIn(ExperimentalSerializationApi::class)
+    suspend fun addDriverData(jsonData: String, driverSession: DefaultWebSocketServerSession): String {
         val driverData = Json.decodeFromString<DriverData>(jsonData)
         driverConnections[driverData.driverId] = driverSession
         driverDataRepository.addDriverData(driverData)
+        driverOnlineStatusManager.goOnline(driverData.driverId)
         return driverData.driverId
     }
 
@@ -39,6 +44,7 @@ class DriverController(
         if (driverId != null) {
             // When the driver is disconnected all he's data will be removed
             driverSession.close(CloseReason(CloseReason.Codes.NORMAL, ""))// Normal disconnection
+            driverOnlineStatusManager.goOffline(driverId)
         }else {
             // Should add data before deleting it.
             driverSession.close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))

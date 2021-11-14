@@ -38,6 +38,12 @@ class ApplicationTest {
     private val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
     private val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
     private lateinit var dispatcher: Dispatcher
+    private lateinit var driverController: DriverController
+    private val driverOnlineStatusManager = object : DriverOnlineStatusManager() {
+        // Override the methods to prevent network call to the data access server (which requires starting the db and the server)
+        override suspend fun goOnline(driverId: String) {}
+        override suspend fun goOffline(driverId: String) {}
+    }
 
     @BeforeTest
     fun initData() {
@@ -55,6 +61,7 @@ class ApplicationTest {
                 driverDataRepository,
                 dispatchDataList,
             )
+        driverController = DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher, driverOnlineStatusManager)
     }
 
     companion object {
@@ -97,7 +104,7 @@ class ApplicationTest {
     fun testDriverDataManagement() {
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+                driverController,
                 DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
@@ -158,7 +165,7 @@ class ApplicationTest {
     fun `Trying to update data without first add it should close connection`() {
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+                driverController,
                 DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
@@ -179,7 +186,7 @@ class ApplicationTest {
     fun `Trying to delete data without first add it should close connection`() {
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+                driverController,
                 DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
@@ -201,7 +208,7 @@ class ApplicationTest {
     fun testDispatching() {
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+                driverController,
                 DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
@@ -266,7 +273,7 @@ class ApplicationTest {
     fun `Test dispatching with car type specified`() {
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+                driverController,
                 DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
@@ -331,7 +338,7 @@ class ApplicationTest {
     fun `Test dispatching with driver gender specified`() {
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+                driverController,
                 DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
@@ -396,7 +403,7 @@ class ApplicationTest {
     fun `Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any`() {
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+                driverController,
                 DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
@@ -498,7 +505,7 @@ class ApplicationTest {
         )
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher1),
+                driverController,
                 DispatchController(driverDataCache, dispatcher1, dispatchDataList),
                 dispatcher1,
                 driverDataCache,
@@ -595,7 +602,7 @@ class ApplicationTest {
     fun `Test when the rider cancel the dispatching process`() {
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+                driverController,
                 DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
@@ -662,7 +669,7 @@ class ApplicationTest {
     fun `Test when all closest drivers reject the booking request`() {
         withTestApplication({
             webSocketsServer(
-                DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher),
+                driverController,
                 DispatchController(driverDataCache, dispatcher, dispatchDataList),
                 dispatcher,
                 driverDataCache,
