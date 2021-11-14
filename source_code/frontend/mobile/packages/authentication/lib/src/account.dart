@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
+import 'package:data_access/data_access.dart';
 
-@internal
 class Account {
-  final String id;
+  String id;
   String firstName;
   String lastName;
   String nickname;
@@ -37,4 +37,37 @@ enum AccountStatus {
   unpaidSubscription,
   temporarilySuspended,
   definitivelyBanned
+}
+
+extension AcountJsonParser on Account {
+  @internal
+  JsonObject toJsonObject() => {
+        "id": id,
+        "first_name": firstName,
+        "last_name": lastName,
+        "email": email,
+        "phone_number": phoneNumber,
+        "registered_at": registeredAt.toIso8601String(),
+        "role": role.toString().toUpperCase(),
+        "status": status.toString().toUpperCase(),
+        "balance": balance,
+        "nickname": nickname.isEmpty ? null : nickname,
+        "notification_token":
+            notificationToken.isEmpty ? null : notificationToken
+      };
+
+  @internal
+  static Account fromJson(JsonObject jsonObject) => Account(
+        id: jsonObject["id"],
+        firstName: jsonObject["first_name"],
+        lastName: jsonObject["last_name"],
+        email: jsonObject["email"],
+        phoneNumber: jsonObject["phone_number"],
+        registeredAt: jsonObject["registered_at"],
+        role: jsonObject["role"],
+        status: jsonObject["status"],
+        balance: jsonObject["balance"],
+        nickname: jsonObject["nickname"] ?? "",
+        notificationToken: jsonObject["notification_token"] ?? "",
+      );
 }
