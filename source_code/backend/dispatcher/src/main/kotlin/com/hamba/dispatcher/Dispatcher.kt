@@ -85,8 +85,8 @@ class Dispatcher(
                     dispatchData.getCurrentCandidate().first.location,
                     dispatchData.getDestination().toString(),
                 )
-                val tripRoomData = mutableMapOf("driver" to driverId, "dir" to directionData)
-                firebaseDatabaseWrapper.putData("trip_rooms/${dispatchData.id}", tripRoomData)
+                val tripRoomData = mutableMapOf("rider" to dispatchData.id, "dir" to directionData)
+                firebaseDatabaseWrapper.putData("trip_rooms/$driverId", tripRoomData)
                 dispatchData.riderConnection.send("${ACCEPT_BOOKING}:")
                 dispatchData.riderConnection.close(CloseReason(CloseReason.Codes.NORMAL, ""))
                 driverConnection.send(/*ROOM*/"$TRIP_ROOM:${dispatchData.id}") // Send the trip room id to the driver
