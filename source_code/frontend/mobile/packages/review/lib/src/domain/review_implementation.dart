@@ -1,5 +1,6 @@
 part of 'review.dart';
 
+@internal
 class ReviewImplementation extends Review {
   final ReviewRepository _reviewRepository;
 
@@ -21,10 +22,10 @@ class ReviewImplementation extends Review {
 
   @override
   Future<void> submit() {
-    return _reviewRepository.create(toJson());
+    return _reviewRepository.create(_toJson());
   }
 
-  JsonObject toJson() => {
+  JsonObject _toJson() => {
         "id": id,
         "rating": rating,
         "comment": comment,

@@ -1,4 +1,5 @@
 import 'package:data_access/data_access.dart';
+import 'package:meta/meta.dart';
 
 part 'review_implementation.dart';
 
