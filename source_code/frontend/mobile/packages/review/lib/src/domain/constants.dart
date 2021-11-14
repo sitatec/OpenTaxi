@@ -1,0 +1,1 @@
+const reviewServerUrl = "http://localhost/review";
