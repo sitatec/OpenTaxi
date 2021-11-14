@@ -3,9 +3,9 @@ import 'package:data_access/data_access.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-import 'account.dart';
-import 'authentication_exception.dart';
-import 'authentication_provider.dart';
+import 'api/account.dart';
+import 'api/authentication_exception.dart';
+import 'api/authentication_provider.dart';
 
 class FirebaseAuthProvider
     with ChangeNotifier

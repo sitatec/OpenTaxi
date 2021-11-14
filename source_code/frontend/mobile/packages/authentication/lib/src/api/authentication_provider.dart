@@ -1,7 +1,7 @@
-import 'package:authentication/src/account.dart';
 import 'package:flutter/foundation.dart';
 
-import 'firebase_auth_adapter.dart';
+import '../firebase_auth_adapter.dart';
+import 'account.dart';
 
 /// {@template auth_provider}
 /// An authentication APIs provider (Sign in, Sign out, register, reset password...)
