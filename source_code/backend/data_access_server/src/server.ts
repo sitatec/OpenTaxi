@@ -1,4 +1,4 @@
-import express, { Application, NextFunction, Request, Response } from "express";
+import express, { Application } from "express";
 import DriverRouter from "./routers/driver_router";
 import AccountRouter from "./routers/account_router";
 import CarRouter from "./routers/car_router";
@@ -7,7 +7,6 @@ import ReviewRouter from "./routers/review_router";
 import PaymentRouter from "./routers/payment_router";
 import BookingRouter from "./routers/booking_router";
 import SubscriptionRouter from "./routers/subscription_router";
-import { extractTokenFromHeader } from "./utils/http_utils";
 import RiderRouter from "./routers/rider_router";
 import { Server as HttpServer } from "http";
 

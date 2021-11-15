@@ -61,4 +61,13 @@ describe("ENDPOINT: ACCOUNT", () => {
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
+
+  
+  it("Should successfully get an account' notification token.", async () => {
+    await createAccount(); // Create it first
+    // End then get it.
+    const response = await Axios.get(getUrlWithQuery("/notification_token?id=" + ACCOUNT.id));
+    expect(response.status).toBe(200);
+    expect(response.data.data.notification_token).toEqual(ACCOUNT.notification_token);
+  });
 });

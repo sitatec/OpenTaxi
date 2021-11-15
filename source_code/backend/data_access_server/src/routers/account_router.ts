@@ -7,6 +7,8 @@ const accountController = new AccountController();
 
 router.post("/", accountController.createAccount); // TODO add httpRequest data validation step.
 
+router.get("/notification_token", accountController.getNotificationToken);
+
 router.get("/", accountController.getAccount);
 
 router.put("/:id", accountController.updateAccount); // TODO add httpRequest data validation step.

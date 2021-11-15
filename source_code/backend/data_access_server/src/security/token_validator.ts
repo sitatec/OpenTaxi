@@ -1,6 +1,11 @@
 import { initializeApp } from "firebase-admin";
+import { Auth } from "firebase-admin/lib/auth/auth";
 
-const firebaseAuth = initializeApp().auth();
+let firebaseAuth: Auth;
+
+if (process.env.NODE_ENV != "test"){
+   firebaseAuth = initializeApp().auth();
+}
 
 interface TokenValidationResult {
   isValidToken: boolean;
