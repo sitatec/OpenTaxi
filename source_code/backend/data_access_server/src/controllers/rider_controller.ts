@@ -21,6 +21,9 @@ export default class RiderController extends Controller {
       httpResponse
     );
 
+  getRiderData = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.getEntity("rider", httpRequest, httpResponse);
+
   getFavoriteDrivers = async (httpRequest: Request, httpResponse: Response) =>
     this.entityManager.getEntityWithRelation(
       "driver",

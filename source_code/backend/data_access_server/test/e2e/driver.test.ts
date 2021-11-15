@@ -32,6 +32,14 @@ describe("ENDPOINT: DRIVER", () => {
     expect(response.data).toMatchObject(getSuccessResponse(DRIVER));
   });
 
+  it("Should successfully get a driver's data.", async () => {
+    await createDriver(); // Create it first
+    // End then get it.
+    const response = await Axios.get(getUrlWithQuery("/data?account_id=" + DRIVER.account_id));
+    expect(response.status).toBe(200);
+    expect(response.data.data).toEqual(DRIVER);
+  });
+
   it("Should successfully update an driver.", async () => {
     await createDriver(); // Create it first
     const newDriver = cloneObjec(DRIVER);

@@ -18,6 +18,9 @@ export default class DriverController extends Controller {
       httpResponse
     );
 
+  getDriverData = (httpRequest: Request, httpResponse: Response) => 
+  this.entityManager.getEntity("driver", httpRequest, httpResponse);
+
   updateDriver = (httpRequest: Request, httpResponse: Response) => {
     if (httpRequest.body.account) {
       return this.entityManager.updateEntityWithRelation(

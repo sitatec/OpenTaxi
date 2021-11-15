@@ -19,6 +19,7 @@ export const ACCOUNT_1 = {
   surname: "Musk",
   nickname: "elon musk",
   email: "elon@tesla.com",
+  profile_picture_url: "urltopic.jpg",
   phone_number: "9999999999",
   notification_token: "2sjf_sEjflsji4-436lsj_",
   account_status: "LIVE",

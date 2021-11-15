@@ -12,6 +12,8 @@ router.use("/favorite_drivers", favoriteDriversRouter);
 
 router.post("/", riderController.createRider); // TODO add httpRequest data validation step.
 
+router.get("/data", riderController.getRiderData);
+
 router.get("/", riderController.getRider);
 
 router.put("/:account_id", riderController.updateRider); // TODO add httpRequest data validation step.

@@ -33,6 +33,14 @@ describe("ENDPOINT: RIDER", () => {
     expect(response.status).toBe(200);
     expect(response.data).toMatchObject(getSuccessResponse(RIDER));
   });
+  
+  it("Should successfully get a rider's data.", async () => {
+    await createRider(); // Create it first
+    // End then get it.
+    const response = await Axios.get(getUrlWithQuery("/data?account_id=" + RIDER.account_id));
+    expect(response.status).toBe(200);
+    expect(response.data.data).toEqual(RIDER);
+  });
 
   it("Should individually update a rider.", async () => {
     await createRider(); // Create it first
