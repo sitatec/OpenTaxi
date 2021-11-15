@@ -15,6 +15,7 @@ class TripRoomImplementation extends TripRoom {
   final _locationStreamController = StreamController<Location>();
   final _speedStreamController = StreamController<double>();
   final _tripEventStreamController = StreamController<TripEvent>();
+  late Sink<TripEvent> _tripEventSink;
 
   TripRoomImplementation(
     String id, {
@@ -26,6 +27,7 @@ class TripRoomImplementation extends TripRoom {
         _driverId = id,
         // Currently the room id is the driver id.
         super._internal(id, locationSourceStream, speedSourceStream) {
+    _tripEventSink = _tripEventStreamController.sink;
     _firebaseDb
         .child("riderId")
         .once()
@@ -63,7 +65,9 @@ class TripRoomImplementation extends TripRoom {
 
   @override
   void join() {
-    if(_joined) return; // prevent joining twice.
+    if (_joined) {
+      return _tripEventSink.add(TripEvent.cantJoinTwice);
+    }
     _roomStreamsSubscription =
         _firebaseDb.child(id).onChildChanged.listen((event) {
       final nodeKey = event.snapshot.key;
@@ -77,17 +81,23 @@ class TripRoomImplementation extends TripRoom {
           break;
         case "viewerId":
           _viewerId = nodeValue;
-          _tripEventStreamController.sink.add(TripEvent.viewerJoined);
+          _tripEventSink.add(TripEvent.viewerJoined);
       }
     });
-    _tripEventStreamController.sink.add(TripEvent.joined);
+    _tripEventSink.add(TripEvent.joined);
     _joined = true;
   }
 
   @override
-  void watch(String viewerId) {
-    if(_watching || _joined) return;
-    _firebaseDb.child("viewerId").set(viewerId);
+  Future<void> watch(String viewerId) async {
+    if (_watching || _joined) {
+      return _tripEventSink.add(TripEvent.cantWatchAlreadyJoinedTrip);
+    }
+    final viewerIdNode = _firebaseDb.child("viewerId");
+    if ((await viewerIdNode.once()).exists) {
+      return _tripEventSink.add(TripEvent.anotherViewerAlreadyWatching);
+    }
+    viewerIdNode.set(viewerId);
     join();
     _watching = true;
   }

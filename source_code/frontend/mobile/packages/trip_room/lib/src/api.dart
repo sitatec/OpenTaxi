@@ -41,7 +41,7 @@ abstract class TripRoom {
 
   void join();
 
-  void watch(String viewerId);
+  Future<void> watch(String viewerId);
 
   Future<void> leave();
 }
@@ -62,4 +62,7 @@ enum TripEvent {
   joined,
   joinFailed,
   viewerJoined,
+  cantWatchAlreadyJoinedTrip,
+  anotherViewerAlreadyWatching,
+  cantJoinTwice,
 }
