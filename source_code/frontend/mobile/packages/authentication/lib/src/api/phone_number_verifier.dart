@@ -12,7 +12,9 @@ abstract class PhoneNumberVerifier {
   final String _phoneNumber;
   AuthenticationException? get exception;
 
-  PhoneNumberVerifier(this._phoneNumber);
+  PhoneNumberVerifier._internal(this._phoneNumber);
+
+  factory PhoneNumberVerifier(String phoneNumber) => FirebasePhoneVerifier(phoneNumber);
 
   void verifyCode(String smsCode);
 

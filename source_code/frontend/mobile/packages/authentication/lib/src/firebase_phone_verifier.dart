@@ -10,7 +10,7 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
 
   FirebasePhoneVerifier(String phoneNumber, {FirebaseAuth? firebaseAuth})
       : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        super(phoneNumber);
+        super._internal(phoneNumber);
 
   @override
   Stream<PhoneNumberVerificationState> get verificationStateChanges =>
@@ -51,6 +51,7 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
 
   void _onVerificationFailed(FirebaseAuthException exception) {
     _exception = exception.toAuthenticationException();
+    _verificationStateStream.add(PhoneNumberVerificationState.failed);
   }
 
   void _onVerificationCodeSent(String verificationId, int? resendToken) {
