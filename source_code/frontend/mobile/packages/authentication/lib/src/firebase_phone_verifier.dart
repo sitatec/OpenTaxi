@@ -22,7 +22,9 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
   @override
   void verifyCode(String smsCode) {
     final credential = PhoneAuthProvider.credential(
-        verificationId: _verificationId, smsCode: smsCode);
+      verificationId: _verificationId,
+      smsCode: smsCode,
+    );
     _completeVerification(credential);
   }
 

@@ -10,7 +10,7 @@ import 'api/authentication_provider.dart';
 class FirebaseAuthProvider
     with ChangeNotifier
     implements AuthenticationProvider {
-  FirebaseAuth _firebaseAuth;
+  final FirebaseAuth _firebaseAuth;
   AuthState _currentAuthState = AuthState.uninitialized;
   final _authStateStreamController = StreamController<AuthState>.broadcast();
   final AccountRepository _accountRepository;
@@ -59,8 +59,7 @@ class FirebaseAuthProvider
         _account = null;
         _switchState(AuthState.unauthenticated);
       } else {
-        // `_account` may have been initialized in the `registerAccount(...)` methods
-        // to avoid sending data and fetching it again.
+        // `_account` may have been initialized in the `registerAccount(...)` methods to avoid sending data and fetching it again.
         _account ??= firebaseUser.toAccount(_accountRepository);
         _switchState(AuthState.authenticated);
       }

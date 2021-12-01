@@ -10,6 +10,8 @@ dependencies:
   flutter:
     sdk: flutter
   firebase_auth: ^3.2.0
+  flutter_svg: ^0.23.0+1
+  google_fonts: ^2.1.0
   data_access:
     path: ../data_access
 
@@ -19,3 +21,5 @@ dev_dependencies:
   flutter_lints: ^1.0.0
 
 flutter:
+  assets:
+    - assets/images/
