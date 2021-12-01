@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:authentication/authentication.dart';
 import 'package:authentication/src/api/phone_number_verifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // TODO refactor
 class PhoneAuthScreen extends StatefulWidget {
@@ -25,9 +23,9 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   bool isContinueButtonEnabled = false;
   bool isInvalidPhoneNumber = false;
   String phoneNumber = "";
-  bool isSendingVerificationCode = true;
+  bool isSendingVerificationCode = false;
 
-  final phoneNumberVerifier = PhoneNumberVerifier();
+  // final phoneNumberVerifier = PhoneNumberVerifier();
   StreamSubscription? verificationStateStreamSubscription;
 
   @override
@@ -48,7 +46,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
           throw Exception(
               "Illegal State: phone verification can't be completed before user entering the code");
         case PhoneNumberVerificationState.failed:
-          final exception = phoneNumberVerifier.exception;
+          final exception = null; //phoneNumberVerifier.exception;
           if (exception?.exceptionType ==
               AuthenticationExceptionType.invalidPhoneNumber) {
             setState(() {
@@ -106,7 +104,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                         textAlign: TextAlign.center,
                       ),
                     ),
-                    _RoundedCornerButton(onPressed: () {}),
+                    RoundedCornerButton(onPressed: () {}),
                   ],
                 ),
               ),
@@ -170,7 +168,8 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       children: [
                         Expanded(
                           child: Container(
-                            padding: const EdgeInsets.only(right: 4),
+                            padding: const EdgeInsets.only(
+                                right: 4, top: 11, bottom: 12),
                             child: const Center(
                               child: Text(
                                 "+27",
@@ -184,7 +183,6 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                   width: 0.9,
                                 ),
                                 color: const Color(0xFFF3F3F3)),
-                            height: 54,
                           ),
                           flex: 2,
                         ),
@@ -240,10 +238,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       ],
                     ),
                     const SizedBox(height: 60),
-                    _RoundedCornerButton(onPressed: _sendVerificationCode),
+                    RoundedCornerButton(onPressed: _sendVerificationCode),
                   ]),
             ),
-            if (isSendingVerificationCode)
+            if (isSendingVerificationCode) ...[
               Container(
                 color: const Color(0x70000000),
               ),
@@ -255,12 +253,15 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                   children: [
                     Card(
                       elevation: 10,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 25),
                         child: Column(
                           children: [
-                            CircularProgressIndicator(color: theme.primaryColor),
+                            CircularProgressIndicator(
+                                color: theme.primaryColor),
                             const SizedBox(height: 30),
                             const Text(
                                 "Sending SMS containing verification code")
@@ -270,7 +271,8 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                     ),
                   ],
                 ),
-              ),
+              )
+            ],
           ],
         ),
       ),
@@ -281,17 +283,18 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     setState(() {
       isSendingVerificationCode = true;
     });
-    phoneNumberVerifier.sendVerificationSMS(phoneNumber);
+    // phoneNumberVerifier.sendVerificationSMS(phoneNumber);
   }
 }
 
-class _RoundedCornerButton extends StatelessWidget {
+class RoundedCornerButton extends StatelessWidget {
   Color? disabledColor, enabledColor;
   final VoidCallback onPressed;
   final Widget child;
 
-  _RoundedCornerButton(
-      {this.disabledColor,
+  RoundedCornerButton(
+      {Key? key,
+      this.disabledColor,
       this.enabledColor,
       required this.onPressed,
       this.child = const Text(
@@ -302,7 +305,8 @@ class _RoundedCornerButton extends StatelessWidget {
           color: Colors.white,
         ),
         textAlign: TextAlign.center,
-      )});
+      )})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
