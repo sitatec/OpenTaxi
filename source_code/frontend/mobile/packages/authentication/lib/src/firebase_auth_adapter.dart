@@ -176,6 +176,8 @@ extension Converter on FirebaseAuthException {
         return const AuthenticationException.wrongPassword();
       case 'too-many-requests':
         return const AuthenticationException.tooManyRequests();
+      case 'invalid-phone-number':
+        return const AuthenticationException.invalidPhoneNumber();
       default:
         return const AuthenticationException.unknown();
     }

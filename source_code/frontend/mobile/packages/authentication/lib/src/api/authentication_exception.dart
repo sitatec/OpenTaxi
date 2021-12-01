@@ -36,6 +36,12 @@ class AuthenticationException implements Exception {
           message: 'Invalid email address.',
         );
 
+  const AuthenticationException.invalidPhoneNumber()
+      : this(
+          exceptionType: AuthenticationExceptionType.invalidPhoneNumber,
+          message: 'Invalid phone number.',
+        );
+
   const AuthenticationException.userDisabled()
       : this(
           exceptionType: AuthenticationExceptionType.userDisabled,
@@ -59,8 +65,7 @@ class AuthenticationException implements Exception {
   const AuthenticationException.invalidCredential()
       : this(
           exceptionType: AuthenticationExceptionType.invalidCredential,
-          message:
-              "We were unable to obtain permission to log in using your facebook account. Please make sure that you have not disabled Taluxi permission on your facebook account settings.",
+          message: "An error occurred during authentication",
         );
 
   const AuthenticationException.accountExistsWithDifferentCredential()
@@ -107,4 +112,5 @@ enum AuthenticationExceptionType {
   facebookLoginFailed,
   tooManyRequests,
   verifyingPhoneNumberWhileUserSignedOut,
+  invalidPhoneNumber,
 }
