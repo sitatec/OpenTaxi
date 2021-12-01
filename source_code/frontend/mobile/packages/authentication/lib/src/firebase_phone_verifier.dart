@@ -8,9 +8,9 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
   AuthenticationException? _exception;
   String _verificationId = "";
 
-  FirebasePhoneVerifier(String phoneNumber, {FirebaseAuth? firebaseAuth})
+  FirebasePhoneVerifier({FirebaseAuth? firebaseAuth})
       : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
-        super._internal(phoneNumber);
+        super._internal();
 
   @override
   Stream<PhoneNumberVerificationState> get verificationStateChanges =>
@@ -27,9 +27,9 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
   }
 
   @override
-  Future<void> sendVerificationSMS() {
+  Future<void> sendVerificationSMS(String phoneNumber) {
     return _firebaseAuth.verifyPhoneNumber(
-      phoneNumber: _phoneNumber,
+      phoneNumber: phoneNumber,
       verificationCompleted: _completeVerification,
       verificationFailed: _onVerificationFailed,
       codeSent: _onVerificationCodeSent,
@@ -39,9 +39,7 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
 
   void _completeVerification(PhoneAuthCredential phoneAuthCredential) {
     try {
-      _firebaseAuth.currentUser?.linkWithCredential(phoneAuthCredential) ??
-          (throw const AuthenticationException
-              .verifyingPhoneNumberWhileUserSignedOut());
+      _firebaseAuth.signInWithCredential(phoneAuthCredential);
       _firebaseAuth.currentUser!.reload();
       _verificationStateStream.sink.add(PhoneNumberVerificationState.completed);
     } on FirebaseAuthException catch (e) {

@@ -9,16 +9,15 @@ part '../firebase_phone_verifier.dart';
 
 abstract class PhoneNumberVerifier {
   Stream<PhoneNumberVerificationState> get verificationStateChanges;
-  final String _phoneNumber;
   AuthenticationException? get exception;
 
-  PhoneNumberVerifier._internal(this._phoneNumber);
+  PhoneNumberVerifier._internal();
 
-  factory PhoneNumberVerifier(String phoneNumber) => FirebasePhoneVerifier(phoneNumber);
+  factory PhoneNumberVerifier() => FirebasePhoneVerifier();
 
   void verifyCode(String smsCode);
 
-  Future<void> sendVerificationSMS();
+  Future<void> sendVerificationSMS(String phoneNumber);
 
 }
 
