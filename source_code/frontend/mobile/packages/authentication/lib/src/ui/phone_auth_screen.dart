@@ -238,7 +238,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       ],
                     ),
                     const SizedBox(height: 60),
-                    RoundedCornerButton(onPressed: _sendVerificationCode),
+                    RoundedCornerButton(onPressed: isContinueButtonEnabled ? _sendVerificationCode : null),
                   ]),
             ),
             if (isSendingVerificationCode) ...[
@@ -289,14 +289,14 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
 class RoundedCornerButton extends StatelessWidget {
   Color? disabledColor, enabledColor;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final Widget child;
 
   RoundedCornerButton(
       {Key? key,
       this.disabledColor,
       this.enabledColor,
-      required this.onPressed,
+      this.onPressed,
       this.child = const Text(
         "Continue",
         style: TextStyle(
