@@ -47,8 +47,8 @@ class DistanceCalculator(
         driverDataCache.addOnDataChangedListener(closestPointQuery::reInit)
         try {
             val target = ClosestPointQuery.S2ClosestPointQueryPointTarget(data.location.toCellID().toPoint())
-            val r = closestPointQuery.findClosestPoints(target)
-            return r.map { it.data() }
+            val closestPoints = closestPointQuery.findClosestPoints(target)
+            return closestPoints.map { it.data() }
         } finally {
             driverDataCache.removeOnDataChangedListener(closestPointQuery::reInit)
         }
