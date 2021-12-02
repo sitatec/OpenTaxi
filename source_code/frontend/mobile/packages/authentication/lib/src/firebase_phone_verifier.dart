@@ -29,6 +29,9 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
   CountDown? get resendCodeCounter => _counters[_currentPhoneNumber];
 
   @override
+  String get currentPhoneNumber => _currentPhoneNumber;
+
+  @override
   void verifyCode(String smsCode) {
     final credential = PhoneAuthProvider.credential(
       verificationId: _verificationId,

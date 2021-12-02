@@ -12,6 +12,7 @@ abstract class PhoneNumberVerifier {
   Stream<PhoneNumberVerificationState> get verificationStateChanges;
   AuthenticationException? get exception;
   CountDown? get resendCodeCounter;
+  String get currentPhoneNumber;
   // TODO create a timer for resend code
   PhoneNumberVerifier._internal();
 
