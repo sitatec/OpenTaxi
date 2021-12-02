@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "211386480430",
+    "firebase_url": "https://hamba-project-default-rtdb.firebaseio.com",
+    "project_id": "hamba-project",
+    "storage_bucket": "hamba-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211386480430:android:d50a66925b400a91ccacbf",
+        "android_client_info": {
+          "package_name": "com.hamba.hambadriver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "211386480430-6jn5pt4ia96f83u68mddemjd92l977df.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hamba.hambadriver",
+            "certificate_hash": "e9cdffbac1b9a90aafeb09d1fb59edf1dbae7c78"
+          }
+        },
+        {
+          "client_id": "211386480430-re4nfgvjnqfa9j0ghlab76v8g2nvtq3j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAbLts73IVYsQCHv7fxJtlmUvlXbuy9FO8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "211386480430-re4nfgvjnqfa9j0ghlab76v8g2nvtq3j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
