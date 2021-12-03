@@ -200,7 +200,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
                       textAlign: TextAlign.center,
                     ),
                     TextButton(
-                      onPressed: resendCodeCountDown == 0 ? () {} : null,
+                      onPressed: resendCodeCountDown == 0 ? _resendCode : null,
                       child: Text(
                         "Resend Code",
                         textAlign: TextAlign.center,
@@ -255,5 +255,50 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
       isVerifyingCode = true;
     });
     // verify
+  }
+
+  void _resendCode() {
+    _showResendCodeConfirmationDialog();
+  }
+
+  void _showResendCodeConfirmationDialog() {
+    showCupertinoDialog(
+        context: context,
+        builder: (context) {
+          final primaryColor = Theme.of(context).primaryColor;
+          return AlertDialog(
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(18)),
+              ),
+              content: const Padding(
+                padding: EdgeInsets.only(top: 20),
+                child: Text(
+                  "Your 6-digit code has been resent.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.w500, fontSize: 18),
+                ),
+              ),
+              actionsAlignment: MainAxisAlignment.center,
+              actions: [
+                Container(
+                  // margin: const EdgeInsets.only(bottom: 8),
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(
+                      "Okay",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 21,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ),
+                  decoration: BoxDecoration(
+                      border: Border(
+                          bottom: BorderSide(width: 2, color: primaryColor))),
+                )
+              ]);
+        });
   }
 }
