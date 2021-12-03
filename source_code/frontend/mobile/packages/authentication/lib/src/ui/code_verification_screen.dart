@@ -15,7 +15,7 @@ class CodeVerificationScreen extends StatefulWidget {
     _VerificationState("assets/images/valid_verification_code.svg",
         Color(0xFF2BC25F), Color(0x1F2BC25F)),
     _VerificationState("assets/images/invalid_verification_code.svg",
-        Color(0xFFFE1917), Color(0x1FF3F3F3)),
+        Color(0xFFFE1917), Color(0x1FFE1917)),
   };
   final PhoneNumberVerifier phoneNumberVerifier;
   final counterFormatter = NumberFormat("00");
@@ -43,7 +43,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   bool isContinueButtonEnabled = false;
   bool isVerifyingCode = false;
   _VerificationState verificationState =
-      CodeVerificationScreen.verificationStates.first;
+      CodeVerificationScreen.verificationStates.last;
   String code = "";
   int resendCodeCountDown = 0;
 
@@ -98,15 +98,13 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Stack(
           children: [
             SingleChildScrollView(
-              child:
-              Padding(
+              child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
                 child: Column(
@@ -153,17 +151,24 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
                       child: PinCodeTextField(
                           autoFocus: true,
                           showCursor: false,
+                          enableActiveFill: true,
                           keyboardType: TextInputType.number,
+                          textStyle: TextStyle(
+                              color: verificationState.codeFieldTextColor),
                           pinTheme: PinTheme(
                             fieldHeight: 43,
                             fieldWidth: 43,
-                            inactiveColor: verificationState.codeFieldTextColor,
-                            activeColor: verificationState.codeFieldTextColor,
                             borderWidth: 0.6,
+                            activeColor: verificationState.codeFieldTextColor,
+                            inactiveColor: verificationState.codeFieldTextColor,
+                            selectedColor: verificationState.codeFieldTextColor,
+                            selectedFillColor:
+                                verificationState.codeFieldBackgroundColor,
+                            activeFillColor:
+                                verificationState.codeFieldBackgroundColor,
                             inactiveFillColor:
                                 verificationState.codeFieldBackgroundColor,
                             borderRadius: BorderRadius.circular(10),
-                            selectedColor: theme.primaryColor,
                             shape: PinCodeFieldShape.box,
                           ),
                           appContext: context,
