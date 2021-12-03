@@ -3,12 +3,13 @@ part of 'api/phone_number_verifier.dart';
 @internal
 class FirebasePhoneVerifier extends PhoneNumberVerifier {
   final StreamController<PhoneNumberVerificationState>
-      _verificationStateStream = StreamController();
+      _verificationStateStream = StreamController.broadcast();
   final FirebaseAuth _firebaseAuth;
   AuthenticationException? _exception;
   String _verificationId = "";
-  static const _resendCodeDelay = 15;
+  static const _resendCodeDelay = 30;
   String _currentPhoneNumber = "";
+
   // Create a list of counters that match the numbers so even if the user change a number
   // and change back, the resent code counter will still working and the user won't be
   // able to resend the code before the end of the counter.
@@ -42,7 +43,10 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
 
   @override
   Future<void> sendVerificationSMS(String phoneNumber) {
-    if (_counters.containsKey(phoneNumber) && _counters[phoneNumber]!.currentValue > 0) {
+    return Future.delayed(const Duration(seconds: 1),
+        () => _onVerificationCodeSent("verificationId", phoneNumber));
+    if (_counters.containsKey(phoneNumber) &&
+        _counters[phoneNumber]!.currentValue > 0) {
       // if the resent code counter is not done we don't resend the code.
       _onVerificationCodeSent(_verificationId, phoneNumber);
     }
