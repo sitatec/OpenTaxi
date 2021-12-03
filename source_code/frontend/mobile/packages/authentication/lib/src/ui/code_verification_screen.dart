@@ -98,12 +98,14 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenSize = MediaQuery.of(context).size;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Stack(
-            children: [
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child:
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
@@ -207,39 +209,37 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
                   ],
                 ),
               ),
-              if (isVerifyingCode) ...[
-                Container(
-                  color: const Color(0x70000000),
-                ),
-                Align(
-                  alignment: Alignment.center,
-                  child: Wrap(
-                    // width: min(screenWidth * 0.75, 350),
-                    // height: 350,
-                    children: [
-                      Card(
-                        elevation: 10,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 25),
-                          child: Column(
-                            children: [
-                              CircularProgressIndicator(
-                                  color: theme.primaryColor),
-                              const SizedBox(height: 30),
-                              const Text("Verifying the code")
-                            ],
-                          ),
+            ),
+            if (isVerifyingCode) ...[
+              Container(color: const Color(0x70000000)),
+              Align(
+                alignment: Alignment.center,
+                child: Wrap(
+                  // width: min(screenWidth * 0.75, 350),
+                  // height: 350,
+                  children: [
+                    Card(
+                      elevation: 10,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 25),
+                        child: Column(
+                          children: [
+                            CircularProgressIndicator(
+                                color: theme.primaryColor),
+                            const SizedBox(height: 30),
+                            const Text("Verifying the code")
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                )
-              ],
+                    ),
+                  ],
+                ),
+              )
             ],
-          ),
+          ],
         ),
       ),
     );

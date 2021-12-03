@@ -155,10 +155,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Stack(
-            children: [
-              Padding(
+        child: Stack(
+          children: [
+            SingleChildScrollView(
+              child: Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
                 child: Column(
@@ -275,38 +275,38 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                               : null),
                     ]),
               ),
-              if (isSendingVerificationCode) ...[
-                Container(color: const Color(0x70000000)),
-                Align(
-                  alignment: Alignment.center,
-                  child: Wrap(
-                    // width: min(screenWidth * 0.75, 350),
-                    // height: 350,
-                    children: [
-                      Card(
-                        elevation: 10,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 25),
-                          child: Column(
-                            children: [
-                              CircularProgressIndicator(
-                                  color: theme.primaryColor),
-                              const SizedBox(height: 30),
-                              const Text(
-                                  "Sending SMS containing verification code")
-                            ],
-                          ),
+            ),
+            if (isSendingVerificationCode) ...[
+              Container(color: const Color(0x70000000)),
+              Align(
+                alignment: Alignment.center,
+                child: Wrap(
+                  // width: min(screenWidth * 0.75, 350),
+                  // height: 350,
+                  children: [
+                    Card(
+                      elevation: 10,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 25),
+                        child: Column(
+                          children: [
+                            CircularProgressIndicator(
+                                color: theme.primaryColor),
+                            const SizedBox(height: 30),
+                            const Text(
+                                "Sending SMS containing verification code")
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                )
-              ],
+                    ),
+                  ],
+                ),
+              )
             ],
-          ),
+          ],
         ),
       ),
     );
