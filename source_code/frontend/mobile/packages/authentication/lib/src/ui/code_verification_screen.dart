@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:intl/intl.dart';
 
 class CodeVerificationScreen extends StatefulWidget {
   static const verificationStates = {
@@ -17,8 +18,9 @@ class CodeVerificationScreen extends StatefulWidget {
         Color(0xFFFE1917), Color(0x1FF3F3F3)),
   };
   final PhoneNumberVerifier phoneNumberVerifier;
+  final counterFormatter = NumberFormat("00");
 
-  const CodeVerificationScreen(this.phoneNumberVerifier, {Key? key})
+  CodeVerificationScreen(this.phoneNumberVerifier, {Key? key})
       : super(key: key);
 
   @override
@@ -45,7 +47,8 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   String code = "";
   int resendCodeCountDown = 0;
 
-  StreamSubscription? verificationStateStreamSubscription;
+  StreamSubscription? verificationStateStreamSubscription,
+      resendCodeCounterStreamSubscription;
 
   @override
   void initState() {
@@ -68,7 +71,8 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
         }
       }
     });
-    widget.phoneNumberVerifier.resendCodeCounter?.currentValueStream
+    resendCodeCounterStreamSubscription = widget
+        .phoneNumberVerifier.resendCodeCounter?.currentValueStream
         .listen((event) => setState(() => resendCodeCountDown = event));
   }
 
@@ -87,6 +91,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   @override
   void dispose() {
     verificationStateStreamSubscription?.cancel();
+    resendCodeCounterStreamSubscription?.cancel();
     super.dispose();
   }
 
@@ -94,114 +99,147 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: SafeArea(
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SvgPicture.asset(verificationState.imageUrl,
-                      package: "authentication"),
-                  const SizedBox(height: 25),
-                  Text(
-                    "Enter Verification Code",
-                    style: TextStyle(
-                      color: theme.primaryColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    "Input the 6-digit code that we have sent to ${widget.phoneNumberVerifier.currentPhoneNumber}",
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 39),
-                  SizedBox(
-                    child: PinCodeTextField(
-                        showCursor: false,
-                        keyboardType: TextInputType.number,
-                        pinTheme: PinTheme(
-                          fieldHeight: 43,
-                          fieldWidth: 43,
-                          inactiveColor: verificationState.codeFieldTextColor,
-                          activeColor: verificationState.codeFieldTextColor,
-                          borderWidth: 0.6,
-                          inactiveFillColor:
-                              verificationState.codeFieldBackgroundColor,
-                          borderRadius: BorderRadius.circular(10),
-                          selectedColor: theme.primaryColor,
-                          shape: PinCodeFieldShape.box,
-                        ),
-                        appContext: context,
-                        length: 6,
-                        onChanged: (newValue) {
-                          if (newValue.length >= 6) {
-                            code = newValue;
-                            setState(() => isContinueButtonEnabled = true);
-                          } else if (isContinueButtonEnabled) {
-                            setState(() => isContinueButtonEnabled = false);
-                          }
-                        }),
-                  ),
-                  const SizedBox(height: 30),
-                  RoundedCornerButton(
-                    onPressed: isContinueButtonEnabled ? _verifyCode : null,
-                  ),
-                  Text(
-                    "00:${resendCodeCountDown.toStringAsFixed(2)}",
-                    style: TextStyle(color: theme.errorColor),
-                  ),
-                  const Text(
-                    "Haven’t received the code yet?",
-                    textAlign: TextAlign.center,
-                  ),
-                  TextButton(
-                    onPressed: resendCodeCountDown == 0 ? () {} : null,
-                    child: const Text(
-                      "Resend Code",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            if (isVerifyingCode) ...[
-              Container(
-                color: const Color(0x70000000),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: Wrap(
-                  // width: min(screenWidth * 0.75, 350),
-                  // height: 350,
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Card(
-                      elevation: 10,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 25),
-                        child: Column(
-                          children: [
-                            CircularProgressIndicator(
-                                color: theme.primaryColor),
-                            const SizedBox(height: 30),
-                            const Text("Verifying the code")
-                          ],
+                    SvgPicture.asset(verificationState.imageUrl,
+                        package: "authentication"),
+                    const SizedBox(height: 25),
+                    Text(
+                      "Enter Verification Code",
+                      style: TextStyle(
+                        color: theme.primaryColor,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 4),
+                    const Text(
+                      "Input the 6-digit code that we have sent to:",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.phoneNumberVerifier.currentPhoneNumber,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                          textScaleFactor: 1.1,
                         ),
+                        const SizedBox(width: 8),
+                        GestureDetector(
+                          onTap: () => Navigator.of(context).pop(),
+                          child: SvgPicture.asset(
+                            "assets/images/edit_phone_number.svg",
+                            package: "authentication",
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 39),
+                    SizedBox(
+                      child: PinCodeTextField(
+                          autoFocus: true,
+                          showCursor: false,
+                          keyboardType: TextInputType.number,
+                          pinTheme: PinTheme(
+                            fieldHeight: 43,
+                            fieldWidth: 43,
+                            inactiveColor: verificationState.codeFieldTextColor,
+                            activeColor: verificationState.codeFieldTextColor,
+                            borderWidth: 0.6,
+                            inactiveFillColor:
+                                verificationState.codeFieldBackgroundColor,
+                            borderRadius: BorderRadius.circular(10),
+                            selectedColor: theme.primaryColor,
+                            shape: PinCodeFieldShape.box,
+                          ),
+                          appContext: context,
+                          length: 6,
+                          onChanged: (newValue) {
+                            if (newValue.length >= 6) {
+                              code = newValue;
+                              setState(() => isContinueButtonEnabled = true);
+                            } else if (isContinueButtonEnabled) {
+                              setState(() => isContinueButtonEnabled = false);
+                            }
+                          }),
+                    ),
+                    const SizedBox(height: 30),
+                    RoundedCornerButton(
+                      onPressed: isContinueButtonEnabled ? _verifyCode : null,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        "00:${widget.counterFormatter.format(resendCodeCountDown)}",
+                        style: TextStyle(
+                            color: theme.errorColor,
+                            fontWeight: FontWeight.w500),
                       ),
                     ),
+                    const Text(
+                      "Haven’t received the code yet?",
+                      textAlign: TextAlign.center,
+                    ),
+                    TextButton(
+                      onPressed: resendCodeCountDown == 0 ? () {} : null,
+                      child: Text(
+                        "Resend Code",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: resendCodeCountDown == 0
+                                ? Colors.black
+                                : theme.disabledColor),
+                      ),
+                    )
                   ],
                 ),
-              )
+              ),
+              if (isVerifyingCode) ...[
+                Container(
+                  color: const Color(0x70000000),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Wrap(
+                    // width: min(screenWidth * 0.75, 350),
+                    // height: 350,
+                    children: [
+                      Card(
+                        elevation: 10,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 25),
+                          child: Column(
+                            children: [
+                              CircularProgressIndicator(
+                                  color: theme.primaryColor),
+                              const SizedBox(height: 30),
+                              const Text("Verifying the code")
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
