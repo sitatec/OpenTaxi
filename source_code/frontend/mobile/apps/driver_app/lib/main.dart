@@ -1,7 +1,11 @@
+import 'package:driver_app/authentication/ui/introduce_your_self_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:authentication/authentication.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 void main() {
-  runApp(const App());
+  runApp(App());
 }
 
 class App extends StatelessWidget {
@@ -9,10 +13,22 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Hamba Driver',
-      theme: ThemeData(/*TODO*/),
-      home: Container(),
-    );
+    return FutureBuilder(
+        future: Firebase.initializeApp(),
+        builder: (context, data) {
+          return data.hasData
+              ? MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  title: 'Hamba Driver',
+                  theme: ThemeData(
+                    primaryColor: const Color(0xFF054BAC),
+                    errorColor: const Color(0xFFFE1917),
+                    disabledColor: const Color(0xFFA7A7A7),
+                    fontFamily: GoogleFonts.poppins().fontFamily,
+                  ),
+                  home: const IntroduceYourSelfScreen(),
+                )
+              : Container();
+        });
   }
 }
