@@ -3,17 +3,19 @@ import 'dart:async';
 import 'package:authentication/authentication.dart';
 import 'package:authentication/src/api/phone_number_verifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 // TODO refactor
 class PhoneAuthScreen extends StatefulWidget {
-  static const numberLength = 9;
+  static const numberLength = 11;
   static const phoneNumberFieldStyle = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
   );
 
-  const PhoneAuthScreen({Key? key}) : super(key: key);
+  PhoneAuthScreen({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PhoneAuthScreenState();
@@ -226,8 +228,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                   });
                                 }
                                 if (newValue.length >=
-                                        PhoneAuthScreen.numberLength &&
-                                    !isContinueButtonEnabled) {
+                                    PhoneAuthScreen.numberLength) {
                                   setState(() {
                                     isContinueButtonEnabled = true;
                                     phoneNumber = "+27 $newValue";
@@ -243,9 +244,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                               style: PhoneAuthScreen.phoneNumberFieldStyle
                                   .copyWith(
                                 letterSpacing: 2,
-                                fontWeight: FontWeight.w400,
+                                fontWeight: FontWeight.w500,
                               ),
                               decoration: InputDecoration(
+                                counter: Container(),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10),
                                   borderSide: const BorderSide(
@@ -257,12 +259,14 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                     ? "Invalid phone number"
                                     : null,
                                 contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 4, vertical: 14),
+                                    horizontal: 8, vertical: 14),
                                 filled: true,
                                 fillColor: const Color(0xFFF3F3F3),
                               ),
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(),
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                MaskedInputFormatter("00 000 0000")
+                              ],
                             ),
                             flex: 8,
                           ),
