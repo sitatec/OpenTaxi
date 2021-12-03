@@ -76,27 +76,17 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
               Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: 25),
-                    child: Text.rich(
-                      TextSpan(
-                          text: "We have sent 6-digit code to ",
-                          children: [
-                            TextSpan(
-                              text: phoneNumber,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 3,
-                              ),
-                            )
-                          ]),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                    child:
+                      Text( "We have sent 6-digit code\nto $phoneNumber",
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
+                        height: 1.5,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  const SizedBox(height: 30),
                   Stack(
                     alignment: Alignment.bottomCenter,
                     children: [
@@ -107,8 +97,8 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                           package: "authentication",
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.all(19),
+                      Padding(
+                        padding: const EdgeInsets.all(20),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [

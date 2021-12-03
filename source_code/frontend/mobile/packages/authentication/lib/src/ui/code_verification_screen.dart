@@ -43,7 +43,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   bool isContinueButtonEnabled = false;
   bool isVerifyingCode = false;
   _VerificationState verificationState =
-      CodeVerificationScreen.verificationStates.last;
+      CodeVerificationScreen.verificationStates.first;
   String code = "";
   int resendCodeCountDown = 0;
 
