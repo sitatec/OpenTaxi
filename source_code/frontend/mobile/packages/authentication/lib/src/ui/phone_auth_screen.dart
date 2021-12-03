@@ -7,7 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 // TODO refactor
 class PhoneAuthScreen extends StatefulWidget {
-  static const minNumberLength = 9;
+  static const numberLength = 9;
   static const phoneNumberFieldStyle = TextStyle(
     fontSize: 18,
     fontWeight: FontWeight.w600,
@@ -25,14 +25,14 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   String phoneNumber = "";
   bool isSendingVerificationCode = false;
 
-  // final phoneNumberVerifier = PhoneNumberVerifier();
+  final phoneNumberVerifier = PhoneNumberVerifier();
   StreamSubscription? verificationStateStreamSubscription;
 
   @override
   void initState() {
     super.initState();
     verificationStateStreamSubscription =
-        null?.verificationStateChanges.listen((event) {
+        phoneNumberVerifier.verificationStateChanges.listen((event) {
       if (isSendingVerificationCode) {
         setState(() {
           isSendingVerificationCode = false;
@@ -46,8 +46,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
           throw Exception(
               "Illegal State: phone verification can't be completed before user entering the code");
         case PhoneNumberVerificationState.failed:
-          final exception = null; //phoneNumberVerifier.exception;
-          if (exception?.exceptionType ==
+          if (phoneNumberVerifier.exception?.exceptionType ==
               AuthenticationExceptionType.invalidPhoneNumber) {
             setState(() {
               isInvalidPhoneNumber = true;
@@ -66,47 +65,67 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
           borderRadius: BorderRadius.only(
               topLeft: Radius.circular(30), topRight: Radius.circular(30)),
         ),
+        isScrollControlled: true,
         isDismissible: false,
         context: context,
         builder: (context) {
-          return Stack(
+          return Wrap(
             children: [
-              Align(
-                alignment: Alignment.bottomRight,
-                child: SvgPicture.asset(
-                  "assets/images/code_sent.svg",
-                  package: "authentication",
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(19),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(top: 25),
-                      child: Text.rich(
-                        TextSpan(
-                            text: "We have sent 6-digit code to ",
-                            children: [
-                              TextSpan(
-                                text: phoneNumber,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 3,
-                                ),
-                              )
-                            ]),
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        textAlign: TextAlign.center,
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 25),
+                    child: Text.rich(
+                      TextSpan(
+                          text: "We have sent 6-digit code to ",
+                          children: [
+                            TextSpan(
+                              text: phoneNumber,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 3,
+                              ),
+                            )
+                          ]),
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                    RoundedCornerButton(onPressed: () {}),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: 30),
+                  Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: SvgPicture.asset(
+                          "assets/images/code_sent.svg",
+                          package: "authentication",
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(19),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            RoundedCornerButton(onPressed: () {
+                              Navigator.of(context).pop(); // close bottom sheet
+                              // wait for the bottom sheet to complete closing
+                              // and then navigate to the CodeVerificationScreen
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => CodeVerificationScreen(
+                                  phoneNumberVerifier,
+                                ),
+                              ));
+                            }),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ],
           );
@@ -136,154 +155,169 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       body: SafeArea(
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      "assets/images/enter_phone_number.svg",
-                      package: "authentication",
-                    ),
-                    const SizedBox(height: 25),
-                    Text(
-                      "Enter your Phone Number",
-                      style: TextStyle(
-                        color: theme.primaryColor,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 20,
+        child: SingleChildScrollView(
+          child: Stack(
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(
+                        "assets/images/enter_phone_number.svg",
+                        package: "authentication",
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 4),
-                    const Text(
-                      "Hamba will send you a text with a verification code.",
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 39),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.only(
-                                right: 4, top: 11, bottom: 12),
-                            child: const Center(
-                              child: Text(
-                                "+27",
-                                style: PhoneAuthScreen.phoneNumberFieldStyle,
-                              ),
-                            ),
-                            decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: const Color(0xFF565656),
-                                  width: 0.9,
-                                ),
-                                color: const Color(0xFFF3F3F3)),
-                          ),
-                          flex: 2,
+                      const SizedBox(height: 25),
+                      Text(
+                        "Enter your Phone Number",
+                        style: TextStyle(
+                          color: theme.primaryColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
                         ),
-                        const SizedBox(width: 7),
-                        Expanded(
-                          child: TextField(
-                            onChanged: (newValue) {
-                              if (isInvalidPhoneNumber) {
-                                setState(() {
-                                  isInvalidPhoneNumber = false;
-                                });
-                              }
-                              if (newValue.length >=
-                                      PhoneAuthScreen.minNumberLength &&
-                                  !isContinueButtonEnabled) {
-                                setState(() {
-                                  isContinueButtonEnabled = true;
-                                  phoneNumber = "+27 $newValue";
-                                });
-                              } else if (newValue.length <
-                                      PhoneAuthScreen.minNumberLength &&
-                                  isContinueButtonEnabled) {
-                                setState(() {
-                                  isContinueButtonEnabled = false;
-                                });
-                              }
-                            },
-                            style:
-                                PhoneAuthScreen.phoneNumberFieldStyle.copyWith(
-                              letterSpacing: 2,
-                              fontWeight: FontWeight.w400,
-                            ),
-                            decoration: InputDecoration(
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: const BorderSide(
-                                  color: Color(0xFF565656),
-                                  width: 0.6,
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        "Hamba will send you a text with a verification code.",
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 39),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              padding: const EdgeInsets.only(
+                                  right: 4, top: 11, bottom: 14),
+                              child: const Center(
+                                child: Text(
+                                  "+27",
+                                  style: PhoneAuthScreen.phoneNumberFieldStyle,
                                 ),
                               ),
-                              errorText: isInvalidPhoneNumber
-                                  ? "Invalid phone number"
-                                  : null,
-                              contentPadding: const EdgeInsets.all(12),
-                              filled: true,
-                              fillColor: const Color(0xFFF3F3F3),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: const Color(0xFF565656),
+                                    width: 0.9,
+                                  ),
+                                  color: const Color(0xFFF3F3F3)),
                             ),
-                            keyboardType:
-                                const TextInputType.numberWithOptions(),
+                            flex: 2,
                           ),
-                          flex: 8,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 60),
-                    RoundedCornerButton(onPressed: isContinueButtonEnabled ? _sendVerificationCode : null),
-                  ]),
-            ),
-            if (isSendingVerificationCode) ...[
-              Container(
-                color: const Color(0x70000000),
+                          const SizedBox(width: 7),
+                          Expanded(
+                            child: TextField(
+                              maxLength: PhoneAuthScreen.numberLength,
+                              onSubmitted: (value) {
+                                if (value.length ==
+                                    PhoneAuthScreen.numberLength) {
+                                  _sendVerificationCode();
+                                }
+                              },
+                              onChanged: (newValue) {
+                                if (isInvalidPhoneNumber) {
+                                  setState(() {
+                                    isInvalidPhoneNumber = false;
+                                  });
+                                }
+                                if (newValue.length >=
+                                        PhoneAuthScreen.numberLength &&
+                                    !isContinueButtonEnabled) {
+                                  setState(() {
+                                    isContinueButtonEnabled = true;
+                                    phoneNumber = "+27 $newValue";
+                                  });
+                                } else if (newValue.length <
+                                        PhoneAuthScreen.numberLength &&
+                                    isContinueButtonEnabled) {
+                                  setState(() {
+                                    isContinueButtonEnabled = false;
+                                  });
+                                }
+                              },
+                              style: PhoneAuthScreen.phoneNumberFieldStyle
+                                  .copyWith(
+                                letterSpacing: 2,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFF565656),
+                                    width: 0.6,
+                                  ),
+                                ),
+                                errorText: isInvalidPhoneNumber
+                                    ? "Invalid phone number"
+                                    : null,
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 14),
+                                filled: true,
+                                fillColor: const Color(0xFFF3F3F3),
+                              ),
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(),
+                            ),
+                            flex: 8,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 35),
+                      RoundedCornerButton(
+                          onPressed: isContinueButtonEnabled
+                              ? _sendVerificationCode
+                              : null),
+                    ]),
               ),
-              Align(
-                alignment: Alignment.center,
-                child: Wrap(
-                  // width: min(screenWidth * 0.75, 350),
-                  // height: 350,
-                  children: [
-                    Card(
-                      elevation: 10,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 25),
-                        child: Column(
-                          children: [
-                            CircularProgressIndicator(
-                                color: theme.primaryColor),
-                            const SizedBox(height: 30),
-                            const Text(
-                                "Sending SMS containing verification code")
-                          ],
+              if (isSendingVerificationCode) ...[
+                Container(color: const Color(0x70000000)),
+                Align(
+                  alignment: Alignment.center,
+                  child: Wrap(
+                    // width: min(screenWidth * 0.75, 350),
+                    // height: 350,
+                    children: [
+                      Card(
+                        elevation: 10,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 25),
+                          child: Column(
+                            children: [
+                              CircularProgressIndicator(
+                                  color: theme.primaryColor),
+                              const SizedBox(height: 30),
+                              const Text(
+                                  "Sending SMS containing verification code")
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              )
+                    ],
+                  ),
+                )
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
   void _sendVerificationCode() async {
+    FocusScope.of(context).unfocus();
+    phoneNumberVerifier.sendVerificationSMS(phoneNumber);
     setState(() {
       isSendingVerificationCode = true;
     });
-    // phoneNumberVerifier.sendVerificationSMS(phoneNumber);
   }
 }
 
