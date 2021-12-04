@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:shared_widgets/shared_widgets.dart';
 
-class IntroduceYourSelfTemplate extends StatelessWidget {
+class RegistrationFormTemplate extends StatelessWidget {
   final Widget child;
   final VoidCallback? onContinue;
   final String title, subtitle;
 
-  const IntroduceYourSelfTemplate({
+  const RegistrationFormTemplate({
     Key? key,
     required this.child,
     this.onContinue,

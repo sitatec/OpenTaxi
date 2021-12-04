@@ -1,4 +1,4 @@
-import 'package:driver_app/authentication/ui/introduce_your_self_template.dart';
+import 'package:driver_app/authentication/ui/registration_form_template.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_widgets/shared_widgets.dart';
@@ -30,7 +30,7 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
   Widget build(BuildContext context) {
     final selectedColor = Theme.of(context).primaryColor.withAlpha(75);
 
-    return IntroduceYourSelfTemplate(
+    return RegistrationFormTemplate(
         onContinue: _isContinueButtonEnabled() ? _submit : null,
         child: Column(
           children: [
