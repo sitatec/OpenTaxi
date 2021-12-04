@@ -20,36 +20,45 @@ class IntroduceYourSelfScreen extends StatefulWidget {
 class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
   final userIcon = SvgPicture.asset("assets/images/user_icon.svg");
 
+  String? firstNameFieldErrorMsg;
+  String? surNameFieldErrorMsg;
   String selectedGender = "";
   String firstName = "";
   String surName = "";
-  // bool isSouthAfricanCitizen = false;
 
   @override
   Widget build(BuildContext context) {
     final selectedColor = Theme.of(context).primaryColor.withAlpha(75);
 
     return IntroduceYourSelfTemplate(
-        onContinue: _isContinueButtonEnabled() ? _showIsSouthAfricanCitizen : null,
+        onContinue: _isContinueButtonEnabled() ? _submit : null,
         child: Column(
           children: [
             OutLinedTextField(
-              onChanged: (newValue) => setState(() => firstName = newValue),
+              onChanged: (newValue) => setState(() {
+                firstName = newValue;
+                firstNameFieldErrorMsg = null;
+              }),
               prefixIcon: userIcon,
               fillColor: lightGray,
               hintText: "First Name",
               keyboardType: TextInputType.name,
+              errorMessage: firstNameFieldErrorMsg,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]')),
               ],
             ),
-            const SizedBox(height: 23),
+            const SizedBox(height: 25),
             OutLinedTextField(
-              onChanged: (newValue) => setState(() => surName = newValue),
+              onChanged: (newValue) => setState(() {
+                surName = newValue;
+                surNameFieldErrorMsg = null;
+              }),
               prefixIcon: userIcon,
               fillColor: lightGray,
               hintText: "Sur Name",
               keyboardType: TextInputType.name,
+              errorMessage: surNameFieldErrorMsg,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp('[a-zA-Z]')),
               ],
@@ -92,6 +101,22 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
 
   void _selectGender(String gender) => setState(() => selectedGender = gender);
 
+  void _submit() {
+    if (_isValidForm()) {
+      _showIsSouthAfricanCitizen();
+    }
+  }
+
+  bool _isValidForm() {
+    if (firstName.length < 2) {
+      setState(() => firstNameFieldErrorMsg = "At least 2 letters");
+    }
+    if (surName.length < 2) {
+      setState(() => surNameFieldErrorMsg = "At least 2 letters");
+    }
+    return firstNameFieldErrorMsg == null && surNameFieldErrorMsg == null;
+  }
+
   void _showIsSouthAfricanCitizen() {
     showModalBottomSheet(
         shape: const RoundedRectangleBorder(
@@ -132,7 +157,7 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
                       children: [
                         Expanded(
                           child: RoundedCornerButton(
-                            onPressed: () => _submit(true),
+                            onPressed: () => _saveDataAndGoNext(true),
                             child: const Text(
                               "YES",
                               style: TextStyle(
@@ -147,7 +172,7 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
                         const SizedBox(width: 16),
                         Expanded(
                           child: RoundedCornerButton(
-                            onPressed: () => _submit(false),
+                            onPressed: () => _saveDataAndGoNext(false),
                             child: const Text(
                               "NO",
                               style: TextStyle(
@@ -174,7 +199,8 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
         });
   }
 
-  void _submit(bool isShoutAfricanCitizen) {
-
+  void _saveDataAndGoNext(bool isShoutAfricanCitizen) {
+    // SUBMIT
+    // Navigator.of(context).push()
   }
 }
