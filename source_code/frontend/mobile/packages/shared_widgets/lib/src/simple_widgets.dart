@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:shared_widgets/shared_widgets.dart';
 
@@ -10,6 +11,8 @@ class OutLinedTextField extends StatelessWidget {
   final double borderRadius;
   final Color borderColor;
   final EdgeInsets prefixPadding;
+  final List<TextInputFormatter>? inputFormatters;
+  final TextInputType? keyboardType;
 
   const OutLinedTextField({
     Key? key,
@@ -20,11 +23,16 @@ class OutLinedTextField extends StatelessWidget {
     this.borderRadius = 10,
     this.borderColor = gray,
     this.prefixPadding = const EdgeInsets.only(left: 15, right: 13),
+    this.inputFormatters,
+    this.keyboardType,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      onChanged: onChanged,
+      keyboardType: keyboardType,
+      inputFormatters: inputFormatters,
       style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 17),
       decoration: InputDecoration(
         contentPadding: const EdgeInsets.symmetric(vertical: 16.5),
@@ -55,12 +63,14 @@ class RoundedCornerButton extends StatelessWidget {
   Color? disabledColor, enabledColor;
   final VoidCallback? onPressed;
   final Widget child;
+  final BorderSide borderSide;
 
   RoundedCornerButton(
       {Key? key,
       this.disabledColor,
       this.enabledColor,
       this.onPressed,
+      this.borderSide = BorderSide.none,
       this.child = const Text(
         "Continue",
         style: TextStyle(
@@ -89,6 +99,7 @@ class RoundedCornerButton extends StatelessWidget {
           shape: MaterialStateProperty.all(
             RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
+              side: borderSide,
             ),
           ),
           backgroundColor: MaterialStateProperty.resolveWith(
@@ -105,7 +116,7 @@ class RoundedCornerButton extends StatelessWidget {
 class Gender extends StatelessWidget {
   final String genderName;
   final Color? backgroundColor;
-  final VoidCallback? onClicked;
+  final ValueChanged<String>? onClicked;
 
   const Gender(this.genderName,
       {Key? key, this.backgroundColor, this.onClicked})
@@ -114,7 +125,7 @@ class Gender extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextButton.icon(
-      onPressed: onClicked,
+      onPressed: () => onClicked?.call(genderName),
       icon: SvgPicture.asset(
         "assets/images/${genderName.toLowerCase()}.svg",
         package: "shared_widgets",
@@ -131,12 +142,12 @@ class Gender extends StatelessWidget {
         ),
       ),
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(lightGray),
+        backgroundColor: MaterialStateProperty.all(backgroundColor ?? lightGray),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
-            side: const BorderSide(
-              color: Color(0xFFACACAC),
+            side: BorderSide(
+              color: backgroundColor ?? const Color(0xFFACACAC),
               width: 0.6,
             ),
           ),
