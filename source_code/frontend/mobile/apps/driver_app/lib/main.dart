@@ -16,19 +16,21 @@ class App extends StatelessWidget {
     return FutureBuilder(
         future: Firebase.initializeApp(),
         builder: (context, data) {
-          return data.hasData
-              ? MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  title: 'Hamba Driver',
-                  theme: ThemeData(
-                    primaryColor: const Color(0xFF054BAC),
-                    errorColor: const Color(0xFFFE1917),
-                    disabledColor: const Color(0xFFA7A7A7),
-                    fontFamily: GoogleFonts.poppins().fontFamily,
-                  ),
-                  home: const IntroduceYourSelfScreen(),
-                )
-              : Container();
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Hamba Driver',
+            theme: ThemeData(
+              primaryColor: const Color(0xFF054BAC),
+              errorColor: const Color(0xFFFE1917),
+              disabledColor: const Color(0xFFA7A7A7),
+              fontFamily: GoogleFonts.poppins().fontFamily,
+            ),
+            home: data.hasData
+                ? SafeArea(
+                    child: IntroduceYourSelfScreen(),
+                  )
+                : const Center(child: Text("Loading...")),
+          );
         });
   }
 }
