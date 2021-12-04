@@ -26,7 +26,7 @@ class App extends StatelessWidget {
               fontFamily: GoogleFonts.poppins().fontFamily,
             ),
             home: data.hasData
-                ? SafeArea(
+                ? const SafeArea(
                     child: IntroduceYourSelfScreen(),
                   )
                 : const Center(child: Text("Loading...")),
