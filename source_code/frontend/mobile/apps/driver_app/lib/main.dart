@@ -5,6 +5,8 @@ import 'package:authentication/authentication.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'main_page.dart';
+
 void main() {
   runApp(App());
 }
@@ -28,7 +30,7 @@ class App extends StatelessWidget {
             ),
             home: data.hasData
                 ? const SafeArea(
-                    child: RegisterEmailPhoneAddress(),
+                    child: MainPage(),
                   )
                 : const Center(child: Text("Loading...")),
           );
