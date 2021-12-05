@@ -6,6 +6,7 @@ import 'package:shared_widgets/shared_widgets.dart';
 class OutLinedTextField extends StatelessWidget {
   final ValueChanged<String> onChanged;
   final Widget? prefixIcon;
+  final String? prefixText;
   final Color? fillColor;
   final String? hintText;
   final double borderRadius;
@@ -13,39 +14,49 @@ class OutLinedTextField extends StatelessWidget {
   final EdgeInsets prefixPadding;
   final List<TextInputFormatter>? inputFormatters;
   final TextInputType? keyboardType;
+  final int maxLines;
+  final String? errorMessage;
 
   const OutLinedTextField({
     Key? key,
     required this.onChanged,
     this.prefixIcon,
     this.fillColor,
+    this.prefixText,
     this.hintText,
     this.borderRadius = 10,
     this.borderColor = gray,
-    this.prefixPadding = const EdgeInsets.only(left: 15, right: 13),
+    this.prefixPadding = const EdgeInsets.only(left: 15, right: 10),
     this.inputFormatters,
     this.keyboardType,
+    this.errorMessage,
+    this.maxLines = 1,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      maxLines: maxLines,
       onChanged: onChanged,
       keyboardType: keyboardType,
       inputFormatters: inputFormatters,
       style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 17),
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(vertical: 16.5),
-        prefixIcon: Padding(
-          padding: prefixPadding,
-          child: prefixIcon,
+        errorText: errorMessage,
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 16.5,
+          horizontal: 16,
         ),
+        prefixIcon: prefixIcon != null
+            ? Padding(padding: prefixPadding, child: prefixIcon)
+            : null,
         prefixIconConstraints: const BoxConstraints(
           minHeight: 24,
           minWidth: 24,
         ),
         fillColor: fillColor,
         hintText: hintText,
+        prefixText: prefixText,
         filled: fillColor != null,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
@@ -142,7 +153,8 @@ class Gender extends StatelessWidget {
         ),
       ),
       style: ButtonStyle(
-        backgroundColor: MaterialStateProperty.all(backgroundColor ?? lightGray),
+        backgroundColor:
+            MaterialStateProperty.all(backgroundColor ?? lightGray),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),

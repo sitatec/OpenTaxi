@@ -11,6 +11,9 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_svg: ^0.23.0+1
+  flutter_multi_formatter: ^2.4.1
+  data_access:
+    path: ../data_access
 
 dev_dependencies:
   flutter_test:
