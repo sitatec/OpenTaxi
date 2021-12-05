@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_widgets/shared_widgets.dart';
+import 'package:shared/shared.dart';
 
 class RegistrationFormTemplate extends StatelessWidget {
   final Widget child;

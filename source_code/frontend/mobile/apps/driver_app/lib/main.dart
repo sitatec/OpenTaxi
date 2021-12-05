@@ -1,4 +1,5 @@
 import 'package:driver_app/authentication/ui/introduce_your_self_screen.dart';
+import 'package:driver_app/authentication/ui/register_email_phone_address.dart';
 import 'package:flutter/material.dart';
 import 'package:authentication/authentication.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -27,7 +28,7 @@ class App extends StatelessWidget {
             ),
             home: data.hasData
                 ? const SafeArea(
-                    child: IntroduceYourSelfScreen(),
+                    child: RegisterEmailPhoneAddress(),
                   )
                 : const Center(child: Text("Loading...")),
           );

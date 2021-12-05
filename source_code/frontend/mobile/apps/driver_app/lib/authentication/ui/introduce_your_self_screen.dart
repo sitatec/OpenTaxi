@@ -1,7 +1,7 @@
 import 'package:driver_app/authentication/ui/registration_form_template.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_widgets/shared_widgets.dart';
+import 'package:shared/shared.dart';
 
 class IntroduceYourSelfScreen extends StatefulWidget {
   static const _semiBoldStyle = TextStyle(
