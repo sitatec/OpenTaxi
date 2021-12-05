@@ -1,4 +1,4 @@
-library shared_widgets;
+library shared;
 
 export 'src/colors.dart';
 export 'src/simple_widgets.dart';
