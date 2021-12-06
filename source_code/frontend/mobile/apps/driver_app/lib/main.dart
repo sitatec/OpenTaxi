@@ -5,7 +5,7 @@ import 'package:authentication/authentication.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 
-import 'main_page.dart';
+import 'main_screen.dart';
 
 void main() {
   runApp(App());
@@ -25,12 +25,13 @@ class App extends StatelessWidget {
             theme: ThemeData(
               primaryColor: const Color(0xFF054BAC),
               errorColor: const Color(0xFFFE1917),
-              disabledColor: const Color(0xFFA7A7A7),
+              disabledColor: const Color(0xFFB7B7B7),
+              accentColor: const Color(0xFF2BC25F),
               fontFamily: GoogleFonts.poppins().fontFamily,
             ),
             home: data.hasData
                 ? const SafeArea(
-                    child: MainPage(),
+                    child: MainScreen(),
                   )
                 : const Center(child: Text("Loading...")),
           );

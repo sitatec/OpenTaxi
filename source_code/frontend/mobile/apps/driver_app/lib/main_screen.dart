@@ -1,16 +1,17 @@
+import 'package:driver_app/home.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
-class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+class MainScreen extends StatefulWidget {
+  const MainScreen({Key? key}) : super(key: key);
 
   @override
-  _MainPageState createState() => _MainPageState();
+  _MainScreenState createState() => _MainScreenState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainScreenState extends State<MainScreen> {
   static const _tabs = [
-    Center(child: Text("Navigation")),
+    HomePage(),
     Center(child: Text("Statistics")),
     Center(child: Text("Settings"))
   ];
