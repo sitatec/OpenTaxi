@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
@@ -57,7 +58,8 @@ class _HomePageState extends State<HomePage> {
                 ),
                 child: IconButton(
                   icon: Icon(Icons.search, color: theme.disabledColor),
-                  onPressed: _showBookingRequest,
+                  onPressed: () =>
+                      _showBottomSheetActions("Arrived Pickup location", () {}),
                 ),
               ),
             ],
@@ -250,6 +252,91 @@ class _HomePageState extends State<HomePage> {
                 )
               ],
             ),
+          );
+        });
+  }
+
+  void _showBottomSheetActions(String bottomButtonText,
+      [VoidCallback? onBottomButtonPressed]) {
+    final theme = Theme.of(context);
+    showBottomSheet(
+        elevation: 4,
+        context: context,
+        builder: (context) {
+          return Wrap(
+            children: [
+              Container(
+                color: lightGray,
+                padding: const EdgeInsets.only(
+                  left: 24,
+                  right: 16,
+                  top: 10,
+                  bottom: 10,
+                ),
+                child: _BottomSheetHeader(
+                    _RiderData(
+                      imageURL:
+                          "https://news.cornell.edu/sites/default/files/styles/breakout/public/2020-05/0521_abebegates.jpg?itok=OdW8otpB",
+                      rating: 4.8,
+                      paymentMethod: "By cash",
+                      name: "Rediet Abebe",
+                    ),
+                    trailingWidget: Row(
+                      children: [
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.all(10),
+                            backgroundColor: Colors.black,
+                            minimumSize: const Size(24, 24),
+                            shape: const CircleBorder(),
+                          ),
+                          child: SvgPicture.asset(
+                              "assets/images/calling_icon.svg"),
+                          onPressed: () {},
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.all(10),
+                            backgroundColor: Colors.black,
+                            shape: const CircleBorder(),
+                          ),
+                          child:
+                              SvgPicture.asset("assets/images/chat_icon.svg"),
+                          onPressed: () {},
+                        ),
+                      ],
+                    )),
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 24),
+                      child: TextButton(
+                        onPressed: onBottomButtonPressed,
+                        child: Text(
+                          bottomButtonText,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          backgroundColor: onBottomButtonPressed != null
+                              ? theme.accentColor
+                              : theme.disabledColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           );
         });
   }
