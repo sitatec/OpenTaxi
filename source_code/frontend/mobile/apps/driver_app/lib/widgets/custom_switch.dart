@@ -241,9 +241,7 @@ class _FlutterSwitchState extends State<FlutterSwitch> {
     }
 
     final _currentText = widget.value ? widget.activeText : widget.inactiveText;
-    print(_currentText);
     final _switchWidth = _currentText != null ? _textSize(_currentText.data, _currentText.style).width + widget.toggleSize + widget.padding + 20 : 50.0;
-    print(_textSize(_currentText!.data, _currentText.style).width);
 
     return Align(
       child: GestureDetector(
@@ -281,7 +279,7 @@ class _FlutterSwitchState extends State<FlutterSwitch> {
                     duration: widget.duration,
                     child: Container(
                       margin: EdgeInsets.only(left: widget.toggleSize),
-                      padding: EdgeInsets.symmetric(horizontal: 4.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 4.0),
                       alignment: Alignment.centerRight,
                       child: widget.inactiveText,
                     ),
@@ -295,7 +293,7 @@ class _FlutterSwitchState extends State<FlutterSwitch> {
                   child: Container(
                     width: widget.toggleSize,
                     height: widget.toggleSize,
-                    padding: EdgeInsets.all(4.0),
+                    padding: const EdgeInsets.all(4.0),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _toggleColor,
@@ -303,25 +301,23 @@ class _FlutterSwitchState extends State<FlutterSwitch> {
                     ),
                     child: FittedBox(
                       fit: BoxFit.contain,
-                      child: Container(
-                        child: Stack(
-                          children: [
-                            Center(
-                              child: AnimatedOpacity(
-                                opacity: widget.value ? 1.0 : 0.0,
-                                duration: widget.duration,
-                                child: widget.activeIcon,
-                              ),
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: AnimatedOpacity(
+                              opacity: widget.value ? 1.0 : 0.0,
+                              duration: widget.duration,
+                              child: widget.activeIcon,
                             ),
-                            Center(
-                              child: AnimatedOpacity(
-                                opacity: !widget.value ? 1.0 : 0.0,
-                                duration: widget.duration,
-                                child: widget.inactiveIcon,
-                              ),
+                          ),
+                          Center(
+                            child: AnimatedOpacity(
+                              opacity: !widget.value ? 1.0 : 0.0,
+                              duration: widget.duration,
+                              child: widget.inactiveIcon,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
@@ -113,26 +112,144 @@ class _HomePageState extends State<HomePage> {
       setState(() => _isDriverOnline = isOnline);
 
   void _showBookingRequest(/*TODO pass booking data*/) {
+    final theme = Theme.of(context);
+    final iconsBackgroundColor = theme.disabledColor.withAlpha(100);
+    const price = 20.0;
+    const distance = 2.1;
     showBottomSheet(
         elevation: 4,
         context: context,
         builder: (context) {
-          return Wrap(
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                child: _BottomSheetHeader(
-                  _RiderData(
-                    imageURL:
-                        "https://news.cornell.edu/sites/default/files/styles/breakout/public/2020-05/0521_abebegates.jpg?itok=OdW8otpB",
-                    rating: 4.8,
-                    paymentMethod: "By cash",
-                    name: "Rediet Abebe",
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Wrap(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  child: _BottomSheetHeader(
+                    _RiderData(
+                      imageURL:
+                          "https://news.cornell.edu/sites/default/files/styles/breakout/public/2020-05/0521_abebegates.jpg?itok=OdW8otpB",
+                      rating: 4.8,
+                      paymentMethod: "By cash",
+                      name: "Rediet Abebe",
+                    ),
+                    trailingWidget: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          "\$${price.toCurrencyString()}",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 19,
+                          ),
+                        ),
+                        const Text(
+                          "$distance km",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: 15,
+                            color: gray,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              )
-            ],
+                const Divider(height: 1),
+                ListTile(
+                  leading: CircleAvatar(
+                    child: SvgPicture.asset("assets/images/pickup_icon.svg"),
+                    backgroundColor: iconsBackgroundColor,
+                  ),
+                  title: Text(
+                    "PICK UP",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 11,
+                      color: theme.disabledColor,
+                    ),
+                  ),
+                  subtitle:
+                      const Text("20 Kado street, Ikeja Lagos Luchkovski"),
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: CircleAvatar(
+                    child: SvgPicture.asset("assets/images/dropoff_icon.svg"),
+                    backgroundColor: iconsBackgroundColor,
+                  ),
+                  title: Text(
+                    "DROP OFF",
+                    style: TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 11,
+                      color: theme.disabledColor,
+                    ),
+                  ),
+                  subtitle:
+                      const Text("20 Kado street, Ikeja Lagos Luchkovski"),
+                ),
+                const Divider(height: 1),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () {},
+                          child: const Text(
+                            "Ignore",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                theme.errorColor.withAlpha(200)),
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 30),
+                      Expanded(
+                        child: TextButton(
+                          onPressed: () {},
+                          child: const Text(
+                            "Accept",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          style: ButtonStyle(
+                            backgroundColor:
+                                MaterialStateProperty.all(theme.accentColor),
+                            shape: MaterialStateProperty.all(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
           );
         });
   }
@@ -203,10 +320,10 @@ class _BottomSheetHeader extends StatelessWidget {
                   children: [
                     Container(
                       padding: const EdgeInsets.only(
-                        right: 8,
-                        left: 2,
-                        top: 2,
-                        bottom: 2,
+                        right: 9,
+                        left: 3,
+                        top: 1,
+                        bottom: 1,
                       ),
                       child: Row(
                         children: [
@@ -226,7 +343,7 @@ class _BottomSheetHeader extends StatelessWidget {
                     const SizedBox(width: 8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
+                        horizontal: 9,
                         vertical: 2,
                       ),
                       child: Text(
