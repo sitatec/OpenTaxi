@@ -29,7 +29,13 @@ class Account {
   });
 }
 
-enum AccountRole { driver, rider, admin }
+enum AccountRole {
+  driver,
+  rider,
+  admin,
+  /// Account not registered yet
+  undefined,
+}
 
 enum AccountStatus {
   live,
@@ -37,7 +43,10 @@ enum AccountStatus {
   unpaidSubscription,
   temporarilySuspended,
   definitivelyBanned,
-  unverifiedPhoneNumber
+  unverifiedPhoneNumber,
+
+  /// Account not registered yet
+  undefined,
 }
 
 extension AcountJsonParser on Account {

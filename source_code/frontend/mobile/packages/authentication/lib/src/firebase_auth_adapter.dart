@@ -60,7 +60,7 @@ class FirebaseAuthProvider
         _switchState(AuthState.unauthenticated);
       } else {
         // `_account` may have been initialized in the `registerAccount(...)` methods to avoid sending data and fetching it again.
-        _account ??= firebaseUser.toAccount(_accountRepository);
+        _account ??= await firebaseUser.toAccount(_accountRepository);
         _switchState(AuthState.authenticated);
       }
     } catch (e) {
@@ -185,8 +185,22 @@ extension Converter on FirebaseAuthException {
 }
 
 extension on User {
-  Account toAccount(AccountRepository accountRepository) {
-    final jsonObject = accountRepository.get({"id": uid}) as JsonObject;
-    return AcountJsonParser.fromJson(jsonObject);
+  Future<Account> toAccount(AccountRepository accountRepository) async {
+    final response = await accountRepository.get({"id": uid});
+    if (response["status"] == "failure") {
+      // User not created yet | return temporary account
+      return Account(
+        id: uid,
+        firstName: "",
+        lastName: "",
+        email: "",
+        phoneNumber: phoneNumber.toString(),
+        registeredAt: metadata.creationTime ?? DateTime.now(),
+        role: AccountRole.undefined,
+        status: AccountStatus.undefined,
+        balance: 0,
+      );
+    }
+    return AcountJsonParser.fromJson(response.data);
   }
 }

@@ -61,7 +61,6 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
   void _completeVerification(PhoneAuthCredential phoneAuthCredential) {
     try {
       _firebaseAuth.signInWithCredential(phoneAuthCredential);
-      _firebaseAuth.currentUser!.reload();
       _verificationStateStream.sink.add(PhoneNumberVerificationState.completed);
       _counters.clear();
     } on FirebaseAuthException catch (e) {
