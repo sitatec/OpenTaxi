@@ -44,9 +44,7 @@ enum AccountStatus {
   temporarilySuspended,
   definitivelyBanned,
   unverifiedPhoneNumber,
-
-  /// Account not registered yet
-  undefined,
+  unregistered,
 }
 
 extension AcountJsonParser on Account {

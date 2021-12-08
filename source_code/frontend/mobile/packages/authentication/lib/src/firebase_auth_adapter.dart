@@ -197,7 +197,7 @@ extension on User {
         phoneNumber: phoneNumber.toString(),
         registeredAt: metadata.creationTime ?? DateTime.now(),
         role: AccountRole.undefined,
-        status: AccountStatus.undefined,
+        status: AccountStatus.unregistered,
         balance: 0,
       );
     }
