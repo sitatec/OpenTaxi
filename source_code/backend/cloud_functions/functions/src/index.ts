@@ -1,6 +1,9 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import axios from "axios";
+import { getPayFastPaymentUrl as getPayFastPaymentURL } from "./payment";
+
+// ---------------------- NODIFICATION -------------------- //
 
 const sendNotification = functions.https.onCall(async (notification, _) => {
   const recipientToken = await _getUserToken(notification["to"]);
@@ -14,3 +17,10 @@ const _getUserToken = async (userId: string) => {
   );
   return response.data.notification_token;
 };
+
+
+// ---------------------- PAYMENT -------------------- //
+
+const getPaymentURL = functions.https.onCall((paymentData, _) =>
+  getPayFastPaymentURL(paymentData)
+);
