@@ -1,0 +1,13 @@
+runtime: nodejs14
+
+min_instances: 1
+instance_class: F1
+max_idle_instances: 1
+min_idle_instances: 0
+
+env_variables:
+  DB_NAME: hamba_main_db
+  DB_USER: postgres
+  DB_PASSWORD: OE5v4PxrEkwItk1z
+  DB_PORT: 5432
+  DB_HOST: /cloudsql/hamba-project:us-central1:main-db

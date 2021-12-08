@@ -14,6 +14,12 @@ interface NewPooConfig extends PoolConfig {
   allowExitOnIdle: boolean;
 }
 
+const DB_NAME = process.env.DB_NAME || "postgres";
+const DB_USER = process.env.DB_USER || "postgres";
+const DB_PASSWORD = process.env.DB_PASSWORD || "postgres";
+const DB_PORT = process.env.DB_PORT || "5432";
+const DB_HOST =process.env.DB_HOST || "localhost";
+
 export class Database {
   private static initialized = false;
 
@@ -26,17 +32,15 @@ export class Database {
     this._instance = value;
   }
 
-  private constructor(private client: Pool) {
-
-  }
+  private constructor(private client: Pool) {}
 
   static initialize(
     client = new Pool({
-      user: "postgres",
-      host: "localhost",
-      database: "postgres",
-      password: "postgres",
-      port: 5432,
+      user: DB_USER,
+      host: DB_HOST,
+      database: DB_NAME,
+      password: DB_PASSWORD,
+      port: parseInt(DB_PORT),
     })
   ) {
     if (!this.initialized) {

@@ -4,6 +4,7 @@
   "description": "The server that is responsible of accessing the database and exposing the data through a REST API.(part of the hamba project)",
   "main": "build/index.js",
   "scripts": {
+    "start": "node ./build/index.js",
     "build": "tsc",
     "test": "jest -i",
     "test_coverage": "jest -i --coverage",
