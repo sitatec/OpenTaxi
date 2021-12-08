@@ -43,8 +43,6 @@ class FirebasePhoneVerifier extends PhoneNumberVerifier {
 
   @override
   Future<void> sendVerificationSMS(String phoneNumber) {
-    return Future.delayed(const Duration(seconds: 1),
-        () => _onVerificationCodeSent("verificationId", phoneNumber));
     if (_counters.containsKey(phoneNumber) &&
         _counters[phoneNumber]!.currentValue > 0) {
       // if the resent code counter is not done we don't resend the code.

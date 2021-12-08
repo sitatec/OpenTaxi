@@ -4,9 +4,9 @@ import 'package:authentication/authentication.dart';
 import 'package:authentication/src/api/phone_number_verifier.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:intl/intl.dart';
+import 'package:shared/shared.dart';
 
 class CodeVerificationScreen extends StatefulWidget {
   static const verificationStates = {

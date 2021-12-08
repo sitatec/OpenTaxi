@@ -5,7 +5,7 @@ import 'package:authentication/src/api/phone_number_verifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:shared/shared.dart';
 
 // TODO refactor
 class PhoneAuthScreen extends StatefulWidget {
@@ -15,7 +15,7 @@ class PhoneAuthScreen extends StatefulWidget {
     fontWeight: FontWeight.w600,
   );
 
-  PhoneAuthScreen({Key? key}) : super(key: key);
+  const PhoneAuthScreen({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PhoneAuthScreenState();
@@ -312,56 +312,5 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     setState(() {
       isSendingVerificationCode = true;
     });
-  }
-}
-
-class RoundedCornerButton extends StatelessWidget {
-  Color? disabledColor, enabledColor;
-  final VoidCallback? onPressed;
-  final Widget child;
-
-  RoundedCornerButton(
-      {Key? key,
-      this.disabledColor,
-      this.enabledColor,
-      this.onPressed,
-      this.child = const Text(
-        "Continue",
-        style: TextStyle(
-          fontSize: 18,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-        ),
-        textAlign: TextAlign.center,
-      )})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    disabledColor ??= theme.disabledColor;
-    enabledColor ??= theme.primaryColor;
-    return SizedBox(
-      height: 54,
-      child: TextButton(
-        onPressed: onPressed,
-        child: SizedBox(
-          width: double.infinity,
-          child: child,
-        ),
-        style: ButtonStyle(
-          shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-          ),
-          backgroundColor: MaterialStateProperty.resolveWith(
-            (states) => states.contains(MaterialState.disabled)
-                ? disabledColor
-                : enabledColor,
-          ),
-        ),
-      ),
-    );
   }
 }
