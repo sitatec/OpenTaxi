@@ -25,4 +25,4 @@ export const wrappeResponseHandling = async (
 };
 
 export const handleUnknownError = (error: any, res: Response) =>
-  res.status(500).send("Server Error.");
+  res.status(500).send({massage: "Server Error.", status: "failure"});
