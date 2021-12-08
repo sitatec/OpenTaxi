@@ -14,7 +14,7 @@ abstract class BaseRepository {
   Future<void> create(JsonObject account) =>
       httpClient.post(entityPath, data: account);
 
-  Future<List<JsonObject>> get(JsonObject filter) async {
+  Future<dynamic> get(JsonObject filter) async {
     final response = await httpClient.get(_getPathWithQueryParams(filter));
     return response.data;
   }

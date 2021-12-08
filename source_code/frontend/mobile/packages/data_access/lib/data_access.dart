@@ -9,3 +9,4 @@ export 'src/repositories/review_repository.dart';
 export 'src/repositories/rider_repository.dart';
 export 'src/repositories/subscription_repository.dart';
 export 'src/repositories/trip_repository.dart';
+export 'src/type_alias.dart';
