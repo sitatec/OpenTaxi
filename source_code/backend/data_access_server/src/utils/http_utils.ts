@@ -31,10 +31,7 @@ export function sendSuccessResponse(
 export const getQueryParams = (httpRequest: Request): Pair<string, string>[] => {
   const queryParams: Pair<string, string>[] = [];
   for (const [param, paramValue] of Object.entries(httpRequest.query)) {
-    queryParams.push({
-      first: param,
-      second: paramValue as string,
-    });
+    queryParams.push(new Pair(param, paramValue as string));
   }
   return queryParams;
 };
