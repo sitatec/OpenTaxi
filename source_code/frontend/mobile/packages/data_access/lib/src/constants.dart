@@ -1,1 +1,1 @@
-const dataAccessBaseUrl = "http://localhost";
+const dataAccessBaseUrl = "https://hamba-project.uc.r.appspot.com";
