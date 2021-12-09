@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -140,7 +141,7 @@ class Gender extends StatelessWidget {
       onPressed: () => onClicked?.call(genderName),
       icon: SvgPicture.asset(
         "assets/images/${genderName.toLowerCase()}.svg",
-        package: "shared_widgets",
+        package: "shared",
       ),
       label: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -169,3 +170,5 @@ class Gender extends StatelessWidget {
     );
   }
 }
+
+

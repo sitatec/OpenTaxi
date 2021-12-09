@@ -1,6 +1,7 @@
 library shared;
 
-export 'src/colors.dart';
+export 'src/constants/colors.dart';
+export 'src/constants/values.dart';
 export 'src/simple_widgets.dart';
 // ----------------------- Exported Packages -------------------------- //
 export 'package:flutter_svg/flutter_svg.dart';
