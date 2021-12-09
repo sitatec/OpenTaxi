@@ -31,7 +31,7 @@ fun main() {
     val dispatcher =
         Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
 
-    embeddedServer(Netty, port = 8080, host = "localhost") {
+    embeddedServer(Netty, port = 8080, host = "0.0.0.0") {
         webSocketsServer(
             DriverController(
                 driverDataRepository,

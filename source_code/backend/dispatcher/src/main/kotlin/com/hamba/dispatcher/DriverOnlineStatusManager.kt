@@ -5,7 +5,7 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 
-const val DRIVER_DATA_URL = "http://localhost/driver"
+const val DRIVER_DATA_URL = "https://hamba-project.uc.r.appspot.com/driver"
 
 // TODO find a solution for testing without having to "shadow" the method by overriding them and make the final by removing the open keyword.
 open class DriverOnlineStatusManager(private val httpClient: HttpClient = HttpClient(CIO)) {
