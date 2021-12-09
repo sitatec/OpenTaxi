@@ -1,9 +1,11 @@
 runtime: nodejs14
 
-min_instances: 1
 instance_class: F1
-max_idle_instances: 1
-min_idle_instances: 0
+
+automatic_scaling:
+  min_instances: 1
+  max_idle_instances: 1
+  min_idle_instances: 0
 
 env_variables:
   DB_NAME: hamba_main_db

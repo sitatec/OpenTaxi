@@ -1,10 +1,9 @@
-import { initializeApp } from "firebase-admin";
-import { Auth } from "firebase-admin/lib/auth/auth";
+import * as admin from "firebase-admin";
 
-let firebaseAuth: Auth;
+let firebaseAuth: admin.auth.Auth;
 
 if (process.env.NODE_ENV != "test"){
-   firebaseAuth = initializeApp().auth();
+   firebaseAuth = admin.initializeApp().auth();
 }
 
 interface TokenValidationResult {
