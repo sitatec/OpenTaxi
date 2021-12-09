@@ -5,7 +5,7 @@ import { JSObject, Pair } from "../types";
 export const extractTokenFromHeader = (
   header: IncomingHttpHeaders
 ): string | undefined => {
-  return header.authorization?.replace(RegExp("^Bearers+$"), "");
+  return header.authorization?.replace("Bearer ", "");
 };
 
 export function sendSuccessResponse(httpResponse: Response): void;

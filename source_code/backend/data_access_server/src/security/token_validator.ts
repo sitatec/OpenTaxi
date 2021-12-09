@@ -30,6 +30,7 @@ export const validateToken = async (
     };
   } catch (e) {
     // TODO implement better error handling.
+    console.error(e);
     return INVALID_TOKEN_RESULT;
   }
 }; 
