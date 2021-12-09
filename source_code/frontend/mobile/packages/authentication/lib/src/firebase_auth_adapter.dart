@@ -101,9 +101,10 @@ class FirebaseAuthProvider
       );
       // initialize _account to avoid fetching the same data in `_onAuthStateChanged(...)`.
       _account = account..id = credentials.user!.uid;
+      final userIdToken = await credentials.user!.getIdToken();
       await _accountRepository
-          .create(account.toJsonObject()) // Retry on fail.
-          .catchError((e) => _accountRepository.create(account.toJsonObject()));
+          .create(account.toJsonObject(), userIdToken) // Retry on fail.
+          .catchError((e) => _accountRepository.create(account.toJsonObject(), userIdToken));
       // TODO handle the case when the user is registered with firebase but the account creation on our db fails.
     } catch (e) {
       _account = null;
@@ -186,7 +187,8 @@ extension Converter on FirebaseAuthException {
 
 extension on User {
   Future<Account> toAccount(AccountRepository accountRepository) async {
-    final response = await accountRepository.get({"id": uid});
+    final idToken = await getIdToken();
+    final response = await accountRepository.get({"id": uid}, idToken);
     if (response["status"] == "failure") {
       // User not created yet | return temporary account
       return Account(

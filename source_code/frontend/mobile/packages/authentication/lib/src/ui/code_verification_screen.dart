@@ -67,7 +67,9 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
           setState(() => verificationState =
               CodeVerificationScreen.verificationStates.last);
         } else {
-          // TODO handle
+          print("\n");
+          print(widget.phoneNumberVerifier.exception);
+          print("\n");
         }
       }
     });
@@ -251,10 +253,8 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
   }
 
   void _verifyCode() {
-    setState(() {
-      isVerifyingCode = true;
-    });
-    // verify
+    setState(() => isVerifyingCode = true);
+    widget.phoneNumberVerifier.verifyCode(code);
   }
 
   void _resendCode() {
