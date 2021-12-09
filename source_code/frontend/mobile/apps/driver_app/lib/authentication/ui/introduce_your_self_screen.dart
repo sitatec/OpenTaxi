@@ -1,3 +1,4 @@
+import 'package:driver_app/authentication/ui/register_email_phone_address.dart';
 import 'package:driver_app/authentication/ui/registration_form_template.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -200,7 +201,8 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
   }
 
   void _saveDataAndGoNext(bool isShoutAfricanCitizen) {
-    // SUBMIT
-    // Navigator.of(context).push()
+    // TODO SUBMIT
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => const RegisterEmailPhoneAddress()));
   }
 }
