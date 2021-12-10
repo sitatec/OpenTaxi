@@ -9,6 +9,7 @@ export const ACCOUNT = {
   phone_number: "45463454354",
   notification_token: "lsjfETEjflsji4-436lsjf",
   account_status: "LIVE",
+  gender: "FEMALE",
   role: "RIDER",
   balance: "0.00"
 };
@@ -24,6 +25,7 @@ export const ACCOUNT_1 = {
   notification_token: "2sjf_sEjflsji4-436lsj_",
   account_status: "LIVE",
   role: "DRIVER",
+  gender: "MALE",
   balance: "0.00"
 };
 
@@ -54,7 +56,6 @@ export const DRIVER = {
   is_online: false,
   other_platform_rating_url: "lsjfds",
   price_by_minunte: '29.34',
-  gender: "MALE",
   id_url: "slfjlksjflks"
 };
 

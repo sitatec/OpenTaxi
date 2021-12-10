@@ -50,7 +50,7 @@ CREATE TYPE CAR_TYPE AS ENUM (
 );
 
 
-CREATE TYPE DRIVER_GENDER AS ENUM (
+CREATE TYPE GENDER AS ENUM (
   'MALE',
   'FEMALE'
 );
@@ -81,6 +81,7 @@ CREATE TABLE public.account (
   nickname VARCHAR,
   registred_at DATE DEFAULT CURRENT_DATE NOT NULL,
   profile_picture_url VARCHAR NOT NULL,
+  gender GENDER NOT NULL,
   email VARCHAR NOT NULL,
   role USER_ROLE NOT NULL,
   notification_token VARCHAR,
@@ -128,7 +129,6 @@ CREATE TABLE public.driver (
   driver_licence_url VARCHAR NOT NULL,
   proof_of_residence_url VARCHAR NOT NULL,
   bank_account_confirmation_url VARCHAR NOT NULL,
-  gender DRIVER_GENDER NOT NULL,
   additional_certification_urls VARCHAR[] NOT NULL,
   other_platform_rating_url VARCHAR,
   bio VARCHAR,
@@ -174,7 +174,7 @@ ALTER SEQUENCE public.car_id_seq OWNED BY public.car.id;
 
 CREATE TABLE public.rider (
   account_id VARCHAR NOT NULL,
-  driver_gender_preference DRIVER_GENDER,
+  driver_gender_preference GENDER,
   recent_places VARCHAR[],
   saved_places VARCHAR[],
   CONSTRAINT rider_pk PRIMARY KEY (account_id)
