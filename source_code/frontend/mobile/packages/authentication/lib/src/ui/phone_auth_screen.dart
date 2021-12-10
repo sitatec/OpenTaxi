@@ -35,30 +35,22 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     super.initState();
     verificationStateStreamSubscription =
         phoneNumberVerifier.verificationStateChanges.listen((event) {
-      if (isSendingVerificationCode) {
-        setState(() {
-          isSendingVerificationCode = false;
-        });
-      }
-      switch (event) {
-        case PhoneNumberVerificationState.codeSent:
-          _showCodeSentMessage();
-          break;
-        case PhoneNumberVerificationState.completed:
-          throw Exception(
-              "Illegal State: phone verification can't be completed before user entering the code");
-        case PhoneNumberVerificationState.failed:
-          if (phoneNumberVerifier.exception?.exceptionType ==
-              AuthenticationExceptionType.invalidPhoneNumber) {
+          if (isSendingVerificationCode) {
             setState(() {
-              isInvalidPhoneNumber = true;
+              isSendingVerificationCode = false;
             });
-          } else {
-            // TODO handle
           }
-          break;
-      }
-    });
+          if (event == PhoneNumberVerificationState.codeSent) {
+            _showCodeSentMessage();
+          } else if (event == PhoneNumberVerificationState.failed) {
+            if (phoneNumberVerifier.exception?.exceptionType ==
+                AuthenticationExceptionType.invalidPhoneNumber) {
+              setState(() => isInvalidPhoneNumber = true);
+            } else {
+              // TODO handle
+            }
+          }
+        });
   }
 
   void _showCodeSentMessage() {
@@ -76,9 +68,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
               Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 25),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 25),
                     child:
-                      Text( "We have sent 6-digit code\nto $phoneNumber",
+                    Text("We have sent 6-digit code\nto $phoneNumber",
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
@@ -107,9 +100,10 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                               // wait for the bottom sheet to complete closing
                               // and then navigate to the CodeVerificationScreen
                               Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => CodeVerificationScreen(
-                                  phoneNumberVerifier,
-                                ),
+                                builder: (context) =>
+                                    CodeVerificationScreen(
+                                      phoneNumberVerifier,
+                                    ),
                               ));
                             }),
                           ],
@@ -152,7 +146,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             SingleChildScrollView(
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -224,7 +218,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                     phoneNumber = "+27 $newValue";
                                   });
                                 } else if (newValue.length <
-                                        PhoneAuthScreen.numberLength &&
+                                    PhoneAuthScreen.numberLength &&
                                     isContinueButtonEnabled) {
                                   setState(() {
                                     isContinueButtonEnabled = false;

@@ -188,21 +188,26 @@ extension Converter on FirebaseAuthException {
 extension on User {
   Future<Account> toAccount(AccountRepository accountRepository) async {
     final idToken = await getIdToken();
-    final response = await accountRepository.get({"id": uid}, idToken);
-    if (response["status"] == "failure") {
-      // User not created yet | return temporary account
-      return Account(
-        id: uid,
-        firstName: "",
-        lastName: "",
-        email: "",
-        phoneNumber: phoneNumber.toString(),
-        registeredAt: metadata.creationTime ?? DateTime.now(),
-        role: AccountRole.undefined,
-        status: AccountStatus.unregistered,
-        balance: 0,
-      );
+    try {
+      final response = await accountRepository.get({"id": uid}, idToken);
+      return AcountJsonParser.fromJson(response.data);
+    } on HttpException catch (e) {
+      if (e.response!.statusCode == 404) {
+        // 404 => user not created yet | return temporary account
+        return Account(
+          id: uid,
+          firstName: "",
+          lastName: "",
+          email: "",
+          phoneNumber: phoneNumber.toString(),
+          registeredAt: metadata.creationTime ?? DateTime.now(),
+          role: AccountRole.undefined,
+          status: AccountStatus.unregistered,
+          balance: 0,
+        );
+      }else {
+        rethrow;
+      }
     }
-    return AcountJsonParser.fromJson(response.data);
   }
 }
