@@ -4,7 +4,7 @@ import 'package:data_access/data_access.dart';
 class Account {
   String id;
   String firstName;
-  String lastName;
+  String surname;
   String nickname;
   String email;
   String phoneNumber;
@@ -17,7 +17,7 @@ class Account {
   Account({
     required this.id,
     required this.firstName,
-    required this.lastName,
+    required this.surname,
     required this.email,
     required this.phoneNumber,
     required this.registeredAt,
@@ -52,7 +52,7 @@ extension AcountJsonParser on Account {
   JsonObject toJsonObject() => {
         "id": id,
         "first_name": firstName,
-        "last_name": lastName,
+        "surname": surname,
         "email": email,
         "phone_number": phoneNumber,
         "registered_at": registeredAt.toIso8601String(),
@@ -68,7 +68,7 @@ extension AcountJsonParser on Account {
   static Account fromJson(JsonObject jsonObject) => Account(
         id: jsonObject["id"],
         firstName: jsonObject["first_name"],
-        lastName: jsonObject["last_name"],
+        surname: jsonObject["surname"],
         email: jsonObject["email"],
         phoneNumber: jsonObject["phone_number"],
         registeredAt: jsonObject["registered_at"],

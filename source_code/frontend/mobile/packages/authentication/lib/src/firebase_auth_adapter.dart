@@ -197,7 +197,7 @@ extension on User {
         return Account(
           id: uid,
           firstName: "",
-          lastName: "",
+          surname: "",
           email: "",
           phoneNumber: phoneNumber.toString(),
           registeredAt: metadata.creationTime ?? DateTime.now(),
