@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:data_access/data_access.dart';
+import 'package:shared/shared.dart';
 
 class Account {
   String id;
@@ -67,8 +68,9 @@ extension AcountJsonParser on Account {
         "email": email,
         "phone_number": phoneNumber,
         "registered_at": registeredAt.toIso8601String(),
-        "role": role.toString().toUpperCase(),
-        "status": status.toString().toUpperCase(),
+        "role": enumToString(role).toUpperCase(),
+        "status": enumToString(status).toUpperCase(),
+        "gender": enumToString(genre).toUpperCase(),
         "balance": balance,
         "nickname": nickname.isEmpty ? null : nickname,
         "notification_token":
@@ -83,17 +85,11 @@ extension AcountJsonParser on Account {
         email: jsonObject["email"],
         phoneNumber: jsonObject["phone_number"],
         registeredAt: jsonObject["registered_at"],
-        role: _stringToEnum(jsonObject["role"], AccountRole.values),
-        status: _stringToEnum(jsonObject["status"], AccountStatus.values),
-        genre: _stringToEnum(jsonObject["genre"], Genre.values),
+        role: stringToEnum(jsonObject["role"], AccountRole.values),
+        status: stringToEnum(jsonObject["status"], AccountStatus.values),
+        genre: stringToEnum(jsonObject["genre"], Genre.values),
         balance: jsonObject["balance"],
         nickname: jsonObject["nickname"] ?? "",
         notificationToken: jsonObject["notification_token"] ?? "",
       );
-}
-
-T _stringToEnum<T>(String str, Iterable<T> values) {
-  return values.firstWhere(
-    (value) => value.toString().split('.')[1].toLowerCase() == str.toLowerCase(),
-  );
 }
