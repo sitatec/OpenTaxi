@@ -14,48 +14,54 @@ void main() {
 
 class App extends StatelessWidget {
   App({Key? key}) : super(key: key);
-  final authenticationProvider = AuthenticationProvider.instance;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: Firebase.initializeApp(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            // TODO check if internet connection is available, if not show appropriate screen
-            // TODO show "something went wrong" screen when internet connection is available.
-          }
-          if (snapshot.connectionState == ConnectionState.done) {
-            return StreamBuilder<AuthState>(
-                stream: authenticationProvider.authBinaryState,
-                builder: (context, snapshot) {
-                  if (snapshot.data == AuthState.authenticated) {
-                    final userAccount = authenticationProvider.account!;
-                    if (userAccount.status == AccountStatus.unregistered) {
-                      return const IntroduceYourSelfScreen();
-                    } else if (userAccount.status ==
-                        AccountStatus.waitingForApproval) {
-                      return const RegistrationStatusPage(
-                          RegistrationStatus.underReview);
-                    }
-                    return MaterialApp(
-                      debugShowCheckedModeBanner: false,
-                      title: 'Hamba Driver',
-                      theme: ThemeData(
-                        primaryColor: const Color(0xFF054BAC),
-                        errorColor: const Color(0xFFFE1917),
-                        disabledColor: const Color(0xFFB7B7B7),
-                        accentColor: const Color(0xFF2BC25F),
-                        fontFamily: GoogleFonts.poppins().fontFamily,
-                      ),
-                      home: const SafeArea(child: MainScreen()),
-                    );
-                  } else {
-                    return const PhoneAuthScreen();
-                  }
-                });
-          }
-          return const Center(child: Text("Loading..."));
-        });
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Hamba Driver',
+      theme: ThemeData(
+        primaryColor: const Color(0xFF054BAC),
+        errorColor: const Color(0xFFFE1917),
+        disabledColor: const Color(0xFFB7B7B7),
+        accentColor: const Color(0xFF2BC25F),
+        fontFamily: GoogleFonts.poppins().fontFamily,
+      ),
+      home: SafeArea(
+        child: FutureBuilder<FirebaseApp>(
+            future: Firebase.initializeApp(),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                // TODO check if internet connection is available, if not show appropriate screen
+                // TODO show "something went wrong" screen when internet connection is available.
+              }
+              if (snapshot.connectionState == ConnectionState.done) {
+                final authenticationProvider = AuthenticationProvider.instance;
+                return StreamBuilder<AuthState>(
+                    stream: authenticationProvider.authBinaryState,
+                    initialData: AuthState.uninitialized,
+                    builder: (context, authSnapshot) {
+                      if(authSnapshot.data == AuthState.uninitialized){
+                        return const Center(child: Text("Authenticating..."));
+                      }
+                      if (authSnapshot.data == AuthState.authenticated) {
+                        final userAccount = authenticationProvider.account!;
+                        if (userAccount.status == AccountStatus.unregistered) {
+                          return const IntroduceYourSelfScreen();
+                        } else if (userAccount.status == AccountStatus.waitingForApproval) {
+                          return const RegistrationStatusPage(
+                            RegistrationStatus.underReview,
+                          );
+                        }
+                        return const MainScreen();
+                      } else {
+                        return const PhoneAuthScreen();
+                      }
+                    });
+              }
+              return const Center(child: Text("Loading..."));
+            }),
+      ),
+    );
   }
 }
