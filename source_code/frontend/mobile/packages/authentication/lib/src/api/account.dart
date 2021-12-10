@@ -13,6 +13,7 @@ class Account {
   final AccountRole role;
   AccountStatus status;
   double balance;
+  Genre genre;
 
   Account({
     required this.id,
@@ -24,6 +25,7 @@ class Account {
     required this.role,
     required this.status,
     required this.balance,
+    required this.genre,
     this.nickname = "",
     this.notificationToken = "",
   });
@@ -33,7 +35,8 @@ enum AccountRole {
   driver,
   rider,
   admin,
-  /// Account not registered yet
+
+  /// Account registration not finalize yet
   undefined,
 }
 
@@ -45,6 +48,14 @@ enum AccountStatus {
   definitivelyBanned,
   unverifiedPhoneNumber,
   unregistered,
+}
+
+enum Genre {
+  male,
+  female,
+
+  /// Account registration not finalize yet
+  undefined,
 }
 
 extension AcountJsonParser on Account {
@@ -72,10 +83,17 @@ extension AcountJsonParser on Account {
         email: jsonObject["email"],
         phoneNumber: jsonObject["phone_number"],
         registeredAt: jsonObject["registered_at"],
-        role: jsonObject["role"],
-        status: jsonObject["status"],
+        role: _stringToEnum(jsonObject["role"], AccountRole.values),
+        status: _stringToEnum(jsonObject["status"], AccountStatus.values),
+        genre: _stringToEnum(jsonObject["genre"], Genre.values),
         balance: jsonObject["balance"],
         nickname: jsonObject["nickname"] ?? "",
         notificationToken: jsonObject["notification_token"] ?? "",
       );
+}
+
+T _stringToEnum<T>(String str, Iterable<T> values) {
+  return values.firstWhere(
+    (value) => value.toString().split('.')[1].toLowerCase() == str.toLowerCase(),
+  );
 }

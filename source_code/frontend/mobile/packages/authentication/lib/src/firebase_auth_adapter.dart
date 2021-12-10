@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:data_access/data_access.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:shared/shared.dart';
 
 import 'api/account.dart';
 import 'api/authentication_exception.dart';
@@ -199,6 +200,7 @@ extension on User {
           firstName: "",
           surname: "",
           email: "",
+          genre: Genre.undefined,
           phoneNumber: phoneNumber.toString(),
           registeredAt: metadata.creationTime ?? DateTime.now(),
           role: AccountRole.undefined,
