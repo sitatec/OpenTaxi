@@ -4,8 +4,8 @@ RUN mkdir /app
 
 COPY ./build/install/com.hamba.dispatcher /app
 
-WORKDIR /app
+WORKDIR /app/bin
 
 EXPOSE 8080:8080
 
-CMD ["./com.hamba.dispatcher"]
+CMD ./com.hamba.dispatcher

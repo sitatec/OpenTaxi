@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/../data_access_server/app.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../data_access_server/app.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../data_access_server/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/../data_access_server/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../notification_server/.firebaserc" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../notification_server/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../notification_server/firebase.json" beforeDir="false" />
@@ -18,12 +18,14 @@
       <change beforePath="$PROJECT_DIR$/../notification_server/functions/src/index.ts" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../notification_server/functions/tsconfig.dev.json" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../notification_server/functions/tsconfig.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/registration_status.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/registration_status.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/introduce_your_self_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/introduce_your_self_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/registration_form_template.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/registration_form_template.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/main.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/data_access/lib/data_access.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/data_access/lib/data_access.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/shared.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/shared.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/src/constants/colors.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/src/constants/colors.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/src/constants/values.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/src/constants/values.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/src/simple_widgets.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/src/simple_widgets.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/pubspec.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/pubspec.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/.metadata" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/CHANGELOG.md" beforeDir="false" />
@@ -155,27 +157,6 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration name="ApplicationTest.Test if a driver doesn't accept a booking after the set timeout, a new booking request should be sent to the next closest driver if any" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test if a driver doesn't accept a booking after the set timeout, a new booking request should be sent to the next closest driver if any&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
     <configuration name="dispatcher [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
@@ -188,6 +169,27 @@
         <option name="taskNames">
           <list>
             <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="dispatcher [clean]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="clean" />
           </list>
         </option>
         <option name="vmOptions" />
@@ -239,10 +241,10 @@
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.dispatcher [installDist]" />
+        <item itemvalue="Gradle.dispatcher [clean]" />
         <item itemvalue="Gradle.dispatcher [build]" />
         <item itemvalue="Kotlin.ApplicationKt" />
         <item itemvalue="Gradle.ApplicationTest" />
-        <item itemvalue="Gradle.ApplicationTest.Test if a driver doesn't accept a booking after the set timeout, a new booking request should be sent to the next closest driver if any" />
       </list>
     </recent_temporary>
   </component>
