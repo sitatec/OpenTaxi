@@ -17,6 +17,8 @@ abstract class AuthenticationProvider with ChangeNotifier {
   /// [AuthState.authenticated] or [AuthState.unauthenticated].
   Stream<AuthState> get authBinaryState;
 
+  Future<String>? get getCurrentAccountToken;
+
   /// Return the authentication provider singleton
   static AuthenticationProvider get instance => FirebaseAuthProvider();
 

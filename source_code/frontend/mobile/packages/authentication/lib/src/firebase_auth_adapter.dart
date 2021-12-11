@@ -48,6 +48,9 @@ class FirebaseAuthProvider
   Stream<AuthState> get authBinaryState => _authStateStreamController.stream;
 
   @override
+  Future<String>? get getCurrentAccountToken => _firebaseAuth.currentUser?.getIdToken();
+
+  @override
   void dispose() {
     _authStateStreamController.close();
     super.dispose();
