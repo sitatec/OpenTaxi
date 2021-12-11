@@ -15,7 +15,6 @@ class Account {
   AccountStatus status;
   double balance;
   Gender genre;
-  bool isSouthAfrican;
 
   Account({
     required this.id,
@@ -26,7 +25,6 @@ class Account {
     required this.registeredAt,
     required this.role,
     required this.status,
-    required this.isSouthAfrican,
     required this.balance,
     required this.genre,
     this.nickname = "",
@@ -69,10 +67,9 @@ extension AcountJsonParser on Account {
         "phone_number": phoneNumber,
         "registered_at": registeredAt.toIso8601String(),
         "role": enumToString(role),
-        "status": enumToString(status),
+        "account_status": enumToString(status),
         "gender": enumToString(genre),
         "balance": balance,
-        "is_south_african_citizen": isSouthAfrican,
         "nickname": nickname.isEmpty ? null : nickname,
         "notification_token":
             notificationToken.isEmpty ? null : notificationToken
@@ -87,10 +84,9 @@ extension AcountJsonParser on Account {
         phoneNumber: jsonObject["phone_number"],
         registeredAt: jsonObject["registered_at"],
         role: stringToEnum(jsonObject["role"], AccountRole.values),
-        status: stringToEnum(jsonObject["status"], AccountStatus.values),
+        status: stringToEnum(jsonObject["account_status"], AccountStatus.values),
         genre: stringToEnum(jsonObject["genre"], Gender.values),
         balance: jsonObject["balance"],
-        isSouthAfrican: jsonObject["is_south_african_citizen"],
         nickname: jsonObject["nickname"] ?? "",
         notificationToken: jsonObject["notification_token"] ?? "",
       );
