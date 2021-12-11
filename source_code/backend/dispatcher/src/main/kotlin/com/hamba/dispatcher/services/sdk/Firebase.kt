@@ -15,6 +15,8 @@ fun initializeFirebase(
     if (secretsPath.isNotBlank()) {
         val refreshToken = FileInputStream(secretsPath)
         firebaseOptions.setCredentials(GoogleCredentials.fromStream(refreshToken))
+    }else {
+        firebaseOptions.setCredentials(GoogleCredentials.getApplicationDefault())
     }
     FirebaseApp.initializeApp(firebaseOptions.build())
 }

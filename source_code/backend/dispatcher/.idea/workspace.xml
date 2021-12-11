@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../notification_server/.firebaserc" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../notification_server/.gitignore" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/../notification_server/firebase.json" beforeDir="false" />
