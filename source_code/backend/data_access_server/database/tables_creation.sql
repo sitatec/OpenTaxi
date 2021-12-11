@@ -79,7 +79,7 @@ CREATE TABLE public.account (
   first_name VARCHAR NOT NULL,
   surname VARCHAR NOT NULL,
   nickname VARCHAR,
-  registred_at DATE DEFAULT CURRENT_DATE NOT NULL,
+  registered_at DATE DEFAULT CURRENT_DATE NOT NULL,
   profile_picture_url VARCHAR NOT NULL,
   gender GENDER NOT NULL,
   email VARCHAR NOT NULL,
