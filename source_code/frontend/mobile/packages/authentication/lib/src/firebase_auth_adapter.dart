@@ -207,6 +207,7 @@ extension on User {
           phoneNumber: phoneNumber.toString(),
           registeredAt: metadata.creationTime ?? DateTime.now(),
           role: AccountRole.UNDEFINED,
+          isSouthAfrican: false,
           status: AccountStatus.REGISTRATION_IN_PROGRESS,
           balance: 0,
         );
