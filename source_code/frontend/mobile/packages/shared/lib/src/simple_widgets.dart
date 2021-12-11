@@ -126,12 +126,12 @@ class RoundedCornerButton extends StatelessWidget {
   }
 }
 
-class Gender extends StatelessWidget {
+class GenderWidget extends StatelessWidget {
   final String genderName;
   final Color? backgroundColor;
   final ValueChanged<String>? onClicked;
 
-  const Gender(this.genderName,
+  const GenderWidget(this.genderName,
       {Key? key, this.backgroundColor, this.onClicked})
       : super(key: key);
 

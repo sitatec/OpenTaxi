@@ -200,11 +200,11 @@ extension on User {
           firstName: "",
           surname: "",
           email: "",
-          genre: Genre.undefined,
+          genre: Gender.UNDEFINED,
           phoneNumber: phoneNumber.toString(),
           registeredAt: metadata.creationTime ?? DateTime.now(),
-          role: AccountRole.undefined,
-          status: AccountStatus.unregistered,
+          role: AccountRole.UNDEFINED,
+          status: AccountStatus.REGISTRATION_IN_PROGRESS,
           balance: 0,
         );
       }else {

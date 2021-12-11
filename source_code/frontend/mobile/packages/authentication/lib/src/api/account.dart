@@ -14,7 +14,7 @@ class Account {
   final AccountRole role;
   AccountStatus status;
   double balance;
-  Genre genre;
+  Gender genre;
 
   Account({
     required this.id,
@@ -33,30 +33,29 @@ class Account {
 }
 
 enum AccountRole {
-  driver,
-  rider,
-  admin,
+  DRIVER,
+  RIDER,
+  ADMIN,
 
   /// Account registration not finalize yet
-  undefined,
+  UNDEFINED,
 }
 
 enum AccountStatus {
-  live,
-  waitingForApproval,
-  unpaidSubscription,
-  temporarilySuspended,
-  definitivelyBanned,
-  unverifiedPhoneNumber,
-  unregistered,
+  LIVE,
+  WAITING_FOR_APPROVAL,
+  UNPAID_SUBSCRIPTION,
+  TEMPORARILY_SUSPENDED,
+  DEFINITIVELY_BANNED,
+  REGISTRATION_IN_PROGRESS,
 }
 
-enum Genre {
-  male,
-  female,
+enum Gender {
+  MALE,
+  FEMALE,
 
   /// Account registration not finalize yet
-  undefined,
+  UNDEFINED,
 }
 
 extension AcountJsonParser on Account {
@@ -68,9 +67,9 @@ extension AcountJsonParser on Account {
         "email": email,
         "phone_number": phoneNumber,
         "registered_at": registeredAt.toIso8601String(),
-        "role": enumToString(role).toUpperCase(),
-        "status": enumToString(status).toUpperCase(),
-        "gender": enumToString(genre).toUpperCase(),
+        "role": enumToString(role),
+        "status": enumToString(status),
+        "gender": enumToString(genre),
         "balance": balance,
         "nickname": nickname.isEmpty ? null : nickname,
         "notification_token":
@@ -87,7 +86,7 @@ extension AcountJsonParser on Account {
         registeredAt: jsonObject["registered_at"],
         role: stringToEnum(jsonObject["role"], AccountRole.values),
         status: stringToEnum(jsonObject["status"], AccountStatus.values),
-        genre: stringToEnum(jsonObject["genre"], Genre.values),
+        genre: stringToEnum(jsonObject["genre"], Gender.values),
         balance: jsonObject["balance"],
         nickname: jsonObject["nickname"] ?? "",
         notificationToken: jsonObject["notification_token"] ?? "",
