@@ -59,7 +59,6 @@ enum Gender {
 }
 
 extension AcountJsonParser on Account {
-  @internal
   JsonObject toJsonObject() => {
         "id": id,
         "first_name": firstName,
