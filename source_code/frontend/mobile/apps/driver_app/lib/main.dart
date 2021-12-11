@@ -1,10 +1,10 @@
 import 'package:driver_app/authentication/ui/introduce_your_self_screen.dart';
-import 'package:driver_app/authentication/ui/register_email_phone_address.dart';
 import 'package:driver_app/authentication/ui/registration_status.dart';
 import 'package:flutter/material.dart';
 import 'package:authentication/authentication.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:shared/shared.dart';
 
 import 'main_screen.dart';
 
@@ -37,6 +37,7 @@ class App extends StatelessWidget {
               }
               if (snapshot.connectionState == ConnectionState.done) {
                 final authenticationProvider = AuthenticationProvider.instance;
+                final accountRepository = AccountRepository();
                 return StreamBuilder<AuthState>(
                     stream: authenticationProvider.authBinaryState,
                     initialData: AuthState.uninitialized,
@@ -46,9 +47,9 @@ class App extends StatelessWidget {
                       }
                       if (authSnapshot.data == AuthState.authenticated) {
                         final userAccount = authenticationProvider.account!;
-                        if (userAccount.status == AccountStatus.unregistered) {
-                          return const IntroduceYourSelfScreen();
-                        } else if (userAccount.status == AccountStatus.waitingForApproval) {
+                        if (userAccount.status == AccountStatus.REGISTRATION_IN_PROGRESS) {
+                          return IntroduceYourSelfScreen(authenticationProvider, accountRepository);
+                        } else if (userAccount.status == AccountStatus.WAITING_FOR_APPROVAL) {
                           return const RegistrationStatusPage(
                             RegistrationStatus.underReview,
                           );

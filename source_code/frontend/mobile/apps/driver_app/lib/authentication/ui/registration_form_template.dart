@@ -5,6 +5,7 @@ class RegistrationFormTemplate extends StatefulWidget {
   final Widget child;
   final VoidCallback? onContinue;
   final String title, subtitle;
+  final String loadingMessage;
 
   const RegistrationFormTemplate({
     Key? key,
@@ -12,6 +13,7 @@ class RegistrationFormTemplate extends StatefulWidget {
     this.onContinue,
     this.title = "Hi there,",
     this.subtitle = "Tell us more about you!",
+    this.loadingMessage = "",
   }) : super(key: key);
 
   @override
@@ -20,10 +22,6 @@ class RegistrationFormTemplate extends StatefulWidget {
 }
 
 class _RegistrationFormTemplateState extends State<RegistrationFormTemplate> {
-  String _loadingMessage = "";
-
-  void setLoadingMessage(String isSavingData) =>
-      setState(() => _loadingMessage = isSavingData);
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +57,7 @@ class _RegistrationFormTemplateState extends State<RegistrationFormTemplate> {
               ),
             ),
           ),
-          if (_loadingMessage.isNotEmpty) ...[
+          if (widget.loadingMessage.isNotEmpty) ...[
             Container(color: const Color(0x70000000)),
             Align(
               alignment: Alignment.center,
@@ -78,7 +76,7 @@ class _RegistrationFormTemplateState extends State<RegistrationFormTemplate> {
                         children: [
                           CircularProgressIndicator(color: theme.primaryColor),
                           const SizedBox(height: 30),
-                          Text(_loadingMessage)
+                          Text(widget.loadingMessage)
                         ],
                       ),
                     ),

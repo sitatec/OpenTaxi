@@ -3,6 +3,7 @@ import 'package:driver_app/authentication/ui/registration_form_template.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared/shared.dart';
+import 'package:authentication/authentication.dart';
 
 class IntroduceYourSelfScreen extends StatefulWidget {
   static const _semiBoldStyle = TextStyle(
@@ -10,8 +11,12 @@ class IntroduceYourSelfScreen extends StatefulWidget {
     fontSize: 18,
     fontWeight: FontWeight.w500,
   );
+  final AccountRepository accountRepository;
+  final AuthenticationProvider authProvider;
 
-  const IntroduceYourSelfScreen({Key? key}) : super(key: key);
+  const IntroduceYourSelfScreen(this.authProvider, this.accountRepository,
+      {Key? key})
+      : super(key: key);
 
   @override
   State<IntroduceYourSelfScreen> createState() =>
@@ -26,12 +31,14 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
   String selectedGender = "";
   String firstName = "";
   String surName = "";
+  String _loadingMessage = "";
 
   @override
   Widget build(BuildContext context) {
     final selectedColor = Theme.of(context).primaryColor.withAlpha(75);
 
     return RegistrationFormTemplate(
+        loadingMessage: _loadingMessage,
         onContinue: _isContinueButtonEnabled() ? _submit : null,
         child: Column(
           children: [
@@ -74,14 +81,14 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
                   const SizedBox(height: 16),
                   Row(
                     children: [
-                      Gender(
+                      GenderWidget(
                         "male",
                         onClicked: _selectGender,
                         backgroundColor:
                             selectedGender == "male" ? selectedColor : null,
                       ),
                       const SizedBox(width: 20),
-                      Gender(
+                      GenderWidget(
                         "female",
                         onClicked: _selectGender,
                         backgroundColor:
@@ -200,9 +207,30 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
         });
   }
 
-  void _saveDataAndGoNext(bool isShoutAfricanCitizen) {
-    // TODO SUBMIT
-    Navigator.of(context).push(MaterialPageRoute(
-        builder: (context) => const RegisterEmailPhoneAddress()));
+  Future<void> _saveDataAndGoNext(bool isShoutAfricanCitizen) async {
+    Navigator.of(context).pop();// Hide IsSouthAfricanCitizen bottom sheet.
+    setState(() => _loadingMessage = "Saving data...");
+    final userAccount = widget.authProvider.account!;
+    final accountToken = await widget.authProvider.getCurrentAccountToken!;
+    userAccount
+      ..firstName = firstName
+      ..surname = surName
+      ..role = AccountRole.DRIVER
+      ..genre = stringToEnum(selectedGender, Gender.values);
+    try {
+      await widget.accountRepository.create(userAccount.toJsonObject(), accountToken);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => const RegisterEmailPhoneAddress(),
+        ),
+      );
+    } on HttpException catch (e) {
+      //TODO first check if internet connection is available, then handle the exception properly.
+      print("\n");
+      print(e);
+      print("\n");
+    } finally {
+      setState(() => _loadingMessage = ""); // Hide the loading widget.
+    }
   }
 }
