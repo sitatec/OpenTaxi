@@ -1,3 +1,5 @@
+import 'package:authentication/authentication.dart';
+
 class Driver {
   String idImageUrl;
   String driverLicenceUrl;
@@ -11,6 +13,7 @@ class Driver {
   String alternativePhoneNumber;
   double priceByMinute;
   double priceByKm;
+  Account account;
 
   Driver({
     this.idImageUrl = "",
@@ -25,5 +28,6 @@ class Driver {
     this.alternativePhoneNumber = "",
     this.priceByMinute = 0,
     this.priceByKm = 0,
+    required this.account,
   });
 }

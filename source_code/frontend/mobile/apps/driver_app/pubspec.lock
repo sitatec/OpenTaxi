@@ -9,7 +9,7 @@ packages:
     source: hosted
     version: "2.8.1"
   authentication:
-    dependency: "direct dev"
+    dependency: transitive
     description:
       path: "../../packages/authentication"
       relative: true
