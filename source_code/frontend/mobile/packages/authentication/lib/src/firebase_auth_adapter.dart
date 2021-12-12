@@ -194,7 +194,7 @@ extension on User {
     final idToken = await getIdToken();
     try {
       final response = await accountRepository.get({"id": uid}, idToken);
-      return AcountJsonParser.fromJson(response.data);
+      return Account.fromJson(response.data);
     } on HttpException catch (e) {
       if (e.response!.statusCode == 404) {
         // 404 => user not created yet | return temporary account

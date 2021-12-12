@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import 'package:data_access/data_access.dart';
 import 'package:shared/shared.dart';
 
@@ -30,6 +29,39 @@ class Account {
     this.nickname = "",
     this.notificationToken = "",
   });
+
+  Account.fromJson(JsonObject jsonObject)
+      : this(
+          id: jsonObject["id"],
+          firstName: jsonObject["first_name"],
+          surname: jsonObject["surname"],
+          email: jsonObject["email"],
+          phoneNumber: jsonObject["phone_number"],
+          registeredAt: jsonObject["registered_at"],
+          role: stringToEnum(jsonObject["role"], AccountRole.values),
+          status:
+              stringToEnum(jsonObject["account_status"], AccountStatus.values),
+          genre: stringToEnum(jsonObject["genre"], Gender.values),
+          balance: jsonObject["balance"],
+          nickname: jsonObject["nickname"] ?? "",
+          notificationToken: jsonObject["notification_token"] ?? "",
+        );
+
+  JsonObject toJsonObject() => {
+        "id": id,
+        "first_name": firstName,
+        "surname": surname,
+        "email": email,
+        "phone_number": phoneNumber,
+        "registered_at": registeredAt.toIso8601String(),
+        "role": enumToString(role),
+        "account_status": enumToString(status),
+        "gender": enumToString(genre),
+        "balance": balance,
+        "nickname": nickname.isEmpty ? null : nickname,
+        "notification_token":
+            notificationToken.isEmpty ? null : notificationToken
+      };
 }
 
 enum AccountRole {
@@ -56,38 +88,4 @@ enum Gender {
 
   /// Account registration not finalize yet
   UNDEFINED,
-}
-
-extension AcountJsonParser on Account {
-  JsonObject toJsonObject() => {
-        "id": id,
-        "first_name": firstName,
-        "surname": surname,
-        "email": email,
-        "phone_number": phoneNumber,
-        "registered_at": registeredAt.toIso8601String(),
-        "role": enumToString(role),
-        "account_status": enumToString(status),
-        "gender": enumToString(genre),
-        "balance": balance,
-        "nickname": nickname.isEmpty ? null : nickname,
-        "notification_token":
-            notificationToken.isEmpty ? null : notificationToken
-      };
-
-  @internal
-  static Account fromJson(JsonObject jsonObject) => Account(
-        id: jsonObject["id"],
-        firstName: jsonObject["first_name"],
-        surname: jsonObject["surname"],
-        email: jsonObject["email"],
-        phoneNumber: jsonObject["phone_number"],
-        registeredAt: jsonObject["registered_at"],
-        role: stringToEnum(jsonObject["role"], AccountRole.values),
-        status: stringToEnum(jsonObject["account_status"], AccountStatus.values),
-        genre: stringToEnum(jsonObject["genre"], Gender.values),
-        balance: jsonObject["balance"],
-        nickname: jsonObject["nickname"] ?? "",
-        notificationToken: jsonObject["notification_token"] ?? "",
-      );
 }
