@@ -209,6 +209,7 @@ extension on User {
           role: AccountRole.UNDEFINED,
           status: AccountStatus.REGISTRATION_IN_PROGRESS,
           balance: 0,
+          accountRepository: accountRepository,
         );
       }else {
         rethrow;

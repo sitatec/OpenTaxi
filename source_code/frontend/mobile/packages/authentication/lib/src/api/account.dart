@@ -14,6 +14,11 @@ class Account {
   AccountStatus status;
   double balance;
   Gender genre;
+  final AccountRepository repository;
+  final AuthenticationProvider _authenticationProvider;
+
+  Future<String>? get accessToken =>
+      _authenticationProvider.getCurrentAccountToken;
 
   Account({
     required this.id,
@@ -28,7 +33,11 @@ class Account {
     required this.genre,
     this.nickname = "",
     this.notificationToken = "",
-  });
+    AuthenticationProvider? authenticationProvider,
+    AccountRepository? accountRepository,
+  })  : _authenticationProvider =
+            authenticationProvider ?? AuthenticationProvider.instance,
+        repository = accountRepository ?? AccountRepository();
 
   Account.fromJson(JsonObject jsonObject)
       : this(
