@@ -3,7 +3,6 @@ import 'package:http_client/http_client.dart';
 import '../type_alias.dart';
 import 'package:meta/meta.dart';
 
-@internal
 abstract class BaseRepository {
   final String entityPath;
   final HttpClient httpClient;
