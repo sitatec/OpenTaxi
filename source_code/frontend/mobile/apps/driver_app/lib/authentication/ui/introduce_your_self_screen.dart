@@ -1,5 +1,6 @@
 import 'package:driver_app/authentication/ui/register_email_phone_address.dart';
 import 'package:driver_app/authentication/ui/registration_form_template.dart';
+import 'package:driver_app/entities/driver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared/shared.dart';
@@ -11,12 +12,10 @@ class IntroduceYourSelfScreen extends StatefulWidget {
     fontSize: 18,
     fontWeight: FontWeight.w500,
   );
-  final AccountRepository accountRepository;
-  final AuthenticationProvider authProvider;
 
-  const IntroduceYourSelfScreen(this.authProvider, this.accountRepository,
-      {Key? key})
-      : super(key: key);
+  final Driver driver;
+
+  const IntroduceYourSelfScreen(this.driver, {Key? key}) : super(key: key);
 
   @override
   State<IntroduceYourSelfScreen> createState() =>
@@ -208,17 +207,19 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
   }
 
   Future<void> _saveDataAndGoNext(bool isShoutAfricanCitizen) async {
-    Navigator.of(context).pop();// Hide IsSouthAfricanCitizen bottom sheet.
+    Navigator.of(context).pop(); // Hide IsSouthAfricanCitizen bottom sheet.
     setState(() => _loadingMessage = "Saving data...");
-    final userAccount = widget.authProvider.account!;
-    final accountToken = await widget.authProvider.getCurrentAccountToken!;
-    userAccount
+    final driverAccount = widget.driver.account;
+    final accessToken = await driverAccount.accessToken!;
+    driverAccount
       ..firstName = firstName
       ..surname = surName
       ..role = AccountRole.DRIVER
       ..genre = stringToEnum(selectedGender, Gender.values);
+    widget.driver.isSouthAfricanCitizen = isShoutAfricanCitizen;
     try {
-      await widget.accountRepository.create(userAccount.toJsonObject(), accountToken);
+      await widget.driver.repository
+          .create(widget.driver.toJsonObject(), accessToken);
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => const RegisterEmailPhoneAddress(),

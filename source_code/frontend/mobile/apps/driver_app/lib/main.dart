@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared/shared.dart';
 
+import 'entities/driver.dart';
 import 'main_screen.dart';
 
 void main() {
@@ -37,7 +38,7 @@ class App extends StatelessWidget {
               }
               if (snapshot.connectionState == ConnectionState.done) {
                 final authenticationProvider = AuthenticationProvider.instance;
-                final accountRepository = AccountRepository();
+                final driver = Driver(account: authenticationProvider.account!);
                 return StreamBuilder<AuthState>(
                     stream: authenticationProvider.authBinaryState,
                     initialData: AuthState.uninitialized,
@@ -48,7 +49,7 @@ class App extends StatelessWidget {
                       if (authSnapshot.data == AuthState.authenticated) {
                         final userAccount = authenticationProvider.account!;
                         if (userAccount.status == AccountStatus.REGISTRATION_IN_PROGRESS) {
-                          return IntroduceYourSelfScreen(authenticationProvider, accountRepository);
+                          return IntroduceYourSelfScreen(driver);
                         } else if (userAccount.status == AccountStatus.WAITING_FOR_APPROVAL) {
                           return const RegistrationStatusPage(
                             RegistrationStatus.underReview,
