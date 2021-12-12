@@ -133,7 +133,7 @@ CREATE TABLE public.driver (
   other_platform_rating_url VARCHAR,
   bio VARCHAR,
   is_online BOOLEAN DEFAULT FALSE NOT NULL,
-  price_by_minunte DECIMAL(8,2),
+  price_by_minute DECIMAL(8,2),
   price_by_km DECIMAL(8,2),
   CONSTRAINT driver_pk PRIMARY KEY (account_id)
 );
