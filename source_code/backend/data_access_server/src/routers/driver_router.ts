@@ -11,7 +11,7 @@ router.get("/data", driverController.getDriverData);
 
 router.get("/", driverController.getDriver);
 
-router.put("/:account_id", driverController.updateDriver); // TODO add httpRequest data validation step.
+router.patch("/:account_id", driverController.updateDriver); // TODO add httpRequest data validation step.
 
 router.delete("/:id", driverController.deleteDriver);
 

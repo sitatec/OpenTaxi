@@ -9,7 +9,7 @@ router.post("/", reviewController.createReview); // TODO add httpRequest data va
 
 router.get("/", reviewController.getReview);
 
-router.put("/:id", reviewController.updateReview); // TODO add httpRequest data validation step.
+router.patch("/:id", reviewController.updateReview); // TODO add httpRequest data validation step.
 
 router.delete("/:id", reviewController.deleteReview);
 

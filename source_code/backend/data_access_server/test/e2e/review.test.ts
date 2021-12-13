@@ -49,7 +49,7 @@ describe("ENDPOINT: REVIEW", () => {
     newReview.comment = "halurl";
 
     // End then update it.
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + REVIEW.id),
       newReview
     );
@@ -61,7 +61,7 @@ describe("ENDPOINT: REVIEW", () => {
     await createReview(); // Create it first
 
     // End then update it.
-    const response = await Axios.put(getUrlWithQuery("/" + REVIEW.id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + REVIEW.id), {
       comment: "httrl",
     });
     expect(response.status).toBe(200);

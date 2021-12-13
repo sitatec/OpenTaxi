@@ -45,7 +45,7 @@ describe("ENDPOINT: CAR", () => {
     newCar.brand = "x";
 
     // End then update it.
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + CAR.id),
       newCar
     );
@@ -57,7 +57,7 @@ describe("ENDPOINT: CAR", () => {
     await createCar(); // Create it first
 
     // End then update it.
-    const response = await Axios.put(getUrlWithQuery("/" + CAR.id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + CAR.id), {
       brand: "x",
     });
     expect(response.status).toBe(200);

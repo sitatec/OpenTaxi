@@ -47,7 +47,7 @@ describe("ENDPOINT: RIDER", () => {
     const newRider = cloneObjec(RIDER);
     newRider.driver_gender_preference = "MALE";
     // End then update it.
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + RIDER.account_id),
       newRider
     );
@@ -68,7 +68,7 @@ describe("ENDPOINT: RIDER", () => {
     //admin users are able to change the status of an account.
     // End then update it.
 
-    const response = await Axios.put(getUrlWithQuery("/" + RIDER.account_id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + RIDER.account_id), {
       account: newAccount,
       rider: newRider,
     });
@@ -79,7 +79,7 @@ describe("ENDPOINT: RIDER", () => {
   it("Should successfully update only one field of a driver.", async () => {
     await createRider(); // Create it first
 
-    const response = await Axios.put(getUrlWithQuery("/" + RIDER.account_id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + RIDER.account_id), {
       driver_gender_preference: "FEMALE",
     }); // End then update it.
 

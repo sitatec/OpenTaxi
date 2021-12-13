@@ -35,7 +35,7 @@ describe("ENDPOINT: ACCOUNT", () => {
     //admin users are able to change the status of an account.
 
     // End then update it.
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + ACCOUNT.id),
       newAccount
     );
@@ -47,7 +47,7 @@ describe("ENDPOINT: ACCOUNT", () => {
     await createAccount(); // Create it first
 
     // End then update it.
-    const response = await Axios.put(getUrlWithQuery("/" + ACCOUNT.id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + ACCOUNT.id), {
       surname: "Musk",
     });
     expect(response.status).toBe(200);

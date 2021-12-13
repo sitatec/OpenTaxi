@@ -9,7 +9,7 @@ router.post("/", subscriptionController.createSubscription); // TODO add httpReq
 
 router.get("/", subscriptionController.getSubscription);
 
-router.put("/:id", subscriptionController.updateSubscription); // TODO add httpRequest data validation step.
+router.patch("/:id", subscriptionController.updateSubscription); // TODO add httpRequest data validation step.
 
 router.delete("/:id", subscriptionController.deleteSubscription);
 

@@ -16,7 +16,7 @@ router.get("/data", riderController.getRiderData);
 
 router.get("/", riderController.getRider);
 
-router.put("/:account_id", riderController.updateRider); // TODO add httpRequest data validation step.
+router.patch("/:account_id", riderController.updateRider); // TODO add httpRequest data validation step.
 
 router.delete("/:id", riderController.deleteRider);
 

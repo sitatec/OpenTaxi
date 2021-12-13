@@ -9,7 +9,7 @@ router.post("/", paymentController.createPayment); // TODO add httpRequest data 
 
 router.get("/", paymentController.getPayment);
 
-router.put("/:id", paymentController.updatePayment); // TODO add httpRequest data validation step.
+router.patch("/:id", paymentController.updatePayment); // TODO add httpRequest data validation step.
 
 router.delete("/:id", paymentController.deletePayment);
 

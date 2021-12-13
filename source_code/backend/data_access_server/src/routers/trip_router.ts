@@ -9,7 +9,7 @@ router.post("/", tripController.createTrip); // TODO add httpRequest data valida
 
 router.get("/", tripController.getTrip);
 
-router.put("/:id", tripController.updateTrip); // TODO add httpRequest data validation step.
+router.patch("/:id", tripController.updateTrip); // TODO add httpRequest data validation step.
 
 router.delete("/:id", tripController.deleteTrip);
 

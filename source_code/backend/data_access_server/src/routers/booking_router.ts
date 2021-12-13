@@ -9,7 +9,7 @@ router.post("/", bookingController.createBooking); // TODO add httpRequest data 
 
 router.get("/", bookingController.getBooking);
 
-router.put("/:id", bookingController.updateBooking); // TODO add httpRequest data validation step.
+router.patch("/:id", bookingController.updateBooking); // TODO add httpRequest data validation step.
 
 router.delete("/:id", bookingController.deleteBooking);
 

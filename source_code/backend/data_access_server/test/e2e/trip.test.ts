@@ -49,7 +49,7 @@ describe("ENDPOINT: TRIP", () => {
     newTrip.security_video_url = "http://new.url"
 
     // End then update it.
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + TRIP.id),
       newTrip
     );
@@ -61,7 +61,7 @@ describe("ENDPOINT: TRIP", () => {
     await createTrip(); // Create it first
 
     // End then update it.
-    const response = await Axios.put(getUrlWithQuery("/" + TRIP.id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + TRIP.id), {
       security_video_url: "http://new.url",
     });
     expect(response.status).toBe(200);

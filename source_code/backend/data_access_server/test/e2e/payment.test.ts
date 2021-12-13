@@ -44,7 +44,7 @@ describe("ENDPOINT: PAYMENT", () => {
     newPayment.amount = "0.00";
 
     // End then update it.
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + PAYMENT.id),
       newPayment
     );
@@ -56,7 +56,7 @@ describe("ENDPOINT: PAYMENT", () => {
     await createPayment(); // Create it first
 
     // End then update it.
-    const response = await Axios.put(getUrlWithQuery("/" + PAYMENT.id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + PAYMENT.id), {
       amount: 0,
     });
     expect(response.status).toBe(200);

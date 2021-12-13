@@ -47,7 +47,7 @@ describe("ENDPOINT: DRIVER", () => {
     newDriver.alternative_phone_number = "3646375432";
 
     // End then update it.
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + DRIVER.account_id),
       newDriver
     );
@@ -67,7 +67,7 @@ describe("ENDPOINT: DRIVER", () => {
     delete newAccount.account_status; // To prevent security check because only 
     //admin users are able to change the status of an account.
 
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + DRIVER.account_id),
       {account: newAccount, driver: newDriver}
     );
@@ -79,7 +79,7 @@ describe("ENDPOINT: DRIVER", () => {
     await createDriver(); // Create it first
 
     // End then update it.
-    const response = await Axios.put(getUrlWithQuery("/" + DRIVER.account_id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + DRIVER.account_id), {
       id_url: "url.url/url",
     });
     expect(response.status).toBe(200);

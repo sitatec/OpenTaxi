@@ -50,7 +50,7 @@ describe("ENDPOINT: BOOKING", () => {
     newBooking.departure_address = "halurl";
 
     // End then update it.
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + BOOKING.id),
       newBooking
     );
@@ -62,7 +62,7 @@ describe("ENDPOINT: BOOKING", () => {
     await createBooking(); // Create it first
 
     // End then update it.
-    const response = await Axios.put(getUrlWithQuery("/" + BOOKING.id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + BOOKING.id), {
       departure_address: "httrl",
     });
     expect(response.status).toBe(200);

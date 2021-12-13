@@ -45,7 +45,7 @@ describe("ENDPOINT: SUBSCRIPTION", () => {
     newSubscription.price = "34.32";
 
     // End then update it.
-    const response = await Axios.put(
+    const response = await Axios.patch(
       getUrlWithQuery("/" + SUBSCRIPTION.id),
       newSubscription
     );
@@ -57,7 +57,7 @@ describe("ENDPOINT: SUBSCRIPTION", () => {
     await createSubscription(); // Create it first
 
     // End then update it.
-    const response = await Axios.put(getUrlWithQuery("/" + SUBSCRIPTION.id), {
+    const response = await Axios.patch(getUrlWithQuery("/" + SUBSCRIPTION.id), {
       price: 0.0,
     });
     expect(response.status).toBe(200);

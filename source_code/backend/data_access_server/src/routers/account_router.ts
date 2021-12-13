@@ -11,7 +11,7 @@ router.get("/notification_token", accountController.getNotificationToken);
 
 router.get("/", accountController.getAccount);
 
-router.put("/:id", accountController.updateAccount); // TODO add httpRequest data validation step.
+router.patch("/:id", accountController.updateAccount); // TODO add httpRequest data validation step.
 
 router.delete("/:id", accountController.deleteAccount);
 
