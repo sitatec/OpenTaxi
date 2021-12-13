@@ -8,3 +8,5 @@ export 'src/simple_widgets.dart';
 export 'package:flutter_svg/flutter_svg.dart';
 export 'package:flutter_multi_formatter/flutter_multi_formatter.dart' hide enumFromString, enumToString;
 export 'package:data_access/data_access.dart';
+export 'package:web_socket_channel/web_socket_channel.dart';
+export 'package:authentication/authentication.dart';

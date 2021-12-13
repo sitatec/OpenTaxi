@@ -12,6 +12,9 @@ dependencies:
     sdk: flutter
   flutter_svg: ^0.23.0+1
   flutter_multi_formatter: ^2.4.1
+  web_socket_channel: ^2.1.0
+  authentication:
+    path: ../../packages/authentication
   data_access:
     path: ../data_access
 
