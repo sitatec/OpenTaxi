@@ -8,11 +8,7 @@ class DioAdapter extends HttpClient {
     String baseUrl, {
     Map<String, dynamic>? defaultHeaders,
   }) : super._internal(baseUrl: baseUrl, defaultHeaders: defaultHeaders) {
-    _dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      headers: defaultHeaders,
-      responseType: ResponseType.plain,
-    ));
+    _dio = Dio(BaseOptions(baseUrl: baseUrl, headers: defaultHeaders));
   }
 
   @visibleForTesting
