@@ -12,6 +12,7 @@ class Account {
   final DateTime registeredAt;
   AccountRole role;
   AccountStatus status;
+  String profilePicture;
   double balance;
   Gender genre;
   final AccountRepository repository;
@@ -25,6 +26,7 @@ class Account {
     required this.firstName,
     required this.surname,
     required this.email,
+    required this.profilePicture,
     required this.phoneNumber,
     required this.registeredAt,
     required this.role,
@@ -45,6 +47,7 @@ class Account {
           firstName: jsonObject["first_name"],
           surname: jsonObject["surname"],
           email: jsonObject["email"],
+          profilePicture: jsonObject["profile_picture_url"],
           phoneNumber: jsonObject["phone_number"],
           registeredAt: jsonObject["registered_at"],
           role: stringToEnum(jsonObject["role"], AccountRole.values),
@@ -68,6 +71,7 @@ class Account {
         "gender": enumToString(genre),
         "balance": balance,
         "nickname": nickname.isEmpty ? null : nickname,
+        "profile_picture_url": profilePicture,
         "notification_token":
             notificationToken.isEmpty ? null : notificationToken
       };

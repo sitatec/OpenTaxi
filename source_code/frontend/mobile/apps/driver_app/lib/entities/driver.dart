@@ -27,7 +27,7 @@ class Driver {
     this.bio = "",
     this.isSouthAfricanCitizen = false,
     this.homeAddress = "",
-    this.alternativePhoneNumber = "",
+    this.alternativePhoneNumber = "0",
     this.priceByMinute = 0,
     this.priceByKm = 0,
     required this.account,
@@ -69,6 +69,7 @@ class Driver {
   JsonObject toJsonObject() => {
     "account": account.toJsonObject(),
     "driver": {
+      "account_id": account.id,
       "id_url": idImageUrl,
       "driver_licence_url": driverLicenceUrl,
       "proof_of_residence_url": proofOfResidenceUrl,

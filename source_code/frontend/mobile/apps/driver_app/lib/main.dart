@@ -38,7 +38,6 @@ class App extends StatelessWidget {
               }
               if (snapshot.connectionState == ConnectionState.done) {
                 final authenticationProvider = AuthenticationProvider.instance;
-                final driver = Driver(account: authenticationProvider.account!);
                 return StreamBuilder<AuthState>(
                     stream: authenticationProvider.authBinaryState,
                     initialData: AuthState.uninitialized,
@@ -47,10 +46,11 @@ class App extends StatelessWidget {
                         return const Center(child: Text("Authenticating..."));
                       }
                       if (authSnapshot.data == AuthState.authenticated) {
-                        final userAccount = authenticationProvider.account!;
-                        if (userAccount.status == AccountStatus.REGISTRATION_IN_PROGRESS) {
+                        final driverAccount = authenticationProvider.account!;
+                        final driver = Driver(account: driverAccount);
+                        if (driverAccount.status == AccountStatus.REGISTRATION_IN_PROGRESS) {
                           return IntroduceYourSelfScreen(driver);
-                        } else if (userAccount.status == AccountStatus.WAITING_FOR_APPROVAL) {
+                        } else if (driverAccount.status == AccountStatus.WAITING_FOR_APPROVAL) {
                           return const RegistrationStatusPage(
                             RegistrationStatus.underReview,
                           );
