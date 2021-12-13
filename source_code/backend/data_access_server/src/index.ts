@@ -35,6 +35,12 @@ app.delete("/", async (_, httpResponse, next) => {
   }
 });
 
+app.use((_, res, next)  => {
+  // Set the response content type for all endpoints responses.
+  res.contentType('application/json');
+  next();
+});
+
 const server = new Server(app);
 
 Database.initialize();
