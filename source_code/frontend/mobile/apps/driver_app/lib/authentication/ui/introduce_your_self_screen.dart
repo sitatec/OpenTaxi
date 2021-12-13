@@ -14,8 +14,10 @@ class IntroduceYourSelfScreen extends StatefulWidget {
   );
 
   final Driver driver;
+  final VoidCallback goToNexPage;
 
-  const IntroduceYourSelfScreen(this.driver, {Key? key}) : super(key: key);
+  const IntroduceYourSelfScreen(this.driver, this.goToNexPage, {Key? key})
+      : super(key: key);
 
   @override
   State<IntroduceYourSelfScreen> createState() =>
@@ -220,11 +222,7 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
     try {
       await widget.driver.repository
           .create(widget.driver.toJsonObject(), accessToken);
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => const RegisterEmailPhoneAddress(),
-        ),
-      );
+      widget.goToNexPage();
     } on HttpException catch (e) {
       //TODO first check if internet connection is available, then handle the exception properly.
       print("\n");

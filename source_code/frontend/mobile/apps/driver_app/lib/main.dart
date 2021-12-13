@@ -1,4 +1,5 @@
 import 'package:driver_app/authentication/ui/introduce_your_self_screen.dart';
+import 'package:driver_app/authentication/ui/registration_screen.dart';
 import 'package:driver_app/authentication/ui/registration_status.dart';
 import 'package:flutter/material.dart';
 import 'package:authentication/authentication.dart';
@@ -49,7 +50,7 @@ class App extends StatelessWidget {
                         final driverAccount = authenticationProvider.account!;
                         final driver = Driver(account: driverAccount);
                         if (driverAccount.status == AccountStatus.REGISTRATION_IN_PROGRESS) {
-                          return IntroduceYourSelfScreen(driver);
+                          return RegistrationScreen(driver);
                         } else if (driverAccount.status == AccountStatus.WAITING_FOR_APPROVAL) {
                           return const RegistrationStatusPage(
                             RegistrationStatus.underReview,

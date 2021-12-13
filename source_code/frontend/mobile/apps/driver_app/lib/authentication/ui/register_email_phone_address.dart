@@ -5,7 +5,10 @@ import 'package:shared/shared.dart';
 import 'registration_form_template.dart';
 
 class RegisterEmailPhoneAddress extends StatefulWidget {
-  const RegisterEmailPhoneAddress({Key? key}) : super(key: key);
+  final VoidCallback goToNextPage;
+
+  const RegisterEmailPhoneAddress(this.goToNextPage, {Key? key})
+      : super(key: key);
 
   @override
   State<RegisterEmailPhoneAddress> createState() =>
@@ -87,6 +90,7 @@ class _RegisterEmailPhoneAddressState extends State<RegisterEmailPhoneAddress> {
   void _submit() {
     if (isFormValid()) {
       // SUBMIT
+      widget.goToNextPage();
     }
   }
 
