@@ -49,12 +49,12 @@ class Account {
           email: jsonObject["email"],
           profilePicture: jsonObject["profile_picture_url"],
           phoneNumber: jsonObject["phone_number"],
-          registeredAt: jsonObject["registered_at"],
+          registeredAt: DateTime.parse(jsonObject["registered_at"]),
           role: stringToEnum(jsonObject["role"], AccountRole.values),
           status:
               stringToEnum(jsonObject["account_status"], AccountStatus.values),
-          genre: stringToEnum(jsonObject["genre"], Gender.values),
-          balance: jsonObject["balance"],
+          genre: stringToEnum(jsonObject["gender"], Gender.values),
+          balance: double.parse(jsonObject["balance"]),
           nickname: jsonObject["nickname"] ?? "",
           notificationToken: jsonObject["notification_token"] ?? "",
         );
