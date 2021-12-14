@@ -1,3 +1,4 @@
+import 'package:driver_app/entities/driver.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared/shared.dart';
@@ -5,9 +6,10 @@ import 'package:shared/shared.dart';
 import 'registration_form_template.dart';
 
 class RegisterEmailPhoneAddress extends StatefulWidget {
-  final VoidCallback goToNextPage;
+  final VoidCallback _goToNextPage;
+  final Driver _driver;
 
-  const RegisterEmailPhoneAddress(this.goToNextPage, {Key? key})
+  const RegisterEmailPhoneAddress(this._driver, this._goToNextPage, {Key? key})
       : super(key: key);
 
   @override
@@ -23,12 +25,14 @@ class _RegisterEmailPhoneAddressState extends State<RegisterEmailPhoneAddress> {
   String? homeAddressFieldErrorMsg;
   String? emailAddressFieldErrorMsg;
   String? alternativePhoneFieldErrorMsg;
+  String _loadingMessage = "";
 
   @override
   Widget build(BuildContext context) {
     return RegistrationFormTemplate(
         title: "Enter your",
         subtitle: "Email address, home address and alternative phone number",
+        loadingMessage: _loadingMessage,
         onContinue: _isContinueButtonEnabled() ? _submit : null,
         child: Column(
           children: [
@@ -87,10 +91,32 @@ class _RegisterEmailPhoneAddressState extends State<RegisterEmailPhoneAddress> {
 
   bool _isContinueButtonEnabled() => homeAddress.isNotEmpty && email.isNotEmpty;
 
-  void _submit() {
+  void _submit() async {
     if (isFormValid()) {
-      // SUBMIT
-      widget.goToNextPage();
+      setState(
+          () => _loadingMessage = "Saving data..."); // Show the loading widget.
+      try {
+        final driver = widget._driver;
+        final updateData = {
+          "account": {"email": email},
+          "driver": {
+            "address": homeAddress,
+            if (alternativePhoneNumber != null)
+              "alternative_phone_number": alternativePhoneNumber
+          }
+        };
+        await driver.repository.update(
+          driver.account.id,
+          updateData,
+          await driver.account.accessToken!,
+        );
+        widget._goToNextPage();
+      } on HttpException catch (e) {
+        //TODO first check if internet connection is available, then handle the exception properly.
+        print("\n$e\n");
+      } finally {
+        setState(() => _loadingMessage = ""); // Hide the loading widget.
+      }
     }
   }
 

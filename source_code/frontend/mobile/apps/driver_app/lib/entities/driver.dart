@@ -40,31 +40,46 @@ class Driver {
     driverLicenceUrl: jsonObject["driver_licence_url"],
     proofOfResidenceUrl: jsonObject["proof_of_residence_url"],
     bankAccountConfirmationUrl: jsonObject["bank_account_confirmation_url"],
-    additionalCertificationUrls: jsonObject["additional_certification_urls"],
+    additionalCertificationUrls: List.from(jsonObject["additional_certification_urls"]),
     otherPlatformsRatingUrl: jsonObject["other_platform_rating_url"],
     bio: jsonObject["bio"],
-    priceByMinute: jsonObject["price_by_minute"],
-    priceByKm: jsonObject["price_by_km"],
+    priceByMinute: double.parse(jsonObject["price_by_minute"]),
+    priceByKm: double.parse(jsonObject["price_by_km"]),
     isSouthAfricanCitizen: jsonObject["is_south_african_citizen"],
     homeAddress: jsonObject["address"],
     alternativePhoneNumber: jsonObject["alternative_phone_number"],
   );
 
   Driver.fromJson(JsonObject jsonObject): this(
-    account: Account.fromJson(jsonObject["account"]),
-    idImageUrl: jsonObject["driver"]["id_url"],
-    driverLicenceUrl: jsonObject["driver"]["driver_licence_url"],
-    proofOfResidenceUrl: jsonObject["driver"]["proof_of_residence_url"],
-    bankAccountConfirmationUrl: jsonObject["driver"]["bank_account_confirmation_url"],
-    additionalCertificationUrls: jsonObject["driver"]["additional_certification_urls"],
-    otherPlatformsRatingUrl: jsonObject["driver"]["other_platform_rating_url"],
-    bio: jsonObject["driver"]["bio"],
-    priceByMinute: jsonObject["driver"]["price_by_minute"],
-    priceByKm: jsonObject["driver"]["price_by_km"],
-    isSouthAfricanCitizen: jsonObject["driver"]["is_south_african_citizen"],
-    homeAddress: jsonObject["driver"]["address"],
-    alternativePhoneNumber: jsonObject["driver"]["alternative_phone_number"],
+    account: Account.fromJson(jsonObject),
+    idImageUrl: jsonObject["id_url"],
+    driverLicenceUrl: jsonObject["driver_licence_url"],
+    proofOfResidenceUrl: jsonObject["proof_of_residence_url"],
+    bankAccountConfirmationUrl: jsonObject["bank_account_confirmation_url"],
+    additionalCertificationUrls: List.from(jsonObject["additional_certification_urls"]),
+    otherPlatformsRatingUrl: jsonObject["other_platform_rating_url"],
+    bio: jsonObject["bio"],
+    priceByMinute: double.parse(jsonObject["price_by_minute"]),
+    priceByKm: double.parse(jsonObject["price_by_km"]),
+    isSouthAfricanCitizen: jsonObject["is_south_african_citizen"],
+    homeAddress: jsonObject["address"],
+    alternativePhoneNumber: jsonObject["alternative_phone_number"],
   );
+
+  void updateWithJson(JsonObject jsonObject){
+    idImageUrl = jsonObject["id_url"];
+    driverLicenceUrl = jsonObject["driver_licence_url"];
+    proofOfResidenceUrl = jsonObject["proof_of_residence_url"];
+    bankAccountConfirmationUrl = jsonObject["bank_account_confirmation_url"];
+    additionalCertificationUrls = List.from(jsonObject["additional_certification_urls"]);
+    otherPlatformsRatingUrl = jsonObject["other_platform_rating_url"] ?? "";
+    bio = jsonObject["bio"];
+    priceByMinute = double.parse(jsonObject["price_by_minute"]);
+    priceByKm = double.parse(jsonObject["price_by_km"]);
+    isSouthAfricanCitizen = jsonObject["is_south_african_citizen"];
+    homeAddress = jsonObject["address"];
+    alternativePhoneNumber = jsonObject["alternative_phone_number"] ?? "";
+  }
 
   JsonObject toJsonObject() => {
     "account": account.toJsonObject(),
