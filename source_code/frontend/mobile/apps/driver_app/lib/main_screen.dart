@@ -1,17 +1,21 @@
-import 'package:driver_app/home.dart';
+import 'package:driver_app/entities/dispatcher.dart';
+import 'package:driver_app/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
+import 'entities/driver.dart';
+
 class MainScreen extends StatefulWidget {
-  const MainScreen({Key? key}) : super(key: key);
+  final Driver _driver;
+  const MainScreen(this._driver, {Key? key}) : super(key: key);
 
   @override
   _MainScreenState createState() => _MainScreenState();
 }
 
 class _MainScreenState extends State<MainScreen> {
-  static const _tabs = [
-    HomePage(),
+  late final _tabs = [
+    HomePage(widget._driver, Dispatcher()),
     Center(child: Text("Statistics")),
     Center(child: Text("Settings"))
   ];
@@ -28,7 +32,9 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
               "assets/images/navigation.svg",
-              color: _selectedTabIndex == 0 ? theme.primaryColor : theme.disabledColor,
+              color: _selectedTabIndex == 0
+                  ? theme.primaryColor
+                  : theme.disabledColor,
               width: _tabIconSize,
               height: _tabIconSize,
             ),
@@ -37,7 +43,9 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
               "assets/images/stats.svg",
-              color: _selectedTabIndex == 1 ? theme.primaryColor : theme.disabledColor,
+              color: _selectedTabIndex == 1
+                  ? theme.primaryColor
+                  : theme.disabledColor,
               width: _tabIconSize,
               height: _tabIconSize,
             ),
@@ -46,7 +54,9 @@ class _MainScreenState extends State<MainScreen> {
           BottomNavigationBarItem(
             icon: SvgPicture.asset(
               "assets/images/settings.svg",
-              color: _selectedTabIndex == 2 ? theme.primaryColor : theme.disabledColor,
+              color: _selectedTabIndex == 2
+                  ? theme.primaryColor
+                  : theme.disabledColor,
               width: _tabIconSize,
               height: _tabIconSize,
             ),

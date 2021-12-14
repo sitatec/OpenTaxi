@@ -43,20 +43,23 @@ class App extends StatelessWidget {
                     stream: authenticationProvider.authBinaryState,
                     initialData: AuthState.uninitialized,
                     builder: (context, authSnapshot) {
-                      if(authSnapshot.data == AuthState.uninitialized){
+                      if (authSnapshot.data == AuthState.uninitialized) {
                         return const Center(child: Text("Authenticating..."));
                       }
                       if (authSnapshot.data == AuthState.authenticated) {
                         final driverAccount = authenticationProvider.account!;
                         final driver = Driver(account: driverAccount);
-                        if (driverAccount.status == AccountStatus.REGISTRATION_IN_PROGRESS) {
+                        return MainScreen(driver);
+                        if (driverAccount.status ==
+                            AccountStatus.REGISTRATION_IN_PROGRESS) {
                           return RegistrationScreen(driver);
-                        } else if (driverAccount.status == AccountStatus.WAITING_FOR_APPROVAL) {
+                        } else if (driverAccount.status ==
+                            AccountStatus.WAITING_FOR_APPROVAL) {
                           return const RegistrationStatusPage(
                             RegistrationStatus.underReview,
                           );
                         }
-                        return const MainScreen();
+                        return MainScreen(driver);
                       } else {
                         return const PhoneAuthScreen();
                       }

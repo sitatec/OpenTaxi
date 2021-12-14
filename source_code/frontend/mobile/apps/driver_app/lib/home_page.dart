@@ -1,12 +1,16 @@
+import 'package:driver_app/entities/dispatcher.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
+import 'entities/driver.dart';
 import 'widgets/custom_switch.dart';
 
 // TODO refactor
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final Dispatcher _dispatcher;
+  final Driver _driver;
+  const HomePage(this._driver, this._dispatcher, {Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -14,7 +18,19 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   bool _isDriverOnline = false;
+  bool _isOnlineStatusChanging = false;
   _StatusNotification? _statusNotification = _StatusNotification.offline;
+
+  @override
+  void initState() {
+    super.initState();
+    widget._dispatcher.isConnected.listen((_isConnected) {
+      setState(() {
+        _isDriverOnline = _isConnected;
+        _statusNotification = _isConnected ? null : _StatusNotification.offline;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +95,9 @@ class _HomePageState extends State<HomePage> {
                 color: theme.errorColor.withAlpha(200),
                 child: Row(
                   children: [
-                    SvgPicture.asset(_statusNotification!.imageURL),
+                    _statusNotification!.imageURL.isNotEmpty
+                        ? SvgPicture.asset(_statusNotification!.imageURL)
+                        : const CircularProgressIndicator(),
                     const SizedBox(width: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,8 +128,21 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _toggleDriverOnlineStatus(bool isOnline) =>
-      setState(() => _isDriverOnline = isOnline);
+  Future<void> _toggleDriverOnlineStatus(bool mustConnect) async {
+    if (_isOnlineStatusChanging) return;
+    setState(() {
+      _isOnlineStatusChanging = true;
+      _statusNotification = mustConnect
+          ? _StatusNotification.connecting
+          : _StatusNotification.disconnecting;
+    });
+    if (mustConnect) {
+      await widget._dispatcher.connect();
+    } else {
+      await widget._dispatcher.disconnect();
+    }
+    setState(() => _isOnlineStatusChanging = false);
+  }
 
   void _showBookingRequest(/*TODO pass booking data*/) {
     final theme = Theme.of(context);
@@ -346,8 +377,14 @@ class _StatusNotification {
   final String title;
   final String subtitle;
   final String imageURL;
+  final Color backgroundColor;
 
-  const _StatusNotification(this.title, this.subtitle, this.imageURL);
+  const _StatusNotification(
+    this.title,
+    this.subtitle,
+    this.imageURL, {
+    this.backgroundColor = const Color(0xC8FE1917),
+  });
 
   static const offline = _StatusNotification(
     "You are offline!",
@@ -359,6 +396,20 @@ class _StatusNotification {
     "Request has been ignored",
     "Beware! It affects your Acceptance Rate",
     "assets/images/warning_icon.svg",
+  );
+
+  static const connecting = _StatusNotification(
+    "Connecting, please wait...",
+    "It may take a few seconds",
+    "",
+    backgroundColor: Color(0xFF008dd4),
+  );
+
+  static const disconnecting = _StatusNotification(
+    "Disconnecting, please wait...",
+    "It may take a few seconds",
+    "",
+    backgroundColor: Color(0xFF008dd4),
   );
 }
 
