@@ -60,11 +60,14 @@ class LocationManager {
   }
 
   Stream<Coordinates> getCoordinatesStream(
-      {double distanceFilterInMeter = 100}) {
+      {double distanceFilterInMeter = 50, int timeInterval = 10000}) {
     if (!_locationServiceInitialized) {
       throw DeviceLocationHandlerException.locationServiceUninitialized();
     }
-    _location.changeSettings(distanceFilter: distanceFilterInMeter);
+    _location.changeSettings(
+      distanceFilter: distanceFilterInMeter,
+      interval: timeInterval,
+    );
     return _location.onLocationChanged.map<Coordinates>(
       (locationData) => Coordinates(
           latitude: locationData.latitude!, longitude: locationData.longitude!),
