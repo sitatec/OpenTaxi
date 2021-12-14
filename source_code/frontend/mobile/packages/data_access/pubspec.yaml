@@ -2,6 +2,8 @@ name: data_access
 description: Data access package for Hamba (client of data acess server).
 version: 0.0.1
 
+publish_to: none
+
 environment:
   sdk: ">=2.13.0 <3.0.0"
   flutter: ">=1.17.0"

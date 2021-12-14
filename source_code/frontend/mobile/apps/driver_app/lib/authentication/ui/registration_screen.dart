@@ -33,7 +33,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     _isFetchingDriverData = true;
     final accessToken = await driverAccount.accessToken!;
     final response = await widget.driver.repository
-        .get({"account_id": driverAccount.id}, accessToken);
+        .getData({"account_id": driverAccount.id}, accessToken);
     widget.driver.updateWithJson(response["data"]);
     setState(() => _isFetchingDriverData = false);
   }
