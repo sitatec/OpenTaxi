@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:driver_app/entities/dispatcher.dart';
+import 'package:driver_app/utils/data_converters.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
@@ -10,7 +13,13 @@ import 'widgets/custom_switch.dart';
 class HomePage extends StatefulWidget {
   final Dispatcher _dispatcher;
   final Driver _driver;
-  const HomePage(this._driver, this._dispatcher, {Key? key}) : super(key: key);
+  final LocationManager _locationManager;
+  const HomePage(
+    this._driver,
+    this._dispatcher,
+    this._locationManager, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -19,17 +28,55 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isDriverOnline = false;
   bool _isOnlineStatusChanging = false;
+  bool _locationServiceInitialized = false;
   _StatusNotification? _statusNotification = _StatusNotification.offline;
+  StreamSubscription? _onlineStatusSubscription;
+  StreamSubscription? _dataStreamSubscription;
+  StreamSubscription? _locationStreamSubscription;
+  late Dispatcher _dispatcher;
 
   @override
   void initState() {
     super.initState();
-    widget._dispatcher.isConnected.listen((_isConnected) {
+    _dispatcher = widget._dispatcher;
+    _onlineStatusSubscription = _dispatcher.isConnected.listen((_isConnected) {
+      if (_isConnected) {
+        _dataStreamSubscription =
+            _dispatcher.dataStream?.listen(_onDataRecieved);
+        widget._locationManager.getCurrentCoordinates().then(_sendDriverData);
+        _locationStreamSubscription = widget._locationManager
+            .getCoordinatesStream()
+            .listen(_updateDriverLocation);
+      } else {
+        _locationStreamSubscription?.cancel();
+      }
       setState(() {
         _isDriverOnline = _isConnected;
         _statusNotification = _isConnected ? null : _StatusNotification.offline;
       });
     });
+  }
+
+  void _onDataRecieved(MapEntry<FramType, dynamic> data) {}
+
+  Future<void> _sendDriverData(Coordinates location) async {
+    final data = await driverToDispatcherData(widget._driver);
+    data["loc"] = locationToJson(location);
+    _dispatcher.sendData(MapEntry(FramType.ADD_DRIVER_DATA, data));
+  }
+
+  void _updateDriverLocation(Coordinates location) {
+    _dispatcher.sendData(MapEntry(
+      FramType.UPDATE_DRIVER_DATA,
+      "${location.latitude},${location.longitude}",
+    ));
+  }
+
+  @override
+  void dispose() {
+    _onlineStatusSubscription?.cancel();
+    _dataStreamSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -137,6 +184,15 @@ class _HomePageState extends State<HomePage> {
           : _StatusNotification.disconnecting;
     });
     if (mustConnect) {
+      if (!_locationServiceInitialized) {
+        try {
+          await widget._locationManager.initialize(requireBackground: true);
+          _locationServiceInitialized = true;
+        } on LocationManagerException catch (e) {
+          // TODO handle
+          rethrow;
+        }
+      }
       await widget._dispatcher.connect();
     } else {
       await widget._dispatcher.disconnect();

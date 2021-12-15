@@ -15,7 +15,7 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   late final _tabs = [
-    HomePage(widget._driver, Dispatcher()),
+    HomePage(widget._driver, Dispatcher(), LocationManager()),
     Center(child: Text("Statistics")),
     Center(child: Text("Settings"))
   ];
