@@ -25,7 +25,7 @@ class LocationManager {
     await _requireLocationPermission();
     if (!(await _location.serviceEnabled()) &&
         !(await _location.requestService())) {
-      throw DeviceLocationHandlerException.locationServiceDisabled();
+      throw LocationManagerException.locationServiceDisabled();
     }
     _locationServiceInitialized = true;
   }
@@ -34,7 +34,7 @@ class LocationManager {
     final locationPermissionStatus = await _location.hasPermission();
     if (locationPermissionStatus != PermissionStatus.granted) {
       if (locationPermissionStatus == PermissionStatus.deniedForever) {
-        throw DeviceLocationHandlerException.permissionPermanentlyDenied();
+        throw LocationManagerException.permissionPermanentlyDenied();
       }
       await _requestLocationPermission();
     }
@@ -43,16 +43,16 @@ class LocationManager {
   Future<void> _requestLocationPermission() async {
     switch (await _location.requestPermission()) {
       case PermissionStatus.denied:
-        throw DeviceLocationHandlerException.permissionDenied();
+        throw LocationManagerException.permissionDenied();
       case PermissionStatus.deniedForever:
-        throw DeviceLocationHandlerException.permissionPermanentlyDenied();
+        throw LocationManagerException.permissionPermanentlyDenied();
       default:
     }
   }
 
   Future<Coordinates> getCurrentCoordinates() async {
     if (!_locationServiceInitialized) {
-      throw DeviceLocationHandlerException.locationServiceUninitialized();
+      throw LocationManagerException.locationServiceUninitialized();
     }
     final locationData = await _location.getLocation();
     return Coordinates(
@@ -62,7 +62,7 @@ class LocationManager {
   Stream<Coordinates> getCoordinatesStream(
       {double distanceFilterInMeter = 50, int timeInterval = 10000}) {
     if (!_locationServiceInitialized) {
-      throw DeviceLocationHandlerException.locationServiceUninitialized();
+      throw LocationManagerException.locationServiceUninitialized();
     }
     _location.changeSettings(
       distanceFilter: distanceFilterInMeter,

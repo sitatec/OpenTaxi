@@ -1,8 +1,8 @@
-class DeviceLocationHandlerException {
+class LocationManagerException {
   final String message;
-  final DeviceLocationHandlerExceptionType exceptionType;
+  final LocationManagerExceptionType exceptionType;
 
-  const DeviceLocationHandlerException({
+  const LocationManagerException({
     required this.message,
     required this.exceptionType,
   });
@@ -13,7 +13,7 @@ class DeviceLocationHandlerException {
 
   @override
   bool operator ==(Object other) {
-    return other is DeviceLocationHandlerException &&
+    return other is LocationManagerException &&
         other.message == message &&
         other.exceptionType == exceptionType;
   }
@@ -21,43 +21,41 @@ class DeviceLocationHandlerException {
   @override
   int get hashCode => message.hashCode + exceptionType.hashCode;
 
-  DeviceLocationHandlerException.permissionDenied()
+  LocationManagerException.permissionDenied()
       : this(
           message: 'Location access permission denied',
-          exceptionType: DeviceLocationHandlerExceptionType.permissionDenied,
+          exceptionType: LocationManagerExceptionType.permissionDenied,
         );
 
-  DeviceLocationHandlerException.permissionPermanentlyDenied()
+  LocationManagerException.permissionPermanentlyDenied()
       : this(
             message: 'Location access permission is permanently denied',
             exceptionType:
-                DeviceLocationHandlerExceptionType.permissionPermanentlyDenied);
+                LocationManagerExceptionType.permissionPermanentlyDenied);
 
-  DeviceLocationHandlerException.insufficientPermission()
+  LocationManagerException.insufficientPermission()
       : this(
           message:
               'The granted permission is insufficient for the requested service.',
-          exceptionType:
-              DeviceLocationHandlerExceptionType.insufficientPermission,
+          exceptionType: LocationManagerExceptionType.insufficientPermission,
         );
 
-  DeviceLocationHandlerException.locationServiceDisabled()
+  LocationManagerException.locationServiceDisabled()
       : this(
           message: 'The location service is desabled',
-          exceptionType:
-              DeviceLocationHandlerExceptionType.locationServiceDisabled,
+          exceptionType: LocationManagerExceptionType.locationServiceDisabled,
         );
 
-  DeviceLocationHandlerException.locationServiceUninitialized()
+  LocationManagerException.locationServiceUninitialized()
       : this(
           message:
               'The location service is not initialized you must initialize it before using it.',
           exceptionType:
-              DeviceLocationHandlerExceptionType.locationServiceUninitialized,
+              LocationManagerExceptionType.locationServiceUninitialized,
         );
 }
 
-enum DeviceLocationHandlerExceptionType {
+enum LocationManagerExceptionType {
   permissionDenied,
   permissionPermanentlyDenied,
   insufficientPermission,
