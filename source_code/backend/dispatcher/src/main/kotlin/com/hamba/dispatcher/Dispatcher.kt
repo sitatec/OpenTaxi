@@ -54,7 +54,7 @@ class Dispatcher(
                 dispatchData.riderConnection.send("$PAIR_DISCONNECTED:${closestDriver.first.driverId}")
                 bookNextClosestDriver(dispatchData)
             } else {
-                val dispatchRequestDataJson = Json.encodeToString(dispatchData.dispatchRequestData)
+                val dispatchRequestDataJson = buildBookingRequestData(dispatchData.dispatchRequestData)
                 closestDriverConnection.send("$BOOKING_REQUEST:$dispatchRequestDataJson")
                 dispatchData.currentBookingRequestTimeout = bookingTimeoutScheduler.schedule(bookingRequestTimeoutMs) {
                     runBlocking {
@@ -71,6 +71,15 @@ class Dispatcher(
             }
         }
 
+    }
+
+    private fun buildBookingRequestData(dispatchRequestData: DispatchRequestData): String{
+        val data = mapOf(
+            "id" to dispatchRequestData.riderId,
+            "loc" to dispatchRequestData.pickUpLocation.formattedAddress,
+            "des" to dispatchRequestData.dropOfLocation.formattedAddress,
+        )
+        return Json.encodeToString(data)
     }
 
     suspend fun onBookingAccepted(dispatchData: DispatchData, firebaseDatabaseWrapper: FirebaseDatabaseWrapper) {

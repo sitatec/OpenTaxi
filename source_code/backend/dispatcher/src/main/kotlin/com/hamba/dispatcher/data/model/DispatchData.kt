@@ -29,7 +29,7 @@ class DispatchData(
         return candidates.first()
     }
 
-    fun getDestination() = dispatchRequestData.location
+    fun getDestination() = dispatchRequestData.pickUpLocation
 
 
     fun getCurrentCandidate() = candidates.first()

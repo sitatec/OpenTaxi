@@ -5,38 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/.firebaserc" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/firebase.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/functions/.eslintrc.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/functions/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/functions/LICENCE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/functions/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/functions/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/functions/src/index.ts" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/functions/tsconfig.dev.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../notification_server/functions/tsconfig.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/introduce_your_self_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/introduce_your_self_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/registration_form_template.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/authentication/ui/registration_form_template.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/data_access/lib/data_access.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/data_access/lib/data_access.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/shared.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/lib/shared.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/packages/shared/pubspec.yaml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/.metadata" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/CHANGELOG.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/analysis_options.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/assets/images/female.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/assets/images/male.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/lib/src/colors.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/lib/src/simple_widgets.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/pubspec.lock" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/packages/shared_widgets/pubspec.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DistanceCalculator.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchData.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchRequestData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchRequestData.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
