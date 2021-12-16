@@ -75,4 +75,17 @@ describe("ENDPOINT: REVIEW", () => {
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
+
+  it("Should successfully get an account's rating", async () => {
+    await createReview();
+    // GET rating
+    const response = await Axios.get(
+      getUrlWithQuery("/rating?recipient_id=" + REVIEW.recipient_id)
+    );
+    expect(response.status).toBe(200);
+    response.data.data.avg = parseFloat(response.data.data.avg);
+    expect(response.data).toEqual(
+      getSuccessResponse({ avg: REVIEW.rating, count: "1" })
+    );
+  });
 });

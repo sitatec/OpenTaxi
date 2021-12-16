@@ -7,6 +7,8 @@ const router = Router();
 
 router.post("/", reviewController.createReview); // TODO add httpRequest data validation step.
 
+router.get("/rating", reviewController.getRating);
+
 router.get("/", reviewController.getReview);
 
 router.patch("/:id", reviewController.updateReview); // TODO add httpRequest data validation step.

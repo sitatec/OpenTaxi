@@ -25,18 +25,18 @@ export const getSuccessResponse = (responseData: any) => ({
   status: "success",
 });
 
-export function execQuery (
-  query: string,
-  queryParams?: Array<string | number>
-) {
+export function execQuery(query: string, queryParams?: Array<string | number>) {
   return Database.initialize().execQuery(query, queryParams);
 }
 
-export async function deleteAllAccounts () {
- return  execQuery("DELETE FROM account");
+export async function deleteAllAccounts() {
+  return execQuery("DELETE FROM account");
 }
 
-export const createTheDefaultAccount = () => Axios.post(ACCOUNT_URL, ACCOUNT);
+export const createTheDefaultAccount = async () => {
+  await execQuery(`DELETE FROM account WHERE id='${ACCOUNT.id}'`);
+  return Axios.post(ACCOUNT_URL, ACCOUNT);
+};
 
 export const createDriver = () =>
   Axios.post(DRIVER_URL, {

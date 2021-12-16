@@ -1,7 +1,18 @@
 import Axios from "axios";
-import { ACCOUNT_URL, DEFAULT_SUCCESS_RESPONSE } from "../constants";
-import { ACCOUNT } from "../fakedata";
-import { cloneObjec, createTheDefaultAccount, deleteAllAccounts, getSuccessResponse } from "../utils";
+import {
+  ACCOUNT_URL,
+  DEFAULT_SUCCESS_RESPONSE,
+  REVIEW_URL,
+} from "../constants";
+import { ACCOUNT, REVIEW } from "../fakedata";
+import {
+  cloneObjec,
+  createTheDefaultAccount,
+  createUsers,
+  deleteAllAccounts,
+  execQuery,
+  getSuccessResponse,
+} from "../utils";
 
 const getUrlWithQuery = (queryParams: string) => ACCOUNT_URL + queryParams;
 
@@ -62,12 +73,15 @@ describe("ENDPOINT: ACCOUNT", () => {
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   });
 
-  
-  it("Should successfully get an account' notification token.", async () => {
+  it("Should successfully get an account's notification token.", async () => {
     await createAccount(); // Create it first
     // End then get it.
-    const response = await Axios.get(getUrlWithQuery("/notification_token?id=" + ACCOUNT.id));
+    const response = await Axios.get(
+      getUrlWithQuery("/notification_token?id=" + ACCOUNT.id)
+    );
     expect(response.status).toBe(200);
-    expect(response.data.data.notification_token).toEqual(ACCOUNT.notification_token);
+    expect(response.data.data.notification_token).toEqual(
+      ACCOUNT.notification_token
+    );
   });
 });

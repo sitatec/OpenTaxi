@@ -55,7 +55,7 @@ export const DRIVER = {
   is_south_african_citizen: true,
   is_online: false,
   other_platform_rating_url: "lsjfds",
-  price_by_minunte: '29.34',
+  price_by_minute: '29.34',
   id_url: "slfjlksjflks"
 };
 
