@@ -1,5 +1,6 @@
 package com.hamba.dispatcher.e2e
 
+import com.google.firebase.cloud.FirestoreClient
 import com.hamba.dispatcher.*
 import com.hamba.dispatcher.controllers.DispatchController
 import com.hamba.dispatcher.controllers.DriverController
@@ -21,6 +22,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -61,7 +63,13 @@ class ApplicationTest {
                 driverDataRepository,
                 dispatchDataList,
             )
-        driverController = DriverController(driverDataRepository, driverConnections, dispatchDataList, dispatcher, driverOnlineStatusManager)
+        driverController = DriverController(
+            driverDataRepository,
+            driverConnections,
+            dispatchDataList,
+            dispatcher,
+            driverOnlineStatusManager
+        )
     }
 
     companion object {
@@ -72,6 +80,10 @@ class ApplicationTest {
         fun setup() {
             // TODO create testing project on firebase.
             initializeFirebase("C:/Development/Projects/Professional/Hamba/source_code/backend/firebase-adminsdk.json")
+            val driversCollection = FirestoreClient.getFirestore().collection("drivers")
+            fakeDriverDataList.forEach {
+                driversCollection.document(it.driverId).delete().get()
+            }
         }
 
         @AfterClass
@@ -229,8 +241,8 @@ class ApplicationTest {
                                 if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
-                                        Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
-                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
+                                        Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
+                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData["id"]}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
                                     assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                 }
@@ -294,8 +306,8 @@ class ApplicationTest {
                                 if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
-                                        Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
-                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
+                                        Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
+                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData["id"]}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
                                     assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                 }
@@ -359,8 +371,8 @@ class ApplicationTest {
                                 if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
-                                        Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
-                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
+                                        Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
+                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData["id"]}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
                                     assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                     // TODO check that it contains the direction api response.
@@ -425,15 +437,15 @@ class ApplicationTest {
                                 if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
-                                        Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
+                                        Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
                                     if (currentDriverIndex == 0) {
                                         currentDriverIndex++
                                         // The closest driver refuse the booking.
                                         delay(1_000) // Wait until the rider receive the bs (booking sent message)
-                                        outgoing.send(Frame.Text("${REFUSE_BOOKING}:${bookingData.riderId}"))
+                                        outgoing.send(Frame.Text("${REFUSE_BOOKING}:${bookingData["id"]}"))
                                         (incoming.receive() as Frame.Text).readText()
                                     } else {
-                                        outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
+                                        outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData["id"]}"))
                                         val directionDataMessage = (incoming.receive() as Frame.Text).readText()
                                         assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                     }
@@ -527,7 +539,7 @@ class ApplicationTest {
                                 if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(1_000) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
-                                        Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
+                                        Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
                                     if (currentDriverIndex == 0) {
                                         currentDriverIndex++
                                         // The closest driver doesn't accept the booking after 10 second.
@@ -536,7 +548,7 @@ class ApplicationTest {
                                         assertEquals("${BOOKING_REQUEST_TIMEOUT}:" /*Timeout*/, msg)
                                         incoming.receive() // prevent disconnection
                                     } else {
-                                        outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData.riderId}"))
+                                        outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData["id"]}"))
                                         val directionDataMessage = (incoming.receive() as Frame.Text).readText()
                                         assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                     }
@@ -691,10 +703,10 @@ class ApplicationTest {
                                 if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
-                                        Json.decodeFromString<DispatchRequestData>(message.substringAfter(":"))
+                                        Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
                                     // The closest driver refuse the booking.
                                     delay(1_000) // Wait until the rider receive the bs (booking sent message)
-                                    outgoing.send(Frame.Text("${REFUSE_BOOKING}:${bookingData.riderId}"))
+                                    outgoing.send(Frame.Text("${REFUSE_BOOKING}:${bookingData["id"]}"))
                                     (incoming.receive() as Frame.Text).readText()
                                 }
                             }

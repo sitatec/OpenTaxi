@@ -19,11 +19,13 @@ val fakeDriverDataList = mutableListOf<DriverData>().apply {
 val fakeDispatchRequestData = DispatchRequestData(
     "riderId",
     Location(11.309098, -12.318813)/*HOME*/,
+    Location(11.309098, -12.318813)/*HOME*/,
 //    listOf("11.313145, -12.315527"/*BASEL*/),
 )
 
 val fakeDispatchRequestDataWithGenderFilter = DispatchRequestData(
     "riderId1",
+    Location(11.309098, -12.318813)/*HOME*/,
     Location(11.309098, -12.318813)/*HOME*/,
 //    listOf("11.313145, -12.315527"/*BASEL*/),
     "MALE"
@@ -31,6 +33,7 @@ val fakeDispatchRequestDataWithGenderFilter = DispatchRequestData(
 
 val fakeDispatchRequestDataWithCarFilter = DispatchRequestData(
     "riderId2",
+    Location(11.309098, -12.318813)/*HOME*/,
     Location(11.309098, -12.318813)/*HOME*/,
 //    listOf("11.313145, -12.315527"/*BASEL*/),
     null,
