@@ -17,17 +17,19 @@ class DistanceMatrixResponse (
 
 @Serializable
 class Row (
-    val elements: List<Element>
+    val distanceMatrixElements: List<DistanceMatrixElement>
 )
 
 @Serializable
-class Element (
+class DistanceMatrixElement (
     val distance: Distance,
-    val duration: Distance,
+    val duration: Duration,
     @SerialName("duration_in_traffic")
     val durationInTraffic: Distance,
     val status: String
 )
+
+typealias Duration = Distance
 
 @Serializable
 class Distance (
@@ -36,4 +38,4 @@ class Distance (
 )
 
 private val EmptyDistance = Distance("", 0)
-val EmptyElement = Element(EmptyDistance, EmptyDistance, EmptyDistance,"")
+val EmptyDistanceMatrixElement = DistanceMatrixElement(EmptyDistance, EmptyDistance, EmptyDistance,"")
