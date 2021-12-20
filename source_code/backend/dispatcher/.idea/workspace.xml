@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/Dispatcher.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchRequestData.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/data/model/DispatchRequestData.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DriverOnlineStatusManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DriverOnlineStatusManager.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/home_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/utils/data_converters.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/utils/data_converters.dart" afterDir="false" />
     </list>
@@ -107,34 +106,13 @@
       <recent name="com.hamba.dispatcher" />
     </key>
   </component>
-  <component name="RunManager" selected="Gradle.ApplicationTest.Test when all closest drivers reject the booking request">
+  <component name="RunManager" selected="Gradle.dispatcher [installDist]">
     <configuration name="ApplicationTest.Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
       <ExternalSystemSettings>
         <option name="executionName" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="externalSystemIdString" value="GRADLE" />
         <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any&quot;" />
-        <option name="taskDescriptions">
-          <list />
-        </option>
-        <option name="taskNames">
-          <list>
-            <option value=":test" />
-          </list>
-        </option>
-        <option name="vmOptions" />
-      </ExternalSystemSettings>
-      <ExternalSystemDebugServerProcess>false</ExternalSystemDebugServerProcess>
-      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
-      <DebugAllEnabled>false</DebugAllEnabled>
-      <method v="2" />
-    </configuration>
-    <configuration name="ApplicationTest.Test dispatching with driver gender specified" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
-      <ExternalSystemSettings>
-        <option name="executionName" />
-        <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="externalSystemIdString" value="GRADLE" />
-        <option name="scriptParameters" value="--tests &quot;com.hamba.dispatcher.e2e.ApplicationTest.Test dispatching with driver gender specified&quot;" />
         <option name="taskDescriptions">
           <list />
         </option>
@@ -213,6 +191,27 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
+    <configuration name="dispatcher [installDist]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="installDist" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="JetRunConfigurationType">
       <method v="2">
         <option name="Make" enabled="true" />
@@ -226,11 +225,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Gradle.dispatcher [installDist]" />
         <item itemvalue="Gradle.ApplicationTest.Test when all closest drivers reject the booking request" />
         <item itemvalue="Gradle.ApplicationTest.Test when the rider cancel the dispatching process" />
         <item itemvalue="Gradle.ApplicationTest.Test if a driver doesn't accept a booking after the set timeout, a new booking request should be sent to the next closest driver if any" />
         <item itemvalue="Gradle.ApplicationTest.Test When a driver cancel a booking, a booking request should be sent to the next closest driver if any" />
-        <item itemvalue="Gradle.ApplicationTest.Test dispatching with driver gender specified" />
       </list>
     </recent_temporary>
   </component>

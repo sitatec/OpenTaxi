@@ -15,7 +15,7 @@ open class DriverOnlineStatusManager(private val httpClient: HttpClient = HttpCl
     open suspend fun goOffline(driverId: String) = setIsOnline(driverId, isOnline = false)
 
     private suspend fun setIsOnline(driverId: String, isOnline: Boolean) {
-        httpClient.put<HttpResponse>("$DRIVER_DATA_URL/$driverId") {
+        httpClient.patch<HttpResponse>("$DRIVER_DATA_URL/$driverId") {
             body = mapOf("isOnline" to isOnline)
         }
     }
