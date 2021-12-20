@@ -4,6 +4,8 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 const val DRIVER_DATA_URL = "https://hamba-project.uc.r.appspot.com/driver"
 
@@ -16,7 +18,7 @@ open class DriverOnlineStatusManager(private val httpClient: HttpClient = HttpCl
 
     private suspend fun setIsOnline(driverId: String, isOnline: Boolean) {
         httpClient.patch<HttpResponse>("$DRIVER_DATA_URL/$driverId") {
-            body = mapOf("isOnline" to isOnline)
+            body = Json.encodeToString(mapOf("is_online" to isOnline))
         }
     }
 

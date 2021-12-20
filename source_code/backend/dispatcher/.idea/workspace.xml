@@ -5,10 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DriverOnlineStatusManager.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/com/hamba/dispatcher/DriverOnlineStatusManager.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/android/app/src/main/AndroidManifest.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/entities/dispatcher.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/entities/dispatcher.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/entities/driver.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/entities/driver.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/home_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/home_page.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/utils/data_converters.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/utils/data_converters.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/pubspec.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
