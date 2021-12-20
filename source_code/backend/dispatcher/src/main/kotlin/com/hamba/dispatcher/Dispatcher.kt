@@ -94,8 +94,9 @@ class Dispatcher(
             dispatchDataList[dispatchRequestData.riderId]!!.getDistanceAndDurationFromPickupToDropOff()
         val data = mapOf(
             "id" to dispatchRequestData.riderId,
-            "loc" to dispatchRequestData.pickUpLocation.formattedAddress,
-            "des" to dispatchRequestData.dropOffLocation.formattedAddress,
+            "nam" to dispatchRequestData.riderName,
+            "pic" to dispatchRequestData.pickUpLocation.formattedAddress,
+            "drp" to dispatchRequestData.dropOffLocation.formattedAddress,
             "pym" to dispatchRequestData.paymentMethod,
             "dis" to distanceAndDuration.first,
             "dur" to distanceAndDuration.second,

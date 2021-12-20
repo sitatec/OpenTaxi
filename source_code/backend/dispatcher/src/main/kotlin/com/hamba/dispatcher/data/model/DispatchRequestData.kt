@@ -4,8 +4,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-class  DispatchRequestData(
+class DispatchRequestData(
     @SerialName("id") val riderId: String,
+    @SerialName("nam") val riderName: String,// TODO remove this field and make a request using the rider's id to get the name from the data access server.
     @SerialName("loc") val pickUpLocation: Location,
     @SerialName("des") val dropOffLocation: Location,
     @SerialName("pym") val paymentMethod: String,
