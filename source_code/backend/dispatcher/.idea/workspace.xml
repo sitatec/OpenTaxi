@@ -5,6 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b3fa01a-1887-4ede-a3d8-4bad85889d8d" name="Changes" comment="">
+<<<<<<< HEAD
+=======
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+>>>>>>> c5f838a975c4b8e961fb335f84556a90da1e2c67
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/android/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/android/app/src/main/AndroidManifest.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/entities/dispatcher.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/entities/dispatcher.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/entities/driver.dart" beforeDir="false" afterPath="$PROJECT_DIR$/../../frontend/mobile/apps/driver_app/lib/entities/driver.dart" afterDir="false" />
