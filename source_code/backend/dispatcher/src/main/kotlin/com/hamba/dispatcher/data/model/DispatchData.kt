@@ -1,13 +1,16 @@
 package com.hamba.dispatcher.data.model
 
 import io.ktor.websocket.*
+import java.time.Duration
+import java.time.Period
 import java.util.*
 
 class DispatchData(
     val id: String,
-    candidates: List<Pair<DriverData, Element>>,
+    candidates: List<Pair<DriverData, DistanceMatrixElement>>,
     val dispatchRequestData: DispatchRequestData,
-    val riderConnection: DefaultWebSocketServerSession
+    val riderConnection: DefaultWebSocketServerSession,
+    val directions: List<DirectionAPIResponse>,
 ) {
     init {
         require(candidates.isNotEmpty())
@@ -15,10 +18,10 @@ class DispatchData(
 
     var currentBookingRequestTimeout: TimerTask? = null
     var numberOfCandidateProvided = 0
-    val candidates: MutableList<Pair<DriverData, Element>> =
+    val candidates: MutableList<Pair<DriverData, DistanceMatrixElement>> =
         Collections.synchronizedList(candidates.sortedBy { it.second.durationInTraffic.value }.toMutableList())
 
-    fun getNextClosestCandidateOrNull(): Pair<DriverData, Element>? {
+    fun getNextClosestCandidateOrNull(): Pair<DriverData, DistanceMatrixElement>? {
         if (candidates.isEmpty()) return null
 
         if (numberOfCandidateProvided > 0) {
@@ -33,4 +36,23 @@ class DispatchData(
 
 
     fun getCurrentCandidate() = candidates.first()
+
+    fun getDistanceAndDurationFromPickupToDropOff(): Pair<String, String> {
+        var distance = 0L
+        var duration = 0L
+        directions.forEach {
+            it.routes.forEach { route ->
+                route.legs.forEach { leg ->
+                    distance += leg.distance!!.value
+                    duration += leg.duration!!.value
+
+                }
+            }
+        }
+        val formattedDuration = Duration.ofSeconds(duration).toString()
+        if (distance > 1000) {
+            return Pair("${distance / 1000.0} km", formattedDuration)
+        }
+        return Pair("$distance m", formattedDuration)
+    }
 }

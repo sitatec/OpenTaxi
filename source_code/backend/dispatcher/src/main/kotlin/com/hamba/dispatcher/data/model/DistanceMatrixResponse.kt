@@ -17,6 +17,7 @@ class DistanceMatrixResponse (
 
 @Serializable
 class Row (
+    @SerialName("elements")
     val distanceMatrixElements: List<DistanceMatrixElement>
 )
 

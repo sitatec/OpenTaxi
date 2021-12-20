@@ -22,7 +22,6 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.AfterClass
 import org.junit.BeforeClass
@@ -264,7 +263,7 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
+                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 delay(1_000)
                 assertFalse(driverDataCache.contains(closestDriverData.first))
@@ -272,7 +271,7 @@ class ApplicationTest {
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("${ACCEPT_BOOKING}:", receivedMessage)
+                assertEquals("${ACCEPT_BOOKING}:${closestDriverData.first.driverId}", receivedMessage)
 
                 val closeReason = (incoming.receive() as Frame.Close).readReason()
                 assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
@@ -329,7 +328,7 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
+                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("pharmacieNdiolou", closestDriverData.first.driverId)
                 delay(1_000)
                 assertFalse(driverDataCache.contains(closestDriverData.first))
@@ -337,7 +336,7 @@ class ApplicationTest {
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("${ACCEPT_BOOKING}:", receivedMessage)
+                assertEquals("${ACCEPT_BOOKING}:${closestDriverData.first.driverId}", receivedMessage)
 
                 val closeReason = (incoming.receive() as Frame.Close).readReason()
                 assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
@@ -394,7 +393,7 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
 
-                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
+                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
                 delay(1_000)
                 assertFalse(driverDataCache.contains(closestDriverData.first))
@@ -402,7 +401,7 @@ class ApplicationTest {
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("${ACCEPT_BOOKING}:", receivedMessage)
+                assertEquals("${ACCEPT_BOOKING}:${closestDriverData.first.driverId}", receivedMessage)
 
                 val closeReason = (incoming.receive() as Frame.Close).readReason()
                 assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
@@ -467,7 +466,7 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                var closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
+                var closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
@@ -485,7 +484,7 @@ class ApplicationTest {
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
+                closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
                 delay(1_000)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
@@ -493,7 +492,7 @@ class ApplicationTest {
                 assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("${ACCEPT_BOOKING}:", receivedMessage) // The second-closest driver accept the booking
+                assertEquals("${ACCEPT_BOOKING}:${closestDriverData.first.driverId}", receivedMessage) // The second-closest driver accept the booking
 
                 delay(1_000)
 
@@ -570,7 +569,7 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                var closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
+                var closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
@@ -599,7 +598,7 @@ class ApplicationTest {
                 assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("${ACCEPT_BOOKING}:", receivedMessage) // The second-closest driver accept the booking
+                assertEquals("${ACCEPT_BOOKING}:${closestDriverData.first.driverId}", receivedMessage) // The second-closest driver accept the booking
 
                 delay(1_000)
 
@@ -655,9 +654,9 @@ class ApplicationTest {
                 val receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, Element>>()
+                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
-                delay(1_000)
+                delay(1_500)
                 assertFalse(driverDataCache.contains(closestDriverData.first))
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
@@ -667,7 +666,7 @@ class ApplicationTest {
                 val closeReason = (incoming.receive() as Frame.Close).readReason()
                 assertEquals(CloseReason.Codes.NORMAL.code, closeReason?.code)
 
-                delay(1_000)
+                delay(1_500)
 
                 assertTrue(driverDataCache.contains(closestDriverData.first))// When a rider
                 // cancel the dispatching process the driver a booking have been sent to should be available again for new bookings

@@ -5,21 +5,28 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class DirectionAPIResponse(
-    @SerialName("DirectionsResponse") var Response: Response? = Response()
+    @SerialName("geocoded_waypoints") var geocodedWaypoints: List<GeocodedWaypoints> = arrayListOf(),
+    @SerialName("routes") var routes: List<Routes> = arrayListOf(),
+    @SerialName("status") var status: String? = null
 )
 
-
 @Serializable
-data class Response(
-    @SerialName("status") var status: String? = null,
-    @SerialName("route") var route: Route? = Route(),
-    @SerialName("geocoded_waypoint") var geocodedWaypoint: List<GeocodedWaypoint> = arrayListOf()
+data class GeocodedWaypoints(
+    @SerialName("geocoder_status") var geocoderStatus: String? = null,
+    @SerialName("place_id") var placeId: String? = null,
+    @SerialName("types") var types: List<String> = arrayListOf()
 )
 
 @Serializable
 data class Coordinates(
-    @SerialName("lat") var lat: String? = null,
-    @SerialName("lng") var lng: String? = null
+    @SerialName("lat") var lat: Double? = null,
+    @SerialName("lng") var lng: Double? = null
+)
+
+@Serializable
+data class Bounds(
+    @SerialName("northeast") var northeast: Coordinates? = Coordinates(),
+    @SerialName("southwest") var southwest: Coordinates? = Coordinates()
 )
 
 @Serializable
@@ -27,57 +34,49 @@ data class Polyline(
     @SerialName("points") var points: String? = null
 )
 
-typealias OverviewPolyline = Polyline
-
 @Serializable
-data class Step(
-    @SerialName("travel_mode") var travelMode: String? = null,
-    @SerialName("start_location") var startLocation: Coordinates? = Coordinates(),
+data class Steps(
+    @SerialName("distance") var distance: Distance? = null,
+    @SerialName("duration") var duration: Duration? = null,
     @SerialName("end_location") var endLocation: Coordinates? = Coordinates(),
-    @SerialName("polyline") var polyline: Polyline? = Polyline(),
-    @SerialName("duration") var duration: Coordinates? = Coordinates(),
     @SerialName("html_instructions") var htmlInstructions: String? = null,
-    @SerialName("distance") var distance: Distance
+    @SerialName("polyline") var polyline: Polyline? = Polyline(),
+    @SerialName("start_location") var startLocation: Coordinates? = Coordinates(),
+    @SerialName("travel_mode") var travelMode: String? = null
 )
 
 @Serializable
-data class Leg(
-    @SerialName("step") var step: List<Step> = arrayListOf(),
-    @SerialName("duration") var duration: Duration? = null,
+data class Legs(
     @SerialName("distance") var distance: Distance? = null,
-    @SerialName("start_location") var startLocation: Coordinates? = Coordinates(),
+    @SerialName("duration") var duration: Duration? = null,
+    @SerialName("duration_in_traffic" ) var durationInTraffic : Duration? = null,
+    @SerialName("end_address") var endAddress: String? = null,
     @SerialName("end_location") var endLocation: Coordinates? = Coordinates(),
     @SerialName("start_address") var startAddress: String? = null,
-    @SerialName("end_address") var endAddress: String? = null
+    @SerialName("start_location") var startLocation: Coordinates? = Coordinates(),
+    @SerialName("steps") var steps: List<Steps> = arrayListOf(),
+    @SerialName("traffic_speed_entry") var trafficSpeedEntry: List<TrafficSpeedEntry> = arrayListOf(),
+    @SerialName("via_waypoint") var viaWaypoint: List<String> = arrayListOf(),
 )
 
 @Serializable
-data class Southwest(
-    @SerialName("lat") var lat: String? = null,
-    @SerialName("lng") var lng: String? = null
-)
-
-typealias Northeast = Southwest
-
-@Serializable
-data class Bounds(
-    @SerialName("southwest") var southwest: Southwest? = Southwest(),
-    @SerialName("northeast") var northeast: Northeast? = Northeast()
+data class TrafficSpeedEntry(
+    @SerialName("offset_meters") var offsetMeters: Int? = null,
+    @SerialName("speed_category") var speedCategory: String? = null
 )
 
 @Serializable
-data class Route(
-    @SerialName("summary") var summary: String? = null,
-    @SerialName("leg") var leg: List<Leg> = arrayListOf(),
+data class OverviewPolyline(
+    @SerialName("points") var points: String? = null
+)
+
+@Serializable
+data class Routes(
+    @SerialName("bounds") var bounds: Bounds? = Bounds(),
     @SerialName("copyrights") var copyrights: String? = null,
+    @SerialName("legs") var legs: List<Legs> = arrayListOf(),
     @SerialName("overview_polyline") var overviewPolyline: OverviewPolyline? = OverviewPolyline(),
-    @SerialName("waypoint_index") var waypointIndex: String? = null,
-    @SerialName("bounds") var bounds: Bounds? = Bounds()
-)
-
-@Serializable
-data class GeocodedWaypoint(
-    @SerialName("geocoder_status") var geocoderStatus: String? = null,
-    @SerialName("type") var type: List<String> = arrayListOf(),
-    @SerialName("place_id") var placeId: String? = null
+    @SerialName("summary") var summary: String? = null,
+    @SerialName("warnings") var warnings: List<String> = arrayListOf(),
+    @SerialName("waypoint_order") var waypointOrder: List<Int>? = emptyList()
 )
