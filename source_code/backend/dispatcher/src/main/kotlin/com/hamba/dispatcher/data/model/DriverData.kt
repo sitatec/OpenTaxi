@@ -10,6 +10,7 @@ class DriverData(
     @SerialName("loc") var location: Location,
     @SerialName("gnr") val gender: String,
     @SerialName("crT") val carType: String,
+    @SerialName("acc") val accessToken: String,
     @SerialName("id") var driverId: String = "",
     @SerialName("cID") var cellId: ULong = 0UL
 ) : Comparable<DriverData> {

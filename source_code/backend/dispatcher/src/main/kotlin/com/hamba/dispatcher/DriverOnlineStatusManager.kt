@@ -12,13 +12,19 @@ const val DRIVER_DATA_URL = "https://hamba-project.uc.r.appspot.com/driver"
 // TODO find a solution for testing without having to "shadow" the method by overriding them and make the final by removing the open keyword.
 open class DriverOnlineStatusManager(private val httpClient: HttpClient = HttpClient(CIO)) {
 
-    open suspend fun goOnline(driverId: String) = setIsOnline(driverId, isOnline = true)
+    private lateinit var accessToken: String
+
+    open suspend fun goOnline(driverId: String, accessToken: String) {
+        this.accessToken = accessToken
+        setIsOnline(driverId, isOnline = true)
+    }
 
     open suspend fun goOffline(driverId: String) = setIsOnline(driverId, isOnline = false)
 
     private suspend fun setIsOnline(driverId: String, isOnline: Boolean) {
         httpClient.patch<HttpResponse>("$DRIVER_DATA_URL/$driverId") {
             body = Json.encodeToString(mapOf("is_online" to isOnline))
+            header("Authorization", "Bearer $accessToken")
         }
     }
 

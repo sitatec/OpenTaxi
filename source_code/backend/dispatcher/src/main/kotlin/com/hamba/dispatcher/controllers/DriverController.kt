@@ -26,7 +26,7 @@ class DriverController(
         val driverData = Json.decodeFromString<DriverData>(jsonData)
         driverConnections[driverData.driverId] = driverSession
         driverDataRepository.addDriverData(driverData)
-        driverOnlineStatusManager.goOnline(driverData.driverId)
+        driverOnlineStatusManager.goOnline(driverData.driverId, driverData.accessToken)
         return driverData.driverId
     }
 
