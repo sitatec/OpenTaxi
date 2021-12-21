@@ -20,7 +20,10 @@ class DispatchController(
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun dispatch(requestDataJson: String, riderSession: DefaultWebSocketServerSession): String {
         var riderId = ""
+        println("DRIVER_DATA_CACHE CONTENT SIZE === ${driverDataCache.size}")
+        println("DRIVER_DATA_CACHE.IS_EMPTY === ${driverDataCache.isEmpty()}")
         if (driverDataCache.isEmpty()) {
+            println("SHOULDN'T BE LOGGED")
             riderSession.send("${FrameType.NO_MORE_DRIVER_AVAILABLE}:")
             riderSession.close(CloseReason(CloseReason.Codes.NORMAL, ""))
         } else {

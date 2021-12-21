@@ -23,6 +23,8 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.AfterClass
 import org.junit.BeforeClass
 import java.util.*
@@ -240,14 +242,15 @@ class ApplicationTest {
                                 if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
-                                        Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
-                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData["id"]}"))
+                                        Json.decodeFromString<JsonObject>(message.substringAfter(":"))
+                                    outgoing.send(Frame.Text("${ACCEPT_BOOKING}:${bookingData["id"]!!.jsonPrimitive.content}"))
                                     val directionDataMessage = (incoming.receive() as Frame.Text).readText()
                                     assertEquals("$TRIP_ROOM", directionDataMessage.substringBefore(":"))
                                 }
                             }
                         }
                     } catch (e: ClosedReceiveChannelException) {
+                        println("\n$e\n")
                         // Not all the drivers will receive a booking request because we dispatch to the closest ones. So
                         // trying to receive a booking message will throw an ClosedReceiveChannelException for the driver that are not close to the rider.
                     } catch (e: Exception) {

@@ -11,9 +11,7 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.*
 import java.util.*
 import kotlin.concurrent.schedule
 
@@ -92,16 +90,18 @@ class Dispatcher(
     private fun buildBookingRequestData(dispatchRequestData: DispatchRequestData): String {
         val distanceAndDuration =
             dispatchDataList[dispatchRequestData.riderId]!!.getDistanceAndDurationFromPickupToDropOff()
-        val data = mapOf(
-            "id" to dispatchRequestData.riderId,
-            "nam" to dispatchRequestData.riderName,
-            "pic" to dispatchRequestData.pickUpLocation.formattedAddress,
-            "drp" to dispatchRequestData.dropOffLocation.formattedAddress,
-            "pym" to dispatchRequestData.paymentMethod,
-            "dis" to distanceAndDuration.first,
-            "dur" to distanceAndDuration.second,
-            "stp" to Json.encodeToString(dispatchRequestData.stops.map { it.formattedAddress })
-        )
+        val data = buildJsonObject {
+            put("id", dispatchRequestData.riderId)
+            put("nam", dispatchRequestData.riderName)
+            put("pic", dispatchRequestData.pickUpLocation.formattedAddress)
+            put("drp", dispatchRequestData.dropOffLocation.formattedAddress)
+            put("pym", dispatchRequestData.paymentMethod)
+            put("dis", distanceAndDuration.first)
+            put("dur", distanceAndDuration.second)
+            putJsonArray("stp") {
+                dispatchRequestData.stops.forEach { add(it.formattedAddress) }
+            }
+        }
         return Json.encodeToString(data)
     }
 
