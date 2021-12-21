@@ -6,6 +6,8 @@ import Server from "./server";
 import { extractTokenFromHeader } from "./utils/http_utils";
 
 const app = express();
+const SERVERS_ACCESS_TOKEN = "skfS43Z5ljSFSJS_sjzr-kss4643jslSGSAOPBN?p";
+// TODO create a authentication system for the servers as well, instead of using a hard coded token.
 
 app.use(async (httpRequest, httpResponse, next) => {
   // TODO install firebase emulators end test the security middlewares too, instead of skiping them.
@@ -14,6 +16,7 @@ app.use(async (httpRequest, httpResponse, next) => {
   if (!token) {
     httpResponse.status(401).end();
   }
+  if(token == SERVERS_ACCESS_TOKEN) return next();
   const tokenValidationResult = await validateToken(token as string);
   if (!tokenValidationResult.isValidToken) {
     httpResponse.status(401).end();
