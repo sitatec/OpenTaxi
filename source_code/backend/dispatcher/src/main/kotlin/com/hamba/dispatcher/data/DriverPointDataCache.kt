@@ -22,21 +22,25 @@ class DriverPointDataCache(
     fun removeOnDataChangedListener(listener: () -> Unit) = onDataChangedListeners.remove(listener)
 
     @Synchronized
-    fun add(driverData: DriverData) {
+    fun add(driverData: DriverData, notifyListeners: Boolean = true) {
         val pointData = driverData.toPointData()
         val id = S2CellId.fromPoint(pointData.point)
         map.getOrPut(id) { TreeMultiset.create() }.add(pointData)
-        onDataChangedListeners.forEach { it() }
+        if (notifyListeners) {
+            onDataChangedListeners.forEach { it() }
+        }
     }
 
     @Synchronized
-    fun remove(driverData: DriverData): Boolean {
+    fun remove(driverData: DriverData, notifyListeners: Boolean = true): Boolean {
         val pointData = driverData.toPointData()
         val key = S2CellId.fromPoint(pointData.point)
         val dataSet = map[key] ?: return false
         val removed = dataSet.remove(pointData)
         if (removed) {
-            onDataChangedListeners.forEach { it() }
+            if (notifyListeners) {
+                onDataChangedListeners.forEach { it() }
+            }
             if (dataSet.isEmpty()) {
                 map.remove(key)
             }
@@ -47,20 +51,24 @@ class DriverPointDataCache(
     @Synchronized
     fun update(driverData: DriverData) {
         // TODO optimize time complexity
-        val pointData = driverData.toPointData()
-        var key: S2CellId? = null
-        for ((_, pointDataList) in map) {
-            try {
-                val previousPointData = pointDataList.first { it.data.driverId == pointData.data.driverId }
-                pointDataList.remove(previousPointData)
-                if(pointDataList.isEmpty()){
-                    key = previousPointData.data.cellId.toCellId()
-                }
-                break
-            } catch (e: NoSuchElementException) {
-            }
-        }
-        key?.let { map.remove(key) }
+        // Updates happen very often foreach driver, so notifying the listeners foreach update will slow down the dispatcher.
+        // TODO find a better solution than just skipping listeners notification.
+        remove(driverData, notifyListeners = false)
+        add(driverData, notifyListeners = false)
+//        val pointData = driverData.toPointData()
+//        var key: S2CellId? = null
+//        for ((_, pointDataList) in map) {
+//            try {
+//                val previousPointData = pointDataList.first { it.data.driverId == pointData.data.driverId }
+//                pointDataList.remove(previousPointData)
+//                if(pointDataList.isEmpty()){
+//                    key = previousPointData.data.cellId.toCellId()
+//                }
+//                break
+//            } catch (e: NoSuchElementException) {
+//            }
+//        }
+//        key?.let { map.remove(key) }
     }
 
     fun contains(driverData: DriverData): Boolean {
