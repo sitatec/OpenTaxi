@@ -119,8 +119,10 @@ fun initDriversDataChangeListeners(
                 when (driverDocumentChange.type) {
                     ADDED -> {
                         println("ADDING CHANGED DATA TO DRIVER_DATA_CACHE")
+                        println("DRIVER_DATA_CACHE CONTENT SIZE === ${driverDataCache.size}")
                         driverDataCache.add(driverData)
                         println("CHANGED DATA ADDED TO DRIVER_DATA_CACHE")
+                        println("DRIVER_DATA_CACHE CONTENT SIZE === ${driverDataCache.size}")
                     }
                     MODIFIED -> {
                         println("MODIFYING CHANGED DATA TO DRIVER_DATA_CACHE")
