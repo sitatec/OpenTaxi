@@ -29,6 +29,7 @@ val fakeDispatchRequestData = DispatchRequestData(
     pickUpLocation = Location(11.309098, -12.318813),/*HOME*/
     dropOffLocation = Location(11.309098, -12.318813),/*HOME*/
     paymentMethod = "cash",
+    riderName = "rider name"
 )
 
 val fakeDispatchRequestDataWithGenderFilter = DispatchRequestData(
@@ -36,7 +37,8 @@ val fakeDispatchRequestDataWithGenderFilter = DispatchRequestData(
     pickUpLocation = Location(11.309098, -12.318813)/*HOME*/,
     dropOffLocation = Location(11.309098, -12.318813)/*HOME*/,
     paymentMethod = "cash",
-    gender = "MALE"
+    gender = "MALE",
+    riderName = "rider name"
 )
 
 val fakeDispatchRequestDataWithCarFilter = DispatchRequestData(
@@ -45,5 +47,6 @@ val fakeDispatchRequestDataWithCarFilter = DispatchRequestData(
     dropOffLocation = Location(11.309098, -12.318813)/*HOME*/,
     paymentMethod = "cash",
     gender = null,
-    carType = "PREMIUM"
+    carType = "PREMIUM",
+    riderName = "rider name"
 )

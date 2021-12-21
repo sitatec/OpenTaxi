@@ -22,7 +22,7 @@ open class DriverOnlineStatusManager(private val httpClient: HttpClient = HttpCl
     private suspend fun setIsOnline(driverId: String, isOnline: Boolean) {
         httpClient.patch<HttpResponse>("$DRIVER_DATA_URL/$driverId") {
             contentType(ContentType.Application.Json)
-            body = mapOf("is_online" to isOnline)
+            body = Json.encodeToString(mapOf("is_online" to isOnline))
             header("Authorization", "Bearer $SERVERS_ACCESS_TOKEN")
         }
     }
