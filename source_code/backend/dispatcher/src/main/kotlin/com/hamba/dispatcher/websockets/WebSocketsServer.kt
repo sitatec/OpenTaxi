@@ -102,20 +102,36 @@ fun initDriversDataChangeListeners(
     firebaseFirestoreWrapper: FirebaseFirestoreWrapper,
     driverDataCache: DriverPointDataCache
 ) {
+    println("ADDING FIRESTORE LISTENERS")
     firebaseFirestoreWrapper.firestoreClient.collection("drivers").addSnapshotListener { querySnapshot, error ->
+        println("\nFIREBASE_DATA_LISTENER CALLED")
         if (error != null) {
             println(error.message)
         }
         if (querySnapshot == null) {
             println("Error firestore event returned a null querySnapshot")
         } else {
+            println("\nDOCUMENT_CHANGES EVENT")
             querySnapshot.documentChanges.forEach { driverDocumentChange ->
+                println("CURRENT DOCUMENT CHANGE ==> $driverDocumentChange")
                 val driverDocument = driverDocumentChange.document
                 val driverData = driverDocument.data.toDriverData(driverDocument.id)
                 when (driverDocumentChange.type) {
-                    ADDED -> driverDataCache.add(driverData)
-                    MODIFIED -> driverDataCache.update(driverData)
-                    REMOVED -> driverDataCache.remove(driverData)
+                    ADDED -> {
+                        println("ADDING CHANGED DATA TO DRIVER_DATA_CACHE")
+                        driverDataCache.add(driverData)
+                        println("CHANGED DATA ADDED TO DRIVER_DATA_CACHE")
+                    }
+                    MODIFIED -> {
+                        println("MODIFYING CHANGED DATA TO DRIVER_DATA_CACHE")
+                        driverDataCache.update(driverData)
+                        println("MODIFIED DATA ADDED TO DRIVER_DATA_CACHE")
+                    }
+                    REMOVED -> {
+                        println("REMOVING CHANGED DATA FROM DRIVER_DATA_CACHE")
+                        driverDataCache.remove(driverData)
+                        println("REMOVED DATA ADDED FROM DRIVER_DATA_CACHE")
+                    }
                 }
             }
         }
