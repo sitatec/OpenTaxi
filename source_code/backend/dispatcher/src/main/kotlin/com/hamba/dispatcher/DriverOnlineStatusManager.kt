@@ -4,6 +4,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -20,7 +21,8 @@ open class DriverOnlineStatusManager(private val httpClient: HttpClient = HttpCl
 
     private suspend fun setIsOnline(driverId: String, isOnline: Boolean) {
         httpClient.patch<HttpResponse>("$DRIVER_DATA_URL/$driverId") {
-            body = Json.encodeToString(mapOf("is_online" to isOnline))
+            contentType(ContentType.Application.Json)
+            body = mapOf("is_online" to isOnline)
             header("Authorization", "Bearer $SERVERS_ACCESS_TOKEN")
         }
     }
