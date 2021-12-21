@@ -48,6 +48,7 @@ fun Application.webSocketsServer(
                     receivedText = frame.readText()
                     receivedData = receivedText.substringAfter(":")
                     when (FrameType.fromRawFrame(receivedText)) {
+                        // TODO add authentication step (firebase auth token verification) before deployment
                         ADD_DRIVER_DATA -> driverId = driverController.addDriverData(receivedData, this)
                         UPDATE_DRIVER_DATA -> driverController.updateDriverData(driverId, receivedData, this)
                         DELETE_DRIVER_DATA -> driverController.deleteDriverData(driverId, this)
@@ -78,6 +79,7 @@ fun Application.webSocketsServer(
                     receivedText = frame.readText()
                     receivedData = receivedText.substringAfter(":")
                     when (FrameType.fromRawFrame(receivedText)) {
+                        // TODO add authentication step (firebase auth token verification) before deployment
                         DISPATCH_REQUEST -> riderId = dispatchController.dispatch(receivedData, this)
                         CANCEL_BOOKING -> dispatchController.cancelDispatch(riderId, this)
                         else -> close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, "INVALID_FRAME_TYPE"))
