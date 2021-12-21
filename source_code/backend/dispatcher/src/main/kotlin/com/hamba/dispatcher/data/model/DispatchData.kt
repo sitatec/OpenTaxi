@@ -39,20 +39,19 @@ class DispatchData(
 
     fun getDistanceAndDurationFromPickupToDropOff(): Pair<String, String> {
         var distance = 0L
-        var duration = 0L
+        var duration = ""
         directions.forEach {
             it.routes.forEach { route ->
                 route.legs.forEach { leg ->
                     distance += leg.distance!!.value
-                    duration += leg.duration!!.value
+                    duration += leg.duration!!.text
 
                 }
             }
         }
-        val formattedDuration = Duration.ofSeconds(duration).toString()
         if (distance > 1000) {
-            return Pair("${distance / 1000.0} km", formattedDuration)
+            return Pair("${distance / 1000.0} km", duration)
         }
-        return Pair("$distance m", formattedDuration)
+        return Pair("$distance m", duration)
     }
 }

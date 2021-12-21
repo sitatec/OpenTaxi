@@ -42,7 +42,8 @@ data class Steps(
     @SerialName("html_instructions") var htmlInstructions: String? = null,
     @SerialName("polyline") var polyline: Polyline? = Polyline(),
     @SerialName("start_location") var startLocation: Coordinates? = Coordinates(),
-    @SerialName("travel_mode") var travelMode: String? = null
+    @SerialName("travel_mode") var travelMode: String? = null,
+    @SerialName("maneuver") var maneuver: String? = null,
 )
 
 @Serializable
