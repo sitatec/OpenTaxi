@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:driver_app/entities/dispatcher.dart';
 import 'package:driver_app/utils/data_converters.dart';
@@ -14,12 +15,15 @@ class HomePage extends StatefulWidget {
   final Dispatcher _dispatcher;
   final Driver _driver;
   final LocationManager _locationManager;
-  const HomePage(
+  final ReviewRepository _reveiwRepository;
+  HomePage(
     this._driver,
     this._dispatcher,
     this._locationManager, {
+    ReviewRepository? reviewRepository,
     Key? key,
-  }) : super(key: key);
+  })  : _reveiwRepository = reviewRepository ?? ReviewRepository(),
+        super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -57,7 +61,55 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _onDataRecieved(MapEntry<FramType, dynamic> data) {}
+  void _onDataRecieved(MapEntry<FramType, dynamic> dataJson) async {
+    // TODO refactor
+    switch (dataJson.key) {
+      case FramType.BOOKING_REQUEST:
+        final data = jsonDecode(dataJson.value) as JsonObject;
+        final accessToken = await widget._driver.account.accessToken!;
+        var riderRatingData = (await widget._reveiwRepository.getRating(
+          {"recipient_id": data["id"]},
+          accessToken,
+        ));
+        riderRatingData = (riderRatingData as JsonObject)["data"];
+        final riderRating = int.parse(riderRatingData["count"]) > 0
+            ? riderRatingData["avg"]
+            : "NEW USER";
+        final riderData = _RiderData(
+          imageURL: idToProfilePicture(data["id"]),
+          rating: riderRating,
+          paymentMethod: data["pym"],
+          name: data["nam"],
+        );
+        final bookingRequestData = _BookingRequestData(
+          id: data["id"],
+          riderData: riderData,
+          pickUpAddress: data["pic"],
+          dropOfAddress: data["drp"],
+          distance: data["dis"],
+          duration: data["dur"],
+          stops: List.from(data["stp"], growable: false),
+        );
+        _showBookingRequest(bookingRequestData);
+        break;
+      case FramType.CANCEL_BOOKING:
+        // TODO: Handle this case.
+        break;
+      case FramType.INVALID_DISPATCH_ID:
+        // TODO: Handle this case.
+        break;
+      case FramType.PAIR_DISCONNECTED:
+        // TODO: Handle this case.
+        break;
+      case FramType.BOOKING_REQUEST_TIMEOUT:
+        // TODO: Handle this case.
+        break;
+      case FramType.TRIP_ROOM:
+        // TODO: Handle this case.
+        break;
+      default:
+    }
+  }
 
   Future<void> _sendDriverData(Coordinates location) async {
     final data = await driverToDispatcherData(widget._driver);
@@ -120,10 +172,8 @@ class _HomePageState extends State<HomePage> {
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.search, color: theme.disabledColor),
-                  onPressed: () =>
-                      _showBottomSheetActions("Arrived Pickup location", () {}),
-                ),
+                    icon: Icon(Icons.search, color: theme.disabledColor),
+                    onPressed: () {}),
               ),
             ],
           ),
@@ -139,12 +189,12 @@ class _HomePageState extends State<HomePage> {
               Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                color: theme.errorColor.withAlpha(200),
+                color: _statusNotification!.backgroundColor,
                 child: Row(
                   children: [
                     _statusNotification!.imageURL.isNotEmpty
                         ? SvgPicture.asset(_statusNotification!.imageURL)
-                        : const CircularProgressIndicator(),
+                        : const CircularProgressIndicator(color: Colors.white),
                     const SizedBox(width: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,28 +233,30 @@ class _HomePageState extends State<HomePage> {
           ? _StatusNotification.connecting
           : _StatusNotification.disconnecting;
     });
-    if (mustConnect) {
-      if (!_locationServiceInitialized) {
-        try {
+    try {
+      if (mustConnect) {
+        if (!_locationServiceInitialized) {
           await widget._locationManager.initialize(requireBackground: true);
           _locationServiceInitialized = true;
-        } on LocationManagerException catch (e) {
-          // TODO handle
-          rethrow;
+          await widget._dispatcher.connect();
+        } else {
+          await widget._dispatcher.disconnect();
         }
       }
-      await widget._dispatcher.connect();
-    } else {
-      await widget._dispatcher.disconnect();
+      // TODO catche exceptions from dispatcher connect() and disconnect().
+    } on LocationManagerException catch (e) {
+      // TODO handle
+      rethrow;
+    } finally {
+      setState(() => _isOnlineStatusChanging = false);
     }
-    setState(() => _isOnlineStatusChanging = false);
   }
 
-  void _showBookingRequest(/*TODO pass booking data*/) {
+  void _showBookingRequest(_BookingRequestData bookingRequestData) {
     final theme = Theme.of(context);
     final iconsBackgroundColor = theme.disabledColor.withAlpha(100);
-    const price = 20.0;
-    const distance = 2.1;
+    const price =
+        20.0; // TODO set fare settings and calculate price based on that
     showBottomSheet(
         elevation: 4,
         context: context,
@@ -219,13 +271,14 @@ class _HomePageState extends State<HomePage> {
                     vertical: 10,
                   ),
                   child: _BottomSheetHeader(
-                    _RiderData(
-                      imageURL:
-                          "https://news.cornell.edu/sites/default/files/styles/breakout/public/2020-05/0521_abebegates.jpg?itok=OdW8otpB",
-                      rating: 4.8,
-                      paymentMethod: "By cash",
-                      name: "Rediet Abebe",
-                    ),
+                    // _RiderData(
+                    //   imageURL:
+                    //       "https://news.cornell.edu/sites/default/files/styles/breakout/public/2020-05/0521_abebegates.jpg?itok=OdW8otpB",
+                    //   rating: 4.8,
+                    //   paymentMethod: "By cash",
+                    //   name: "Rediet Abebe",
+                    // ),
+                    bookingRequestData.riderData,
                     trailingWidget: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
@@ -236,9 +289,9 @@ class _HomePageState extends State<HomePage> {
                             fontSize: 19,
                           ),
                         ),
-                        const Text(
-                          "$distance km",
-                          style: TextStyle(
+                        Text(
+                          bookingRequestData.distance,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 15,
                             color: gray,
@@ -262,8 +315,7 @@ class _HomePageState extends State<HomePage> {
                       color: theme.disabledColor,
                     ),
                   ),
-                  subtitle:
-                      const Text("20 Kado street, Ikeja Lagos Luchkovski"),
+                  subtitle: Text(bookingRequestData.pickUpAddress),
                 ),
                 const Divider(height: 1),
                 ListTile(
@@ -279,8 +331,7 @@ class _HomePageState extends State<HomePage> {
                       color: theme.disabledColor,
                     ),
                   ),
-                  subtitle:
-                      const Text("20 Kado street, Ikeja Lagos Luchkovski"),
+                  subtitle: Text(bookingRequestData.dropOfAddress),
                 ),
                 const Divider(height: 1),
                 Padding(
@@ -291,7 +342,14 @@ class _HomePageState extends State<HomePage> {
                     children: [
                       Expanded(
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            _dispatcher.sendData(
+                              MapEntry(
+                                FramType.REFUSE_BOOKING,
+                                bookingRequestData.id,
+                              ),
+                            );
+                          },
                           child: const Text(
                             "Ignore",
                             style: TextStyle(
@@ -314,7 +372,14 @@ class _HomePageState extends State<HomePage> {
                       const SizedBox(width: 30),
                       Expanded(
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            _dispatcher.sendData(
+                              MapEntry(
+                                FramType.ACCEPT_BOOKING,
+                                bookingRequestData.id,
+                              ),
+                            );
+                          },
                           child: const Text(
                             "Accept",
                             style: TextStyle(
@@ -343,7 +408,7 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  void _showBottomSheetActions(String bottomButtonText,
+  void _showBottomSheetActions(String bottomButtonText, _RiderData riderData,
       [VoidCallback? onBottomButtonPressed]) {
     final theme = Theme.of(context);
     showBottomSheet(
@@ -360,14 +425,7 @@ class _HomePageState extends State<HomePage> {
                   top: 10,
                   bottom: 10,
                 ),
-                child: _BottomSheetHeader(
-                    _RiderData(
-                      imageURL:
-                          "https://news.cornell.edu/sites/default/files/styles/breakout/public/2020-05/0521_abebegates.jpg?itok=OdW8otpB",
-                      rating: 4.8,
-                      paymentMethod: "By cash",
-                      name: "Rediet Abebe",
-                    ),
+                child: _BottomSheetHeader(riderData,
                     trailingWidget: Row(
                       children: [
                         TextButton(
@@ -538,7 +596,7 @@ class _BottomSheetHeader extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 9,
-                        vertical: 2,
+                        vertical: 1,
                       ),
                       child: Text(
                         data.paymentMethod,
@@ -561,9 +619,29 @@ class _BottomSheetHeader extends StatelessWidget {
   }
 }
 
+class _BookingRequestData {
+  final String id;
+  final _RiderData riderData;
+  final String pickUpAddress;
+  final String dropOfAddress;
+  final String distance;
+  final String duration;
+  final List<String> stops;
+
+  _BookingRequestData({
+    required this.id,
+    required this.riderData,
+    required this.pickUpAddress,
+    required this.dropOfAddress,
+    required this.distance,
+    required this.duration,
+    required this.stops,
+  });
+}
+
 class _RiderData {
   final String imageURL;
-  final double rating;
+  final String rating;
   final String paymentMethod;
   final String name;
 

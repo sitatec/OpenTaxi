@@ -10,34 +10,49 @@ const dispatcherServerUrl =
 class Dispatcher {
   WebSocketChannel? _webSocketChannel;
   final _connectionStreamController = StreamController<bool>();
+  final _dataStreamController = StreamController<MapEntry<FramType, dynamic>>();
   bool _isConnected = false;
   Stream<bool> get isConnected => _connectionStreamController.stream;
   Stream<MapEntry<FramType, dynamic>>? get dataStream =>
-      _webSocketChannel?.stream.map(_convertData);
+      _dataStreamController.stream;
 
   Dispatcher([this._webSocketChannel]);
 
-  MapEntry<FramType, dynamic> _convertData(data) {
+  void _convertData(data) {
     data as String;
     final separatorIndex = data.indexOf(":");
     final code = int.parse(data.substring(0, separatorIndex));
     final message = data.substring(separatorIndex + 1);
-    return MapEntry(FramType.values[code], message);
+    _dataStreamController.add(MapEntry(FramType.values[code], message));
   }
 
   Future<void> connect() async {
     if (_isConnected) return;
     _webSocketChannel =
         WebSocketChannel.connect(Uri.parse(dispatcherServerUrl));
-    _connectionStreamController.add(true);
-    _isConnected = true;
+    _toggleConnectStatus(true);
+    _webSocketChannel!.stream.listen(
+      _convertData,
+      onDone: () {
+        _toggleConnectStatus(false);
+        print(_webSocketChannel!.closeCode);
+      },
+      onError: (e) {
+        // TODO handle
+        print(e);
+      },
+    );
   }
 
   Future<void> disconnect() async {
     if (!_isConnected) return;
     await _webSocketChannel?.sink.close(close_reason.goingAway);
-    _connectionStreamController.add(false);
-    _isConnected = false;
+    _toggleConnectStatus(false);
+  }
+
+  void _toggleConnectStatus(bool isConnected) {
+    _isConnected = isConnected;
+    _connectionStreamController.add(isConnected);
   }
 
   void sendData(MapEntry<FramType, dynamic> data) {

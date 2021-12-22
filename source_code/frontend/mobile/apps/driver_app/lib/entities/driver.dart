@@ -37,11 +37,22 @@ class Driver {
     CarRepository? carReposioty,
   }) : repository = driverRepository ?? DriverRepository() {
     carReposioty ??= CarRepository();
-    car = account.accessToken!.then((accessToken) async {
-      final response =
-          await carReposioty!.get({"driver_id": account.id}, accessToken);
-      return Car.fromJson(response["data"]);
-    });
+    car = Future.value(Car(
+      additionalInfo: '',
+      brand: "BMW",
+      model: "n:a",
+      numberOfSeats: 4,
+      registrationNumber: "GS454",
+      color: "bleu",
+      driverId: account.id,
+      type: CarType.STANDARD,
+      id: 1,
+    ));
+    // account.accessToken!.then((accessToken) async {
+    //   final response =
+    //       await carReposioty!.get({"driver_id": account.id}, accessToken);
+    //   return Car.fromJson(response["data"]);
+    // });
   }
 
   Driver.fromJsonAndAccount(JsonObject jsonObject, Account account)
