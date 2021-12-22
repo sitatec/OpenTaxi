@@ -7,6 +7,10 @@
    <application
         android:label="driver_app"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyAbLts73IVYsQCHv7fxJtlmUvlXbuy9FO8"/>
+               
         <activity
             android:name="com.hamba.hambadriver.MainActivity"
             android:launchMode="singleTop"
