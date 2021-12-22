@@ -50,7 +50,7 @@ class DispatchData(
             }
         }
         if (distance > 1000) {
-            return Pair("${distance / 1000.0} km", duration)
+            return Pair(String.format("%.2f km", distance / 1000.0), duration)
         }
         return Pair("$distance m", duration)
     }
