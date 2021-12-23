@@ -1,16 +1,20 @@
-import 'package:driver_app/authentication/ui/introduce_your_self_screen.dart';
 import 'package:driver_app/authentication/ui/registration_screen.dart';
 import 'package:driver_app/authentication/ui/registration_status.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:authentication/authentication.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared/shared.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'entities/driver.dart';
 import 'main_screen.dart';
 
 void main() {
+  if (defaultTargetPlatform == TargetPlatform.android) {
+    AndroidGoogleMapsFlutter.useAndroidViewSurface = true;
+  }
   runApp(App());
 }
 

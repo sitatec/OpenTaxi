@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:driver_app/entities/dispatcher.dart';
 import 'package:driver_app/utils/data_converters.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:driver_app/widgets/countdown_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
@@ -134,56 +134,52 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
+    return Stack(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const CircleAvatar(
-                backgroundImage: NetworkImage(
-                  "https://static9.depositphotos.com/1060743/1203/i/600/depositphotos_12033497-stock-photo-portrait-of-young-black-man.jpg",
-                ),
-                radius: 24,
-              ),
-              FlutterSwitch(
-                value: _isDriverOnline,
-                onToggle: _toggleDriverOnlineStatus,
-                activeText: const Text(
-                  "Online",
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-                inactiveText: const Text(
-                  "Offline",
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-                inactiveIcon:
-                    SvgPicture.asset("assets/images/offline_icon.svg"),
-                activeIcon: SvgPicture.asset("assets/images/online_icon.svg"),
-                valueFontSize: 18,
-                inactiveColor: theme.disabledColor,
-                activeColor: theme.accentColor,
-                showOnOff: true,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: lightGray, width: 2),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                    icon: Icon(Icons.search, color: theme.disabledColor),
-                    onPressed: () {}),
-              ),
-            ],
-          ),
-        ),
-        Stack(
+        Column(
           children: [
-            Container(
-              color: theme.disabledColor,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height - 195,
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const CircleAvatar(
+                    backgroundImage: NetworkImage(
+                      "https://static9.depositphotos.com/1060743/1203/i/600/depositphotos_12033497-stock-photo-portrait-of-young-black-man.jpg",
+                    ),
+                    radius: 24,
+                  ),
+                  FlutterSwitch(
+                    value: _isDriverOnline,
+                    onToggle: _toggleDriverOnlineStatus,
+                    activeText: const Text(
+                      "Online",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    inactiveText: const Text(
+                      "Offline",
+                      style: TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    inactiveIcon:
+                        SvgPicture.asset("assets/images/offline_icon.svg"),
+                    activeIcon:
+                        SvgPicture.asset("assets/images/online_icon.svg"),
+                    valueFontSize: 18,
+                    inactiveColor: theme.disabledColor,
+                    activeColor: theme.accentColor,
+                    showOnOff: true,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: lightGray, width: 2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: IconButton(
+                        icon: Icon(Icons.search, color: theme.disabledColor),
+                        onPressed: () {}),
+                  ),
+                ],
+              ),
             ),
             if (_statusNotification != null)
               Container(
@@ -255,6 +251,10 @@ class _HomePageState extends State<HomePage> {
   void _showBookingRequest(_BookingRequestData bookingRequestData) {
     final theme = Theme.of(context);
     final iconsBackgroundColor = theme.disabledColor.withAlpha(100);
+    final requestTimeoutDuration = Duration(seconds: 30);
+    final requestTimeoutWarningDuration = Duration(seconds: 12); // A warning
+    // color will be shown if it remains only this duration.
+    final countdownController = CountdownSliderController();
     const price =
         20.0; // TODO set fare settings and calculate price based on that
     showBottomSheet(
@@ -301,7 +301,14 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                const Divider(height: 1),
+                CountdownSlider(
+                  duration: requestTimeoutDuration,
+                  activeColor: theme.accentColor,
+                  inactiveColor: lightGray,
+                  warningColor: theme.errorColor,
+                  controller: countdownController,
+                  warningDuration: requestTimeoutWarningDuration,
+                ),
                 ListTile(
                   leading: CircleAvatar(
                     child: SvgPicture.asset("assets/images/pickup_icon.svg"),
@@ -343,6 +350,7 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: TextButton(
                           onPressed: () {
+                            countdownController.cancel();
                             _dispatcher.sendData(
                               MapEntry(
                                 FramType.REFUSE_BOOKING,
@@ -373,6 +381,7 @@ class _HomePageState extends State<HomePage> {
                       Expanded(
                         child: TextButton(
                           onPressed: () {
+                            countdownController.cancel();
                             _dispatcher.sendData(
                               MapEntry(
                                 FramType.ACCEPT_BOOKING,
