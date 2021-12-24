@@ -14,6 +14,7 @@ dependencies:
   firebase_database: ^8.1.0
   flutter_multi_formatter: ^2.4.1
   web_socket_channel: ^2.1.0
+  google_maps_flutter: ^2.1.1
   location_manager:
     path: ../../packages/location_manager
   authentication:

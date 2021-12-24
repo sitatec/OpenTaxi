@@ -33,7 +33,9 @@ class _HomePageState extends State<HomePage> {
   bool _isDriverOnline = false;
   bool _isOnlineStatusChanging = false;
   bool _locationServiceInitialized = false;
-  _StatusNotification? _statusNotification = _StatusNotification.offline;
+  bool _bookingAccepted = true;
+  _StatusNotification? _statusNotification =
+      null; //_StatusNotification.offline;
   StreamSubscription? _onlineStatusSubscription;
   StreamSubscription? _dataStreamSubscription;
   StreamSubscription? _locationStreamSubscription;
@@ -136,10 +138,12 @@ class _HomePageState extends State<HomePage> {
     final theme = Theme.of(context);
     return Stack(
       children: [
+        MapWidget(),
         Column(
           children: [
-            Padding(
+            Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+              color: theme.scaffoldBackgroundColor,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -214,7 +218,30 @@ class _HomePageState extends State<HomePage> {
                     )
                   ],
                 ),
-              )
+              ),
+            if (_bookingAccepted)
+              Align(
+                alignment: Alignment.topRight,
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: InkWell(
+                    child: Container(
+                      child: Icon(
+                        Icons.block,
+                        size: 28,
+                        color: theme.scaffoldBackgroundColor,
+                      ),
+                      decoration: BoxDecoration(
+                        color: theme.errorColor,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    onTap: () {
+                      // TODO cancel trip
+                    },
+                  ),
+                ),
+              ),
           ],
         )
       ],
