@@ -1,9 +1,7 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-import '../shared.dart';
+import '../../shared.dart';
 
 class OutLinedTextField extends StatelessWidget {
   final ValueChanged<String> onChanged;
@@ -77,10 +75,12 @@ class RoundedCornerButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final Widget child;
   final BorderSide borderSide;
+  final double borderRadius;
 
   RoundedCornerButton(
       {Key? key,
       this.disabledColor,
+      this.borderRadius = 10,
       this.enabledColor,
       this.onPressed,
       this.borderSide = BorderSide.none,
@@ -111,7 +111,7 @@ class RoundedCornerButton extends StatelessWidget {
         style: ButtonStyle(
           shape: MaterialStateProperty.all(
             RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(borderRadius),
               side: borderSide,
             ),
           ),
@@ -121,6 +121,42 @@ class RoundedCornerButton extends StatelessWidget {
                 : enabledColor,
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SmallRoundedCornerButton extends StatelessWidget {
+  final VoidCallback? onPressed;
+  final Color? backgroundColor;
+  final String text;
+  final EdgeInsets? padding;
+  const SmallRoundedCornerButton(
+    this.text, {
+    Key? key,
+    this.onPressed,
+    this.backgroundColor,
+    this.padding,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      style: TextButton.styleFrom(
+        backgroundColor: backgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+        padding: padding,
       ),
     );
   }
@@ -170,5 +206,3 @@ class GenderWidget extends StatelessWidget {
     );
   }
 }
-
-
