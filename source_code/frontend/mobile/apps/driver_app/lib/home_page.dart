@@ -232,13 +232,11 @@ class _HomePageState extends State<HomePage> {
                         color: theme.scaffoldBackgroundColor,
                       ),
                       decoration: BoxDecoration(
-                        color: theme.errorColor,
+                        color: theme.errorColor.withAlpha(190),
                         shape: BoxShape.circle,
                       ),
                     ),
-                    onTap: () {
-                      // TODO cancel trip
-                    },
+                    onTap: _showTripCancellationDialog,
                   ),
                 ),
               ),
@@ -273,6 +271,57 @@ class _HomePageState extends State<HomePage> {
     } finally {
       setState(() => _isOnlineStatusChanging = false);
     }
+  }
+
+  Future<void> _showTripCancellationDialog() {
+    final theme = Theme.of(context);
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(
+              "Are you sure you want to Cancel?",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: theme.primaryColor,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            content: const Text(
+              "You will charged an additional 200 cancellation",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            actionsAlignment: MainAxisAlignment.center,
+            actions: [
+              Expanded(
+                child: SmallRoundedCornerButton(
+                  "YES",
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+                  backgroundColor: theme.errorColor.withAlpha(190),
+                  onPressed: () {
+                    // TODO cancel
+                  },
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: SmallRoundedCornerButton(
+                  "GO BACK",
+                  backgroundColor: theme.disabledColor,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              )
+            ],
+          );
+        });
   }
 
   void _showBookingRequest(_BookingRequestData bookingRequestData) {
@@ -374,66 +423,32 @@ class _HomePageState extends State<HomePage> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () {
-                            countdownController.cancel();
-                            _dispatcher.sendData(
-                              MapEntry(
-                                FramType.REFUSE_BOOKING,
-                                bookingRequestData.id,
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Ignore",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                      SmallRoundedCornerButton(
+                        "Ignore",
+                        backgroundColor: theme.errorColor.withAlpha(200),
+                        onPressed: () {
+                          countdownController.cancel();
+                          _dispatcher.sendData(
+                            MapEntry(
+                              FramType.REFUSE_BOOKING,
+                              bookingRequestData.id,
                             ),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all(
-                                theme.errorColor.withAlpha(200)),
-                            shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                          ),
-                        ),
+                          );
+                        },
                       ),
                       const SizedBox(width: 30),
-                      Expanded(
-                        child: TextButton(
-                          onPressed: () {
-                            countdownController.cancel();
-                            _dispatcher.sendData(
-                              MapEntry(
-                                FramType.ACCEPT_BOOKING,
-                                bookingRequestData.id,
-                              ),
-                            );
-                          },
-                          child: const Text(
-                            "Accept",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                      SmallRoundedCornerButton(
+                        "Accept",
+                        backgroundColor: theme.accentColor,
+                        onPressed: () {
+                          countdownController.cancel();
+                          _dispatcher.sendData(
+                            MapEntry(
+                              FramType.ACCEPT_BOOKING,
+                              bookingRequestData.id,
                             ),
-                          ),
-                          style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all(theme.accentColor),
-                            shape: MaterialStateProperty.all(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                            ),
-                          ),
-                        ),
+                          );
+                        },
                       )
                     ],
                   ),
