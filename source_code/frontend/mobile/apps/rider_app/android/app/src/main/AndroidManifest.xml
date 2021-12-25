@@ -4,6 +4,10 @@
         android:label="rider_app"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyCvX5pD9Y-RO3MzxRh8PYi3DQKdXXk3zC4"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
