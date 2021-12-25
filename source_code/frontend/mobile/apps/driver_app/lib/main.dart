@@ -52,18 +52,28 @@ class App extends StatelessWidget {
                       }
                       if (authSnapshot.data == AuthState.authenticated) {
                         final driverAccount = authenticationProvider.account!;
-                        final driver = Driver(account: driverAccount);
-                        return MainScreen(driver);
-                        if (driverAccount.status ==
-                            AccountStatus.REGISTRATION_IN_PROGRESS) {
-                          return RegistrationScreen(driver);
-                        } else if (driverAccount.status ==
-                            AccountStatus.WAITING_FOR_APPROVAL) {
-                          return const RegistrationStatusPage(
-                            RegistrationStatus.underReview,
+                        if (driverAccount.role != AccountRole.UNDEFINED &&
+                            driverAccount.role != AccountRole.DRIVER) {
+                          // TODO handle if the user is not a driver.
+                          return const Center(
+                            child: Text(
+                              "This account is not a driver account!",
+                            ),
                           );
+                        } else {
+                          final driver = Driver(account: driverAccount);
+                          return MainScreen(driver);
+                          if (driverAccount.status ==
+                              AccountStatus.REGISTRATION_IN_PROGRESS) {
+                            return RegistrationScreen(driver);
+                          } else if (driverAccount.status ==
+                              AccountStatus.WAITING_FOR_APPROVAL) {
+                            return const RegistrationStatusPage(
+                              RegistrationStatus.underReview,
+                            );
+                          }
+                          return MainScreen(driver);
                         }
-                        return MainScreen(driver);
                       } else {
                         return const PhoneAuthScreen();
                       }
