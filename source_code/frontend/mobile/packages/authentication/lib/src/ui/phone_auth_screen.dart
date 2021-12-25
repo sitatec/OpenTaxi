@@ -26,6 +26,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   bool isInvalidPhoneNumber = false;
   String phoneNumber = "";
   bool isSendingVerificationCode = false;
+  bool loginInProgress = false;
 
   final phoneNumberVerifier = PhoneNumberVerifier();
   StreamSubscription? verificationStateStreamSubscription;
@@ -35,22 +36,22 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
     super.initState();
     verificationStateStreamSubscription =
         phoneNumberVerifier.verificationStateChanges.listen((event) {
-          if (isSendingVerificationCode) {
-            setState(() {
-              isSendingVerificationCode = false;
-            });
-          }
-          if (event == PhoneNumberVerificationState.codeSent) {
-            _showCodeSentMessage();
-          } else if (event == PhoneNumberVerificationState.failed) {
-            if (phoneNumberVerifier.exception?.exceptionType ==
-                AuthenticationExceptionType.invalidPhoneNumber) {
-              setState(() => isInvalidPhoneNumber = true);
-            } else {
-              // TODO handle
-            }
-          }
+      if (isSendingVerificationCode) {
+        setState(() {
+          isSendingVerificationCode = false;
         });
+      }
+      if (event == PhoneNumberVerificationState.codeSent) {
+        _showCodeSentMessage();
+      } else if (event == PhoneNumberVerificationState.failed) {
+        if (phoneNumberVerifier.exception?.exceptionType ==
+            AuthenticationExceptionType.invalidPhoneNumber) {
+          setState(() => isInvalidPhoneNumber = true);
+        } else {
+          // TODO handle
+        }
+      }
+    });
   }
 
   void _showCodeSentMessage() {
@@ -70,8 +71,8 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 25),
-                    child:
-                    Text("We have sent 6-digit code\nto $phoneNumber",
+                    child: Text(
+                      "We have sent 6-digit code\nto $phoneNumber",
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w500,
@@ -95,16 +96,19 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            RoundedCornerButton(onPressed: () {
+                            RoundedCornerButton(onPressed: () async {
                               Navigator.of(context).pop(); // close bottom sheet
                               // wait for the bottom sheet to complete closing
                               // and then navigate to the CodeVerificationScreen
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) =>
-                                    CodeVerificationScreen(
-                                      phoneNumberVerifier,
-                                    ),
+                              final isLogedIn = await Navigator.of(context)
+                                  .push<bool>(MaterialPageRoute(
+                                builder: (context) => CodeVerificationScreen(
+                                  phoneNumberVerifier,
+                                ),
                               ));
+                              if (isLogedIn ?? false) {
+                                setState(() => loginInProgress = true);
+                              }
                             }),
                           ],
                         ),
@@ -146,7 +150,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
             SingleChildScrollView(
               child: Padding(
                 padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 22),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
@@ -218,7 +222,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                     phoneNumber = "+27 $newValue";
                                   });
                                 } else if (newValue.length <
-                                    PhoneAuthScreen.numberLength &&
+                                        PhoneAuthScreen.numberLength &&
                                     isContinueButtonEnabled) {
                                   setState(() {
                                     isContinueButtonEnabled = false;
@@ -286,6 +290,41 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                             const SizedBox(height: 30),
                             const Text(
                                 "Sending SMS containing verification code")
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+            if (loginInProgress) ...[
+              Container(color: const Color(0x70000000)),
+              Align(
+                alignment: Alignment.center,
+                child: Wrap(
+                  // width: min(screenWidth * 0.75, 350),
+                  // height: 350,
+                  children: [
+                    Card(
+                      elevation: 10,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 25),
+                        child: Column(
+                          children: [
+                            CircularProgressIndicator(
+                                color: theme.primaryColor),
+                            const SizedBox(height: 30),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 8.0,
+                                horizontal: 16,
+                              ),
+                              child: Text("Login..."),
+                            )
                           ],
                         ),
                       ),

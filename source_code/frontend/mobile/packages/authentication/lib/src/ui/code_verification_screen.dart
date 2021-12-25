@@ -61,7 +61,7 @@ class _CodeVerificationScreenState extends State<CodeVerificationScreen> {
       if (event == PhoneNumberVerificationState.completed) {
         setState(() => verificationState =
             CodeVerificationScreen.verificationStates.elementAt(1));
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(true);
       } else if (event == PhoneNumberVerificationState.failed) {
         if (widget.phoneNumberVerifier.exception?.exceptionType ==
             AuthenticationExceptionType.invalidVerificationCode) {
