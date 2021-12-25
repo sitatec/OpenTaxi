@@ -34,8 +34,7 @@ class _HomePageState extends State<HomePage> {
   bool _isOnlineStatusChanging = false;
   bool _locationServiceInitialized = false;
   bool _bookingAccepted = true;
-  _StatusNotification? _statusNotification =
-      null; //_StatusNotification.offline;
+  Widget? _notification = null; //_StatusNotification.offline;
   StreamSubscription? _onlineStatusSubscription;
   StreamSubscription? _dataStreamSubscription;
   StreamSubscription? _locationStreamSubscription;
@@ -58,9 +57,46 @@ class _HomePageState extends State<HomePage> {
       }
       setState(() {
         _isDriverOnline = _isConnected;
-        _statusNotification = _isConnected ? null : _StatusNotification.offline;
+        _notification = _isConnected
+            ? null
+            : _buildStatusNotification(_StatusNotification.offline);
       });
     });
+  }
+
+  Widget _buildStatusNotification(_StatusNotification _statusNotification) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      color: _statusNotification.backgroundColor,
+      child: Row(
+        children: [
+          _statusNotification.imageURL.isNotEmpty
+              ? SvgPicture.asset(_statusNotification.imageURL)
+              : const CircularProgressIndicator(color: Colors.white),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _statusNotification.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                _statusNotification.subtitle,
+                style: TextStyle(
+                  color: Colors.white.withAlpha(200),
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
+    );
   }
 
   void _onDataRecieved(MapEntry<FramType, dynamic> dataJson) async {
@@ -169,7 +205,7 @@ class _HomePageState extends State<HomePage> {
                     activeIcon:
                         SvgPicture.asset("assets/images/online_icon.svg"),
                     valueFontSize: 18,
-                    inactiveColor: theme.disabledColor,
+                    inactiveColor: theme.disabledColor.withAlpha(200),
                     activeColor: theme.accentColor,
                     showOnOff: true,
                   ),
@@ -179,46 +215,26 @@ class _HomePageState extends State<HomePage> {
                       shape: BoxShape.circle,
                     ),
                     child: IconButton(
-                        icon: Icon(Icons.search, color: theme.disabledColor),
-                        onPressed: () {}),
+                      icon: Icon(Icons.search, color: theme.disabledColor),
+                      onPressed: () {
+                        _showReviewNotification(
+                          MapEntry(4.5, "Sita Bérété left a 4.5 star Review"),
+                        );
+                        // _showRatingBottomSheet(
+                        //   _RiderData(
+                        //     imageURL: idToProfilePicture(""),
+                        //     rating: "4.5",
+                        //     paymentMethod: "By Cash",
+                        //     name: "Sita Bérété",
+                        //   ),
+                        // );
+                      },
+                    ),
                   ),
                 ],
               ),
             ),
-            if (_statusNotification != null)
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                color: _statusNotification!.backgroundColor,
-                child: Row(
-                  children: [
-                    _statusNotification!.imageURL.isNotEmpty
-                        ? SvgPicture.asset(_statusNotification!.imageURL)
-                        : const CircularProgressIndicator(color: Colors.white),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          _statusNotification!.title,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Text(
-                          _statusNotification!.subtitle,
-                          style: TextStyle(
-                            color: Colors.white.withAlpha(200),
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-              ),
+            if (_notification != null) _notification!,
             if (_bookingAccepted)
               Align(
                 alignment: Alignment.topRight,
@@ -250,9 +266,11 @@ class _HomePageState extends State<HomePage> {
     if (_isOnlineStatusChanging) return;
     setState(() {
       _isOnlineStatusChanging = true;
-      _statusNotification = mustConnect
-          ? _StatusNotification.connecting
-          : _StatusNotification.disconnecting;
+      _notification = _buildStatusNotification(
+        mustConnect
+            ? _StatusNotification.connecting
+            : _StatusNotification.disconnecting,
+      );
     });
     try {
       if (mustConnect) {
@@ -535,6 +553,122 @@ class _HomePageState extends State<HomePage> {
             ],
           );
         });
+  }
+
+  void _showReviewNotification(MapEntry<double, String> notificationData) {
+    setState(() {
+      _notification = Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          color: Theme.of(context).primaryColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Column(
+                children: [
+                  RatingBarIndicator(
+                    itemSize: 22,
+                    rating: notificationData.key,
+                    itemBuilder: (BuildContext context, int index) =>
+                        const Icon(
+                      Icons.star,
+                      color: yellow,
+                    ),
+                  ),
+                  const SizedBox(height: 5),
+                  Text(
+                    notificationData.value,
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500),
+                  )
+                ],
+              ),
+            ],
+          ));
+    });
+  }
+
+  void _showRatingBottomSheet(_RiderData riderData) {
+    double rating = 0.0;
+    showBottomSheet(
+      elevation: 4,
+      context: context,
+      builder: (context) {
+        final theme = Theme.of(context);
+        return Wrap(
+          alignment: WrapAlignment.center,
+          children: [
+            Container(
+              color: lightGray,
+              padding: const EdgeInsets.only(
+                left: 24,
+                right: 16,
+                top: 10,
+                bottom: 10,
+              ),
+              child: _BottomSheetHeader(riderData),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              child: RatingBar(
+                glow: false,
+                itemSize: 50,
+                minRating: 1,
+                initialRating: 1,
+                allowHalfRating: true,
+                onRatingUpdate: (newValue) => rating = newValue,
+                ratingWidget: RatingWidget(
+                  empty: Icon(
+                    Icons.star_rate,
+                    color: theme.disabledColor.withAlpha(200),
+                  ),
+                  half: const Icon(
+                    Icons.star_half,
+                    color: yellow,
+                  ),
+                  full: const Icon(
+                    Icons.star_rate,
+                    color: yellow,
+                  ),
+                ),
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8.0,
+                      horizontal: 24,
+                    ),
+                    child: TextButton(
+                      onPressed: () {
+                        // TODO Submit rating
+                      },
+                      child: const Text(
+                        "Submit",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 17,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      style: TextButton.styleFrom(
+                        backgroundColor: theme.primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
