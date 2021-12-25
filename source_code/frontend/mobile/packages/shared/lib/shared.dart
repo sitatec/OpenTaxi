@@ -16,3 +16,4 @@ export 'package:web_socket_channel/web_socket_channel.dart';
 export 'package:authentication/authentication.dart';
 export 'package:location_manager/location_manager.dart';
 export 'package:flutter_rating_bar/flutter_rating_bar.dart';
+export 'package:google_fonts/google_fonts.dart';
