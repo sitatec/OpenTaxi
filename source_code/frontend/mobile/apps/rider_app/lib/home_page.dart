@@ -40,13 +40,14 @@ class _HomePageState extends State<HomePage> {
                   child: Padding(
                     padding: const EdgeInsets.all(8),
                     child: Row(
-                      children: const [
+                      children: [
                         FavoritePlaceWidget(
-                          child: Icon(
+                          child: const Icon(
                             Icons.add,
                             color: Colors.black87,
                           ),
-                          padding: EdgeInsets.all(7.6),
+                          padding: const EdgeInsets.all(7.6),
+                          onClicked: showFavoritePlaceDialog,
                         ),
                         SizedBox(width: 12),
                         FavoritePlaceWidget(child: Text("Home")),
@@ -89,6 +90,53 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Future<void> showFavoritePlaceDialog([String? _placeName, String? _address]) {
+    String? placeName = _placeName;
+    String? address = _address;
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text(
+          "New Favorite Place",
+          textAlign: TextAlign.center,
+        ),
+        contentPadding: const EdgeInsets.all(16),
+        content: Wrap(
+          alignment: WrapAlignment.center,
+          children: [
+            TextField(
+              controller: TextEditingController(text: placeName),
+              onChanged: (newValue) => placeName = newValue,
+              decoration: const InputDecoration(
+                labelText: "Name (e.g. Home)",
+              ),
+            ),
+            TextField(
+              controller: TextEditingController(text: address),
+              onChanged: (newValue) => address = newValue,
+              decoration: const InputDecoration(
+                labelText: "Address",
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: SmallRoundedCornerButton(
+                "Add",
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 8,
+                ),
+                onPressed: () =>
+                    Navigator.of(context).pop(MapEntry(placeName, address)),
+                backgroundColor: Theme.of(context).primaryColor,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
