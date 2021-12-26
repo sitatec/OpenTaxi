@@ -25,59 +25,64 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primaryColor: const Color(0xFF054BAC),
         errorColor: const Color(0xFFFE1917),
-        disabledColor: const Color(0xEAB7B7B7),
+        disabledColor: const Color(0xFFB7B7B7),
         accentColor: const Color(0xFF2BC25F),
         fontFamily: GoogleFonts.poppins().fontFamily,
       ),
-      home: SafeArea(
-        child: FutureBuilder<FirebaseApp>(
-            future: Firebase.initializeApp(),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                // TODO check if internet connection is available, if not show appropriate screen
-                // TODO show "something went wrong" screen when internet connection is available.
-              }
-              if (snapshot.connectionState == ConnectionState.done) {
-                final authenticationProvider = AuthenticationProvider.instance;
-                return StreamBuilder<AuthState>(
-                    stream: authenticationProvider.authBinaryState,
-                    initialData: AuthState.uninitialized,
-                    builder: (context, authSnapshot) {
-                      if (authSnapshot.data == AuthState.uninitialized) {
-                        return const Center(child: Text("Authenticating..."));
-                      }
-                      if (authSnapshot.data == AuthState.authenticated) {
-                        final riderAccount = authenticationProvider.account!;
-                        if (riderAccount.role != AccountRole.UNDEFINED &&
-                            riderAccount.role != AccountRole.RIDER) {
-                          // TODO handle if the user is not a driver.
-                          return const Center(
-                            child: Text(
-                              "This account is not a driver account!",
-                            ),
-                          );
-                        } else {
-                          return HomePage();
-                          // return MainScreen(driver);
-                          // if (riderAccount.status ==
-                          //     AccountStatus.REGISTRATION_IN_PROGRESS) {
-                          //   return RegistrationScreen(driver);
-                          // } else if (riderAccount.status ==
-                          //     AccountStatus.WAITING_FOR_APPROVAL) {
-                          //   return const RegistrationStatusPage(
-                          //     RegistrationStatus.underReview,
-                          //   );
-                          // }
-                          // return MainScreen(driver);
-                        }
-                      } else {
-                        return const PhoneAuthScreen();
-                      }
-                    });
-              }
-              return const Center(child: Text("Loading..."));
-            }),
-      ),
+      home: true
+          ? HomePage()
+          : SafeArea(
+              child: FutureBuilder<FirebaseApp>(
+                  future: Firebase.initializeApp(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasError) {
+                      // TODO check if internet connection is available, if not show appropriate screen
+                      // TODO show "something went wrong" screen when internet connection is available.
+                    }
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      final authenticationProvider =
+                          AuthenticationProvider.instance;
+                      return StreamBuilder<AuthState>(
+                          stream: authenticationProvider.authBinaryState,
+                          initialData: AuthState.uninitialized,
+                          builder: (context, authSnapshot) {
+                            if (authSnapshot.data == AuthState.uninitialized) {
+                              return const Center(
+                                  child: Text("Authenticating..."));
+                            }
+                            if (authSnapshot.data == AuthState.authenticated) {
+                              final riderAccount =
+                                  authenticationProvider.account!;
+                              if (riderAccount.role != AccountRole.UNDEFINED &&
+                                  riderAccount.role != AccountRole.RIDER) {
+                                // TODO handle if the user is not a driver.
+                                return const Center(
+                                  child: Text(
+                                    "This account is not a driver account!",
+                                  ),
+                                );
+                              } else {
+                                return HomePage();
+                                // return MainScreen(driver);
+                                // if (riderAccount.status ==
+                                //     AccountStatus.REGISTRATION_IN_PROGRESS) {
+                                //   return RegistrationScreen(driver);
+                                // } else if (riderAccount.status ==
+                                //     AccountStatus.WAITING_FOR_APPROVAL) {
+                                //   return const RegistrationStatusPage(
+                                //     RegistrationStatus.underReview,
+                                //   );
+                                // }
+                                // return MainScreen(driver);
+                              }
+                            } else {
+                              return const PhoneAuthScreen();
+                            }
+                          });
+                    }
+                    return const Center(child: Text("Loading..."));
+                  }),
+            ),
     );
   }
 }
