@@ -405,7 +405,8 @@ class _HomePageState extends State<HomePage> {
                 ),
                 ListTile(
                   leading: CircleAvatar(
-                    child: SvgPicture.asset("assets/images/pickup_icon.svg"),
+                    child: SvgPicture.asset("assets/images/pickup_icon.svg",
+                        package: "shared"),
                     backgroundColor: iconsBackgroundColor,
                   ),
                   title: Text(
@@ -421,7 +422,8 @@ class _HomePageState extends State<HomePage> {
                 const Divider(height: 1),
                 ListTile(
                   leading: CircleAvatar(
-                    child: SvgPicture.asset("assets/images/dropoff_icon.svg"),
+                    child: SvgPicture.asset("assets/images/dropoff_icon.svg",
+                        package: "shared"),
                     backgroundColor: iconsBackgroundColor,
                   ),
                   title: Text(
