@@ -507,7 +507,9 @@ class _HomePageState extends State<HomePage> {
                             shape: const CircleBorder(),
                           ),
                           child: SvgPicture.asset(
-                              "assets/images/calling_icon.svg"),
+                            "assets/images/calling_icon.svg",
+                            package: "shared",
+                          ),
                           onPressed: () {},
                         ),
                         TextButton(
@@ -516,8 +518,10 @@ class _HomePageState extends State<HomePage> {
                             backgroundColor: Colors.black,
                             shape: const CircleBorder(),
                           ),
-                          child:
-                              SvgPicture.asset("assets/images/chat_icon.svg"),
+                          child: SvgPicture.asset(
+                            "assets/images/chat_icon.svg",
+                            package: "shared",
+                          ),
                           onPressed: () {},
                         ),
                       ],
