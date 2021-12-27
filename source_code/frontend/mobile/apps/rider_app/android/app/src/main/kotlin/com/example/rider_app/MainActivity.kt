@@ -1,4 +1,4 @@
-package com.example.rider_app
+package com.hamba.rider
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -8,6 +8,8 @@ import 'package:rider_app/place_selection_page.dart';
 import 'package:shared/shared.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
+import 'firebase_options.dart';
+
 void main() {
   if (defaultTargetPlatform == TargetPlatform.android) {
     AndroidGoogleMapsFlutter.useAndroidViewSurface = true;
@@ -34,7 +36,9 @@ class App extends StatelessWidget {
           ? PlaceSelectionPage()
           : SafeArea(
               child: FutureBuilder<FirebaseApp>(
-                  future: Firebase.initializeApp(),
+                  future: Firebase.initializeApp(
+                    options: DefaultFirebaseOptions.currentPlatform,
+                  ),
                   builder: (context, snapshot) {
                     if (snapshot.hasError) {
                       // TODO check if internet connection is available, if not show appropriate screen
