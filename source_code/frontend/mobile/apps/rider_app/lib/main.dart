@@ -4,6 +4,7 @@ import 'package:authentication/authentication.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:rider_app/home_page.dart';
+import 'package:rider_app/order_page.dart';
 import 'package:rider_app/place_selection_page.dart';
 import 'package:shared/shared.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -33,7 +34,7 @@ class App extends StatelessWidget {
         fontFamily: GoogleFonts.poppins().fontFamily,
       ),
       home: true
-          ? PlaceSelectionPage()
+          ? OrderPage()
           : SafeArea(
               child: FutureBuilder<FirebaseApp>(
                   future: Firebase.initializeApp(
