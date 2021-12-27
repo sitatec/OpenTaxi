@@ -11,6 +11,3 @@ Future<JsonObject> driverToDispatcherData(Driver driver) async => {
       "gnr": enumToString(driver.account.genre),
       "crT": enumToString((await driver.car).type),
     };
-
-String idToProfilePicture(String accountId) =>
-    "https://news.cornell.edu/sites/default/files/styles/breakout/public/2020-05/0521_abebegates.jpg?itok=OdW8otpB";
