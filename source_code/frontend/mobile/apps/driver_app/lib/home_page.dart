@@ -294,52 +294,48 @@ class _HomePageState extends State<HomePage> {
   Future<void> _showTripCancellationDialog() {
     final theme = Theme.of(context);
     return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(
-              "Are you sure you want to Cancel?",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: theme.primaryColor,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "Are you sure you want to Cancel?",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: theme.primaryColor,
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
             ),
-            content: const Text(
-              "You will charged an additional 200 cancellation",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-              ),
+          ),
+          content: const Text(
+            "You will charged an additional 200 cancellation",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w500,
             ),
-            actionsAlignment: MainAxisAlignment.center,
-            actions: [
-              Expanded(
-                child: SmallRoundedCornerButton(
-                  "YES",
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
-                  backgroundColor: theme.errorColor.withAlpha(190),
-                  onPressed: () {
-                    // TODO cancel
-                  },
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: SmallRoundedCornerButton(
-                  "GO BACK",
-                  backgroundColor: theme.disabledColor,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-              )
-            ],
-          );
-        });
+          ),
+          actionsAlignment: MainAxisAlignment.center,
+          actions: [
+            SmallRoundedCornerButton(
+              "YES",
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
+              backgroundColor: theme.errorColor.withAlpha(190),
+              onPressed: () {
+                // TODO cancel
+              },
+            ),
+            const SizedBox(width: 16),
+            SmallRoundedCornerButton(
+              "GO BACK",
+              backgroundColor: theme.disabledColor,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 
   void _showBookingRequest(_BookingRequestData bookingRequestData) {
