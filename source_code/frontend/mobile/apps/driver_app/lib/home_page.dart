@@ -239,12 +239,11 @@ class _HomePageState extends State<HomePage> {
               Align(
                 alignment: Alignment.topRight,
                 child: Padding(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(14),
                   child: InkWell(
                     child: Container(
                       child: Icon(
-                        Icons.block,
-                        size: 28,
+                        Icons.close,
                         color: theme.scaffoldBackgroundColor,
                       ),
                       decoration: BoxDecoration(
