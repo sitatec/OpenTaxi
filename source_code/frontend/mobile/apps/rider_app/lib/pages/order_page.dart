@@ -19,7 +19,7 @@ class _OrderPageState extends State<OrderPage> {
     return Scaffold(
       body: Stack(
         children: [
-          const MapWidget(padding: EdgeInsets.only(bottom: 45)),
+          const MapWidget(),
           SafeArea(
             child: Container(
               margin: const EdgeInsets.all(8),

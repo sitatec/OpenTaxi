@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:authentication/authentication.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:rider_app/home_page.dart';
-import 'package:rider_app/order_page.dart';
-import 'package:rider_app/place_selection_page.dart';
+import 'package:rider_app/pages/trip_page.dart';
 import 'package:shared/shared.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'firebase_options.dart';
+import 'configs/firebase_options.dart';
+import 'pages/home_page.dart';
+import 'pages/order_page.dart';
 
 void main() {
   if (defaultTargetPlatform == TargetPlatform.android) {
@@ -34,7 +34,7 @@ class App extends StatelessWidget {
         fontFamily: GoogleFonts.poppins().fontFamily,
       ),
       home: true
-          ? OrderPage()
+          ? TripPage()
           : SafeArea(
               child: FutureBuilder<FirebaseApp>(
                   future: Firebase.initializeApp(
