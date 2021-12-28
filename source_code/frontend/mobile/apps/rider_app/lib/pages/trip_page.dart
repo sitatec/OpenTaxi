@@ -11,6 +11,9 @@ class TripPage extends StatefulWidget {
 class _TripPageState extends State<TripPage> {
   bool tripDetailsShown = false;
   bool driverArrived = false;
+  bool driverWaiting = false;
+  bool tripInProgress = false;
+  bool tripJustSarted = true;
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -57,7 +60,11 @@ class _TripPageState extends State<TripPage> {
                     ),
                   ),
                   Text(
-                    "Arrivin in 4 min",
+                    driverWaiting
+                        ? "The taxi Arrived"
+                        : tripInProgress
+                            ? "Estimated time 12 mins"
+                            : "Arrivin in 4 min",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: theme.primaryColor,
@@ -152,6 +159,54 @@ class _TripPageState extends State<TripPage> {
               ),
             ),
           ),
+          if (driverWaiting)
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Card(
+                  color: theme.errorColor.withBlue(80).withGreen(80),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: const [
+                        SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(color: Colors.white),
+                        ),
+                        SizedBox(width: 16),
+                        Text(
+                          "The driver is waiting for you",
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (tripJustSarted)
+            SafeArea(
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: Card(
+                  color: theme.accentColor,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Row(
+                      children: const [
+                        Icon(Icons.check_circle, color: Colors.white),
+                        SizedBox(width: 16),
+                        Text(
+                          "The ride began",
+                          style: TextStyle(color: Colors.white),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
