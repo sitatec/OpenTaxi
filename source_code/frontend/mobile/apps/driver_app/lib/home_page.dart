@@ -6,6 +6,7 @@ import 'package:driver_app/utils/data_converters.dart';
 import 'package:driver_app/widgets/countdown_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import 'entities/driver.dart';
 import 'widgets/custom_switch.dart';
@@ -217,9 +218,10 @@ class _HomePageState extends State<HomePage> {
                     child: IconButton(
                       icon: Icon(Icons.search, color: theme.disabledColor),
                       onPressed: () {
-                        _showReviewNotification(
-                          MapEntry(4.5, "Sita Bérété left a 4.5 star Review"),
-                        );
+                        _showQrCodeDialog("slfs");
+                        // _showReviewNotification(
+                        //   MapEntry(4.5, "Sita Bérété left a 4.5 star Review"),
+                        // );
                         // _showRatingBottomSheet(
                         //   _RiderData(
                         //     imageURL: idToProfilePicture(""),
@@ -669,6 +671,47 @@ class _HomePageState extends State<HomePage> {
           ],
         );
       },
+    );
+  }
+
+  Future<void> _showQrCodeDialog(String qrCodeData) {
+    final dialogSize = MediaQuery.of(context).size.width * 0.8;
+    final theme = Theme.of(context);
+    return showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: theme.accentColor,
+        title: const Text(
+          "QR Code",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        content: Container(
+          alignment: Alignment.center,
+          width: dialogSize,
+          height: dialogSize * 0.8,
+          child: QrImage(
+            backgroundColor: Colors.white,
+            data: qrCodeData,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text(
+              "CLOSE",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
