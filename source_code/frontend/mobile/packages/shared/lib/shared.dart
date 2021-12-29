@@ -8,6 +8,7 @@ export 'src/entities/car.dart';
 export 'src/modules/trip_room/api.dart' hide TripRoomImplementation;
 export 'src/widgets/map_widget.dart';
 export 'src/utils/data_converters.dart';
+export 'src/screens/location_permission_page.dart';
 // ----------------------- Exported Packages -------------------------- //
 export 'package:flutter_svg/flutter_svg.dart';
 export 'package:flutter_multi_formatter/flutter_multi_formatter.dart'
