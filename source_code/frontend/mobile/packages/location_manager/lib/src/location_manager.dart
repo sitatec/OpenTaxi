@@ -17,6 +17,9 @@ class LocationManager {
 
   LocationManager.forTest(Location location) : _location = location;
 
+  Future<bool> get hasPermission async =>
+      (await _location.hasPermission()) == PermissionStatus.granted;
+
   // TODO: check if the device os version is android 11+ to decide weither to
   // todo: explan to the user how to always allow location permission or not.
 
