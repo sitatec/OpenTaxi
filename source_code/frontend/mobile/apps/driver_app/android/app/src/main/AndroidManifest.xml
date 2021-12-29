@@ -5,7 +5,7 @@
   <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
   
    <application
-        android:label="driver_app"
+        android:label="Hamba Driver"
         android:icon="@mipmap/ic_launcher">
 
         <meta-data android:name="com.google.android.geo.API_KEY"
