@@ -40,6 +40,8 @@ class LocationManager {
     if (locationPermissionStatus != PermissionStatus.granted) {
       if (locationPermissionStatus == PermissionStatus.deniedForever) {
         throw LocationManagerException.permissionPermanentlyDenied();
+      } else if (locationPermissionStatus == PermissionStatus.grantedLimited) {
+        throw LocationManagerException.insufficientPermission();
       }
       await _requestLocationPermission();
     }
@@ -51,6 +53,8 @@ class LocationManager {
         throw LocationManagerException.permissionDenied();
       case PermissionStatus.deniedForever:
         throw LocationManagerException.permissionPermanentlyDenied();
+      case PermissionStatus.grantedLimited:
+        throw LocationManagerException.insufficientPermission();
       default:
     }
   }
