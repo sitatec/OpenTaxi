@@ -65,7 +65,10 @@ class LocationManager {
     }
     final locationData = await _location.getLocation();
     return Coordinates(
-        latitude: locationData.latitude!, longitude: locationData.longitude!);
+      latitude: locationData.latitude!,
+      longitude: locationData.longitude!,
+      orientation: locationData.heading!,
+    );
   }
 
   Stream<Coordinates> getCoordinatesStream(
@@ -79,7 +82,10 @@ class LocationManager {
     );
     return _location.onLocationChanged.map<Coordinates>(
       (locationData) => Coordinates(
-          latitude: locationData.latitude!, longitude: locationData.longitude!),
+        latitude: locationData.latitude!,
+        longitude: locationData.longitude!,
+        orientation: locationData.heading!,
+      ),
     );
   }
 
@@ -90,10 +96,13 @@ class LocationManager {
 class Coordinates {
   late double latitude;
   late double longitude;
-  Coordinates({required this.latitude, required this.longitude});
+  double orientation = 0;
+  Coordinates(
+      {required this.latitude, required this.longitude, this.orientation = 0});
   Coordinates.fromMap(Map<String, double> map) {
     latitude = map['latitude']!;
     longitude = map['longitude']!;
+    orientation = map['orientation'] ?? 0;
   }
   @override
   bool operator ==(Object other) {
@@ -107,5 +116,9 @@ class Coordinates {
   @override
   int get hashCode => latitude.hashCode + longitude.hashCode;
 
-  Map<String, double> toMap() => {'latitude': latitude, 'longitude': longitude};
+  Map<String, double> toMap() => {
+        'latitude': latitude,
+        'longitude': longitude,
+        'orientation': orientation,
+      };
 }
