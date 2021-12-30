@@ -44,7 +44,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    print("\n\nHomePage.initState()\n\n");
     super.initState();
     _dispatcher = widget._dispatcher;
     _onlineStatusSubscription = _dispatcher.isConnected.listen((_isConnected) {
@@ -59,10 +58,7 @@ class _HomePageState extends State<HomePage> {
         _locationStreamSubscription?.cancel();
       }
       setState(() {
-        print("\n\nisConnected === $_isConnected\n\n");
         _isDriverOnline = _isConnected;
-        print(
-            "\n\nisConnected === $_isConnected && _isDriverOnline == $_isDriverOnline\n\n");
         _notification = _isConnected
             ? null
             : _buildStatusNotification(_StatusNotification.offline);
@@ -178,94 +174,104 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Stack(
-      children: [
-        MapWidget(),
-        Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-              color: theme.scaffoldBackgroundColor,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const CircleAvatar(
-                    backgroundImage: NetworkImage(
-                      "https://static9.depositphotos.com/1060743/1203/i/600/depositphotos_12033497-stock-photo-portrait-of-young-black-man.jpg",
-                    ),
-                    radius: 24,
+    return Scaffold(
+        appBar: AppBar(
+          flexibleSpace: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+            color: theme.scaffoldBackgroundColor,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const CircleAvatar(
+                  backgroundImage: NetworkImage(
+                    "https://static9.depositphotos.com/1060743/1203/i/600/depositphotos_12033497-stock-photo-portrait-of-young-black-man.jpg",
                   ),
-                  FlutterSwitch(
-                    value: _isDriverOnline,
-                    onToggle: _toggleDriverOnlineStatus,
-                    activeText: const Text(
-                      "Online",
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    inactiveText: const Text(
-                      "Offline",
-                      style: TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    inactiveIcon:
-                        SvgPicture.asset("assets/images/offline_icon.svg"),
-                    activeIcon:
-                        SvgPicture.asset("assets/images/online_icon.svg"),
-                    valueFontSize: 18,
-                    inactiveColor: theme.disabledColor.withAlpha(200),
-                    activeColor: theme.accentColor,
-                    showOnOff: true,
+                  radius: 24,
+                ),
+                FlutterSwitch(
+                  value: _isDriverOnline,
+                  onToggle: _toggleDriverOnlineStatus,
+                  activeText: const Text(
+                    "Online",
+                    style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: lightGray, width: 2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.search, color: theme.disabledColor),
-                      onPressed: () {
-                        _showQrCodeDialog("slfs");
-                        // _showReviewNotification(
-                        //   MapEntry(4.5, "Sita Bérété left a 4.5 star Review"),
-                        // );
-                        // _showRatingBottomSheet(
-                        //   _RiderData(
-                        //     imageURL: idToProfilePicture(""),
-                        //     rating: "4.5",
-                        //     paymentMethod: "By Cash",
-                        //     name: "Sita Bérété",
-                        //   ),
-                        // );
-                      },
-                    ),
+                  inactiveText: const Text(
+                    "Offline",
+                    style: TextStyle(fontWeight: FontWeight.w500),
                   ),
-                ],
-              ),
-            ),
-            if (_notification != null) _notification!,
-            if (_bookingAccepted)
-              Align(
-                alignment: Alignment.topRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(14),
-                  child: InkWell(
-                    child: Container(
-                      child: Icon(
-                        Icons.close,
-                        color: theme.scaffoldBackgroundColor,
-                      ),
-                      decoration: BoxDecoration(
-                        color: theme.errorColor.withAlpha(190),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                    onTap: _showTripCancellationDialog,
+                  inactiveIcon:
+                      SvgPicture.asset("assets/images/offline_icon.svg"),
+                  activeIcon: SvgPicture.asset("assets/images/online_icon.svg"),
+                  valueFontSize: 18,
+                  inactiveColor: theme.disabledColor.withAlpha(200),
+                  activeColor: theme.accentColor,
+                  showOnOff: true,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: lightGray, width: 2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: Icon(Icons.search, color: theme.disabledColor),
+                    onPressed: () {
+                      _showQrCodeDialog("slfs");
+                      // _showReviewNotification(
+                      //   MapEntry(4.5, "Sita Bérété left a 4.5 star Review"),
+                      // );
+                      // _showRatingBottomSheet(
+                      //   _RiderData(
+                      //     imageURL: idToProfilePicture(""),
+                      //     rating: "4.5",
+                      //     paymentMethod: "By Cash",
+                      //     name: "Sita Bérété",
+                      //   ),
+                      // );
+                    },
                   ),
                 ),
-              ),
+              ],
+            ),
+          ),
+        ),
+        body: Stack(
+          children: [
+            MapWidget(controller: Completer()),
+            Column(
+              children: [
+                if (_notification != null) _notification!,
+                if (_bookingAccepted)
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: InkWell(
+                        child: Container(
+                          child: Icon(
+                            Icons.close,
+                            color: theme.scaffoldBackgroundColor,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.errorColor.withAlpha(190),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                        onTap: _showTripCancellationDialog,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ],
-        )
-      ],
-    );
+        ),
+        floatingActionButton: SizedBox(
+          width: 46,
+          child: FloatingActionButton(
+            backgroundColor: theme.scaffoldBackgroundColor,
+            onPressed: () {},
+            child: const Icon(Icons.my_location, color: Colors.black87),
+          ),
+        ));
   }
 
   Future<void> _toggleDriverOnlineStatus(bool mustConnect) async {
@@ -768,7 +774,7 @@ class _StatusNotification {
     this.title,
     this.subtitle,
     this.imageURL, {
-    this.backgroundColor = const Color(0xC8FE1917),
+    this.backgroundColor = const Color(0xB0FE1B17),
   });
 
   static const offline = _StatusNotification(

@@ -67,6 +67,8 @@ class _MainScreenState extends State<MainScreen> {
         onTap: (index) => setState(() => _selectedTabIndex = index),
         showSelectedLabels: false,
         showUnselectedLabels: false,
+        selectedLabelStyle: const TextStyle(fontSize: 0),
+        unselectedLabelStyle: const TextStyle(fontSize: 0),
       ),
     );
   }
