@@ -20,12 +20,14 @@ class LocationManager {
   Future<bool> get hasPermission async =>
       (await _location.hasPermission()) == PermissionStatus.granted;
 
+  Future<bool> get backgroundEnabled => _location.isBackgroundModeEnabled();
+
   // TODO: check if the device os version is android 11+ to decide weither to
   // todo: explan to the user how to always allow location permission or not.
 
   Future<void> initialize({bool requireBackground = false}) async {
-    await _location.enableBackgroundMode(enable: requireBackground);
     await _requireLocationPermission();
+    await _location.enableBackgroundMode(enable: requireBackground);
     if (!(await _location.serviceEnabled()) &&
         !(await _location.requestService())) {
       throw LocationManagerException.locationServiceDisabled();

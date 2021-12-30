@@ -43,19 +43,22 @@ class LocationPermissionPage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 text: const TextSpan(
                     text:
-                        'Your location will be used to send you requests from the closest riders. In the next step click on "',
+                        'Your location will be used to send you requests from the closest riders. In the next step select "',
                     style: TextStyle(color: gray, fontSize: 15),
                     children: [
                       TextSpan(
                         text: 'Allways',
                         style: TextStyle(fontWeight: FontWeight.bold),
-                        children: [
-                          TextSpan(
-                            text:
-                                "\" otherwise we won't have the required permission.",
-                            style: TextStyle(fontWeight: FontWeight.normal),
-                          )
-                        ],
+                      ),
+                      TextSpan(text: "\" or \""),
+                      TextSpan(
+                        text: 'All the time',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                        children: [],
+                      ),
+                      TextSpan(
+                        text:
+                            "\" otherwise we won't have the required permission.",
                       )
                     ]),
               ),
