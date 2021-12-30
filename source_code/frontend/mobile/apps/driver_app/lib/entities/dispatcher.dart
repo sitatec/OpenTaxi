@@ -9,21 +9,40 @@ const dispatcherServerUrl =
 
 class Dispatcher {
   WebSocketChannel? _webSocketChannel;
-  final _connectionStreamController = StreamController<bool>();
-  final _dataStreamController = StreamController<MapEntry<FramType, dynamic>>();
+  late final StreamController<bool> _connectionStreamController;
+  late final StreamController<MapEntry<FramType, dynamic>>
+      _dataStreamController;
   bool _isConnected = false;
+  MapEntry<FramType, dynamic>? _pendingData;
   Stream<bool> get isConnected => _connectionStreamController.stream;
   Stream<MapEntry<FramType, dynamic>>? get dataStream =>
       _dataStreamController.stream;
+  Dispatcher([this._webSocketChannel]) {
+    _connectionStreamController = StreamController<bool>.broadcast(
+      onListen: () => _connectionStreamController.add(_isConnected),
+    );
 
-  Dispatcher([this._webSocketChannel]);
+    _dataStreamController =
+        StreamController<MapEntry<FramType, dynamic>>.broadcast(
+      onListen: () {
+        if (_pendingData != null) {
+          _dataStreamController.add(_pendingData!);
+        }
+      },
+    );
+  }
 
   void _convertData(data) {
     data as String;
     final separatorIndex = data.indexOf(":");
     final code = int.parse(data.substring(0, separatorIndex));
     final message = data.substring(separatorIndex + 1);
-    _dataStreamController.add(MapEntry(FramType.values[code], message));
+    if (_dataStreamController.hasListener) {
+      _dataStreamController.add(MapEntry(FramType.values[code], message));
+    } else {
+      // TODO if no listener show notification.
+      _pendingData = MapEntry(FramType.values[code], message);
+    }
   }
 
   Future<void> connect() async {

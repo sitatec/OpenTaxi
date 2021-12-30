@@ -44,6 +44,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    print("\n\nHomePage.initState()\n\n");
     super.initState();
     _dispatcher = widget._dispatcher;
     _onlineStatusSubscription = _dispatcher.isConnected.listen((_isConnected) {
@@ -58,7 +59,10 @@ class _HomePageState extends State<HomePage> {
         _locationStreamSubscription?.cancel();
       }
       setState(() {
+        print("\n\nisConnected === $_isConnected\n\n");
         _isDriverOnline = _isConnected;
+        print(
+            "\n\nisConnected === $_isConnected && _isDriverOnline == $_isDriverOnline\n\n");
         _notification = _isConnected
             ? null
             : _buildStatusNotification(_StatusNotification.offline);
