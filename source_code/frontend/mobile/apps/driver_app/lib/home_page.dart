@@ -7,6 +7,7 @@ import 'package:driver_app/widgets/countdown_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:app_settings/app_settings.dart';
 
 import 'entities/driver.dart';
 import 'widgets/custom_switch.dart';
@@ -276,20 +277,57 @@ class _HomePageState extends State<HomePage> {
     try {
       if (mustConnect) {
         if (!_locationServiceInitialized) {
+          if (!(await _askLocationPermission())) {
+            return setState(() {
+              _isOnlineStatusChanging = true;
+              _notification = null;
+            });
+          }
           await widget._locationManager.initialize(requireBackground: true);
           _locationServiceInitialized = true;
-          await widget._dispatcher.connect();
-        } else {
-          await widget._dispatcher.disconnect();
         }
+        await widget._dispatcher.connect();
+      } else {
+        await widget._dispatcher.disconnect();
       }
       // TODO catche exceptions from dispatcher connect() and disconnect().
     } on LocationManagerException catch (e) {
-      // TODO handle
-      rethrow;
+      setState(() => _notification = null);
+      if (e.exceptionType == LocationManagerExceptionType.permissionDenied) {
+        // Do nothing, when the driver try going online the permission dialog will be shown again
+      }
+      if (e.exceptionType ==
+          LocationManagerExceptionType.insufficientPermission) {
+        //TODO handle
+      }
+      if (e.exceptionType ==
+          LocationManagerExceptionType.permissionPermanentlyDenied) {
+        await AppSettings.openLocationSettings();
+        // TODO use the appropriated seettings page.
+      } else {
+        rethrow;
+      }
     } finally {
       setState(() => _isOnlineStatusChanging = false);
     }
+  }
+
+  Future<bool> _askLocationPermission() async {
+    return await widget._locationManager.backgroundEnabled &&
+            await widget._locationManager.hasPermission ||
+        (await showDialog<bool>(
+              barrierDismissible: false,
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  content: LocationPermissionPage(
+                    onEnableButtonClicked: () =>
+                        Navigator.of(context).pop(true),
+                  ),
+                );
+              },
+            ) ??
+            false);
   }
 
   Future<void> _showTripCancellationDialog() {
