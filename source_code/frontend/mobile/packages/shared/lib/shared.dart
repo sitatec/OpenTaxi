@@ -19,3 +19,4 @@ export 'package:authentication/authentication.dart';
 export 'package:location_manager/location_manager.dart';
 export 'package:flutter_rating_bar/flutter_rating_bar.dart';
 export 'package:google_fonts/google_fonts.dart';
+export 'package:google_maps_flutter/google_maps_flutter.dart';
