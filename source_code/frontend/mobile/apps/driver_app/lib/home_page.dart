@@ -35,11 +35,11 @@ class _HomePageState extends State<HomePage> {
   bool _isDriverOnline = false;
   bool _isOnlineStatusChanging = false;
   bool _locationServiceInitialized = false;
-  bool _bookingAccepted = true;
+  bool _bookingAccepted = false;
   Widget? _notification = null; //_StatusNotification.offline;
   final Completer<GoogleMapController> _mapController = Completer();
   final Set<Marker> _markers = {};
-  final Map<String, String> _encodedPolylines = {};
+  final Set<Polyline> _polylines = {};
   StreamSubscription? _onlineStatusSubscription;
   StreamSubscription? _dataStreamSubscription;
   StreamSubscription? _locationStreamSubscription;
@@ -178,107 +178,110 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-        appBar: AppBar(
-          flexibleSpace: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-            color: theme.scaffoldBackgroundColor,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const CircleAvatar(
-                  backgroundImage: NetworkImage(
-                    "https://static9.depositphotos.com/1060743/1203/i/600/depositphotos_12033497-stock-photo-portrait-of-young-black-man.jpg",
-                  ),
-                  radius: 24,
+      appBar: AppBar(
+        flexibleSpace: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          color: theme.scaffoldBackgroundColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const CircleAvatar(
+                backgroundImage: NetworkImage(
+                  "https://static9.depositphotos.com/1060743/1203/i/600/depositphotos_12033497-stock-photo-portrait-of-young-black-man.jpg",
                 ),
-                FlutterSwitch(
-                  value: _isDriverOnline,
-                  onToggle: _toggleDriverOnlineStatus,
-                  activeText: const Text(
-                    "Online",
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  inactiveText: const Text(
-                    "Offline",
-                    style: TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                  inactiveIcon:
-                      SvgPicture.asset("assets/images/offline_icon.svg"),
-                  activeIcon: SvgPicture.asset("assets/images/online_icon.svg"),
-                  valueFontSize: 18,
-                  inactiveColor: theme.disabledColor.withAlpha(200),
-                  activeColor: theme.accentColor,
-                  showOnOff: true,
+                radius: 24,
+              ),
+              FlutterSwitch(
+                value: _isDriverOnline,
+                onToggle: _toggleDriverOnlineStatus,
+                activeText: const Text(
+                  "Online",
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: lightGray, width: 2),
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: Icon(Icons.search, color: theme.disabledColor),
-                    onPressed: () {
-                      _showQrCodeDialog("slfs");
-                      // _showReviewNotification(
-                      //   MapEntry(4.5, "Sita Bérété left a 4.5 star Review"),
-                      // );
-                      // _showRatingBottomSheet(
-                      //   _RiderData(
-                      //     imageURL: idToProfilePicture(""),
-                      //     rating: "4.5",
-                      //     paymentMethod: "By Cash",
-                      //     name: "Sita Bérété",
-                      //   ),
-                      // );
-                    },
-                  ),
+                inactiveText: const Text(
+                  "Offline",
+                  style: TextStyle(fontWeight: FontWeight.w500),
                 ),
-              ],
-            ),
+                inactiveIcon:
+                    SvgPicture.asset("assets/images/offline_icon.svg"),
+                activeIcon: SvgPicture.asset("assets/images/online_icon.svg"),
+                valueFontSize: 18,
+                inactiveColor: theme.disabledColor.withAlpha(200),
+                activeColor: theme.accentColor,
+                showOnOff: true,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: lightGray, width: 2),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.search, color: theme.disabledColor),
+                  onPressed: () {
+                    _drowDirectionToDropOff(
+                        r"gv_dAd`ejAY`CE?oFi@qAImDG}@Iu@?wCJKkCQ{DIgDCuECmEEoLMiQK_\EaBQ_CaBuNwA}LYiCUcBKWMUg@a@YKk@GkBO{@Uk@_@U[c@iA{EuNs@wBaAiESw@UqAQ{Ac@mLQmDCm@CIEIGGGCIAOJAHAD[b@ENaHvGsElEwAxAaAfAS\_@?{@NiE~@aB\w@Hk@Ny@XeAf@}Af@{Bv@wErBeHvCQ@GJSL{Aj@aBl@yATMHCH?VFRj@z@");
+                    // _showQrCodeDialog("slfs");
+                    // _showReviewNotification(
+                    //   MapEntry(4.5, "Sita Bérété left a 4.5 star Review"),
+                    // );
+                    // _showRatingBottomSheet(
+                    //   _RiderData(
+                    //     imageURL: idToProfilePicture(""),
+                    //     rating: "4.5",
+                    //     paymentMethod: "By Cash",
+                    //     name: "Sita Bérété",
+                    //   ),
+                    // );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
-        body: Stack(
-          children: [
-            MapWidget(
-              controller: _mapController,
-              markers: _markers,
-              encodedPolylines: _encodedPolylines,
-            ),
-            Column(
-              children: [
-                if (_notification != null) _notification!,
-                if (_bookingAccepted)
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: const EdgeInsets.all(14),
-                      child: InkWell(
-                        child: Container(
-                          child: Icon(
-                            Icons.close,
-                            color: theme.scaffoldBackgroundColor,
-                          ),
-                          decoration: BoxDecoration(
-                            color: theme.errorColor.withAlpha(190),
-                            shape: BoxShape.circle,
-                          ),
+      ),
+      body: Stack(
+        children: [
+          MapWidget(
+            controller: _mapController,
+            markers: _markers,
+            polylines: _polylines,
+          ),
+          Column(
+            children: [
+              if (_notification != null) _notification!,
+              if (_bookingAccepted)
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: InkWell(
+                      child: Container(
+                        child: Icon(
+                          Icons.close,
+                          color: theme.scaffoldBackgroundColor,
                         ),
-                        onTap: _showTripCancellationDialog,
+                        decoration: BoxDecoration(
+                          color: theme.errorColor.withAlpha(190),
+                          shape: BoxShape.circle,
+                        ),
                       ),
+                      onTap: _showTripCancellationDialog,
                     ),
                   ),
-              ],
-            ),
-          ],
-        ),
-        floatingActionButton: SizedBox(
-          width: 46,
-          child: FloatingActionButton(
-            backgroundColor: theme.scaffoldBackgroundColor,
-            onPressed: _showMyLocation,
-            child: const Icon(Icons.my_location, color: Colors.black87),
+                ),
+            ],
           ),
-        ));
+        ],
+      ),
+      floatingActionButton: SizedBox(
+        width: 46,
+        child: FloatingActionButton(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          onPressed: _showMyLocation,
+          child: const Icon(Icons.my_location, color: Colors.black87),
+        ),
+      ),
+    );
   }
 
   Future<void> _toggleDriverOnlineStatus(bool mustConnect) async {
@@ -313,15 +316,20 @@ class _HomePageState extends State<HomePage> {
     final currentCordinates =
         await widget._locationManager.getCurrentCoordinates();
     late final BitmapDescriptor icon;
-    if (_bookingAccepted) {
+    if (_isDriverOnline) {
+      icon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(size: Size(60, 120)),
+        "assets/images/car_white.png",
+        package: "shared",
+      );
+    } else {
       icon = await BitmapDescriptor.fromAssetImage(
         const ImageConfiguration(size: Size(60, 60)),
         "assets/images/my_location.png",
         package: "shared",
       );
-    } else {
-      icon = BitmapDescriptor.defaultMarker;
     }
+    print("\n\n${currentCordinates.orientation}\n\n");
     final latlng =
         LatLng(currentCordinates.latitude, currentCordinates.longitude);
     setState(() {
@@ -331,6 +339,7 @@ class _HomePageState extends State<HomePage> {
           markerId: const MarkerId("driver"),
           position: latlng,
           icon: icon,
+          rotation: currentCordinates.orientation,
         ),
       );
     });
@@ -342,6 +351,32 @@ class _HomePageState extends State<HomePage> {
   void _showSnakbar(String message) {
     final scaffold = ScaffoldMessenger.of(context);
     scaffold.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _drowDirectionToPickUp(String encodedPolyline) {
+    setState(() {
+      _polylines.add(
+        Polyline(
+          polylineId: const PolylineId("to_picup"),
+          points: decodePolyline(encodedPolyline),
+          width: 4,
+          patterns: [PatternItem.dash(20), PatternItem.gap(10)],
+        ),
+      );
+    });
+  }
+
+  void _drowDirectionToDropOff(String encodedPolyline) {
+    setState(() {
+      _polylines.add(
+        Polyline(
+          polylineId: const PolylineId("to_picup"),
+          points: decodePolyline(encodedPolyline),
+          width: 4,
+          color: const Color(0xFFE50027),
+        ),
+      );
+    });
   }
 
   Future<bool> _initializeLocationServices() async {
