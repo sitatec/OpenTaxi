@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
@@ -9,6 +11,7 @@ class TripPage extends StatefulWidget {
 }
 
 class _TripPageState extends State<TripPage> {
+  final Completer<GoogleMapController> _mapController = Completer();
   bool tripDetailsShown = false;
   bool driverArrived = false;
   bool driverWaiting = false;
@@ -21,7 +24,10 @@ class _TripPageState extends State<TripPage> {
     return Scaffold(
       body: Stack(
         children: [
-          const MapWidget(padding: EdgeInsets.only(bottom: 45)),
+          MapWidget(
+            padding: EdgeInsets.only(bottom: 45),
+            controller: _mapController,
+          ),
           SafeArea(
             child: Container(
               margin: const EdgeInsets.all(8),

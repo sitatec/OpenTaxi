@@ -2,7 +2,7 @@
     package="com.hamba.rider">
    <application
         android:label="Hamba"
-        android:name="${applicationName}"
+        android:name="androidx.multidex.MultiDexApplication"
         android:icon="@mipmap/ic_launcher">
 
         <meta-data android:name="com.google.android.geo.API_KEY"

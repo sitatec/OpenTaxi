@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:authentication/authentication.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:rider_app/pages/qrcode_scan_page.dart';
 import 'package:rider_app/pages/rating_page.dart';
 import 'package:rider_app/pages/trip_page.dart';
 import 'package:shared/shared.dart';
@@ -35,7 +36,7 @@ class App extends StatelessWidget {
         fontFamily: GoogleFonts.poppins().fontFamily,
       ),
       home: true
-          ? RatingPage()
+          ? QrCodeScanPage(validateQrCode: (_) => true)
           : SafeArea(
               child: FutureBuilder<FirebaseApp>(
                   future: Firebase.initializeApp(

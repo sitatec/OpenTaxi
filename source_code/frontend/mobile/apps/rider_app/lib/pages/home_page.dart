@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
@@ -9,6 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final Completer<GoogleMapController> _mapController = Completer();
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -18,7 +21,10 @@ class _HomePageState extends State<HomePage> {
           Expanded(
             child: Stack(
               children: [
-                const MapWidget(padding: EdgeInsets.only(bottom: 45)),
+                MapWidget(
+                  padding: const EdgeInsets.only(bottom: 45),
+                  controller: _mapController,
+                ),
                 SafeArea(
                   child: Container(
                     margin: const EdgeInsets.all(8),

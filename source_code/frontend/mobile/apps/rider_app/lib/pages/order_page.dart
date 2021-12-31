@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
@@ -14,12 +16,13 @@ class _OrderPageState extends State<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Completer<GoogleMapController> _mapController = Completer();
     final theme = Theme.of(context);
     final iconsBackgroundColor = theme.disabledColor.withAlpha(100);
     return Scaffold(
       body: Stack(
         children: [
-          const MapWidget(),
+          MapWidget(controller: _mapController),
           SafeArea(
             child: Container(
               margin: const EdgeInsets.all(8),
