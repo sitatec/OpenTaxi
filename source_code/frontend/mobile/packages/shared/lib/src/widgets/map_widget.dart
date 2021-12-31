@@ -1,18 +1,17 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapWidget extends StatefulWidget {
   final EdgeInsets padding;
-  final Map<String, String> encodedPolylines;
+  final Set<Polyline> polylines;
   final Completer<GoogleMapController> controller;
   final Set<Marker> markers;
   const MapWidget({
     Key? key,
     this.padding = EdgeInsets.zero,
-    this.encodedPolylines = const {},
+    this.polylines = const {},
     required this.controller,
     this.markers = const {},
   }) : super(key: key);
@@ -34,28 +33,15 @@ class _MapWidgetState extends State<MapWidget> {
       initialCameraPosition: _southAfrica,
       zoomControlsEnabled: false,
       markers: widget.markers,
-      polylines: _getPolylines(),
+      polylines: widget.polylines,
       onMapCreated: (GoogleMapController controller) {
         widget.controller.complete(controller);
       },
     );
   }
-
-  Set<Polyline> _getPolylines() {
-    final polylines = <Polyline>{};
-    widget.encodedPolylines.forEach((polylineId, encodedPolyline) {
-      polylines.add(
-        Polyline(
-          polylineId: PolylineId(polylineId),
-          points: _decodePolyline(encodedPolyline),
-        ),
-      );
-    });
-    return polylines;
-  }
 }
 
-List<LatLng> _decodePolyline(String input) {
+List<LatLng> decodePolyline(String input) {
   var list = input.codeUnits;
   List lList = [];
   int index = 0;
