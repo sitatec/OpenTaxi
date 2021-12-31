@@ -37,6 +37,9 @@ class _HomePageState extends State<HomePage> {
   bool _locationServiceInitialized = false;
   bool _bookingAccepted = true;
   Widget? _notification = null; //_StatusNotification.offline;
+  final Completer<GoogleMapController> _mapController = Completer();
+  final Set<Marker> _markers = {};
+  final Map<String, String> _encodedPolylines = {};
   StreamSubscription? _onlineStatusSubscription;
   StreamSubscription? _dataStreamSubscription;
   StreamSubscription? _locationStreamSubscription;
@@ -236,7 +239,11 @@ class _HomePageState extends State<HomePage> {
         ),
         body: Stack(
           children: [
-            MapWidget(controller: Completer()),
+            MapWidget(
+              controller: _mapController,
+              markers: _markers,
+              encodedPolylines: _encodedPolylines,
+            ),
             Column(
               children: [
                 if (_notification != null) _notification!,
@@ -268,7 +275,7 @@ class _HomePageState extends State<HomePage> {
           width: 46,
           child: FloatingActionButton(
             backgroundColor: theme.scaffoldBackgroundColor,
-            onPressed: () {},
+            onPressed: _showMyLocation,
             child: const Icon(Icons.my_location, color: Colors.black87),
           ),
         ));
@@ -284,21 +291,70 @@ class _HomePageState extends State<HomePage> {
             : _StatusNotification.disconnecting,
       );
     });
+    if (mustConnect) {
+      if (!(await _initializeLocationServices())) {
+        return setState(() {
+          _isOnlineStatusChanging = false;
+          _notification = _buildStatusNotification(_StatusNotification.offline);
+        });
+      }
+      await widget._dispatcher.connect();
+    } else {
+      await widget._dispatcher.disconnect();
+    }
+    setState(() => _isOnlineStatusChanging = false);
+  }
+
+  void _showMyLocation() async {
+    if (!await _initializeLocationServices()) {
+      _showSnakbar("Location Permission not allowed");
+      return;
+    }
+    final currentCordinates =
+        await widget._locationManager.getCurrentCoordinates();
+    late final BitmapDescriptor icon;
+    if (_bookingAccepted) {
+      icon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(size: Size(60, 60)),
+        "assets/images/my_location.png",
+        package: "shared",
+      );
+    } else {
+      icon = BitmapDescriptor.defaultMarker;
+    }
+    final latlng =
+        LatLng(currentCordinates.latitude, currentCordinates.longitude);
+    setState(() {
+      _markers.removeWhere((marker) => marker.markerId.value == "driver");
+      _markers.add(
+        Marker(
+          markerId: const MarkerId("driver"),
+          position: latlng,
+          icon: icon,
+        ),
+      );
+    });
+    (await _mapController.future).animateCamera(
+      CameraUpdate.newCameraPosition(CameraPosition(target: latlng, zoom: 14)),
+    );
+  }
+
+  void _showSnakbar(String message) {
+    final scaffold = ScaffoldMessenger.of(context);
+    scaffold.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<bool> _initializeLocationServices() async {
     try {
-      if (mustConnect) {
-        if (!_locationServiceInitialized) {
-          if (!(await _askLocationPermission())) {
-            return setState(() {
-              _isOnlineStatusChanging = true;
-              _notification = null;
-            });
-          }
-          await widget._locationManager.initialize(requireBackground: true);
-          _locationServiceInitialized = true;
-        }
-        await widget._dispatcher.connect();
+      if (_locationServiceInitialized) {
+        return true;
       } else {
-        await widget._dispatcher.disconnect();
+        if (!(await _askLocationPermission())) {
+          return false;
+        }
+        await widget._locationManager.initialize(requireBackground: true);
+        _locationServiceInitialized = true;
+        return true;
       }
       // TODO catche exceptions from dispatcher connect() and disconnect().
     } on LocationManagerException catch (e) {
@@ -317,8 +373,7 @@ class _HomePageState extends State<HomePage> {
       } else {
         rethrow;
       }
-    } finally {
-      setState(() => _isOnlineStatusChanging = false);
+      return false;
     }
   }
 
@@ -629,9 +684,10 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     notificationData.value,
                     style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500),
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
+                    ),
                   )
                 ],
               ),
