@@ -44,10 +44,23 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription? _dataStreamSubscription;
   StreamSubscription? _locationStreamSubscription;
   late Dispatcher _dispatcher;
+  BitmapDescriptor? _myLocationIcon;
+  BitmapDescriptor? _whiteCarIcon;
+  BitmapDescriptor? _rideRequestIcon;
+  BitmapDescriptor? _pickupIcon;
 
   @override
   void initState() {
     super.initState();
+    _assetToBitmapDescriptor("assets/images/my_location.png")
+        .then((value) => _myLocationIcon = value);
+    _assetToBitmapDescriptor("assets/images/car_white.png")
+        .then((value) => _whiteCarIcon = value);
+    _assetToBitmapDescriptor("assets/images/ride_request.png")
+        .then((value) => _rideRequestIcon = value);
+    _assetToBitmapDescriptor("assets/images/pickup_icon.png")
+        .then((value) => _pickupIcon = value);
+
     _dispatcher = widget._dispatcher;
     _onlineStatusSubscription = _dispatcher.isConnected.listen((_isConnected) {
       if (_isConnected) {
@@ -56,7 +69,7 @@ class _HomePageState extends State<HomePage> {
         widget._locationManager.getCurrentCoordinates().then(_sendDriverData);
         _locationStreamSubscription = widget._locationManager
             .getCoordinatesStream()
-            .listen(_updateDriverLocation);
+            .listen(_sendDriverLocationToDispatcher);
       } else {
         _locationStreamSubscription?.cancel();
       }
@@ -68,6 +81,13 @@ class _HomePageState extends State<HomePage> {
       });
     });
   }
+
+  Future<BitmapDescriptor> _assetToBitmapDescriptor(String assetName) =>
+      BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(size: Size(60, 60)),
+        assetName,
+        package: "shared",
+      );
 
   Widget _buildStatusNotification(_StatusNotification _statusNotification) {
     return Container(
@@ -160,7 +180,7 @@ class _HomePageState extends State<HomePage> {
     _dispatcher.sendData(MapEntry(FramType.ADD_DRIVER_DATA, data));
   }
 
-  void _updateDriverLocation(Coordinates location) {
+  void _sendDriverLocationToDispatcher(Coordinates location) {
     _dispatcher.sendData(MapEntry(
       FramType.UPDATE_DRIVER_DATA,
       "${location.latitude},${location.longitude}",
@@ -315,31 +335,54 @@ class _HomePageState extends State<HomePage> {
     }
     final currentCordinates =
         await widget._locationManager.getCurrentCoordinates();
-    late final BitmapDescriptor icon;
     if (_isDriverOnline) {
-      icon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(60, 120)),
-        "assets/images/car_white.png",
-        package: "shared",
-      );
+      _updateDriverLocation(currentCordinates);
     } else {
-      icon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(60, 60)),
-        "assets/images/my_location.png",
-        package: "shared",
-      );
+      _updateDriverLocation(currentCordinates, _myLocationIcon);
     }
     print("\n\n${currentCordinates.orientation}\n\n");
-    final latlng =
-        LatLng(currentCordinates.latitude, currentCordinates.longitude);
+  }
+
+  void _showRideRequestMarker(Coordinates coordinates) {
+    _markers.removeWhere((marker) => marker.markerId.value == "pickup");
+    setState(() {
+      _markers.add(
+        Marker(
+          markerId: const MarkerId("pickup"),
+          position: LatLng(coordinates.latitude, coordinates.longitude),
+          icon: _rideRequestIcon ?? BitmapDescriptor.defaultMarker,
+        ),
+      );
+    });
+  }
+
+  void _showPickupLocationMarker(Coordinates coordinates) {
+    _markers.removeWhere((marker) => marker.markerId.value == "pickup");
+    setState(() {
+      _markers.add(
+        Marker(
+          markerId: const MarkerId("pickup"),
+          position: LatLng(coordinates.latitude, coordinates.longitude),
+          icon: _pickupIcon ?? BitmapDescriptor.defaultMarker,
+        ),
+      );
+    });
+  }
+
+  void _updateDriverLocation(
+    Coordinates newCoordinates, [
+    BitmapDescriptor? icon,
+  ]) async {
+    icon ??= _whiteCarIcon;
+    final latlng = LatLng(newCoordinates.latitude, newCoordinates.longitude);
     setState(() {
       _markers.removeWhere((marker) => marker.markerId.value == "driver");
       _markers.add(
         Marker(
           markerId: const MarkerId("driver"),
           position: latlng,
-          icon: icon,
-          rotation: currentCordinates.orientation,
+          icon: icon ?? BitmapDescriptor.defaultMarker,
+          rotation: newCoordinates.orientation,
         ),
       );
     });
@@ -557,8 +600,10 @@ class _HomePageState extends State<HomePage> {
                 const Divider(height: 1),
                 ListTile(
                   leading: CircleAvatar(
-                    child: SvgPicture.asset("assets/images/dropoff_icon.svg",
-                        package: "shared"),
+                    child: Image.asset(
+                      "assets/images/dropoff_icon.png",
+                      package: "shared",
+                    ),
                     backgroundColor: iconsBackgroundColor,
                   ),
                   title: Text(
