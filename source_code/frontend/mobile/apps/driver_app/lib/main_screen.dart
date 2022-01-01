@@ -1,4 +1,3 @@
-import 'package:driver_app/entities/dispatcher.dart';
 import 'package:driver_app/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';

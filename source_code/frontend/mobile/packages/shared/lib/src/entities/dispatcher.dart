@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:shared/shared.dart';
 import 'package:web_socket_channel/status.dart' as close_reason;
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 const dispatcherServerUrl =
     "wss://dispatcher-dot-hamba-project.uc.r.appspot.com/driver";
