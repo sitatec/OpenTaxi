@@ -2,6 +2,7 @@ import { JSObject } from "./type_alias";
 import { createHash } from "crypto";
 import axios from "axios";
 import { URLSearchParams } from "url";
+import { DATA_ACCESS_SERVER_URL } from "./constants";
 
 const isDevMode = ["development", "dev"].includes(
   process.env.NODE_ENV as string
@@ -14,8 +15,14 @@ const PAYFAST_URL = isDevMode
   : "https://www.payfast.co.za/eng/process";
 const PASSPHRASE = "ROOneyRUNsALLDay74";
 
-// TODO Error handling
+export enum TransactionNotificationType {
+  NEW_SUBSCRIPTION = 0,
+  DRIVER_SUBSCRIPTION_RENEWAL = 1,
+}
 
+// ############################# GET URL ################################# //
+
+// TODO Error handling
 export const getPayFastPaymentUrl = async (paymentData: JSObject) => {
   paymentData.merchant_id = MARCHANT_ID;
   paymentData.merchant_key = MARCHANT_KEY;
@@ -67,4 +74,27 @@ const correctDataKeysOrder = (data: JSObject) => {
     }
   });
   return orderedData;
+};
+
+export const getAndSaveTokenFromNewSubscription = async (data: JSObject) => {
+  const token = data.token;
+  const userId = data.custom_str1;
+  if (!token || !userId || data.payment_status != "COMPLETE") {
+    console.log(
+      `\n-------\nReceived NON COMPLETE transaction notification for new subscription \nTOKEN = ${token} \nUSER_ID = ${userId} \nTRANSACTION_STATUS = ${data.payment_status} .\n-------\n`
+    );
+    return;
+    // TODO notify admin something wrong.
+  }
+  try {
+    await axios.patch(`${DATA_ACCESS_SERVER_URL}/account?id=${userId}`, {
+      payment_token: token,
+    });
+  } catch (error) {
+    // RETRY
+    await axios.patch(`${DATA_ACCESS_SERVER_URL}/account?id=${userId}`, {
+      payment_token: token,
+    });
+    // TODO improve fault tolerent
+  }
 };

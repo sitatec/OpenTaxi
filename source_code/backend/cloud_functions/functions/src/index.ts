@@ -1,7 +1,11 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import axios from "axios";
-import { getPayFastPaymentUrl as getPayFastPaymentURL } from "./payment";
+import {
+  getAndSaveTokenFromNewSubscription,
+  getPayFastPaymentUrl as getPayFastPaymentURL,
+  TransactionNotificationType,
+} from "./payment";
 import { DATA_ACCESS_SERVER_URL } from "./constants";
 
 // TODO add authentication step to all functions.
@@ -30,22 +34,23 @@ export const getPaymentURL = functions.https.onCall((paymentData, _) =>
   getPayFastPaymentURL(paymentData)
 );
 
-// ###### RECEIVE TOKEN ###### //
-export const receivePaymentToken = functions.https.onRequest(
+// ###### TRANSACTION NOTIFICATION ###### //
+export const receiveNotification = functions.https.onRequest(
   async (req, res) => {
     // TODO add further security check.
-    const requestData = req.body;
-    if (requestData.payment_status != "COMPLETE" || !requestData.token) {
-      res.status(200).send();
-    }
-    const token = requestData.token;
-    const userId = requestData.custom_str1;
     try {
-      await axios.patch(`${DATA_ACCESS_SERVER_URL}/account?id=${userId}`, {
-        payment_token: token,
-      });
-    } catch (error) {
-      // TODO improve fault tolerent
+      const requestData = req.body;
+      const notificationType = requestData.custom_int1;
+      if (notificationType == TransactionNotificationType.NEW_SUBSCRIPTION) {
+        await getAndSaveTokenFromNewSubscription(requestData);
+      } else if (
+        notificationType ==
+        TransactionNotificationType.DRIVER_SUBSCRIPTION_RENEWAL
+      ) {
+        // TODO
+      }
+    } catch (e) {
+      //TODO
     } finally {
       res.status(200).send();
     }
