@@ -8,8 +8,10 @@ const isDevMode = ["development", "dev"].includes(
 );
 const MARCHANT_ID = isDevMode ? "10000100" : "12166525";
 const MARCHANT_KEY = isDevMode ? "46f0cd694581a" : "a3qinh6q0ph0l";
-const NOTIFY_URL = "";
-const PAYFAST_URL = isDevMode ? "https://sandbox.payfast.co.za​/eng/process" : "https://www.payfast.co.za/eng/process";
+// const NOTIFY_URL = "";
+const PAYFAST_URL = isDevMode
+  ? "https://sandbox.payfast.co.za​/eng/process"
+  : "https://www.payfast.co.za/eng/process";
 const PASSPHRASE = "ROOneyRUNsALLDay74";
 
 // TODO Error handling
@@ -20,7 +22,9 @@ export const getPayFastPaymentUrl = async (paymentData: JSObject) => {
   // paymentData.notify_url = NOTIFY_URL;
   paymentData = correctDataKeysOrder(paymentData);
   const serializedData = new URLSearchParams(paymentData);
-  serializedData.append("passphrase", PASSPHRASE);
+  if (!isDevMode) {
+    serializedData.append("passphrase", PASSPHRASE);
+  }
   paymentData.signature = md5Hash(serializedData.toString());
   const response = await axios.post(PAYFAST_URL, paymentData);
   return response.headers["Location"]; // The Location header contains the redirect url.

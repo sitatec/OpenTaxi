@@ -51,3 +51,4 @@ export const receivePaymentToken = functions.https.onRequest(
     }
   }
 );
+// TODO check subscription status && make token payment.
