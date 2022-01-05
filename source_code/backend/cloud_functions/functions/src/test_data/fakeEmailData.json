@@ -1,0 +1,8 @@
+{
+  "recipients": "sita.berete.3@gmail.com",
+  "subject": "From Cloud Functions",
+  "content": {
+    "text": "Test content from Hamba Services",
+    "html": "<p>Test content from <b>Hamba Services</b></p>"
+  }
+}

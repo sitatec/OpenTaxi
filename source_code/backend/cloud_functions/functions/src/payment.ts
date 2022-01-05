@@ -2,7 +2,7 @@ import { JSObject } from "./type_alias";
 import { createHash } from "crypto";
 import axios from "axios";
 import { URLSearchParams } from "url";
-import { ACCOUNT_DATA_ACCESS_URL, DATA_ACCESS_SERVER_URL } from "./constants";
+import { ACCOUNT_DATA_ACCESS_URL } from "./constants";
 
 const isDevMode = ["development", "dev"].includes(
   process.env.NODE_ENV as string

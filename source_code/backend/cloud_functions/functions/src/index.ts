@@ -6,7 +6,8 @@ import {
   getPayFastPaymentUrl as getPayFastPaymentURL,
   TransactionNotificationType,
 } from "./payment";
-import { ACCOUNT_DATA_ACCESS_URL, DATA_ACCESS_SERVER_URL, SERVERS_ACCESS_TOKEN } from "./constants";
+import { ACCOUNT_DATA_ACCESS_URL, SERVERS_ACCESS_TOKEN } from "./constants";
+import { sendEmailInternal } from "./email";
 
 axios.defaults.headers.common[
   "Authorization"
@@ -65,3 +66,7 @@ export const receiveNotification = functions.https.onRequest(
   }
 );
 // TODO check subscription status && make token payment.
+
+// ---------------------- EMAIL -------------------- //
+
+export const sendEmail = functions.https.onCall(sendEmailInternal);
