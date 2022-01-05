@@ -5,7 +5,7 @@ import { getPayFastPaymentUrl as getPayFastPaymentURL } from "./payment";
 
 // ---------------------- NODIFICATION -------------------- //
 
-const sendNotification = functions.https.onCall(async (notification, _) => {
+export const sendNotification = functions.https.onCall(async (notification, _) => {
   const recipientToken = await _getUserToken(notification["to"]);
   delete notification.to;
   await admin.messaging().sendToDevice(recipientToken, notification);
@@ -21,6 +21,6 @@ const _getUserToken = async (userId: string) => {
 
 // ---------------------- PAYMENT -------------------- //
 
-const getPaymentURL = functions.https.onCall((paymentData, _) =>
+export const getPaymentURL = functions.https.onCall((paymentData, _) =>
   getPayFastPaymentURL(paymentData)
 );

@@ -6,20 +6,22 @@ import { URLSearchParams } from "url";
 const isDevMode = ["development", "dev"].includes(
   process.env.NODE_ENV as string
 );
-const MARCHANT_ID = isDevMode ? "10000100" : "TODO";
-const MARCHANT_KEY = isDevMode ? "46f0cd694581a" : "TODO";
+const MARCHANT_ID = isDevMode ? "10000100" : "12166525";
+const MARCHANT_KEY = isDevMode ? "46f0cd694581a" : "a3qinh6q0ph0l";
 const NOTIFY_URL = "";
-const PAYFAST_URL = isDevMode ? "https://sandbox.payfast.co.za​/eng/process" : "TODO";
+const PAYFAST_URL = isDevMode ? "https://sandbox.payfast.co.za​/eng/process" : "https://www.payfast.co.za/eng/process";
+const PASSPHRASE = "ROOneyRUNsALLDay74";
 
 // TODO Error handling
 
 export const getPayFastPaymentUrl = async (paymentData: JSObject) => {
-  paymentData.marchant_id = MARCHANT_ID;
-  paymentData.marchant_key = MARCHANT_KEY;
-  paymentData.notify_url = NOTIFY_URL;
+  paymentData.merchant_id = MARCHANT_ID;
+  paymentData.merchant_key = MARCHANT_KEY;
+  // paymentData.notify_url = NOTIFY_URL;
   paymentData = correctDataKeysOrder(paymentData);
-  const serializedData = new URLSearchParams(paymentData).toString();
-  paymentData.signature = md5Hash(serializedData);
+  const serializedData = new URLSearchParams(paymentData);
+  serializedData.append("passphrase", PASSPHRASE);
+  paymentData.signature = md5Hash(serializedData.toString());
   const response = await axios.post(PAYFAST_URL, paymentData);
   return response.headers["Location"]; // The Location header contains the redirect url.
 };
@@ -39,13 +41,8 @@ const ORDERED_DATA_KEYS = [
   "m_payment_id",
   "amount",
   "item_name",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "",
-  "",
+  "payment_method",
+  "subscription_type",
 ];
 
 const correctDataKeysOrder = (data: JSObject) => {
