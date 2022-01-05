@@ -84,6 +84,7 @@ CREATE TABLE public.account (
   gender GENDER NOT NULL,
   email VARCHAR NOT NULL,
   role USER_ROLE NOT NULL,
+  payment_token VARCHAR,
   notification_token VARCHAR,
   account_status ACCOUNT_STATUS NOT NULL,
   phone_number NUMERIC(15) NOT NULL,

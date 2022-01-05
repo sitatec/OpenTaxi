@@ -11,7 +11,7 @@ const SERVERS_ACCESS_TOKEN = "skfS43Z5ljSFSJS_sjzr-kss4643jslSGSAOPBN?p";
 
 app.use(async (httpRequest, httpResponse, next) => {
   // TODO install firebase emulators end test the security middlewares too, instead of skiping them.
-  if (process.env.NODE_ENV == "test") next();
+  if (process.env.NODE_ENV == "test") return next();
   const token = extractTokenFromHeader(httpRequest.headers);
   if (!token) {
     httpResponse.status(401).end();
