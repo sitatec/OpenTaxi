@@ -6,9 +6,11 @@ import {
   getPayFastPaymentUrl as getPayFastPaymentURL,
   TransactionNotificationType,
 } from "./payment";
-import { DATA_ACCESS_SERVER_URL } from "./constants";
+import { DATA_ACCESS_SERVER_URL, SERVERS_ACCESS_TOKEN } from "./constants";
 
-// TODO add authentication step to all functions.
+axios.defaults.headers.common['Authorization'] = `Bearer ${SERVERS_ACCESS_TOKEN}`;
+
+// TODO add authentication step to all functions invocation.
 
 // ---------------------- NODIFICATION -------------------- //
 
