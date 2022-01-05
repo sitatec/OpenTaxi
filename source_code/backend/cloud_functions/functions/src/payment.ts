@@ -2,7 +2,7 @@ import { JSObject } from "./type_alias";
 import { createHash } from "crypto";
 import axios from "axios";
 import { URLSearchParams } from "url";
-import { DATA_ACCESS_SERVER_URL } from "./constants";
+import { ACCOUNT_DATA_ACCESS_URL, DATA_ACCESS_SERVER_URL } from "./constants";
 
 const isDevMode = ["development", "dev"].includes(
   process.env.NODE_ENV as string
@@ -18,6 +18,7 @@ const PASSPHRASE = "ROOneyRUNsALLDay74";
 export enum TransactionNotificationType {
   NEW_SUBSCRIPTION = 0,
   DRIVER_SUBSCRIPTION_RENEWAL = 1,
+  RIDER_TOKENIZED_PAYMENT = 2,
 }
 
 // ############################# GET URL ################################# //
@@ -76,6 +77,8 @@ const correctDataKeysOrder = (data: JSObject) => {
   return orderedData;
 };
 
+// ########################## TRANSACTION NOTIFICATION ########################### //
+
 export const getAndSaveTokenFromNewSubscription = async (data: JSObject) => {
   const token = data.token;
   const userId = data.custom_str1;
@@ -87,14 +90,51 @@ export const getAndSaveTokenFromNewSubscription = async (data: JSObject) => {
     // TODO notify admin something wrong.
   }
   try {
-    await axios.patch(`${DATA_ACCESS_SERVER_URL}/account?id=${userId}`, {
+    await axios.patch(`${ACCOUNT_DATA_ACCESS_URL}?id=${userId}`, {
       payment_token: token,
     });
   } catch (error) {
     // RETRY
-    await axios.patch(`${DATA_ACCESS_SERVER_URL}/account?id=${userId}`, {
+    await axios.patch(`${ACCOUNT_DATA_ACCESS_URL}?id=${userId}`, {
       payment_token: token,
     });
     // TODO improve fault tolerent
+  }
+};
+
+export const handleSubscriptionRenewalNotification = async (data: JSObject) => {
+  const token = data.token;
+  const userId = data.custom_str1;
+  if (data.payment_status != "COMPLETE") {
+    console.log(
+      `\n-------\nSUBSCRIPTION RENEWAL FAILED \nTOKEN = ${token} \nUSER_ID = ${userId}  \npf_payment_id = ${data.pf_payment_id}  \nTRANSACTION_STATUS = ${data.payment_status} .\n-------\n`
+    );
+    if (!token || !userId) {
+      console.log(
+        `\n-------\nINVALID TOKEN or USER_ID \nTOKEN = ${token} \nUSER_ID = ${userId} .\n-------\n`
+      );
+      return;
+      // TODO notify admin something wrong.
+    }
+    try {
+      // await axios.patch(`${ACCOUNT_DATA_ACCESS_URL}?id=${userId}`, {
+      //   account_status: "SUSPENDED_FOR_UNPAID",
+      // });
+      // TODO send mail
+    } catch {
+      // RETRY
+      // await axios.patch(`${ACCOUNT_DATA_ACCESS_URL}?id=${userId}`, {
+      //   account_status: "SUSPENDED_FOR_UNPAID",
+      // });
+      // TODO improve fault tolerent
+    }
+  } else {
+    console.log(
+      `\n-------\nSUBSCRIPTION RENEWAL SUCCESSFULL \nTOKEN = ${token} \nUSER_ID = ${userId}  \npf_payment_id = ${
+        data.pf_payment_id
+      }  \nTRANSACTION_STATUS = ${
+        data.payment_status
+      } \n\nALL_DATA = ${JSON.stringify(data)} \n-------\n`
+    );
   }
 };

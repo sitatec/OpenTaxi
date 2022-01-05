@@ -6,9 +6,11 @@ import {
   getPayFastPaymentUrl as getPayFastPaymentURL,
   TransactionNotificationType,
 } from "./payment";
-import { DATA_ACCESS_SERVER_URL, SERVERS_ACCESS_TOKEN } from "./constants";
+import { ACCOUNT_DATA_ACCESS_URL, DATA_ACCESS_SERVER_URL, SERVERS_ACCESS_TOKEN } from "./constants";
 
-axios.defaults.headers.common['Authorization'] = `Bearer ${SERVERS_ACCESS_TOKEN}`;
+axios.defaults.headers.common[
+  "Authorization"
+] = `Bearer ${SERVERS_ACCESS_TOKEN}`;
 
 // TODO add authentication step to all functions invocation.
 
@@ -24,7 +26,7 @@ export const sendNotification = functions.https.onCall(
 
 const _getUserToken = async (userId: string) => {
   const response = await axios.get(
-    `${DATA_ACCESS_SERVER_URL}/account/notification_token?account_id=${userId}`
+    `${ACCOUNT_DATA_ACCESS_URL}/notification_token?account_id=${userId}`
   );
   return response.data.notification_token;
 };
@@ -48,6 +50,10 @@ export const receiveNotification = functions.https.onRequest(
       } else if (
         notificationType ==
         TransactionNotificationType.DRIVER_SUBSCRIPTION_RENEWAL
+      ) {
+        // TODO
+      } else if (
+        notificationType == TransactionNotificationType.RIDER_TOKENIZED_PAYMENT
       ) {
         // TODO
       }
