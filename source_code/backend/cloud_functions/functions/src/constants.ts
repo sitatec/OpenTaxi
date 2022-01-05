@@ -1,0 +1,1 @@
+export const DATA_ACCESS_SERVER_URL = "https://hamba-project.uc.r.appspot.com";
