@@ -18,7 +18,7 @@ CREATE TYPE USER_ROLE AS ENUM (
 CREATE TYPE ACCOUNT_STATUS AS ENUM (
   'LIVE',
   'WAITING_FOR_APPROVAL',
-  'UNPAID_SUBSCRIPTION',
+  'SUSPENDED_FOR_UNPAID',
   'TEMPORARILY_SUSPENDED',
   'DEFINITIVELY_BANNED',
   'REGISTRATION_IN_PROGRESS'
@@ -139,22 +139,6 @@ CREATE TABLE public.driver (
   CONSTRAINT driver_pk PRIMARY KEY (account_id)
 );
 
-
-CREATE SEQUENCE public.subscription_id_seq;
-
-CREATE TABLE public.subscription (
-  id INTEGER NOT NULL DEFAULT nextval('public.subscription_id_seq'),
-  price NUMERIC(11,2) NOT NULL,
-  started_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  end_at TIMESTAMP NOT NULL,
-  payment_gateway_transaction_id BIGINT NOT NULL,
-  driver_id VARCHAR NOT NULL,
-  CONSTRAINT subscription_pk PRIMARY KEY (id)
-);
-
-
-ALTER SEQUENCE public.subscription_id_seq OWNED BY public.subscription.id;
-
 CREATE SEQUENCE public.car_id_seq;
 
 CREATE TABLE public.car (
@@ -265,13 +249,6 @@ ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
 ALTER TABLE public.booking ADD CONSTRAINT driver_booking_fk
-FOREIGN KEY (driver_id)
-REFERENCES public.driver (account_id)
-ON DELETE NO ACTION
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
-ALTER TABLE public.subscription ADD CONSTRAINT driver_subscription_fk
 FOREIGN KEY (driver_id)
 REFERENCES public.driver (account_id)
 ON DELETE NO ACTION
