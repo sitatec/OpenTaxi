@@ -2,9 +2,9 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import axios from "axios";
 import {
-  getAndSaveTokenFromNewSubscription,
-  getPayFastPaymentUrl as getPayFastPaymentURL,
-  TransactionNotificationType,
+  receiveTransationNotification,
+  getPayFastPaymentUrl,
+  makePayfastTokenPayment,
 } from "./payment";
 import { ACCOUNT_DATA_ACCESS_URL, SERVERS_ACCESS_TOKEN } from "./constants";
 import {
@@ -40,7 +40,7 @@ const _getUserToken = async (userId: string) => {
 
 // ###### GET URL ###### //
 export const getPaymentURL = functions.https.onCall((paymentData, _) =>
-  getPayFastPaymentURL(paymentData)
+  getPayFastPaymentUrl(paymentData)
 );
 
 // ###### TRANSACTION NOTIFICATION ###### //
@@ -49,19 +49,7 @@ export const receiveNotification = functions.https.onRequest(
     // TODO add further security check.
     try {
       const requestData = req.body;
-      const notificationType = requestData.custom_int1;
-      if (notificationType == TransactionNotificationType.NEW_SUBSCRIPTION) {
-        await getAndSaveTokenFromNewSubscription(requestData);
-      } else if (
-        notificationType ==
-        TransactionNotificationType.DRIVER_SUBSCRIPTION_RENEWAL
-      ) {
-        // TODO
-      } else if (
-        notificationType == TransactionNotificationType.RIDER_TOKENIZED_PAYMENT
-      ) {
-        // TODO
-      }
+      await receiveTransationNotification(requestData);
     } catch (e) {
       //TODO
     } finally {
@@ -69,7 +57,11 @@ export const receiveNotification = functions.https.onRequest(
     }
   }
 );
-// TODO check subscription status && make token payment.
+// TODO check subscription status
+
+export const makeTokenPayment = functions.https.onCall(
+  makePayfastTokenPayment
+);
 
 // ---------------------- EMAIL -------------------- //
 
