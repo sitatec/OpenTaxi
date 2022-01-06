@@ -1,5 +1,6 @@
 package com.hamba.dispatcher.controllers
 
+import com.hamba.dispatcher.UserStatusManager
 import com.hamba.dispatcher.Dispatcher
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.DispatchData
@@ -14,22 +15,30 @@ import kotlinx.serialization.json.Json
 class DispatchController(
     private val driverDataCache: DriverPointDataCache,
     private val dispatcher: Dispatcher,
-    private val dispatchDataList: MutableMap<String, DispatchData>
+    private val dispatchDataList: MutableMap<String, DispatchData>,
+    private val userStatusManager: UserStatusManager,
 ) {
 
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun dispatch(requestDataJson: String, riderSession: DefaultWebSocketServerSession): String {
         var riderId = ""
-        println("DRIVER_DATA_CACHE CONTENT SIZE === ${driverDataCache.size}")
-        println("DRIVER_DATA_CACHE.IS_EMPTY === ${driverDataCache.isEmpty()}")
         if (driverDataCache.isEmpty()) {
-            println("SHOULDN'T BE LOGGED")
             riderSession.send("${FrameType.NO_MORE_DRIVER_AVAILABLE}:")
             riderSession.close(CloseReason(CloseReason.Codes.NORMAL, ""))
         } else {
             val dispatchRequestData = Json.decodeFromString<DispatchRequestData>(requestDataJson)
             riderId = dispatchRequestData.riderId
-            dispatcher.dispatch(dispatchRequestData, riderSession)
+            if (userStatusManager.userCanConnect(riderId)) {
+                dispatcher.dispatch(dispatchRequestData, riderSession)
+            }else{
+                riderSession.close(
+                    CloseReason(
+                        CloseReason.Codes.VIOLATED_POLICY,
+                        "You are not allowed to connect to the server, Please contact the support."
+                    )
+                )
+                return ""
+            }
         }
         return riderId
     }

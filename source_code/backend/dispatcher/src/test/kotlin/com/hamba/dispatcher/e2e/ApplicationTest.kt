@@ -42,10 +42,11 @@ class ApplicationTest {
     private val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
     private lateinit var dispatcher: Dispatcher
     private lateinit var driverController: DriverController
-    private val driverOnlineStatusManager = object : DriverOnlineStatusManager() {
+    private val userStatusManager = object : UserStatusManager() {
         // Override the methods to prevent network call to the data access server (which requires starting the db and the server)
-        override suspend fun goOnline(driverId: String) {}
-        override suspend fun goOffline(driverId: String) {}
+        override suspend fun driverGoOnline(driverId: String) {}
+        override suspend fun driverGoOffline(driverId: String) {}
+        override suspend fun userCanConnect(driverId: String) = true
     }
 
     @BeforeTest
@@ -69,7 +70,7 @@ class ApplicationTest {
             driverConnections,
             dispatchDataList,
             dispatcher,
-            driverOnlineStatusManager
+            userStatusManager
         )
     }
 

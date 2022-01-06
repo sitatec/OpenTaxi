@@ -27,7 +27,7 @@ fun main() {
     val distanceCalculator = DistanceCalculator(routeApiClient, driverDataCache)
     val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
     val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
-    val driverOnlineStatusManager = DriverOnlineStatusManager(httpClient)
+    val userStatusManager = UserStatusManager(httpClient)
     val dispatcher =
         Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
 
@@ -38,7 +38,7 @@ fun main() {
                 driverConnections,
                 dispatchDataList,
                 dispatcher,
-                driverOnlineStatusManager
+                userStatusManager
             ),
             DispatchController(driverDataCache, dispatcher, dispatchDataList),
             dispatcher,

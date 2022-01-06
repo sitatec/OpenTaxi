@@ -1,7 +1,7 @@
 package com.hamba.dispatcher.controllers
 
 import com.hamba.dispatcher.Dispatcher
-import com.hamba.dispatcher.DriverOnlineStatusManager
+import com.hamba.dispatcher.UserStatusManager
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DriverData
@@ -19,14 +19,18 @@ class DriverController(
     private val driverConnections: MutableMap<String, DefaultWebSocketServerSession>,
     private val dispatchDataList: MutableMap<String, DispatchData>,
     private val dispatcher: Dispatcher,
-    private val driverOnlineStatusManager: DriverOnlineStatusManager,
+    private val userStatusManager: UserStatusManager,
 ) {
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun addDriverData(jsonData: String, driverSession: DefaultWebSocketServerSession): String {
         val driverData = Json.decodeFromString<DriverData>(jsonData)
+        if(!userStatusManager.userCanConnect(driverData.driverId)){
+            driverSession.close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "You are not allowed to connect to the server, Please contact the support."))
+            return ""
+        }
         driverConnections[driverData.driverId] = driverSession
         driverDataRepository.addDriverData(driverData)
-        driverOnlineStatusManager.goOnline(driverData.driverId)
+        userStatusManager.driverGoOnline(driverData.driverId)
         return driverData.driverId
     }
 
@@ -44,7 +48,7 @@ class DriverController(
         if (driverId != null) {
             // When the driver is disconnected all he's data will be removed
             driverSession.close(CloseReason(CloseReason.Codes.NORMAL, ""))// Normal disconnection
-            driverOnlineStatusManager.goOffline(driverId)
+            userStatusManager.driverGoOffline(driverId)
         }else {
             // Should add data before deleting it.
             driverSession.close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
