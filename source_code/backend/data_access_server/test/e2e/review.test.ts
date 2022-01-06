@@ -42,6 +42,14 @@ describe("ENDPOINT: REVIEW", () => {
     expect(response.status).toBe(200);
     expect(response.data).toMatchObject(getSuccessResponse(REVIEW));
   });
+  
+  it("Should successfully get only one field from review.", async () => {
+    await createReview(); // Create it first
+    // End then get it.
+    const response = await Axios.get(getUrlWithQuery("/id?id=" + REVIEW.id));
+    expect(response.status).toBe(200);
+    expect(response.data).toMatchObject(getSuccessResponse({id: REVIEW.id}));
+  });
 
   it("Should successfully update an review.", async () => {
     await createReview(); // Create it first

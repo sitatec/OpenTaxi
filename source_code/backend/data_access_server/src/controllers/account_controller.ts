@@ -29,26 +29,26 @@ export default class AccountController extends Controller {
   deleteAccount = async (httpRequest: Request, httpResponse: Response) =>
     this.entityManager.deleteEntity("account", httpRequest, httpResponse);
 
-  getNotificationToken = async (
-    httpRequest: Request,
-    httpResponse: Response
-  ) => {
-    const queryParams = getQueryParams(httpRequest);
-    if (queryParams.length === 0) {
-      return httpResponse.status(400).end();
-    }
-    const columnNamesAndParams = getColumnNamesAndParams(
-      queryParams,
-      "account"
-    );
+  // getNotificationToken = async (
+  //   httpRequest: Request,
+  //   httpResponse: Response
+  // ) => {
+  //   const queryParams = getQueryParams(httpRequest);
+  //   if (queryParams.length === 0) {
+  //     return httpResponse.status(400).end();
+  //   }
+  //   const columnNamesAndParams = getColumnNamesAndParams(
+  //     queryParams,
+  //     "account"
+  //   );
 
-    wrappeResponseHandling("account", queryParams, httpResponse, async () => {
-      return (
-        await this.entityManager.execCustomQuery(
-          `SELECT account.notification_token FROM account WHERE ${columnNamesAndParams.first}`,
-          columnNamesAndParams.second
-        )
-      ).rows[0];
-    });
-  };
+  //   wrappeResponseHandling("account", queryParams, httpResponse, async () => {
+  //     return (
+  //       await this.entityManager.execCustomQuery(
+  //         `SELECT account.notification_token FROM account WHERE ${columnNamesAndParams.first}`,
+  //         columnNamesAndParams.second
+  //       )
+  //     ).rows[0];
+  //   });
+  // };
 }

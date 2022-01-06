@@ -77,7 +77,7 @@ export default class EntityManager {
       queryParams,
       httpResponse,
       async () => {
-        return getRowByColumns(queryParams, entityName);
+        return getRowByColumns(queryParams, entityName, httpRequest.params.fields);
       }
     );
   };

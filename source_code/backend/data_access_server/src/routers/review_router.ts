@@ -11,6 +11,8 @@ router.get("/rating", reviewController.getRating);
 
 router.get("/", reviewController.getReview);
 
+router.get("/:fields", reviewController.getReview);
+
 router.patch("/:id", reviewController.updateReview); // TODO add httpRequest data validation step.
 
 router.delete("/:id", reviewController.deleteReview);

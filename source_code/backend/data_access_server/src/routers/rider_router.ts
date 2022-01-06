@@ -14,6 +14,8 @@ router.post("/", riderController.createRider); // TODO add httpRequest data vali
 
 router.get("/data", riderController.getRiderData);
 
+router.get("/data/:fields", riderController.getRiderData);
+
 router.get("/", riderController.getRider);
 
 router.patch("/:account_id", riderController.updateRider); // TODO add httpRequest data validation step.

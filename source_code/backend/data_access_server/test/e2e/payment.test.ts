@@ -37,6 +37,14 @@ describe("ENDPOINT: PAYMENT", () => {
     expect(response.status).toBe(200);
     expect(response.data).toMatchObject(getSuccessResponse(PAYMENT));
   });
+  
+  it("Should successfully get only one field from payment.", async () => {
+    await createPayment(); // Create it first
+    // End then get it.
+    const response = await Axios.get(getUrlWithQuery("/id?id=" + PAYMENT.id));
+    expect(response.status).toBe(200);
+    expect(response.data).toMatchObject(getSuccessResponse({id: PAYMENT.id}));
+  });
 
   it("Should successfully update an payment.", async () => {
     await createPayment(); // Create it first

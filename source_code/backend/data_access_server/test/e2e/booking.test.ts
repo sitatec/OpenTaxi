@@ -44,6 +44,15 @@ describe("ENDPOINT: BOOKING", () => {
     expect(response.data).toMatchObject(getSuccessResponse(BOOKING));
   });
 
+  
+  it("Should successfully get only one field from booking.", async () => {
+    await createBooking(); // Create it first
+    // End then get it.
+    const response = await Axios.get(getUrlWithQuery("/id?id=" + BOOKING.id));
+    expect(response.status).toBe(200);
+    expect(response.data).toMatchObject(getSuccessResponse({id: BOOKING.id}));
+  });
+
   it("Should successfully update an booking.", async () => {
     await createBooking(); // Create it first
     const newBooking = cloneObjec(BOOKING) as typeof BOOKING;

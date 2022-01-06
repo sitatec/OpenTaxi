@@ -78,11 +78,15 @@ export const handleDbQueryError = (error: unknown, httpResponse: Response) => {
 export const getRowByColumns = async (
   columns: Pair<string, string>[],
   table: string,
+  fields: string = "",
   db = Database.initialize()
 ): Promise<JSObject> => {
   const columnNamesAndParams = getColumnNamesAndParams(columns, table);
+  if(fields.length == 0){
+    fields = "*";
+  }
   const result = await db.execQuery(
-    `SELECT * FROM ${table} WHERE ${columnNamesAndParams.first}`,
+    `SELECT ${fields} FROM ${table} WHERE ${columnNamesAndParams.first}`,
     columnNamesAndParams.second
   );
   return result.rows[0];

@@ -9,6 +9,8 @@ router.post("/", carController.createCar); // TODO add httpRequest data validati
 
 router.get("/", carController.getCar);
 
+router.get("/:fields", carController.getCar);
+
 router.patch("/:id", carController.updateCar); // TODO add httpRequest data validation step.
 
 router.delete("/:id", carController.deleteCar);

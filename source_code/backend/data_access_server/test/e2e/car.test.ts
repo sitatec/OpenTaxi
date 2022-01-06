@@ -38,6 +38,14 @@ describe("ENDPOINT: CAR", () => {
     expect(response.status).toBe(200);
     expect(response.data).toMatchObject(getSuccessResponse(CAR));
   });
+   
+  it("Should successfully get only one field from car.", async () => {
+    await createCar(); // Create it first
+    // End then get it.
+    const response = await Axios.get(getUrlWithQuery("/id?id=" + CAR.id));
+    expect(response.status).toBe(200);
+    expect(response.data).toMatchObject(getSuccessResponse({id: CAR.id}));
+  });
 
   it("Should successfully update an car.", async () => {
     await createCar(); // Create it first

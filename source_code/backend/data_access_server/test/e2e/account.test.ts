@@ -37,6 +37,35 @@ describe("ENDPOINT: ACCOUNT", () => {
     expect(response.data).toMatchObject(getSuccessResponse(ACCOUNT));
   });
 
+  it("Should successfully get only one field from account.", async () => {
+    await createAccount(); // Create it first
+    // End then get it.
+    const response = await Axios.get(
+      getUrlWithQuery("/first_name?id=" + ACCOUNT.id)
+    );
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(
+      getSuccessResponse({ first_name: ACCOUNT.first_name })
+    );
+  });
+
+  it("Should successfully get only some fields from account.", async () => {
+    await createAccount(); // Create it first
+    // End then get it.
+    const response = await Axios.get(
+      getUrlWithQuery("/id,first_name,surname,email?id=" + ACCOUNT.id)
+    );
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(
+      getSuccessResponse({
+        first_name: ACCOUNT.first_name,
+        id: ACCOUNT.id,
+        surname: ACCOUNT.surname,
+        email: ACCOUNT.email,
+      })
+    );
+  });
+
   it("Should successfully update an account.", async () => {
     await createAccount(); // Create it first
     const newAccount = cloneObjec(ACCOUNT);

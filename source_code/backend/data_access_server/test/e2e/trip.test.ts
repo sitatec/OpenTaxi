@@ -42,6 +42,14 @@ describe("ENDPOINT: TRIP", () => {
     expect(response.status).toBe(200);
     expect(response.data).toMatchObject(getSuccessResponse(TRIP));
   });
+  
+  it("Should successfully get only one field from trip.", async () => {
+    await createTrip(); // Create it first
+    // End then get it.
+    const response = await Axios.get(getUrlWithQuery("/id?id=" + TRIP.id));
+    expect(response.status).toBe(200);
+    expect(response.data).toMatchObject(getSuccessResponse({id: TRIP.id}));
+  });
 
   it("Should successfully update an trip.", async () => {
     await createTrip(); // Create it first
