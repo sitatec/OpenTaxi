@@ -65,7 +65,6 @@ export const PAYMENT = {
   payment_gateway_transaction_id: "354634643",
   amount: '45364.00',
   date_time: "2004-10-19T10:23:54.000Z",
-  status: "SUCCESS",
   payment_type: "CARD",
   id: PAYMENT_ID,
   recipient_id: null,
