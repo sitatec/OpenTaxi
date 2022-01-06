@@ -8,7 +8,7 @@ val fakeDriverData = DriverData(Location(11.310777, -12.312727)/*Near SALA*/, "M
 
 // TODO replace places names by distances for collaboration.
 val fakeDriverDataList = mutableListOf<DriverData>().apply {
-    add(DriverData(Location(11.307769, -12.315753) /*NEAR HOME*/, "FEMALE", "STANDARD", "nearHome"))
+    add(DriverData(Location(11.307769, -12.315753) /*NEAR ORIGIN*/, "FEMALE", "STANDARD", "nearORIGIN"))
     add(DriverData(Location(11.312763, -12.320231) /*GARAGE MALAL*/, "MALE", "VAN", "garageMalal"))
     add(
         DriverData(
@@ -26,16 +26,16 @@ val fakeDriverDataList = mutableListOf<DriverData>().apply {
 
 val fakeDispatchRequestData = DispatchRequestData(
     riderId = "riderId",
-    pickUpLocation = Location(11.309098, -12.318813),/*HOME*/
-    dropOffLocation = Location(11.309098, -12.318813),/*HOME*/
+    pickUpLocation = Location(11.309098, -12.318813),/*ORIGIN*/
+    dropOffLocation = Location(11.309098, -12.318813),/*ORIGIN*/
     paymentMethod = "cash",
     riderName = "rider name"
 )
 
 val fakeDispatchRequestDataWithGenderFilter = DispatchRequestData(
     riderId = "riderId1",
-    pickUpLocation = Location(11.309098, -12.318813)/*HOME*/,
-    dropOffLocation = Location(11.309098, -12.318813)/*HOME*/,
+    pickUpLocation = Location(11.309098, -12.318813)/*ORIGIN*/,
+    dropOffLocation = Location(11.309098, -12.318813)/*ORIGIN*/,
     paymentMethod = "cash",
     gender = "MALE",
     riderName = "rider name"
@@ -43,8 +43,8 @@ val fakeDispatchRequestDataWithGenderFilter = DispatchRequestData(
 
 val fakeDispatchRequestDataWithCarFilter = DispatchRequestData(
     riderId = "riderId2",
-    pickUpLocation = Location(11.309098, -12.318813)/*HOME*/,
-    dropOffLocation = Location(11.309098, -12.318813)/*HOME*/,
+    pickUpLocation = Location(11.309098, -12.318813)/*ORIGIN*/,
+    dropOffLocation = Location(11.309098, -12.318813)/*ORIGIN*/,
     paymentMethod = "cash",
     gender = null,
     carType = "PREMIUM",

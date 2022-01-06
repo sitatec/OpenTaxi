@@ -46,6 +46,7 @@ class ApplicationTest {
         // Override the methods to prevent network call to the data access server (which requires starting the db and the server)
         override suspend fun goOnline(driverId: String) {}
         override suspend fun goOffline(driverId: String) {}
+        override suspend fun canGoOnline(driverId: String) = true
     }
 
     @BeforeTest

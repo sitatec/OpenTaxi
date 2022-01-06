@@ -24,6 +24,10 @@ class DriverController(
     @OptIn(ExperimentalSerializationApi::class)
     suspend fun addDriverData(jsonData: String, driverSession: DefaultWebSocketServerSession): String {
         val driverData = Json.decodeFromString<DriverData>(jsonData)
+        if(!driverOnlineStatusManager.canGoOnline(driverData.driverId)){
+            driverSession.close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "You are not allowed to connect, Please contact the support."))
+            return ""
+        }
         driverConnections[driverData.driverId] = driverSession
         driverDataRepository.addDriverData(driverData)
         driverOnlineStatusManager.goOnline(driverData.driverId)

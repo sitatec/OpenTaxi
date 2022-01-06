@@ -44,7 +44,7 @@ class DispatchData(
             it.routes.forEach { route ->
                 route.legs.forEach { leg ->
                     distance += leg.distance!!.value
-                    duration += leg.duration!!.text
+                    duration += leg.duration!!.text// TODO fix: get the value and then format it at the end.
 
                 }
             }
