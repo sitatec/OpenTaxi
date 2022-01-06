@@ -40,7 +40,8 @@ export default class RiderController extends Controller {
     return this.entityManager.createEntity(
       "favorite_driver",
       httpRequest,
-      httpResponse
+      httpResponse,
+      "",
     );
   };
 

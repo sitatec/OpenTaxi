@@ -74,20 +74,15 @@ CREATE TABLE public.account (
   registered_at DATE DEFAULT CURRENT_DATE NOT NULL,
   profile_picture_url VARCHAR NOT NULL,
   gender GENDER NOT NULL,
-  email VARCHAR NOT NULL,
+  email VARCHAR NOT NULL UNIQUE,
   role USER_ROLE NOT NULL,
   payment_token VARCHAR,
   notification_token VARCHAR,
   account_status ACCOUNT_STATUS NOT NULL,
-  phone_number NUMERIC(15) NOT NULL,
+  phone_number NUMERIC(15) NOT NULL UNIQUE,
   balance DECIMAL(14,2) DEFAULT 0 NOT NULL,
   CONSTRAINT account_pk PRIMARY KEY (id)
 );
-
-
-CREATE UNIQUE INDEX account_idx
- ON public.account
- ( email );
 
 
 CREATE TABLE public.payment (

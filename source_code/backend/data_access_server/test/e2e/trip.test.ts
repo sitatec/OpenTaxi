@@ -9,7 +9,7 @@ const getUrlWithQuery = (queryParams: string) => TRIP_URL + queryParams;
 const createTrip = async () => {
   const response = await Axios.post(TRIP_URL, TRIP);
   expect(response.status).toBe(201);
-  expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  expect(response.data).toEqual(getSuccessResponse(TRIP.id));
 };
 
 

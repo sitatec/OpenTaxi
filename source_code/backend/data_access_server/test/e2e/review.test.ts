@@ -14,7 +14,7 @@ const getUrlWithQuery = (queryParams: string) => REVIEW_URL + queryParams;
 const createReview = async () => {
   const response = await Axios.post(REVIEW_URL, REVIEW);
   expect(response.status).toBe(201);
-  expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  expect(response.data).toEqual(getSuccessResponse(REVIEW.id));
 };
 
 describe("ENDPOINT: REVIEW", () => {

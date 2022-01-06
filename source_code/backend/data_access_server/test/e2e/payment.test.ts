@@ -9,7 +9,7 @@ const getUrlWithQuery = (queryParams: string) => PAYMENT_URL + queryParams;
 const createPayment = async () => {
   const response = await Axios.post(PAYMENT_URL, PAYMENT);
   expect(response.status).toBe(201);
-  expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  expect(response.data).toEqual(getSuccessResponse(PAYMENT.id));
 };
 
 describe("ENDPOINT: PAYMENT", () => {

@@ -19,7 +19,7 @@ const getUrlWithQuery = (queryParams: string) => ACCOUNT_URL + queryParams;
 const createAccount = async () => {
   const response = await createTheDefaultAccount();
   expect(response.status).toBe(201);
-  expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  expect(response.data).toEqual(getSuccessResponse(ACCOUNT.id));
 };
 
 describe("ENDPOINT: ACCOUNT", () => {

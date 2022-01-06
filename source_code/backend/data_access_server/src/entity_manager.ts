@@ -21,15 +21,23 @@ export default class EntityManager {
   async createEntity(
     entityName: string,
     httpRequest: Request,
-    httpResponse: Response
+    httpResponse: Response,
+    primaryKeyName = "id"
   ) {
     try {
-      const query = buildInsertQueryFromJSON(entityName, httpRequest.body);
+      const query = buildInsertQueryFromJSON(
+        entityName,
+        httpRequest.body,
+        primaryKeyName
+      );
       const queryResult = await this.db.execQuery(
         query.text,
         query.paramValues
       );
-      sendSuccessResponse(httpResponse, 201, queryResult.rowCount);
+      const responseData = primaryKeyName
+        ? queryResult.rows[0][primaryKeyName]
+        : queryResult.rowCount;
+      sendSuccessResponse(httpResponse, 201, responseData);
     } catch (error) {
       handleDbQueryError(error, httpResponse);
     }
@@ -77,7 +85,11 @@ export default class EntityManager {
       queryParams,
       httpResponse,
       async () => {
-        return getRowByColumns(queryParams, entityName, httpRequest.params.fields);
+        return getRowByColumns(
+          queryParams,
+          entityName,
+          httpRequest.params.fields
+        );
       }
     );
   };

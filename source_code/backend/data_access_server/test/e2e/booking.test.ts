@@ -14,7 +14,7 @@ const getUrlWithQuery = (queryParams: string) => BOOKING_URL + queryParams;
 const createBooking = async () => {
   const response = await Axios.post(BOOKING_URL, BOOKING);
   expect(response.status).toBe(201);
-  expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  expect(response.data).toEqual(getSuccessResponse(BOOKING.id));
 };
 
 describe("ENDPOINT: BOOKING", () => {

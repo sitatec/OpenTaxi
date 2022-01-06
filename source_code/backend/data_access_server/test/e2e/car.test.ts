@@ -9,7 +9,7 @@ const getUrlWithQuery = (queryParams: string) => CAR_URL + queryParams;
 const createCar = async () => {
   const response = await Axios.post(CAR_URL, CAR);
   expect(response.status).toBe(201);
-  expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  expect(response.data).toEqual(getSuccessResponse(CAR.id));
 };
 
 describe("ENDPOINT: CAR", () => {
