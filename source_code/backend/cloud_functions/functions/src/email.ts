@@ -22,11 +22,51 @@ export const sendEmailInternal = async (data: JSObject) => {
     });
   }
 
-  await transporter.sendMail({
+  transporter.sendMail({
     from: `"Hamba Services" <${SOURCE_EMAIL}>`, // sender address
     to: data.recipients,
     subject: data.subject,
     text: data.content.text,
-    html: data.content.html
+    html: data.content.html,
   });
+};
+
+export const sendDriverSubscriptionFailedEmailInternal = async (
+  data: JSObject
+) => sendEmailInternal({
+  recipients: data.recipient ?? "",// TODO ask for the email that should receive the email.
+  subject: "Driver Subscription Failed Notification",
+  content: {
+    html: getDriverSubscriptionFailedEmailHTMLTemplate(data),
+    text: getDriverSubscriptionFailedEmailTextTemplate(data)
+  }
+});
+
+const getDriverSubscriptionFailedEmailTextTemplate = (data: JSObject) => {
+  return "";
+};
+
+const getDriverSubscriptionFailedEmailHTMLTemplate = (data: JSObject) => {
+  return "";
+};
+
+
+export const sendRiderPaymentFailedEmailInternal = async (
+  data: JSObject
+) => sendEmailInternal({
+  recipients: data.recipient ?? "",// TODO ask for the email that should receive the email.
+  subject: "Rider Payment Failed Notification",
+  content: {
+    html: getRiderPaymentFailedEmailHTMLTemplate(data),
+    text: getRiderPaymentFailedEmailTextTemplate(data)
+  }
+});
+
+
+const getRiderPaymentFailedEmailTextTemplate = (data: JSObject) => {
+  return "";
+};
+
+const getRiderPaymentFailedEmailHTMLTemplate = (data: JSObject) => {
+  return "";
 };

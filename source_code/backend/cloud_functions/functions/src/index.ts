@@ -7,7 +7,11 @@ import {
   TransactionNotificationType,
 } from "./payment";
 import { ACCOUNT_DATA_ACCESS_URL, SERVERS_ACCESS_TOKEN } from "./constants";
-import { sendEmailInternal } from "./email";
+import {
+  sendDriverSubscriptionFailedEmailInternal,
+  sendEmailInternal,
+  sendRiderPaymentFailedEmailInternal,
+} from "./email";
 
 axios.defaults.headers.common[
   "Authorization"
@@ -70,3 +74,11 @@ export const receiveNotification = functions.https.onRequest(
 // ---------------------- EMAIL -------------------- //
 
 export const sendEmail = functions.https.onCall(sendEmailInternal);
+
+export const sendDriverSubscriptionFailedEmail = functions.https.onCall(
+  sendDriverSubscriptionFailedEmailInternal
+);
+
+export const sendRiderPaymentFailedEmail = functions.https.onCall(
+  sendRiderPaymentFailedEmailInternal
+);
