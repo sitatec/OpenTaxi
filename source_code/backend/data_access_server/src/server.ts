@@ -6,7 +6,6 @@ import TripRouter from "./routers/trip_router";
 import ReviewRouter from "./routers/review_router";
 import PaymentRouter from "./routers/payment_router";
 import BookingRouter from "./routers/booking_router";
-import SubscriptionRouter from "./routers/subscription_router";
 import RiderRouter from "./routers/rider_router";
 import { Server as HttpServer } from "http";
 
@@ -29,7 +28,6 @@ export default class Server {
     this.app.use("/payment", PaymentRouter);
     this.app.use("/booking", BookingRouter);
     this.app.use("/account", AccountRouter);
-    this.app.use("/subscription", SubscriptionRouter);
   }
 
   start() {

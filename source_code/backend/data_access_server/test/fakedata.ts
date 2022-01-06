@@ -112,12 +112,3 @@ export const REVIEW = {
   comment: "slfjslkf",
   author_id: RIDER.account_id
 };
-
-export const SUBSCRIPTION = {
-  end_at: "2004-10-19T10:23:54.000Z",
-  id: 1,
-  payment_gateway_transaction_id: "3526424342354",
-  started_at: "2004-10-19T10:23:54.000Z",
-  driver_id: DRIVER.account_id,
-  price: "34.45"
-};
