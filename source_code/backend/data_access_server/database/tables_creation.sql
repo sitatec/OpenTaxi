@@ -104,7 +104,7 @@ CREATE TABLE public.payment (
 
 CREATE TABLE public.review (
   id INTEGER NOT NULL,
-  author_id VARCHAR NOT NULL,
+  author_id VARCHAR,
   comment VARCHAR(140),
   recipient_id VARCHAR NOT NULL,
   rating SMALLINT NOT NULL,
@@ -200,14 +200,14 @@ NOT DEFERRABLE;
 ALTER TABLE public.review ADD CONSTRAINT account_review_fk
 FOREIGN KEY (author_id)
 REFERENCES public.account (id)
-ON DELETE NO ACTION
+ON DELETE SET NULL
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
 ALTER TABLE public.review ADD CONSTRAINT account_review_fk1
 FOREIGN KEY (recipient_id)
 REFERENCES public.account (id)
-ON DELETE NO ACTION
+ON DELETE CASCADE
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
