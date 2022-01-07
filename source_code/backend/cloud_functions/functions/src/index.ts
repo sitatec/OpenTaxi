@@ -59,9 +59,7 @@ export const receiveNotification = functions.https.onRequest(
 );
 // TODO check subscription status
 
-export const makeTokenPayment = functions.https.onCall(
-  makePayfastTokenPayment
-);
+export const makeTokenPayment = functions.https.onCall(makePayfastTokenPayment);
 
 // ---------------------- EMAIL -------------------- //
 
@@ -74,3 +72,16 @@ export const sendDriverSubscriptionFailedEmail = functions.https.onCall(
 export const sendRiderPaymentFailedEmail = functions.https.onCall(
   sendRiderPaymentFailedEmailInternal
 );
+
+// ----------------------- PHONE NUMBER --------------------//
+
+export const checkIfPhoneNumberExist = functions.https.onCall(async (data) => {
+  try {
+    const response = await axios.get(
+      `${ACCOUNT_DATA_ACCESS_URL}/phone_number?phone_number=${data}`
+    );
+    return response.data.status == "success" ? true : false;
+  } catch (e) {
+    return false;
+  }
+});
