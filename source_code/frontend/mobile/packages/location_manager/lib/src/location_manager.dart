@@ -72,7 +72,7 @@ class LocationManager {
   }
 
   Stream<Coordinates> getCoordinatesStream(
-      {double distanceFilterInMeter = 50, int timeInterval = 10000}) {
+      {double distanceFilterInMeter = 30, int timeInterval = 10000}) {
     if (!_locationServiceInitialized) {
       throw LocationManagerException.locationServiceUninitialized();
     }
@@ -84,7 +84,8 @@ class LocationManager {
       (locationData) => Coordinates(
         latitude: locationData.latitude!,
         longitude: locationData.longitude!,
-        orientation: locationData.heading!,
+        orientation: locationData.heading ?? 0,
+        speed: locationData.speed ?? 0,
       ),
     );
   }
@@ -97,28 +98,43 @@ class Coordinates {
   late double latitude;
   late double longitude;
   double orientation = 0;
-  Coordinates(
-      {required this.latitude, required this.longitude, this.orientation = 0});
+
+  /// Meter/Second
+  double speed = 0;
+  Coordinates({
+    required this.latitude,
+    required this.longitude,
+    this.orientation = 0,
+    this.speed = 0,
+  });
+
   Coordinates.fromMap(Map<String, double> map) {
     latitude = map['latitude']!;
     longitude = map['longitude']!;
     orientation = map['orientation'] ?? 0;
-  }
-  @override
-  bool operator ==(Object other) {
-    if (other is Coordinates) {
-      return other.latitude == latitude && other.longitude == longitude;
-    } else {
-      return false;
-    }
+    speed = map['speed'] ?? 0;
   }
 
   @override
-  int get hashCode => latitude.hashCode + longitude.hashCode;
+  bool operator ==(Object other) {
+    return other is Coordinates &&
+        other.latitude == latitude &&
+        other.longitude == longitude &&
+        other.orientation == orientation &&
+        other.speed == speed;
+  }
+
+  @override
+  int get hashCode =>
+      latitude.hashCode +
+      longitude.hashCode +
+      orientation.hashCode +
+      speed.hashCode;
 
   Map<String, double> toMap() => {
         'latitude': latitude,
         'longitude': longitude,
         'orientation': orientation,
+        'speed': speed,
       };
 }
