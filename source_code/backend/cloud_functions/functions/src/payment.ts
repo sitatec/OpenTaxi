@@ -39,7 +39,7 @@ export const getPayFastPaymentUrl = async (paymentData: JSObject) => {
   serializedData.append("passphrase", PASSPHRASE);
   paymentData.signature = md5Hash(serializedData.toString());
   const response = await axios.post(PAYFAST_URL, paymentData);
-  return response.headers["Location"]; // The Location header contains the redirect url.
+  return response.request.res.responseUrl; // The redirect url.
 };
 
 const md5Hash = (data: string) => createHash("md5").update(data).digest("hex");
@@ -176,18 +176,17 @@ const handleSubscriptionRenewalNotification = async (data: JSObject) => {
 };
 
 // ########################## TOKEN PAYMENT ########################### //
+
 export const makePayfastTokenPayment = async (data: JSObject) => {
   const url = eval("`" + TOKEN_PAYMENT_URL + "`");
   const paymentDate = new Date().toISOString();
   const header = {
     "merchant-id": MARCHANT_ID,
     version: "v1",
-    timestamp: paymentDate,
-    email_address: data.user_email,
-    cell_number: data.user_phone_number,
+    timestamp: paymentDate
   };
-  const body = {
-    amount: data.payment.amount,
+  const body: JSObject = {
+    amount: data.payment.amount * 100, // convert to cents (required by the payfast API).
     item_name: data.item_name || "Trip payment",
     itn: "false",
   };
@@ -199,15 +198,17 @@ export const makePayfastTokenPayment = async (data: JSObject) => {
   serializedSortedData.sort();
   header["signature"] = md5Hash(serializedSortedData.toString());
   let paymentSuccessfull = false;
+  let payfastPaymentId = 0;
   try {
     const response = await axios.post(url, body, { headers: header });
     if (response.data.status == "success") {
       paymentSuccessfull = true;
+      payfastPaymentId = response.data.data.pf_payment_id;
       const payment = {
         ...data.payment,
         date_time: paymentDate,
-        "payment_gateway_transaction_id": response.data.data.pf_payment_id,
-        "payment_type" : data.payment.payment_type || "CARD"
+        payment_gateway_transaction_id: payfastPaymentId,
+        payment_type : data.payment.payment_type || "CARD"
       };
       const result = await axios.post(`${DATA_ACCESS_SERVER_URL}/payment`, payment);
       return {
@@ -224,7 +225,7 @@ export const makePayfastTokenPayment = async (data: JSObject) => {
   } catch (error) {
     // TODO improve fault tolerance and error handling (maybe report)
     if(paymentSuccessfull){
-      throw new functions.https.HttpsError("unknown", "unable_to_create_payment");
+      throw new functions.https.HttpsError("unknown", "unable_to_create_payment", {payment_date: paymentDate, payment_gateway_transaction_id: payfastPaymentId});
     }else {
       throw new functions.https.HttpsError("unknown", "payment_failed");
     }
