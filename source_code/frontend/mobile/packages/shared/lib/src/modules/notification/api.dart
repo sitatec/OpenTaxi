@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:meta/meta.dart';
 
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';

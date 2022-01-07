@@ -10,6 +10,7 @@ export 'src/widgets/map_widget.dart';
 export 'src/utils/data_converters.dart';
 export 'src/screens/location_permission_page.dart';
 export 'src/entities/dispatcher.dart';
+export 'src/modules/notification/api.dart' hide NotificationManagerImpl;
 // ----------------------- Exported Packages -------------------------- //
 export 'package:flutter_svg/flutter_svg.dart';
 export 'package:flutter_multi_formatter/flutter_multi_formatter.dart'

@@ -17,6 +17,8 @@ dependencies:
   google_maps_flutter: ^2.1.1
   flutter_rating_bar: ^4.0.0
   google_fonts: ^2.1.0
+  firebase_messaging: ^11.1.0
+  cloud_functions: ^3.1.1
   location_manager:
     path: ../../packages/location_manager
   authentication:

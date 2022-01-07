@@ -1,5 +1,6 @@
 part of 'api.dart';
 
+@internal
 class NotificationManagerImpl implements NotificationManager {
   final FirebaseMessaging _firebaseMessaging;
   final FirebaseFunctions _firebaseFunctions;
