@@ -3,6 +3,7 @@ import { createHash } from "crypto";
 import axios from "axios";
 import { URLSearchParams } from "url";
 import { ACCOUNT_DATA_ACCESS_URL, DATA_ACCESS_SERVER_URL } from "./constants";
+import * as functions from "firebase-functions";
 
 const isDevMode = ["development", "dev"].includes(
   process.env.NODE_ENV as string
@@ -10,9 +11,11 @@ const isDevMode = ["development", "dev"].includes(
 const MARCHANT_ID = isDevMode ? "10000100" : "12166525";
 const MARCHANT_KEY = isDevMode ? "46f0cd694581a" : "a3qinh6q0ph0l";
 const SUBSCRIPTION_URL = isDevMode
-  ? "https://api.payfast.co.za/subscriptions/${subscriptionToken}/fetch"
-  : "https://api.payfast.co.za/subscriptions/${subscriptionToken}/fetch?testing=true";
-
+  ? "https://api.payfast.co.za/subscriptions/${subscriptionToken}/fetch?testing=true"
+  : "https://api.payfast.co.za/subscriptions/${subscriptionToken}/fetch";
+const TOKEN_PAYMENT_URL = isDevMode
+  ? "https://api.payfast.co.za/subscriptions/${data.token}/adhoc?testing=true"
+  : "https://api.payfast.co.za/subscriptions/${data.token}/adhoc";
 // const NOTIFY_URL = "";
 const PAYFAST_URL = isDevMode
   ? "https://sandbox.payfast.co.za​/eng/process"
@@ -33,9 +36,7 @@ export const getPayFastPaymentUrl = async (paymentData: JSObject) => {
   // paymentData.notify_url = NOTIFY_URL;
   paymentData = correctDataKeysOrder(paymentData);
   const serializedData = new URLSearchParams(paymentData);
-  if (!isDevMode) {
-    serializedData.append("passphrase", PASSPHRASE);
-  }
+  serializedData.append("passphrase", PASSPHRASE);
   paymentData.signature = md5Hash(serializedData.toString());
   const response = await axios.post(PAYFAST_URL, paymentData);
   return response.headers["Location"]; // The Location header contains the redirect url.
@@ -92,14 +93,14 @@ export const receiveTransationNotification = async (data: JSObject) => {
     return;
     // TODO notify admin something wrong.
   }
-  if (data.payment_status == "COMPLETE" && await isNewSubscription(token)) {
+  if (data.payment_status == "COMPLETE" && (await isNewSubscription(token))) {
     await saveTokenForNewSubscription(token, userId);
   }
   const notificationType = data.custom_int1;
   if (notificationType == TransactionNotificationType.DRIVER_SUBSCRIPTION) {
-    if(data.payment_status == "COMPLETE"){
-    // TODO generate invoice and send email to driver.
-    }else{
+    if (data.payment_status == "COMPLETE") {
+      // TODO generate invoice and send email to driver.
+    } else {
       // TODO notify admin by email
     }
   }
@@ -176,16 +177,18 @@ const handleSubscriptionRenewalNotification = async (data: JSObject) => {
 
 // ########################## TOKEN PAYMENT ########################### //
 export const makePayfastTokenPayment = async (data: JSObject) => {
-  const url = `https://api.payfast.co.za/subscriptions/${data.token}/adhoc`;
+  const url = eval("`" + TOKEN_PAYMENT_URL + "`");
   const paymentDate = new Date().toISOString();
   const header = {
     "merchant-id": MARCHANT_ID,
     version: "v1",
     timestamp: paymentDate,
+    email_address: data.user_email,
+    cell_number: data.user_phone_number,
   };
   const body = {
     amount: data.payment.amount,
-    item_name: data.item_name ?? "Trip payment",
+    item_name: data.item_name || "Trip payment",
     itn: "false",
   };
   const serializedSortedData = new URLSearchParams({
@@ -195,17 +198,35 @@ export const makePayfastTokenPayment = async (data: JSObject) => {
   });
   serializedSortedData.sort();
   header["signature"] = md5Hash(serializedSortedData.toString());
+  let paymentSuccessfull = false;
   try {
     const response = await axios.post(url, body, { headers: header });
     if (response.data.status == "success") {
+      paymentSuccessfull = true;
       const payment = {
         ...data.payment,
         date_time: paymentDate,
+        "payment_gateway_transaction_id": response.data.data.pf_payment_id,
+        "payment_type" : data.payment.payment_type || "CARD"
       };
-      await axios.post(`${DATA_ACCESS_SERVER_URL}/payment`);
+      const result = await axios.post(`${DATA_ACCESS_SERVER_URL}/payment`, payment);
+      return {
+        status: "success",
+        payment_id: result.data.data
+      };
     } else {
+      // TODO send mail. (check first if it's better to send the email only the driver manualy report)
+      return {
+        status: "failed",
+        message: response.data.data.message
+      }
     }
   } catch (error) {
     // TODO improve fault tolerance and error handling (maybe report)
+    if(paymentSuccessfull){
+      throw new functions.https.HttpsError("unknown", "unable_to_create_payment");
+    }else {
+      throw new functions.https.HttpsError("unknown", "payment_failed");
+    }
   }
 };
