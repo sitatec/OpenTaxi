@@ -12,6 +12,7 @@ export 'src/screens/location_permission_page.dart';
 export 'src/entities/dispatcher.dart';
 export 'src/modules/notification/api.dart' hide NotificationManagerImpl;
 export 'src/modules/payment/api.dart';
+export 'src/widgets/custom_web_view.dart';
 // ----------------------- Exported Packages -------------------------- //
 export 'package:flutter_svg/flutter_svg.dart';
 export 'package:flutter_multi_formatter/flutter_multi_formatter.dart'
@@ -22,3 +23,4 @@ export 'package:location_manager/location_manager.dart';
 export 'package:flutter_rating_bar/flutter_rating_bar.dart';
 export 'package:google_fonts/google_fonts.dart';
 export 'package:google_maps_flutter/google_maps_flutter.dart';
+export 'package:cloud_functions/cloud_functions.dart';
