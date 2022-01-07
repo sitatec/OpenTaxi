@@ -9,10 +9,9 @@ class TripRoomImplementation extends TripRoom {
   String _riderId = "";
   String? _viewerId;
   StreamSubscription<Event>? _roomStreamsSubscription;
-  StreamSubscription<Location>? _locationSourceStreamSubscription;
-  StreamSubscription<double>? _speedSourceStreamSubscription;
+  StreamSubscription<Coordinates>? _locationSourceStreamSubscription;
 
-  final _locationStreamController = StreamController<Location>();
+  final _locationStreamController = StreamController<Coordinates>();
   final _speedStreamController = StreamController<double>();
   final _tripEventStreamController = StreamController<TripEvent>();
   late Sink<TripEvent> _tripEventSink;
@@ -20,13 +19,12 @@ class TripRoomImplementation extends TripRoom {
   TripRoomImplementation(
     String id, {
     DatabaseReference? firebaseDb,
-    Stream<Location>? locationSourceStream,
-    Stream<double>? speedSourceStream,
+    Stream<Coordinates>? locationSourceStream,
   })  : _firebaseDb = firebaseDb ??
             FirebaseDatabase.instance.reference().child("trip_rooms/$id"),
         _driverId = id,
         // Currently the room id is the driver id.
-        super._internal(id, locationSourceStream, speedSourceStream) {
+        super._internal(id, locationSourceStream) {
     _tripEventSink = _tripEventStreamController.sink;
     _firebaseDb
         .child("riderId")
@@ -40,9 +38,6 @@ class TripRoomImplementation extends TripRoom {
         _locationSourceStream?.listen((location) {
       _firebaseDb.child("location").set(location.toString());
     });
-    _speedSourceStreamSubscription = _speedSourceStream?.listen((speed) {
-      _firebaseDb.child("speed").set(speed);
-    });
   }
 
   @override
@@ -55,10 +50,7 @@ class TripRoomImplementation extends TripRoom {
   String? get viewerId => _viewerId;
 
   @override
-  Stream<Location> get locationStream => _locationStreamController.stream;
-
-  @override
-  Stream<double> get speedStream => _speedStreamController.stream;
+  Stream<Coordinates> get locationStream => _locationStreamController.stream;
 
   @override
   Stream<TripEvent> get tripEventsStream => _tripEventStreamController.stream;
@@ -74,10 +66,7 @@ class TripRoomImplementation extends TripRoom {
       final nodeValue = event.snapshot.value;
       switch (nodeKey) {
         case "location":
-          _locationStreamController.sink.add(Location.fromString(nodeValue));
-          break;
-        case "speed":
-          _speedStreamController.sink.add(nodeValue);
+          _locationStreamController.sink.add(Coordinates.fromMap(nodeValue));
           break;
         case "viewerId":
           _viewerId = nodeValue;
@@ -95,7 +84,7 @@ class TripRoomImplementation extends TripRoom {
     }
     final viewerIdNode = _firebaseDb.child("viewerId");
     if ((await viewerIdNode.once()).exists) {
-      return _tripEventSink.add(TripEvent.anotherViewerAlreadyWatching);
+      return _tripEventSink.add(TripEvent.tripAlreadyBeenWatched);
     }
     viewerIdNode.set(viewerId);
     join();
@@ -105,10 +94,8 @@ class TripRoomImplementation extends TripRoom {
   @override
   Future<void> leave() async {
     await _roomStreamsSubscription?.cancel();
-    await _speedSourceStreamSubscription?.cancel();
     await _locationSourceStreamSubscription?.cancel();
     await _tripEventStreamController.close();
-    await _speedStreamController.close();
     await _locationStreamController.close();
   }
 }

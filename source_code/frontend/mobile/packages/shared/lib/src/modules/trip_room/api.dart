@@ -1,3 +1,4 @@
+import 'package:location_manager/location_manager.dart';
 import 'package:meta/meta.dart';
 import 'dart:async';
 
@@ -7,12 +8,8 @@ part 'trip_room_implementation.dart';
 
 abstract class TripRoom {
   final String id;
-  final Stream<Location>? _locationSourceStream;
-  final Stream<double>? _speedSourceStream;
-
-  Stream<Location> get locationStream;
-
-  Stream<double> get speedStream;
+  final Stream<Coordinates>? _locationSourceStream;
+  Stream<Coordinates> get locationStream;
 
   Stream<TripEvent> get tripEventsStream;
 
@@ -24,19 +21,16 @@ abstract class TripRoom {
 
   factory TripRoom(
     String id, {
-    Stream<Location>? locationSourceStream,
-    Stream<double>? speedSourceStream,
+    Stream<Coordinates>? locationSourceStream,
   }) =>
       TripRoomImplementation(
         id,
         locationSourceStream: locationSourceStream,
-        speedSourceStream: speedSourceStream,
       );
 
   TripRoom._internal(
     this.id,
     this._locationSourceStream,
-    this._speedSourceStream,
   );
 
   void join();
@@ -46,23 +40,11 @@ abstract class TripRoom {
   Future<void> leave();
 }
 
-class Location {
-  final double latitude;
-  final double longitude;
-
-  const Location({required this.latitude, required this.longitude});
-
-  static Location fromString(String location) {
-    final coordinates = location.split(',').map((e) => double.parse(e));
-    return Location(latitude: coordinates.first, longitude: coordinates.last);
-  }
-}
-
 enum TripEvent {
   joined,
   joinFailed,
   viewerJoined,
   cantWatchAlreadyJoinedTrip,
-  anotherViewerAlreadyWatching,
+  tripAlreadyBeenWatched,
   cantJoinTwice,
 }
