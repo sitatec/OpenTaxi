@@ -1,5 +1,5 @@
 import 'package:driver_app/authentication/ui/registration_screen.dart';
-import 'package:driver_app/authentication/ui/registration_status.dart';
+import 'package:driver_app/authentication/ui/user_account_status.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:authentication/authentication.dart';
@@ -64,7 +64,6 @@ class App extends StatelessWidget {
                         final driverAccount = authenticationProvider.account!;
                         if (driverAccount.role != AccountRole.UNDEFINED &&
                             driverAccount.role != AccountRole.DRIVER) {
-                          // TODO handle if the user is not a driver.
                           return const Center(
                             child: Text(
                               "This account is not a driver account!",
@@ -72,17 +71,22 @@ class App extends StatelessWidget {
                           );
                         } else {
                           final driver = Driver(account: driverAccount);
-                          return MainScreen(driver);
+                          if (driverAccount.status == AccountStatus.LIVE) {
+                            return MainScreen(driver);
+                          }
                           if (driverAccount.status ==
                               AccountStatus.REGISTRATION_IN_PROGRESS) {
                             return RegistrationScreen(driver);
                           } else if (driverAccount.status ==
                               AccountStatus.WAITING_FOR_APPROVAL) {
-                            return const RegistrationStatusPage(
-                              RegistrationStatus.underReview,
+                            return const UserAccountStatusPage(
+                              UserAccountStatus.accountUnderReview,
+                            );
+                          } else {
+                            return const UserAccountStatusPage(
+                              UserAccountStatus.accountSuspended,
                             );
                           }
-                          return MainScreen(driver);
                         }
                       } else {
                         return const PhoneAuthScreen();

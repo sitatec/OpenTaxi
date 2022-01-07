@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
-class RegistrationStatusPage extends StatelessWidget {
-  final RegistrationStatus registrationStatus;
+class UserAccountStatusPage extends StatelessWidget {
+  final UserAccountStatus registrationStatus;
   final VoidCallback? action;
 
-  const RegistrationStatusPage(this.registrationStatus, {Key? key, this.action})
+  const UserAccountStatusPage(this.registrationStatus, {Key? key, this.action})
       : super(key: key);
 
   @override
@@ -88,37 +88,38 @@ class RegistrationStatusPage extends StatelessWidget {
   }
 }
 
-class RegistrationStatus {
+class UserAccountStatus {
   final String imageName;
   final String title;
   final String subtitle;
   final String actionText;
 
-  const RegistrationStatus({
+  const UserAccountStatus({
     required this.imageName,
     required this.title,
     required this.subtitle,
     required this.actionText,
   });
 
-  static const underReview = RegistrationStatus(
+  static const accountUnderReview = UserAccountStatus(
     imageName: "registration_in_review.png",
     title: "Profile is under Review",
     subtitle: "It usually takes less than a day for us to complete the process",
     actionText: "Ok",
   );
 
-  static const accepted = RegistrationStatus(
-    imageName: "registration_accepted.png",
-    title: "Congratulations!",
-    subtitle: "Your profile has been approved. You are now ready to drive with us",
-    actionText: "Continue",
-  );
-
-  static const refused = RegistrationStatus(
+  static const registrationRefused = UserAccountStatus(
     imageName: "registration_refused.png",
     title: "Your profile is not approved",
     subtitle: "Your profile has not approved. Contact Support to learn more.",
+    actionText: "Contact Support",
+  );
+
+  static const accountSuspended = UserAccountStatus(
+    imageName: "registration_refused.png",
+    title: "Your account has been suspended",
+    subtitle:
+        "Unfurtunatly you can't login until your account get reactivated. Contact Support for further information.", // TODO check the text with Lu.
     actionText: "Contact Support",
   );
 }
