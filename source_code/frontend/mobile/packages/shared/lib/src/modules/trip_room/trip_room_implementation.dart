@@ -108,7 +108,7 @@ class TripRoomImplementation extends TripRoom {
 
   void _emitTripEvent(TripEvent event) {
     if (_tripEventStreamController.hasListener) {
-      _emitTripEvent(event);
+      _tripEventStreamController.add(event);
     }
     _lastEvent = event;
   }

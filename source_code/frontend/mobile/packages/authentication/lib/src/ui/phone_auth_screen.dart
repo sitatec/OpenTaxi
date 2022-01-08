@@ -1,10 +1,7 @@
 import 'dart:async';
 
-import 'package:authentication/authentication.dart';
-import 'package:authentication/src/api/phone_number_verifier.dart';
+import 'package:authentication/src/ui/phone_number_doesnt_exist_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:shared/shared.dart';
 
 // TODO refactor
@@ -15,7 +12,10 @@ class PhoneAuthScreen extends StatefulWidget {
     fontWeight: FontWeight.w600,
   );
 
-  const PhoneAuthScreen({Key? key}) : super(key: key);
+  final bool phoneNumberShouldExist;
+
+  const PhoneAuthScreen({this.phoneNumberShouldExist = false, Key? key})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PhoneAuthScreenState();
@@ -27,6 +27,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
   String phoneNumber = "";
   bool isSendingVerificationCode = false;
   bool loginInProgress = false;
+  bool checkingIfNumberRegistered = false;
 
   final phoneNumberVerifier = PhoneNumberVerifier();
   StreamSubscription? verificationStateStreamSubscription;
@@ -333,6 +334,43 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                 ),
               )
             ],
+            if (checkingIfNumberRegistered) ...[
+              Container(color: const Color(0x70000000)),
+              Align(
+                alignment: Alignment.center,
+                child: Wrap(
+                  // width: min(screenWidth * 0.75, 350),
+                  // height: 350,
+                  children: [
+                    Card(
+                      elevation: 10,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 25),
+                        child: Column(
+                          children: [
+                            CircularProgressIndicator(
+                                color: theme.primaryColor),
+                            const SizedBox(height: 30),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 8.0,
+                                horizontal: 16,
+                              ),
+                              child: Text(
+                                "Checking if your phone number is registered",
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
           ],
         ),
       ),
@@ -341,9 +379,32 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
 
   void _sendVerificationCode() async {
     FocusScope.of(context).unfocus();
-    phoneNumberVerifier.sendVerificationSMS(phoneNumber);
-    setState(() {
-      isSendingVerificationCode = true;
-    });
+    if (widget.phoneNumberShouldExist &&
+        !(await _phoneNumberExists(phoneNumber))) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => PhoneNumberDoesntExistPage(phoneNumber),
+        ),
+      );
+    } else {
+      phoneNumberVerifier.sendVerificationSMS(phoneNumber);
+      setState(() {
+        isSendingVerificationCode = true;
+      });
+    }
+  }
+
+  Future<bool> _phoneNumberExists(String phoneNumber) async {
+    setState(() => checkingIfNumberRegistered = true);
+    try {
+      final cleanedPhoneNumber = phoneNumber.substring(4).replaceAll(" ", "");
+      final response = await FirebaseFunctions.instance
+          .httpsCallable("checkIfPhoneNumberExist")
+          .call(cleanedPhoneNumber);
+      return response.data;
+    } finally {
+      // TODO catch and handle exception.
+      setState(() => checkingIfNumberRegistered = false);
+    }
   }
 }
