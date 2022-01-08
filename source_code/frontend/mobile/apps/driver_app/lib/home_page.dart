@@ -35,6 +35,7 @@ class _HomePageState extends State<HomePage> {
   bool _isOnlineStatusChanging = false;
   bool _locationServiceInitialized = false;
   bool _bookingAccepted = false;
+  bool _inTrip = false;
   Widget? _notification = null; //_StatusNotification.offline;
   final Completer<GoogleMapController> _mapController = Completer();
   final Set<Marker> _markers = {};
@@ -47,6 +48,7 @@ class _HomePageState extends State<HomePage> {
   BitmapDescriptor? _whiteCarIcon;
   BitmapDescriptor? _rideRequestIcon;
   BitmapDescriptor? _pickupIcon;
+  List<VoidCallback> _onStateResetedListenners = [];
 
   @override
   void initState() {
@@ -155,22 +157,101 @@ class _HomePageState extends State<HomePage> {
         _showBookingRequest(bookingRequestData);
         break;
       case FramType.CANCEL_BOOKING:
-        // TODO: Handle this case.
+        await _showInfoDialog(
+          "Booking Cancelled",
+          "The rider has cancelled the booking",
+        );
+        _onStateResetedListenners.forEach(_callFunction);
         break;
       case FramType.INVALID_DISPATCH_ID:
-        // TODO: Handle this case.
+        await _showInfoDialog(
+          "Error",
+          "Something bad happend.",
+        );
         break;
       case FramType.PAIR_DISCONNECTED:
-        // TODO: Handle this case.
+        await _showInfoDialog(
+          "Rider Disconnected",
+          "Rider connection lost.",
+        );
+        _onStateResetedListenners.forEach(_callFunction);
         break;
       case FramType.BOOKING_REQUEST_TIMEOUT:
-        // TODO: Handle this case.
+        await _showInfoDialog(
+          "Trip request timout",
+          "You haven't reacted the booking request for one minute.",
+        );
+        _onStateResetedListenners.forEach(_callFunction);
         break;
       case FramType.TRIP_ROOM:
+        final tripRoom = TripRoom(
+          dataJson.value,
+          locationSourceStream: widget._locationManager.getCoordinatesStream(
+            distanceFilterInMeter: 0,
+            timeInterval: 1000,
+          ),
+        );
+        tripRoom.join();
+        tripRoom.tripEventsStream.listen((event) async {
+          switch (event) {
+            case TripEvent.joined:
+              _locationStreamSubscription?.cancel();
+              _locationStreamSubscription =
+                  tripRoom.locationStream.listen(_updateDriverLocation);
+              // Reduce the dispatcher workload while the driver is in trip.
+              _dispatcher.disconnect();
+              _showInfoDialog("Trip Successfully Initialized", "");
+              break;
+            case TripEvent.joinFailed:
+              _showInfoDialog(
+                  "Error", "An error happend while initializing the trip.",
+                  actionButton: TextButton(
+                    onPressed: () => tripRoom.join(),
+                    child: const Text("RETRY"),
+                  ));
+              break;
+            case TripEvent.viewerJoined:
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: const Text(
+                    "A user joined the trip.",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  backgroundColor: Theme.of(context).accentColor,
+                ),
+              );
+              break;
+            case TripEvent.cantJoinTwice:
+              _showSimpleSnakbar("Trip already joinned.");
+              break;
+            default:
+          }
+        });
         // TODO: Handle this case.
         break;
       default:
     }
+  }
+
+  void _callFunction(VoidCallback function) => function();
+
+  Future<void> _showInfoDialog(String title, String message,
+      {String? dismissButtonText, Widget? actionButton}) {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(title),
+            content: message.isEmpty ? null : Text(message),
+            actions: [
+              if (actionButton != null) actionButton,
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(dismissButtonText ?? "OK"),
+              )
+            ],
+          );
+        });
   }
 
   Future<void> _sendDriverData(Coordinates location) async {
@@ -211,7 +292,7 @@ class _HomePageState extends State<HomePage> {
                 radius: 24,
               ),
               FlutterSwitch(
-                value: _isDriverOnline,
+                value: _isDriverOnline || _inTrip,
                 onToggle: _toggleDriverOnlineStatus,
                 activeText: const Text(
                   "Online",
@@ -330,7 +411,7 @@ class _HomePageState extends State<HomePage> {
 
   void _showMyLocation() async {
     if (!await _initializeLocationServices()) {
-      _showSnakbar("Location Permission not allowed");
+      _showSimpleSnakbar("Location Permission not allowed");
       return;
     }
     final currentCordinates =
@@ -391,7 +472,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showSnakbar(String message) {
+  void _showSimpleSnakbar(String message) {
     final scaffold = ScaffoldMessenger.of(context);
     scaffold.showSnackBar(SnackBar(content: Text(message)));
   }
@@ -523,8 +604,8 @@ class _HomePageState extends State<HomePage> {
   void _showBookingRequest(_BookingRequestData bookingRequestData) {
     final theme = Theme.of(context);
     final iconsBackgroundColor = theme.disabledColor.withAlpha(100);
-    final requestTimeoutDuration = Duration(seconds: 30);
-    final requestTimeoutWarningDuration = Duration(seconds: 12); // A warning
+    const requestTimeoutDuration = Duration(minutes: 1);
+    const requestTimeoutWarningDuration = Duration(seconds: 12); // A warning
     // color will be shown if it remains only this duration.
     final countdownController = CountdownSliderController();
     const price =
@@ -533,6 +614,15 @@ class _HomePageState extends State<HomePage> {
         elevation: 4,
         context: context,
         builder: (context) {
+          bool isBottomSheetOpened = true;
+          void closeBottomSheet() {
+            if (isBottomSheetOpened) {
+              isBottomSheetOpened = false;
+              Navigator.of(context).pop();
+            }
+          }
+
+          _onStateResetedListenners.add(closeBottomSheet);
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             child: Wrap(
@@ -580,11 +670,14 @@ class _HomePageState extends State<HomePage> {
                   warningColor: theme.errorColor,
                   controller: countdownController,
                   warningDuration: requestTimeoutWarningDuration,
+                  onTimeout: closeBottomSheet,
                 ),
                 ListTile(
                   leading: CircleAvatar(
-                    child: SvgPicture.asset("assets/images/pickup_icon.svg",
-                        package: "shared"),
+                    child: SvgPicture.asset(
+                      "assets/images/pickup_icon.svg",
+                      package: "shared",
+                    ),
                     backgroundColor: iconsBackgroundColor,
                   ),
                   title: Text(
