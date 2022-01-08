@@ -11,10 +11,13 @@ class TripRoomImplementation extends TripRoom {
   StreamSubscription<Event>? _roomStreamsSubscription;
   StreamSubscription<Coordinates>? _locationSourceStreamSubscription;
 
-  final _locationStreamController = StreamController<Coordinates>();
-  final _speedStreamController = StreamController<double>();
-  final _tripEventStreamController = StreamController<TripEvent>();
-  late Sink<TripEvent> _tripEventSink;
+  Coordinates? _lastLocation;
+  TripEvent? _lastEvent;
+  String? _lastCustomEvent;
+
+  final _locationStreamController = StreamController<Coordinates>.broadcast();
+  final _tripEventStreamController = StreamController<TripEvent>.broadcast();
+  final _customEventStreamController = StreamController<String>.broadcast();
 
   TripRoomImplementation(
     String id, {
@@ -25,7 +28,21 @@ class TripRoomImplementation extends TripRoom {
         _driverId = id,
         // Currently the room id is the driver id.
         super._internal(id, locationSourceStream) {
-    _tripEventSink = _tripEventStreamController.sink;
+    _locationStreamController.onListen = () {
+      if (_lastLocation != null) {
+        _locationStreamController.add(_lastLocation!);
+      }
+    };
+    _tripEventStreamController.onListen = () {
+      if (_lastEvent != null) {
+        _emitTripEvent(_lastEvent!);
+      }
+    };
+    _customEventStreamController.onListen = () {
+      if (_lastCustomEvent != null) {
+        _customEventStreamController.add(_lastCustomEvent!);
+      }
+    };
     _firebaseDb
         .child("riderId")
         .once()
@@ -36,7 +53,7 @@ class TripRoomImplementation extends TripRoom {
   void _listenToSourceStreams() {
     _locationSourceStreamSubscription =
         _locationSourceStream?.listen((location) {
-      _firebaseDb.child("location").set(location.toString());
+      _firebaseDb.child("location").set(location.toMap());
     });
   }
 
@@ -56,9 +73,12 @@ class TripRoomImplementation extends TripRoom {
   Stream<TripEvent> get tripEventsStream => _tripEventStreamController.stream;
 
   @override
+  Stream<String> get customEventStream => _customEventStreamController.stream;
+
+  @override
   void join() {
     if (_joined) {
-      return _tripEventSink.add(TripEvent.cantJoinTwice);
+      return _emitTripEvent(TripEvent.cantJoinTwice);
     }
     _roomStreamsSubscription =
         _firebaseDb.child(id).onChildChanged.listen((event) {
@@ -66,25 +86,42 @@ class TripRoomImplementation extends TripRoom {
       final nodeValue = event.snapshot.value;
       switch (nodeKey) {
         case "location":
-          _locationStreamController.sink.add(Coordinates.fromMap(nodeValue));
+          if (_locationStreamController.hasListener) {
+            _locationStreamController.add(Coordinates.fromMap(nodeValue));
+          }
+          _lastLocation = nodeValue;
           break;
         case "viewerId":
           _viewerId = nodeValue;
-          _tripEventSink.add(TripEvent.viewerJoined);
+          _emitTripEvent(TripEvent.viewerJoined);
+          break;
+        case "event":
+          if (_customEventStreamController.hasListener) {
+            _customEventStreamController.add(nodeValue);
+          }
+          _lastCustomEvent = nodeValue;
       }
     });
-    _tripEventSink.add(TripEvent.joined);
+    _emitTripEvent(TripEvent.joined);
     _joined = true;
+  }
+
+  void _emitTripEvent(TripEvent event) {
+    if (_tripEventStreamController.hasListener) {
+      _emitTripEvent(event);
+    }
+    _lastEvent = event;
   }
 
   @override
   Future<void> watch(String viewerId) async {
     if (_watching || _joined) {
-      return _tripEventSink.add(TripEvent.cantWatchAlreadyJoinedTrip);
+      return _tripEventStreamController
+          .add(TripEvent.cantWatchAlreadyJoinedTrip);
     }
     final viewerIdNode = _firebaseDb.child("viewerId");
     if ((await viewerIdNode.once()).exists) {
-      return _tripEventSink.add(TripEvent.tripAlreadyBeenWatched);
+      return _emitTripEvent(TripEvent.tripAlreadyBeenWatched);
     }
     viewerIdNode.set(viewerId);
     join();
@@ -92,10 +129,16 @@ class TripRoomImplementation extends TripRoom {
   }
 
   @override
-  Future<void> leave() async {
+  Future<void> leave(String who) async {
+    await _firebaseDb.child("event").set("${who}_left");
     await _roomStreamsSubscription?.cancel();
     await _locationSourceStreamSubscription?.cancel();
     await _tripEventStreamController.close();
     await _locationStreamController.close();
+    await _customEventStreamController.close();
   }
+
+  @override
+  Future<void> sendCustomEvent(String event) =>
+      _firebaseDb.child("event").set(event);
 }

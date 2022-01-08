@@ -13,6 +13,8 @@ abstract class TripRoom {
 
   Stream<TripEvent> get tripEventsStream;
 
+  Stream<String> get customEventStream;
+
   String get riderId;
 
   String get driverId;
@@ -37,7 +39,9 @@ abstract class TripRoom {
 
   Future<void> watch(String viewerId);
 
-  Future<void> leave();
+  Future<void> leave(String who);
+
+  Future<void> sendCustomEvent(String event);
 }
 
 enum TripEvent {
