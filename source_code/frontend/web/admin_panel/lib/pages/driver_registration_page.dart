@@ -6,9 +6,15 @@ import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 
 const double _registrationFormWidth = 800;
 
-class DriverRegistrationPage extends StatelessWidget {
+class DriverRegistrationPage extends StatefulWidget {
   const DriverRegistrationPage({Key? key}) : super(key: key);
 
+  @override
+  State<DriverRegistrationPage> createState() => _DriverRegistrationPageState();
+}
+
+class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
+  String _driverId = "";
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -45,9 +51,26 @@ class DriverRegistrationPage extends StatelessWidget {
                   ),
                   constraints:
                       const BoxConstraints(maxWidth: _registrationFormWidth),
-                  child: const _DriverRegistrationForm(),
+                  child: _DriverRegistrationForm(
+                    onSubmitted: (driverId) =>
+                        setState(() => _driverId = driverId),
+                  ),
                 ),
               ),
+              const SizedBox(height: 100),
+              Card(
+                elevation: 5,
+                child: Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: screenWidth < _registrationFormWidth ? 16 : 40,
+                    vertical: 40,
+                  ),
+                  constraints:
+                      const BoxConstraints(maxWidth: _registrationFormWidth),
+                  child: _CarRegistrationForm(_driverId),
+                ),
+              ),
+              const SizedBox(height: 50),
             ],
           ),
         ),
@@ -57,7 +80,8 @@ class DriverRegistrationPage extends StatelessWidget {
 }
 
 class _DriverRegistrationForm extends StatefulWidget {
-  const _DriverRegistrationForm({Key? key}) : super(key: key);
+  final void Function(String)? onSubmitted;
+  const _DriverRegistrationForm({this.onSubmitted, Key? key}) : super(key: key);
 
   @override
   _DriverRegistrationFormState createState() => _DriverRegistrationFormState();
@@ -159,7 +183,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: Center(
                   child: _dropZoneHovered
                       ? const Text(
-                          "Drop Here",
+                          "Drop Picture Here",
                           style: TextStyle(
                               fontSize: 19, fontWeight: FontWeight.bold),
                         )
@@ -424,7 +448,10 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           Align(
             alignment: Alignment.center,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                // TODO push data
+                widget.onSubmitted?.call("sfs");
+              },
               child: const Text(
                 "SUBMIT",
                 style: TextStyle(
@@ -439,6 +466,292 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                       const EdgeInsets.symmetric(vertical: 16, horizontal: 40)),
             ),
           )
+        ],
+      ),
+    );
+  }
+}
+
+const _carCategories = ["STANDARD", "LITE", "PREMIUM", "CREW", "UBUNTU"];
+
+class _CarRegistrationForm extends StatefulWidget {
+  final String driverId;
+  const _CarRegistrationForm(this.driverId, {Key? key}) : super(key: key);
+
+  @override
+  __CarRegistrationFormState createState() => __CarRegistrationFormState();
+}
+
+class __CarRegistrationFormState extends State<_CarRegistrationForm> {
+  final _formKey = GlobalKey<FormState>();
+  bool _vehicleInspectionReport = false;
+  bool _hasAssurance = false;
+  bool _isSpeedometerOn = false;
+  String _selectedCategory = _carCategories.first;
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Vehicle Informations",
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("Vehicle Make *"),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("Vehicle Model *"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(bottom: 1),
+                child: Text(
+                  "Category :",
+                  style: TextStyle(color: Colors.black, fontSize: 18),
+                ),
+              ),
+              const SizedBox(width: 28),
+              DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _selectedCategory,
+                  onChanged: (newValue) {
+                    if (newValue == null) return;
+                    setState(() => _selectedCategory = newValue);
+                  },
+                  items: _carCategories.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("Vehicle Year *"),
+                  inputFormatters: [MaskedInputFormatter("0000")],
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration:
+                      _getTextFieldDecoration("Vehicle registration Number *"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("VIN Number *"),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("License Plate number *"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("License Disk number *"),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration(
+                      "License Disk Expiry Date (yyyy-mm-dd) *"),
+                  inputFormatters: [MaskedInputFormatter("0000-00-00")],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            "Has Vehicle Inspection report? *",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          const SizedBox(height: 16),
+          Column(
+            children: [
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Radio(
+                    value: true,
+                    groupValue: _vehicleInspectionReport,
+                    onChanged: (_) =>
+                        setState(() => _vehicleInspectionReport = true),
+                  ),
+                  const SizedBox(width: 5),
+                  const Text(
+                    "Yes",
+                    style: TextStyle(color: Colors.black, fontSize: 17),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Radio(
+                    value: false,
+                    groupValue: _vehicleInspectionReport,
+                    onChanged: (_) =>
+                        setState(() => _vehicleInspectionReport = false),
+                  ),
+                  const SizedBox(width: 5),
+                  const Text(
+                    "No ",
+                    style: TextStyle(color: Colors.black, fontSize: 17),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            "Has Assurance? *",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          const SizedBox(height: 16),
+          Column(
+            children: [
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Radio(
+                    value: true,
+                    groupValue: _hasAssurance,
+                    onChanged: (_) => setState(() => _hasAssurance = true),
+                  ),
+                  const SizedBox(width: 5),
+                  const Text(
+                    "Yes",
+                    style: TextStyle(color: Colors.black, fontSize: 17),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Radio(
+                    value: false,
+                    groupValue: _hasAssurance,
+                    onChanged: (_) => setState(() => _hasAssurance = false),
+                  ),
+                  const SizedBox(width: 5),
+                  const Text(
+                    "No ",
+                    style: TextStyle(color: Colors.black, fontSize: 17),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          const Text(
+            "Speedometer State? *",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          const SizedBox(height: 16),
+          Column(
+            children: [
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Radio(
+                    value: true,
+                    groupValue: _isSpeedometerOn,
+                    onChanged: (_) => setState(() => _isSpeedometerOn = true),
+                  ),
+                  const SizedBox(width: 5),
+                  const Text(
+                    "On ",
+                    style: TextStyle(color: Colors.black, fontSize: 17),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: [
+                  Radio(
+                    value: false,
+                    groupValue: _isSpeedometerOn,
+                    onChanged: (_) => setState(() => _isSpeedometerOn = false),
+                  ),
+                  const SizedBox(width: 5),
+                  const Text(
+                    "Off",
+                    style: TextStyle(color: Colors.black, fontSize: 17),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          Align(
+            alignment: Alignment.center,
+            child: Column(
+              children: [
+                ElevatedButton(
+                  onPressed: widget.driverId.isEmpty ? null : () {},
+                  child: const Text(
+                    "SUBMIT",
+                    style: TextStyle(
+                      fontSize: 18,
+                      letterSpacing: 1.3,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                      elevation: 10,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 16, horizontal: 40)),
+                ),
+                if (widget.driverId.isEmpty) ...[
+                  const SizedBox(height: 10),
+                  const Text(
+                    "You must submit the driver Informations first.",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.red),
+                  )
+                ]
+              ],
+            ),
+          ),
         ],
       ),
     );
