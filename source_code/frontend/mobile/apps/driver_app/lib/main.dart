@@ -1,4 +1,5 @@
 import 'package:driver_app/authentication/ui/user_account_status.dart';
+import 'package:driver_app/home_page.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +26,7 @@ class App extends StatelessWidget {
       SystemUiOverlayStyle(
         statusBarColor: theme.scaffoldBackgroundColor,
         statusBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: theme.scaffoldBackgroundColor.withAlpha(245),
+        systemNavigationBarColor: theme.scaffoldBackgroundColor,
         systemNavigationBarIconBrightness: Brightness.dark,
       ),
     );
@@ -39,61 +40,82 @@ class App extends StatelessWidget {
         accentColor: const Color(0xFF2BC25F),
         fontFamily: GoogleFonts.poppins().fontFamily,
       ),
-      home: true
-          ? PhoneAuthScreen(phoneNumberShouldExist: true)
-          : SafeArea(
-              child: FutureBuilder<FirebaseApp>(
-                  future: Firebase.initializeApp(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      // TODO check if internet connection is available, if not show appropriate screen
-                      // TODO show "something went wrong" screen when internet connection is available.
-                    }
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      final authenticationProvider =
-                          AuthenticationProvider.instance;
-                      return StreamBuilder<AuthState>(
-                          stream: authenticationProvider.authBinaryState,
-                          initialData: AuthState.uninitialized,
-                          builder: (context, authSnapshot) {
-                            if (authSnapshot.data == AuthState.uninitialized) {
+      home: SafeArea(
+        child: true
+            ? HomePage(
+                Driver(
+                  account: Account(
+                    balance: 0,
+                    email: '',
+                    firstName: '',
+                    genre: Gender.MALE,
+                    id: '',
+                    phoneNumber: '',
+                    profilePicture: '',
+                    registeredAt: DateTime.now(),
+                    role: AccountRole.DRIVER,
+                    status: AccountStatus.LIVE,
+                    surname: '',
+                  ),
+                ),
+                Dispatcher(),
+                LocationManager(),
+              )
+            : FutureBuilder<FirebaseApp>(
+                future: Firebase.initializeApp(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    // TODO check if internet connection is available, if not show appropriate screen
+                    // TODO show "something went wrong" screen when internet connection is available.
+                  }
+                  if (snapshot.connectionState == ConnectionState.done) {
+                    final authenticationProvider =
+                        AuthenticationProvider.instance;
+                    return StreamBuilder<AuthState>(
+                        stream: authenticationProvider.authBinaryState,
+                        initialData: AuthState.uninitialized,
+                        builder: (context, authSnapshot) {
+                          if (authSnapshot.data == AuthState.uninitialized) {
+                            return const Center(
+                                child: Text("Authenticating..."));
+                          }
+                          if (authSnapshot.data == AuthState.authenticated) {
+                            final driverAccount =
+                                authenticationProvider.account!;
+                            if (driverAccount.role != AccountRole.UNDEFINED &&
+                                driverAccount.role != AccountRole.DRIVER) {
                               return const Center(
-                                  child: Text("Authenticating..."));
-                            }
-                            if (authSnapshot.data == AuthState.authenticated) {
-                              final driverAccount =
-                                  authenticationProvider.account!;
-                              if (driverAccount.role != AccountRole.UNDEFINED &&
-                                  driverAccount.role != AccountRole.DRIVER) {
-                                return const Center(
-                                  child: Text(
-                                    "This account is not a driver account!",
-                                  ),
+                                child: Text(
+                                  "This account is not a driver account!",
+                                ),
+                              );
+                            } else {
+                              final driver = Driver(account: driverAccount);
+                              if (driverAccount.status == AccountStatus.LIVE) {
+                                return HomePage(
+                                  driver,
+                                  Dispatcher(),
+                                  LocationManager(),
+                                );
+                              } else if (driverAccount.status ==
+                                  AccountStatus.WAITING_FOR_APPROVAL) {
+                                return const UserAccountStatusPage(
+                                  UserAccountStatus.accountUnderReview,
                                 );
                               } else {
-                                final driver = Driver(account: driverAccount);
-                                if (driverAccount.status ==
-                                    AccountStatus.LIVE) {
-                                  return MainScreen(driver);
-                                } else if (driverAccount.status ==
-                                    AccountStatus.WAITING_FOR_APPROVAL) {
-                                  return const UserAccountStatusPage(
-                                    UserAccountStatus.accountUnderReview,
-                                  );
-                                } else {
-                                  return const UserAccountStatusPage(
-                                    UserAccountStatus.accountSuspended,
-                                  );
-                                }
+                                return const UserAccountStatusPage(
+                                  UserAccountStatus.accountSuspended,
+                                );
                               }
-                            } else {
-                              return const PhoneAuthScreen();
                             }
-                          });
-                    }
-                    return const Center(child: Text("Loading..."));
-                  }),
-            ),
+                          } else {
+                            return const PhoneAuthScreen();
+                          }
+                        });
+                  }
+                  return const Center(child: Text("Loading..."));
+                }),
+      ),
     );
   }
 }

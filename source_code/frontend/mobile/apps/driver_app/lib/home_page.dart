@@ -49,6 +49,7 @@ class _HomePageState extends State<HomePage> {
   BitmapDescriptor? _rideRequestIcon;
   BitmapDescriptor? _pickupIcon;
   List<VoidCallback> _onStateResetedListenners = [];
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
   @override
   void initState() {
@@ -81,6 +82,129 @@ class _HomePageState extends State<HomePage> {
             : _buildStatusNotification(_StatusNotification.offline);
       });
     });
+  }
+
+  @override
+  void dispose() {
+    _onlineStatusSubscription?.cancel();
+    _dataStreamSubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Scaffold(
+      key: _scaffoldKey,
+      drawer: NavigationDrawer(widget._driver),
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        flexibleSpace: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+          color: theme.scaffoldBackgroundColor,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              InkWell(
+                onTap: () => _scaffoldKey.currentState?.openDrawer(),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      idToProfilePicture(widget._driver.account.id)),
+                  radius: 24,
+                ),
+              ),
+              FlutterSwitch(
+                value: _isDriverOnline || _inTrip,
+                onToggle: _toggleDriverOnlineStatus,
+                activeText: const Text(
+                  "Online",
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                inactiveText: const Text(
+                  "Offline",
+                  style: TextStyle(fontWeight: FontWeight.w500),
+                ),
+                inactiveIcon:
+                    SvgPicture.asset("assets/images/offline_icon.svg"),
+                activeIcon: SvgPicture.asset("assets/images/online_icon.svg"),
+                valueFontSize: 18,
+                inactiveColor: theme.disabledColor.withAlpha(200),
+                activeColor: theme.accentColor,
+                showOnOff: true,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: lightGray, width: 2),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.search, color: theme.disabledColor),
+                  onPressed: () {
+                    Payment().updateTokenPaymentCard("token", context);
+                    // _drowDirectionToDropOff(
+                    //     r"gv_dAd`ejAY`CE?oFi@qAImDG}@Iu@?wCJKkCQ{DIgDCuECmEEoLMiQK_\EaBQ_CaBuNwA}LYiCUcBKWMUg@a@YKk@GkBO{@Uk@_@U[c@iA{EuNs@wBaAiESw@UqAQ{Ac@mLQmDCm@CIEIGGGCIAOJAHAD[b@ENaHvGsElEwAxAaAfAS\_@?{@NiE~@aB\w@Hk@Ny@XeAf@}Af@{Bv@wErBeHvCQ@GJSL{Aj@aBl@yATMHCH?VFRj@z@");
+                    // _showQrCodeDialog("slfs");
+                    // _showReviewNotification(
+                    //   MapEntry(4.5, "Sita Bérété left a 4.5 star Review"),
+                    // );
+                    // _showRatingBottomSheet(
+                    //   _RiderData(
+                    //     imageURL: idToProfilePicture(""),
+                    //     rating: "4.5",
+                    //     paymentMethod: "By Cash",
+                    //     name: "Sita Bérété",
+                    //   ),
+                    // );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          MapWidget(
+            controller: _mapController,
+            markers: _markers,
+            polylines: _polylines,
+          ),
+          Column(
+            children: [
+              if (_notification != null) _notification!,
+              if (_bookingAccepted)
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: InkWell(
+                      child: Container(
+                        child: Icon(
+                          Icons.close,
+                          color: theme.scaffoldBackgroundColor,
+                        ),
+                        decoration: BoxDecoration(
+                          color: theme.errorColor.withAlpha(190),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      onTap: _showTripCancellationDialog,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+      floatingActionButton: SizedBox(
+        width: 46,
+        child: FloatingActionButton(
+          backgroundColor: theme.scaffoldBackgroundColor,
+          onPressed: _showMyLocation,
+          child: const Icon(Icons.my_location, color: Colors.black87),
+        ),
+      ),
+    );
   }
 
   Future<BitmapDescriptor> _assetToBitmapDescriptor(String assetName) =>
@@ -265,124 +389,6 @@ class _HomePageState extends State<HomePage> {
       FramType.UPDATE_DRIVER_DATA,
       "${location.latitude},${location.longitude}",
     ));
-  }
-
-  @override
-  void dispose() {
-    _onlineStatusSubscription?.cancel();
-    _dataStreamSubscription?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Scaffold(
-      appBar: AppBar(
-        flexibleSpace: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
-          color: theme.scaffoldBackgroundColor,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const CircleAvatar(
-                backgroundImage: NetworkImage(
-                  "https://static9.depositphotos.com/1060743/1203/i/600/depositphotos_12033497-stock-photo-portrait-of-young-black-man.jpg",
-                ),
-                radius: 24,
-              ),
-              FlutterSwitch(
-                value: _isDriverOnline || _inTrip,
-                onToggle: _toggleDriverOnlineStatus,
-                activeText: const Text(
-                  "Online",
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-                inactiveText: const Text(
-                  "Offline",
-                  style: TextStyle(fontWeight: FontWeight.w500),
-                ),
-                inactiveIcon:
-                    SvgPicture.asset("assets/images/offline_icon.svg"),
-                activeIcon: SvgPicture.asset("assets/images/online_icon.svg"),
-                valueFontSize: 18,
-                inactiveColor: theme.disabledColor.withAlpha(200),
-                activeColor: theme.accentColor,
-                showOnOff: true,
-              ),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: lightGray, width: 2),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: Icon(Icons.search, color: theme.disabledColor),
-                  onPressed: () {
-                    Payment().updateTokenPaymentCard("token", context);
-                    // _drowDirectionToDropOff(
-                    //     r"gv_dAd`ejAY`CE?oFi@qAImDG}@Iu@?wCJKkCQ{DIgDCuECmEEoLMiQK_\EaBQ_CaBuNwA}LYiCUcBKWMUg@a@YKk@GkBO{@Uk@_@U[c@iA{EuNs@wBaAiESw@UqAQ{Ac@mLQmDCm@CIEIGGGCIAOJAHAD[b@ENaHvGsElEwAxAaAfAS\_@?{@NiE~@aB\w@Hk@Ny@XeAf@}Af@{Bv@wErBeHvCQ@GJSL{Aj@aBl@yATMHCH?VFRj@z@");
-                    // _showQrCodeDialog("slfs");
-                    // _showReviewNotification(
-                    //   MapEntry(4.5, "Sita Bérété left a 4.5 star Review"),
-                    // );
-                    // _showRatingBottomSheet(
-                    //   _RiderData(
-                    //     imageURL: idToProfilePicture(""),
-                    //     rating: "4.5",
-                    //     paymentMethod: "By Cash",
-                    //     name: "Sita Bérété",
-                    //   ),
-                    // );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          MapWidget(
-            controller: _mapController,
-            markers: _markers,
-            polylines: _polylines,
-          ),
-          Column(
-            children: [
-              if (_notification != null) _notification!,
-              if (_bookingAccepted)
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: InkWell(
-                      child: Container(
-                        child: Icon(
-                          Icons.close,
-                          color: theme.scaffoldBackgroundColor,
-                        ),
-                        decoration: BoxDecoration(
-                          color: theme.errorColor.withAlpha(190),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      onTap: _showTripCancellationDialog,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ],
-      ),
-      floatingActionButton: SizedBox(
-        width: 46,
-        child: FloatingActionButton(
-          backgroundColor: theme.scaffoldBackgroundColor,
-          onPressed: _showMyLocation,
-          child: const Icon(Icons.my_location, color: Colors.black87),
-        ),
-      ),
-    );
   }
 
   Future<void> _toggleDriverOnlineStatus(bool mustConnect) async {
@@ -1121,6 +1127,144 @@ class _BottomSheetHeader extends StatelessWidget {
         ),
         trailingWidget,
       ],
+    );
+  }
+}
+
+class NavigationDrawer extends StatelessWidget {
+  final Driver _driver;
+  const NavigationDrawer(this._driver, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(
+          right: Radius.circular(21),
+        ),
+      ),
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              icon: const Icon(Icons.close, color: Colors.grey),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          Column(
+            children: [
+              CircleAvatar(
+                backgroundImage: NetworkImage(
+                  idToProfilePicture(_driver.account.id),
+                ),
+                radius: 38,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  "Nicole Mason", // _driver.account.nickname,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.w600, color: Colors.black87),
+                ),
+              ),
+              Text(
+                "I am a passionate driver, I have 4+ years of winning experience in driving", //_driver.bio,
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: Colors.black54, fontSize: 12),
+              ),
+            ],
+          ),
+          const Divider(thickness: 2, height: 32),
+          ListTile(
+            horizontalTitleGap: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            visualDensity: VisualDensity(vertical: -2),
+            tileColor: lightGray,
+            leading: Icon(Icons.home),
+            title: Text(
+              "Home",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ListTile(
+            horizontalTitleGap: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            visualDensity: VisualDensity(vertical: -2),
+            tileColor: lightGray,
+            leading: Icon(Icons.home),
+            title: Text(
+              "Earnings",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ListTile(
+            horizontalTitleGap: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            visualDensity: VisualDensity(vertical: -2),
+            tileColor: lightGray,
+            leading: Icon(Icons.home),
+            title: Text(
+              "Settings",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ListTile(
+            horizontalTitleGap: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            visualDensity: VisualDensity(vertical: -2),
+            tileColor: lightGray,
+            leading: Icon(Icons.home),
+            title: Text(
+              "Bookings",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+          const SizedBox(height: 12),
+          ListTile(
+            horizontalTitleGap: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            visualDensity: VisualDensity(vertical: -2),
+            tileColor: lightGray,
+            leading: Icon(Icons.home),
+            title: Text(
+              "Help and Support",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+          const SizedBox(height: 80),
+          ListTile(
+            onTap: () {
+              // TODO logout
+            },
+            horizontalTitleGap: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            visualDensity: VisualDensity(vertical: -2),
+            leading: Icon(Icons.home),
+            title: Text(
+              "Logout",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
