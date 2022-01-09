@@ -50,6 +50,7 @@ class _HomePageState extends State<HomePage> {
   BitmapDescriptor? _pickupIcon;
   List<VoidCallback> _onStateResetedListenners = [];
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  bool _hasUnRedNotification = false;
 
   @override
   void initState() {
@@ -138,8 +139,15 @@ class _HomePageState extends State<HomePage> {
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
-                  icon: Icon(Icons.search, color: theme.disabledColor),
+                  icon: Image.asset(
+                    "assets/images/${_hasUnRedNotification ? 'notification_received' : 'notification'}.png",
+                    package: "shared",
+                    width: 19,
+                  ),
                   onPressed: () {
+                    setState(() {
+                      _hasUnRedNotification = !_hasUnRedNotification;
+                    });
                     Payment().updateTokenPaymentCard("token", context);
                     // _drowDirectionToDropOff(
                     //     r"gv_dAd`ejAY`CE?oFi@qAImDG}@Iu@?wCJKkCQ{DIgDCuECmEEoLMiQK_\EaBQ_CaBuNwA}LYiCUcBKWMUg@a@YKk@GkBO{@Uk@_@U[c@iA{EuNs@wBaAiESw@UqAQ{Ac@mLQmDCm@CIEIGGGCIAOJAHAD[b@ENaHvGsElEwAxAaAfAS\_@?{@NiE~@aB\w@Hk@Ny@XeAf@}Af@{Bv@wErBeHvCQ@GJSL{Aj@aBl@yATMHCH?VFRj@z@");
