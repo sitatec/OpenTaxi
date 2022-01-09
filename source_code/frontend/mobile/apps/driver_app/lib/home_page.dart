@@ -110,7 +110,8 @@ class _HomePageState extends State<HomePage> {
                 onTap: () => _scaffoldKey.currentState?.openDrawer(),
                 child: CircleAvatar(
                   backgroundImage: NetworkImage(
-                      idToProfilePicture(widget._driver.account.id)),
+                    idToProfilePicture(widget._driver.account.id),
+                  ),
                   radius: 24,
                 ),
               ),
@@ -145,10 +146,7 @@ class _HomePageState extends State<HomePage> {
                     width: 19,
                   ),
                   onPressed: () {
-                    setState(() {
-                      _hasUnRedNotification = !_hasUnRedNotification;
-                    });
-                    Payment().updateTokenPaymentCard("token", context);
+                    // Payment().updateTokenPaymentCard("token", context);
                     // _drowDirectionToDropOff(
                     //     r"gv_dAd`ejAY`CE?oFi@qAImDG}@Iu@?wCJKkCQ{DIgDCuECmEEoLMiQK_\EaBQ_CaBuNwA}LYiCUcBKWMUg@a@YKk@GkBO{@Uk@_@U[c@iA{EuNs@wBaAiESw@UqAQ{Ac@mLQmDCm@CIEIGGGCIAOJAHAD[b@ENaHvGsElEwAxAaAfAS\_@?{@NiE~@aB\w@Hk@Ny@XeAf@}Af@{Bv@wErBeHvCQ@GJSL{Aj@aBl@yATMHCH?VFRj@z@");
                     // _showQrCodeDialog("slfs");
@@ -163,6 +161,15 @@ class _HomePageState extends State<HomePage> {
                     //     name: "Sita Bérété",
                     //   ),
                     // );
+                    _showBottomSheetActions(
+                      "Arrived Pick UP",
+                      _RiderData(
+                        imageURL: idToProfilePicture(""),
+                        rating: "4.5",
+                        paymentMethod: "CASH",
+                        name: "Sita Berete",
+                      ),
+                    );
                   },
                 ),
               ),
@@ -770,51 +777,53 @@ class _HomePageState extends State<HomePage> {
       [VoidCallback? onBottomButtonPressed]) {
     final theme = Theme.of(context);
     showBottomSheet(
-        elevation: 4,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         context: context,
         builder: (context) {
-          return Wrap(
-            children: [
-              Container(
-                color: lightGray,
-                padding: const EdgeInsets.only(
-                  left: 24,
-                  right: 16,
-                  top: 10,
-                  bottom: 10,
-                ),
-                child: _BottomSheetHeader(riderData,
-                    trailingWidget: Row(
-                      children: [
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.all(10),
-                            backgroundColor: Colors.black,
-                            minimumSize: const Size(24, 24),
-                            shape: const CircleBorder(),
-                          ),
-                          child: SvgPicture.asset(
-                            "assets/images/calling_icon.svg",
-                            package: "shared",
-                          ),
-                          onPressed: () {},
-                        ),
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.all(10),
-                            backgroundColor: Colors.black,
-                            shape: const CircleBorder(),
-                          ),
-                          child: SvgPicture.asset(
-                            "assets/images/chat_icon.svg",
-                            package: "shared",
-                          ),
-                          onPressed: () {},
-                        ),
-                      ],
-                    )),
+          return _CollapsibleBottomSheet(
+            header: Container(
+              color: lightGray,
+              padding: const EdgeInsets.only(
+                left: 24,
+                right: 16,
+                top: 10,
+                bottom: 10,
               ),
-              Row(
+              child: _BottomSheetHeader(riderData,
+                  trailingWidget: Row(
+                    children: [
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.all(10),
+                          backgroundColor: Colors.black,
+                          minimumSize: const Size(24, 24),
+                          shape: const CircleBorder(),
+                        ),
+                        child: SvgPicture.asset(
+                          "assets/images/calling_icon.svg",
+                          package: "shared",
+                        ),
+                        onPressed: () {},
+                      ),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.all(10),
+                          backgroundColor: Colors.black,
+                          shape: const CircleBorder(),
+                        ),
+                        child: SvgPicture.asset(
+                          "assets/images/chat_icon.svg",
+                          package: "shared",
+                        ),
+                        onPressed: () {},
+                      ),
+                    ],
+                  )),
+            ),
+            content: Container(
+              color: theme.scaffoldBackgroundColor,
+              child: Row(
                 children: [
                   Expanded(
                     child: Padding(
@@ -843,7 +852,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ],
               ),
-            ],
+            ),
           );
         });
   }
@@ -1045,6 +1054,72 @@ class _StatusNotification {
     "",
     backgroundColor: Color(0xFF008dd4),
   );
+}
+
+class _CollapsibleBottomSheet extends StatefulWidget {
+  final Widget header;
+  final Widget content;
+  const _CollapsibleBottomSheet(
+      {Key? key, required this.header, required this.content})
+      : super(key: key);
+
+  @override
+  _CollapsibleBottomSheetState createState() => _CollapsibleBottomSheetState();
+}
+
+class _CollapsibleBottomSheetState extends State<_CollapsibleBottomSheet> {
+  bool _contentVisible = true;
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      children: [
+        Stack(
+          children: [
+            Align(
+              alignment: Alignment.topRight,
+              child: Container(
+                width: 40,
+                margin: const EdgeInsets.only(right: 8),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: InkWell(
+                  onTap: () =>
+                      setState(() => _contentVisible = !_contentVisible),
+                  child: Column(
+                    children: [
+                      RotatedBox(
+                        quarterTurns: 1,
+                        child: Icon(
+                          _contentVisible
+                              ? Icons.navigate_next
+                              : Icons.navigate_before,
+                          size: 35,
+                          color: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            Wrap(
+              children: [
+                const SizedBox(height: 25, width: double.infinity),
+                widget.header,
+                SizedBox(
+                  child: widget.content,
+                  height: _contentVisible ? null : 0,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
 
 class _BottomSheetHeader extends StatelessWidget {
