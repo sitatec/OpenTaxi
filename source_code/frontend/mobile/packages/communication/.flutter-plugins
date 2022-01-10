@@ -1,0 +1,24 @@
+# This is a generated file; do not edit or check into version control.
+cloud_functions=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\cloud_functions-3.2.5\\
+cloud_functions_web=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\cloud_functions_web-4.2.6\\
+firebase_auth=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_auth-3.3.5\\
+firebase_auth_web=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_auth_web-3.3.6\\
+firebase_core=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_core-1.11.0\\
+firebase_core_web=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_core_web-1.5.3\\
+firebase_database=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_database-8.2.0\\
+firebase_database_web=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_database_web-0.1.2+1\\
+firebase_messaging=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_messaging-11.2.5\\
+firebase_messaging_web=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\firebase_messaging_web-2.2.6\\
+flutter_plugin_android_lifecycle=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\flutter_plugin_android_lifecycle-2.0.5\\
+google_maps_flutter=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\google_maps_flutter-2.1.1\\
+location=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\location-4.3.0\\
+location_web=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\location_web-3.1.1\\
+path_provider=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider-2.0.8\\
+path_provider_android=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider_android-2.0.11\\
+path_provider_ios=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider_ios-2.0.7\\
+path_provider_linux=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider_linux-2.1.4\\
+path_provider_macos=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider_macos-2.0.4\\
+path_provider_windows=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\path_provider_windows-2.0.4\\
+webview_flutter=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\webview_flutter-3.0.0\\
+webview_flutter_android=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\webview_flutter_android-2.8.2\\
+webview_flutter_wkwebview=C:\\Development\\Tools\\flutter\\.pub-cache\\hosted\\pub.dartlang.org\\webview_flutter_wkwebview-2.7.1\\
