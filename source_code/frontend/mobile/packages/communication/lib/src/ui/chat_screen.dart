@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared/shared.dart' show idToProfilePicture, lightGray;
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({Key? key}) : super(key: key);
+  final bool canCall;
+  const ChatScreen({Key? key, this.canCall = true}) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -24,28 +25,30 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               InkWell(
                 onTap: () => Navigator.of(context).pop(),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: const Icon(Icons.navigate_before, size: 28),
+                child: const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Icon(Icons.navigate_before, size: 28),
                 ),
               ),
               CircleAvatar(
                 backgroundImage: NetworkImage(idToProfilePicture("")),
                 radius: 24,
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: 8),
               const Text(
                 "Nicole Mason",
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-              const Expanded(child: SizedBox()),
-              InkWell(
-                onTap: () {},
-                child: Image.asset(
-                  "assets/images/call.png",
-                  package: "communication",
-                ),
-              )
+              if (widget.canCall) ...[
+                const Expanded(child: SizedBox()),
+                InkWell(
+                  onTap: () {},
+                  child: Image.asset(
+                    "assets/images/call.png",
+                    package: "communication",
+                  ),
+                )
+              ],
             ],
           ),
         ),
@@ -95,18 +98,11 @@ class _ChatScreenState extends State<ChatScreen> {
           ],
         ),
       ),
+      body: Stack(
+        children: [
+          // ListView.builder(itemBuilder: (context, index) => )
+        ],
+      ),
     );
   }
-}
-
-class ChatUsersData {
-  final String currentUserId;
-  final String remoteUserId;
-  final String remoteUserName;
-
-  ChatUsersData({
-    required this.currentUserId,
-    required this.remoteUserId,
-    required this.remoteUserName,
-  });
 }
