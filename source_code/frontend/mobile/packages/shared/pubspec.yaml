@@ -26,6 +26,8 @@ dependencies:
     path: ../../packages/authentication
   data_access:
     path: ../data_access
+  communication:
+    path: ../communication
 
 dev_dependencies:
   flutter_test:

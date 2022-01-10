@@ -24,3 +24,4 @@ export 'package:flutter_rating_bar/flutter_rating_bar.dart';
 export 'package:google_fonts/google_fonts.dart';
 export 'package:google_maps_flutter/google_maps_flutter.dart';
 export 'package:cloud_functions/cloud_functions.dart';
+export 'package:communication/communication.dart';
