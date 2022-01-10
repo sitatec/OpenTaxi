@@ -3,17 +3,19 @@ import 'dart:io';
 
 import 'package:communication/src/domain/config.dart';
 import 'package:communication/src/domain/models.dart';
-import 'package:sendbird_sdk/constant/enums.dart';
-import 'package:sendbird_sdk/core/channel/open/open_channel.dart';
-import 'package:sendbird_sdk/params/open_channel_params.dart';
-import 'package:sendbird_sdk/sdk/sendbird_sdk_api.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
 
+// TODO refactor (Completly encapsulate the sendbird api and don't expose any class from sendbird)
 class ComunicationManager {
   final CommunicationChannelData _channelData;
   SendbirdSdk? _sendbirdSdk;
-  GroupChannel? comunicationChannel;
+  GroupChannel? _comunicationChannel;
+
   bool isInitialized = false;
+  PreviousMessageListQuery? previousMessagesQuery;
+
+  Stream<BaseMessage?>? get newMessagesStream =>
+      _sendbirdSdk?.messageReceiveStream(channelUrl: _channelData.channelId);
 
   ComunicationManager(this._channelData, {SendbirdSdk? sendbirdSdk})
       : _sendbirdSdk = sendbirdSdk;
@@ -22,6 +24,10 @@ class ComunicationManager {
     try {
       _sendbirdSdk ??= SendbirdSdk(appId: sendbirdAppId);
       await _sendbirdSdk!.connect(_channelData.currentUserId);
+      previousMessagesQuery = PreviousMessageListQuery(
+          channelType: ChannelType.group, channelUrl: _channelData.channelId)
+        ..reverse = true
+        ..limit = 20;
       isInitialized = true;
     } catch (e) {
       //TODO
@@ -31,39 +37,48 @@ class ComunicationManager {
   }
 
   Future<void> createChatChannel() async {
+    if (!isInitialized) {
+      return; // TODO throw uninitialized.
+    }
+    if (_comunicationChannel != null) {
+      return; // TODO throw already joinned
+    }
     try {
       final channelParams = GroupChannelParams()
         ..channelUrl = _channelData.channelId
         ..isPublic = false
         ..isDistinct = true
         ..userIds = _channelData.interlocutorsIds;
-      comunicationChannel = await GroupChannel.createChannel(channelParams);
-      await comunicationChannel!.join();
+      _comunicationChannel = await GroupChannel.createChannel(channelParams);
+      await _comunicationChannel!.join();
     } catch (e) {
       // TODO
     }
   }
 
   Future<void> joinChatChannel() async {
-    if (comunicationChannel != null) {
+    if (!isInitialized) {
+      return; // TODO throw uninitialized.
+    }
+    if (_comunicationChannel != null) {
       return; // TODO already joinned
     }
     try {
-      comunicationChannel =
+      _comunicationChannel =
           await GroupChannel.getChannel(_channelData.channelId);
-      await comunicationChannel!.join();
+      await _comunicationChannel!.join();
     } catch (e) {
       //TODO
     }
   }
 
   Future<bool> sendTextMessage(String message) async {
-    if (comunicationChannel == null) {
-      return false; // TODO must join before been able to send messages
+    if (_comunicationChannel == null) {
+      return false; // TODO throw must join before been able to send messages
     }
     try {
       final completer = Completer<bool>();
-      comunicationChannel!.sendUserMessageWithText(message,
+      _comunicationChannel!.sendUserMessageWithText(message,
           onCompleted: (message, error) {
         if (error != null) {
           print(error); //TODO handle
@@ -79,12 +94,12 @@ class ComunicationManager {
   }
 
   Future<bool> sendFileMessage(File file) async {
-    if (comunicationChannel == null) {
-      return false; // TODO must join before been able to send messages
+    if (_comunicationChannel == null) {
+      return false; // TODO: must join before been able to send messages
     }
     try {
       final completer = Completer<bool>();
-      comunicationChannel!.sendFileMessage(FileMessageParams.withFile(file),
+      _comunicationChannel!.sendFileMessage(FileMessageParams.withFile(file),
           onCompleted: (message, error) {
         if (error != null) {
           print(error); //TODO handle
