@@ -21,6 +21,8 @@ class ComunicationManager {
       : _sendbirdSdk = sendbirdSdk;
 
   Future<void> initialize() async {
+    // TODO set envent listenners such as `onReconnectionSucceeded` to `refresh` data when user reconnected
+    if (isInitialized) return;
     try {
       _sendbirdSdk ??= SendbirdSdk(appId: sendbirdAppId);
       await _sendbirdSdk!.connect(_channelData.currentUserId);
