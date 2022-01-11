@@ -226,10 +226,15 @@ class _ChatScreenState extends State<ChatScreen> {
                       maxLines: 4,
                       minLines: 1,
                       decoration: InputDecoration(
-                        suffixIcon: Icon(
-                          Icons.send,
-                          color: theme.primaryColor,
-                          size: 22,
+                        suffixIcon: IconButton(
+                          onPressed: () {
+                            print("Sending Message...");
+                          },
+                          icon: Icon(
+                            Icons.send,
+                            color: theme.primaryColor,
+                            size: 22,
+                          ),
                         ),
                         contentPadding: const EdgeInsets.all(11),
                         fillColor: Colors.white,
