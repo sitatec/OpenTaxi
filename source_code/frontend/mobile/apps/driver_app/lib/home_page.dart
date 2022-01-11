@@ -51,6 +51,7 @@ class _HomePageState extends State<HomePage> {
   List<VoidCallback> _onStateResetedListenners = [];
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   bool _hasUnRedNotification = false;
+  TripRoom? _tripRoom;
 
   @override
   void initState() {
@@ -69,7 +70,9 @@ class _HomePageState extends State<HomePage> {
       if (_isConnected) {
         _dataStreamSubscription =
             _dispatcher.dataStream?.listen(_onDataRecieved);
-        widget._locationManager.getCurrentCoordinates().then(_sendDriverData);
+        widget._locationManager
+            .getCurrentCoordinates()
+            .then(_sendDriverInitialDataToDispatcher);
         _locationStreamSubscription = widget._locationManager
             .getCoordinatesStream()
             .listen(_sendDriverLocationToDispatcher);
@@ -162,7 +165,6 @@ class _HomePageState extends State<HomePage> {
                     //   ),
                     // );
                     _showBottomSheetActions(
-                      "Arrived Pick UP",
                       _RiderData(
                         imageURL: idToProfilePicture(""),
                         rating: "4.5",
@@ -323,13 +325,14 @@ class _HomePageState extends State<HomePage> {
         _onStateResetedListenners.forEach(_callFunction);
         break;
       case FramType.TRIP_ROOM:
-        final tripRoom = TripRoom(
+        _tripRoom = TripRoom(
           dataJson.value,
           locationSourceStream: widget._locationManager.getCoordinatesStream(
             distanceFilterInMeter: 0,
             timeInterval: 1000,
           ),
         );
+        final tripRoom = _tripRoom!; // To avoid null check all the time.
         tripRoom.join();
         tripRoom.tripEventsStream.listen((event) async {
           switch (event) {
@@ -393,7 +396,7 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  Future<void> _sendDriverData(Coordinates location) async {
+  Future<void> _sendDriverInitialDataToDispatcher(Coordinates location) async {
     final data = await driverToDispatcherData(widget._driver);
     data["loc"] = locationToJson(location);
     _dispatcher.sendData(MapEntry(FramType.ADD_DRIVER_DATA, data));
@@ -591,7 +594,7 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
           content: const Text(
-            "You will charged an additional 200 cancellation",
+            "You will be charged an additional 200 cancellation",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
@@ -604,8 +607,11 @@ class _HomePageState extends State<HomePage> {
               "YES",
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 8),
               backgroundColor: theme.errorColor.withAlpha(190),
-              onPressed: () {
-                // TODO cancel
+              onPressed: () async {
+                // TODO notify admin by email.
+                await _tripRoom?.sendCustomEvent("driver_cancel");
+                await _tripRoom?.leave("driver");
+                _onStateResetedListenners.forEach(_callFunction);
               },
             ),
             const SizedBox(width: 16),
@@ -666,7 +672,10 @@ class _HomePageState extends State<HomePage> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          "\$${price.toCurrencyString()}",
+                          price.toCurrencyString(
+                            leadingSymbol: "R",
+                            useSymbolPadding: true,
+                          ),
                           style: const TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 19,
@@ -701,12 +710,22 @@ class _HomePageState extends State<HomePage> {
                     ),
                     backgroundColor: iconsBackgroundColor,
                   ),
-                  title: Text(
-                    "PICK UP",
-                    style: TextStyle(
-                      fontWeight: FontWeight.w500,
-                      fontSize: 11,
-                      color: theme.disabledColor,
+                  title: RichText(
+                    text: TextSpan(
+                      text: "PICK UP",
+                      style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 11,
+                        color: theme.disabledColor,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: " (1.7km away from your location)",
+                          style: TextStyle(
+                            color: theme.disabledColor.withAlpha(180),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   subtitle: Text(bookingRequestData.pickUpAddress),
@@ -738,7 +757,7 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       SmallRoundedCornerButton(
-                        "Ignore",
+                        "Decline",
                         backgroundColor: theme.errorColor.withAlpha(200),
                         onPressed: () {
                           countdownController.cancel();
@@ -762,6 +781,25 @@ class _HomePageState extends State<HomePage> {
                               bookingRequestData.id,
                             ),
                           );
+                          Navigator.of(context).pop();
+                          _showBottomSheetActions(bookingRequestData.riderData,
+                              (actionName) async {
+                            // TODO create update trip object and set status to arrived pickup
+                            if (actionName ==
+                                _CollapsibleBottomSheet.arrivedPickup) {
+                              await _tripRoom
+                                  ?.sendCustomEvent("driver_arrived_pickup");
+                            } else if (actionName ==
+                                _CollapsibleBottomSheet.showQrCode) {
+                              _showQrCodeDialog(
+                                  "qrCodeData"); // TODO generate qr code data.
+                            } else if (actionName ==
+                                _CollapsibleBottomSheet.endTrip) {
+                              // TODO check if the current location of the driver is near the drop off location, if not near there ask him confirmation and say we detect his location far from drop off
+                              await _tripRoom
+                                  ?.sendCustomEvent("driver_end_trip");
+                            }
+                          });
                         },
                       )
                     ],
@@ -773,124 +811,58 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  void _showBottomSheetActions(String bottomButtonText, _RiderData riderData,
-      [VoidCallback? onBottomButtonPressed]) {
+  void _showBottomSheetActions(
+    _RiderData _riderData, [
+    Function(String)? onBottomSheetButtonPressed,
+  ]) {
     final theme = Theme.of(context);
     showBottomSheet(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        context: context,
-        builder: (context) {
-          return _CollapsibleBottomSheet(
-            header: Container(
-              color: lightGray,
-              padding: const EdgeInsets.only(
-                left: 24,
-                right: 16,
-                top: 10,
-                bottom: 10,
-              ),
-              child: _BottomSheetHeader(riderData,
-                  trailingWidget: Row(
-                    children: [
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.all(10),
-                          backgroundColor: Colors.black,
-                          minimumSize: const Size(24, 24),
-                          shape: const CircleBorder(),
-                        ),
-                        child: SvgPicture.asset(
-                          "assets/images/calling_icon.svg",
-                          package: "shared",
-                        ),
-                        onPressed: () {},
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.all(10),
-                          backgroundColor: Colors.black,
-                          shape: const CircleBorder(),
-                        ),
-                        child: SvgPicture.asset(
-                          "assets/images/chat_icon.svg",
-                          package: "shared",
-                        ),
-                        onPressed: () {},
-                      ),
-                    ],
-                  )),
-            ),
-            content: Container(
-              color: theme.scaffoldBackgroundColor,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 24),
-                      child: TextButton(
-                        onPressed: onBottomButtonPressed,
-                        child: Text(
-                          bottomButtonText,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 17,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        style: TextButton.styleFrom(
-                          backgroundColor: onBottomButtonPressed != null
-                              ? theme.accentColor
-                              : theme.disabledColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      context: context,
+      builder: (context) {
+        return _CollapsibleBottomSheet(
+          _riderData,
+          onBottomButtonPressed: onBottomSheetButtonPressed,
+        );
+      },
+    );
   }
 
-  void _showReviewNotification(MapEntry<double, String> notificationData) {
-    setState(() {
-      _notification = Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-          color: Theme.of(context).primaryColor,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                children: [
-                  RatingBarIndicator(
-                    itemSize: 22,
-                    rating: notificationData.key,
-                    itemBuilder: (BuildContext context, int index) =>
-                        const Icon(
-                      Icons.star,
-                      color: yellow,
-                    ),
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    notificationData.value,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  )
-                ],
-              ),
-            ],
-          ));
-    });
-  }
+  // void _showReviewNotification(MapEntry<double, String> notificationData) {
+  //   setState(() {
+  //     _notification = Container(
+  //         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+  //         color: Theme.of(context).primaryColor,
+  //         child: Row(
+  //           mainAxisAlignment: MainAxisAlignment.center,
+  //           children: [
+  //             Column(
+  //               children: [
+  //                 RatingBarIndicator(
+  //                   itemSize: 22,
+  //                   rating: notificationData.key,
+  //                   itemBuilder: (BuildContext context, int index) =>
+  //                       const Icon(
+  //                     Icons.star,
+  //                     color: yellow,
+  //                   ),
+  //                 ),
+  //                 const SizedBox(height: 5),
+  //                 Text(
+  //                   notificationData.value,
+  //                   style: const TextStyle(
+  //                     color: Colors.white,
+  //                     fontSize: 13,
+  //                     fontWeight: FontWeight.w500,
+  //                   ),
+  //                 )
+  //               ],
+  //             ),
+  //           ],
+  //         ));
+  //   });
+  // }
 
   void _showRatingBottomSheet(_RiderData riderData) {
     double rating = 0.0;
@@ -1057,10 +1029,14 @@ class _StatusNotification {
 }
 
 class _CollapsibleBottomSheet extends StatefulWidget {
-  final Widget header;
-  final Widget content;
-  const _CollapsibleBottomSheet(
-      {Key? key, required this.header, required this.content})
+  static const arrivedPickup = "Arrived Pickup location";
+  static const showQrCode = "Show Qr Code";
+  static const endTrip = "End Trip";
+  final _RiderData _riderData;
+  final Function(String)? onBottomButtonPressed;
+
+  const _CollapsibleBottomSheet(this._riderData,
+      {Key? key, this.onBottomButtonPressed})
       : super(key: key);
 
   @override
@@ -1069,8 +1045,11 @@ class _CollapsibleBottomSheet extends StatefulWidget {
 
 class _CollapsibleBottomSheetState extends State<_CollapsibleBottomSheet> {
   bool _contentVisible = true;
+  String currentAction = _CollapsibleBottomSheet.arrivedPickup;
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Wrap(
       children: [
         Stack(
@@ -1108,10 +1087,83 @@ class _CollapsibleBottomSheetState extends State<_CollapsibleBottomSheet> {
             Wrap(
               children: [
                 const SizedBox(height: 25, width: double.infinity),
-                widget.header,
+                Container(
+                  color: lightGray,
+                  padding: const EdgeInsets.only(
+                    left: 24,
+                    right: 16,
+                    top: 10,
+                    bottom: 10,
+                  ),
+                  child: _BottomSheetHeader(
+                    widget._riderData,
+                    trailingWidget: Row(
+                      children: [
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.all(10),
+                            backgroundColor: Colors.black,
+                            minimumSize: const Size(24, 24),
+                            shape: const CircleBorder(),
+                          ),
+                          child: SvgPicture.asset(
+                            "assets/images/calling_icon.svg",
+                            package: "shared",
+                          ),
+                          onPressed: () {},
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.all(10),
+                            backgroundColor: Colors.black,
+                            shape: const CircleBorder(),
+                          ),
+                          child: SvgPicture.asset(
+                            "assets/images/chat_icon.svg",
+                            package: "shared",
+                          ),
+                          onPressed: () {},
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
                 SizedBox(
-                  child: widget.content,
                   height: _contentVisible ? null : 0,
+                  child: Container(
+                    color: theme.scaffoldBackgroundColor,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 8.0, horizontal: 24),
+                            child: TextButton(
+                              onPressed: () => widget.onBottomButtonPressed
+                                  ?.call(currentAction),
+                              child: Text(
+                                currentAction,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              style: TextButton.styleFrom(
+                                backgroundColor:
+                                    widget.onBottomButtonPressed != null
+                                        ? theme.accentColor
+                                        : theme.disabledColor,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
