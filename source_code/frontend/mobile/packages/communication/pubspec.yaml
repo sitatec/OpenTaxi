@@ -12,6 +12,7 @@ dependencies:
   flutter:
     sdk: flutter
   sendbird_sdk: ^3.1.7
+  simple_tooltip: ^1.0.0
   shared:
     path: ../shared
 

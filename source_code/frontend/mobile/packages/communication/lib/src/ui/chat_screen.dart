@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:sendbird_sdk/constant/enums.dart';
 import 'package:sendbird_sdk/core/message/base_message.dart';
 import 'package:shared/shared.dart' show gray, idToProfilePicture, lightGray;
+import 'package:simple_tooltip/simple_tooltip.dart';
 
 const fastReplyMessage = [
   "I am Arrived",
@@ -136,119 +137,124 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                RefreshIndicator(
-                  onRefresh: _loadPreviousMessages,
-                  child: ListView.builder(
-                    padding:
-                        const EdgeInsets.only(left: 16, right: 16, bottom: 55),
-                    itemCount: _messages.length,
-                    // reverse: true,
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(top: 40),
-                        child: MessageWidet(
-                          _messages[index],
-                          isReceived: index % 2 == 0,
-                        ),
-                      );
-                    },
+      body: GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+        },
+        child: Column(
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  RefreshIndicator(
+                    onRefresh: _loadPreviousMessages,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(
+                          left: 16, right: 16, bottom: 55),
+                      itemCount: _messages.length,
+                      // reverse: true,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 40),
+                          child: MessageWidet(
+                            _messages[index],
+                            isReceived: index % 2 == 0,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
-                if (_textFieldController.text.isEmpty)
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          for (int i = 0; i < fastReplyMessage.length; i++)
-                            InkWell(
-                              onTap: () => setState(
-                                () => _textFieldController.text =
+                  if (_textFieldController.text.isEmpty)
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            for (int i = 0; i < fastReplyMessage.length; i++)
+                              InkWell(
+                                onTap: () => setState(
+                                  () => _textFieldController.text =
+                                      fastReplyMessage[i],
+                                ),
+                                child: Container(
+                                  margin:
+                                      const EdgeInsets.only(left: 8, bottom: 8),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 18,
+                                    vertical: 6,
+                                  ),
+                                  child: Text(
                                     fastReplyMessage[i],
-                              ),
-                              child: Container(
-                                margin:
-                                    const EdgeInsets.only(left: 8, bottom: 8),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 18,
-                                  vertical: 6,
-                                ),
-                                child: Text(
-                                  fastReplyMessage[i],
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                                decoration: BoxDecoration(
-                                  color: theme.primaryColor,
-                                  borderRadius: BorderRadius.circular(16),
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: theme.primaryColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
                                 ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
+                      ),
+                    )
+                ],
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.only(
+                top: 16,
+                bottom: 30,
+                left: 16,
+                right: 16,
+              ),
+              color: lightGray,
+              child: Row(
+                children: [
+                  InkWell(
+                    onTap: () {},
+                    child: Image.asset(
+                      "assets/images/image_icon.png",
+                      package: "communication",
+                      width: 35,
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: TextField(
+                      controller: _textFieldController,
+                      maxLines: 4,
+                      minLines: 1,
+                      decoration: InputDecoration(
+                        suffixIcon: Icon(
+                          Icons.send,
+                          color: theme.primaryColor,
+                          size: 22,
+                        ),
+                        contentPadding: const EdgeInsets.all(11),
+                        fillColor: Colors.white,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide.none,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        isDense: true,
+                        isCollapsed: true,
+                        hintText: "Type a message here",
                       ),
                     ),
                   )
-              ],
+                ],
+              ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.only(
-              top: 16,
-              bottom: 30,
-              left: 16,
-              right: 16,
-            ),
-            color: lightGray,
-            child: Row(
-              children: [
-                InkWell(
-                  onTap: () {},
-                  child: Image.asset(
-                    "assets/images/image_icon.png",
-                    package: "communication",
-                    width: 35,
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: TextField(
-                    controller: _textFieldController,
-                    maxLines: 4,
-                    minLines: 1,
-                    decoration: InputDecoration(
-                      suffixIcon: Icon(
-                        Icons.send,
-                        color: theme.primaryColor,
-                        size: 22,
-                      ),
-                      contentPadding: const EdgeInsets.all(11),
-                      fillColor: Colors.white,
-                      filled: true,
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide.none,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      isDense: true,
-                      isCollapsed: true,
-                      hintText: "Type a message here",
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class MessageWidet extends StatelessWidget {
+class MessageWidet extends StatefulWidget {
   final bool isReceived;
   final BaseMessage message;
 
@@ -256,10 +262,16 @@ class MessageWidet extends StatelessWidget {
       : super(key: key);
 
   @override
+  State<MessageWidet> createState() => _MessageWidetState();
+}
+
+class _MessageWidetState extends State<MessageWidet> {
+  bool isTooltipVisible = false;
+  @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment:
-          isReceived ? CrossAxisAlignment.start : CrossAxisAlignment.end,
+          widget.isReceived ? CrossAxisAlignment.start : CrossAxisAlignment.end,
       children: [
         // Row(
         //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -271,8 +283,9 @@ class MessageWidet extends StatelessWidget {
         // TODO refactor create a separate sent message widget and received message widget.
         Row(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment:
-              isReceived ? MainAxisAlignment.start : MainAxisAlignment.end,
+          mainAxisAlignment: widget.isReceived
+              ? MainAxisAlignment.start
+              : MainAxisAlignment.end,
           children: [
             Flexible(
               child: SizedBox(
@@ -288,33 +301,100 @@ class MessageWidet extends StatelessWidget {
                           constraints: const BoxConstraints(minWidth: 100),
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: isReceived
+                            color: widget.isReceived
                                 ? const Color(0xFF546071)
                                 : Colors.white,
                             borderRadius: _getMessageBorderRadius(),
-                            border: isReceived
+                            border: widget.isReceived
                                 ? null
                                 : Border.all(color: const Color(0x40707C97)),
                           ),
                           child: Text(
-                            message.message,
+                            widget.message.message,
                             style: TextStyle(
-                                color: isReceived ? Colors.white : gray),
+                                color: widget.isReceived ? Colors.white : gray),
                           ),
                         ),
                       ],
                     ),
                     Text(
-                      _getTimeFromTimestamp(message.createdAt),
+                      _getTimeFromTimestamp(widget.message.createdAt),
                       style: const TextStyle(color: gray, fontSize: 13),
                     ),
                     Positioned(
                       right: 0,
-                      child: InkWell(
-                        onTap: () {},
-                        child: Icon(
-                          Icons.more_horiz,
-                          color: gray.withAlpha(180),
+                      child: SimpleTooltip(
+                        tooltipDirection: TooltipDirection.horizontal,
+                        ballonPadding: EdgeInsets.zero,
+                        borderWidth: 0,
+                        arrowLength: 0,
+                        arrowTipDistance: 0,
+                        arrowBaseWidth: 0,
+                        maxWidth: 100,
+                        minimumOutSidePadding: 0,
+                        content: Focus(
+                          child: Builder(builder: (context) {
+                            final focusNode = Focus.of(context);
+                            focusNode.requestFocus();
+                            focusNode.addListener(() {
+                              if (!focusNode.hasFocus) {
+                                setState(() {
+                                  isTooltipVisible = false;
+                                });
+                              }
+                            });
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      print("Detail");
+                                    },
+                                    child: Text(
+                                      "Detail",
+                                      style:
+                                          Theme.of(context).textTheme.bodyText1,
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  GestureDetector(
+                                    onTap: () {
+                                      print("Delete");
+                                    },
+                                    child: Text(
+                                      "Delete",
+                                      style:
+                                          Theme.of(context).textTheme.bodyText1,
+                                    ),
+                                  ),
+                                  const Divider(),
+                                  GestureDetector(
+                                    onTap: () {
+                                      print("Update");
+                                    },
+                                    child: Text("Update",
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .bodyText1),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
+                        ),
+                        show: isTooltipVisible,
+                        child: InkWell(
+                          onTap: () => setState(() {
+                            isTooltipVisible = true;
+                          }),
+                          child: Icon(
+                            Icons.more_horiz,
+                            color: gray.withAlpha(180),
+                          ),
                         ),
                       ),
                     ),
@@ -322,7 +402,7 @@ class MessageWidet extends StatelessWidget {
                 ),
               ),
             ),
-            if (!isReceived)
+            if (!widget.isReceived)
               Column(
                 children: const [
                   Padding(
@@ -347,7 +427,7 @@ class MessageWidet extends StatelessWidget {
     return "$hour:$minute";
   }
 
-  BorderRadius _getMessageBorderRadius() => isReceived
+  BorderRadius _getMessageBorderRadius() => widget.isReceived
       ? const BorderRadius.only(
           topRight: Radius.circular(16),
           bottomLeft: Radius.circular(16),
