@@ -6,6 +6,12 @@ import 'package:sendbird_sdk/constant/enums.dart';
 import 'package:sendbird_sdk/core/message/base_message.dart';
 import 'package:shared/shared.dart' show gray, idToProfilePicture, lightGray;
 
+const fastReplyMessage = [
+  "I am Arrived",
+  "I am waiting",
+  "Hurry Up! I am waiting"
+];
+
 class ChatScreen extends StatefulWidget {
   final bool canCall;
   // final ComunicationManager _communicationManager;
@@ -19,6 +25,8 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _messages = <BaseMessage>[];
+  // String _typedMessage = "";
+  var _textFieldController = TextEditingController();
   // late final _communicationManager = widget._communicationManager;
   StreamSubscription? _newMessageStreamSubscription;
 
@@ -34,6 +42,12 @@ class _ChatScreenState extends State<ChatScreen> {
     //   },
     // );
     _loadPreviousMessages();
+    _textFieldController.addListener(() {
+      if (_textFieldController.text.isEmpty ||
+          _textFieldController.text.length == 1) {
+        setState(() {});
+      }
+    });
   }
 
   @override
@@ -125,24 +139,61 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: RefreshIndicator(
-                onRefresh: _loadPreviousMessages,
-                child: ListView.builder(
-                  itemCount: _messages.length,
-                  // reverse: true,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 40),
-                      child: MessageWidet(
-                        _messages[index],
-                        isReceived: index % 2 == 0,
-                      ),
-                    );
-                  },
+            child: Stack(
+              children: [
+                RefreshIndicator(
+                  onRefresh: _loadPreviousMessages,
+                  child: ListView.builder(
+                    padding:
+                        const EdgeInsets.only(left: 16, right: 16, bottom: 55),
+                    itemCount: _messages.length,
+                    // reverse: true,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 40),
+                        child: MessageWidet(
+                          _messages[index],
+                          isReceived: index % 2 == 0,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
+                if (_textFieldController.text.isEmpty)
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          for (int i = 0; i < fastReplyMessage.length; i++)
+                            InkWell(
+                              onTap: () => setState(
+                                () => _textFieldController.text =
+                                    fastReplyMessage[i],
+                              ),
+                              child: Container(
+                                margin:
+                                    const EdgeInsets.only(left: 8, bottom: 8),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 6,
+                                ),
+                                child: Text(
+                                  fastReplyMessage[i],
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                                decoration: BoxDecoration(
+                                  color: theme.primaryColor,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  )
+              ],
             ),
           ),
           Container(
@@ -166,6 +217,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(width: 14),
                 Expanded(
                   child: TextField(
+                    controller: _textFieldController,
                     maxLines: 4,
                     minLines: 1,
                     decoration: InputDecoration(
