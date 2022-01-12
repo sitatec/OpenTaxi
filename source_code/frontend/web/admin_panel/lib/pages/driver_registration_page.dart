@@ -562,6 +562,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             ),
           ),
           const SizedBox(height: 40),
+          const Text(
+            "Driver's Bank Account Information *",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          const SizedBox(height: 24),
+          const _BackInformationWidget(),
           const SizedBox(height: 40),
           const Text(
             "Driver Documents Folder *",
@@ -634,6 +640,86 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                       const EdgeInsets.symmetric(vertical: 16, horizontal: 40)),
             ),
           )
+        ],
+      ),
+    );
+  }
+}
+
+class _BackInformationWidget extends StatelessWidget {
+  const _BackInformationWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    return DefaultTabController(
+      initialIndex: 1,
+      length: 4,
+      child: Column(
+        // mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.blue,
+            ),
+            child: TabBar(
+                indicator: const BoxDecoration(
+                  color: Colors.white,
+                  // border: Border(
+                  //   bottom: BorderSide(width: 2, color: Colors.grey),
+                  // ),
+                ),
+                indicatorSize: TabBarIndicatorSize.tab,
+                unselectedLabelColor: Colors.white,
+                labelColor: Colors.black,
+                labelStyle: TextStyle(
+                  fontSize: screenWidth < _registrationFormWidth ? 14 : 18,
+                  fontWeight: FontWeight.w500,
+                ),
+                tabs: const [
+                  Tab(text: "Nedbank"),
+                  Tab(text: "FND"),
+                  Tab(text: "Third Bank"),
+                  Tab(text: "Fourth Bank"),
+                ]),
+          ),
+          SizedBox(
+            height: 300,
+            child: TabBarView(children: [
+              Column(
+                children: [
+                  const SizedBox(height: 40),
+                  TextFormField(
+                    decoration:
+                        _getTextFieldDecoration("Account Holder Name *"),
+                  ),
+                  const SizedBox(height: 40),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          decoration:
+                              _getTextFieldDecoration("Account Number *"),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          decoration: _getTextFieldDecoration("Branch Code *"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Text("FND"),
+              Text("Third Bank"),
+              Text("Fourth Bank"),
+            ]),
+          ),
         ],
       ),
     );
