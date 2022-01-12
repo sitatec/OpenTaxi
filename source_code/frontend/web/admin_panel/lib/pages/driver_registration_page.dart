@@ -565,9 +565,21 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           const SizedBox(height: 24),
           _BackInformationWidget(),
           const SizedBox(height: 40),
-          const Text(
-            "Driver Documents Folder *",
-            style: TextStyle(color: Colors.black, fontSize: 18),
+          Row(
+            children: const [
+              Text(
+                "Driver Documents Folder *",
+                style: TextStyle(color: Colors.black, fontSize: 18),
+              ),
+              SizedBox(width: 10),
+              Tooltip(
+                padding: EdgeInsets.all(8),
+                textStyle: TextStyle(color: Colors.white),
+                message:
+                    "Please put all the driver's documents (excluding those specific to his vehicle) in one folder and upload it.",
+                child: Icon(Icons.info, color: Colors.grey),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           TextButton(
@@ -671,130 +683,155 @@ class _BackInformationWidgetState extends State<_BackInformationWidget> {
     return DefaultTabController(
       initialIndex: 1,
       length: 4,
-      child: Column(
-        // mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: Colors.blue,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(10),
+          color: Colors.grey[50],
+        ),
+        child: Column(
+          // mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(10)),
+                color: Colors.blue,
+              ),
+              child: TabBar(
+                  indicator: BoxDecoration(
+                    color: Colors.grey[50],
+                    // border: Border(
+                    //   bottom: BorderSide(width: 2, color: Colors.grey),
+                    // ),
+                  ),
+                  indicatorSize: TabBarIndicatorSize.tab,
+                  unselectedLabelColor: Colors.white,
+                  labelColor: Colors.black,
+                  labelStyle: TextStyle(
+                    fontSize: screenWidth < _registrationFormWidth ? 14 : 18,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  tabs: const [
+                    Tab(text: "Nedbank"),
+                    Tab(text: "FND"),
+                    Tab(text: "Third Bank"),
+                    Tab(text: "Fourth Bank"),
+                  ]),
             ),
-            child: TabBar(
-                indicator: const BoxDecoration(
-                  color: Colors.white,
-                  // border: Border(
-                  //   bottom: BorderSide(width: 2, color: Colors.grey),
-                  // ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              height: 320,
+              child: TabBarView(children: [
+                Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    TextFormField(
+                      decoration:
+                          _getTextFieldDecoration("Account Holder Name *"),
+                    ),
+                    const SizedBox(height: 40),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: TextFormField(
+                            decoration:
+                                _getTextFieldDecoration("Account Number *"),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          flex: 2,
+                          child: TextFormField(
+                            decoration:
+                                _getTextFieldDecoration("Branch Code *"),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                indicatorSize: TabBarIndicatorSize.tab,
-                unselectedLabelColor: Colors.white,
-                labelColor: Colors.black,
-                labelStyle: TextStyle(
-                  fontSize: screenWidth < _registrationFormWidth ? 14 : 18,
-                  fontWeight: FontWeight.w500,
+                Column(
+                  children: [
+                    const SizedBox(height: 40),
+                    Row(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.only(bottom: 1),
+                          child: Text(
+                            "Account Type *:",
+                            style: TextStyle(color: Colors.black, fontSize: 18),
+                          ),
+                        ),
+                        const SizedBox(width: 28),
+                        DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: _selectedFNDAccountType,
+                            onChanged: (newValue) {
+                              if (newValue == null) return;
+                              setState(
+                                  () => _selectedFNDAccountType = newValue);
+                            },
+                            items: _fndAccountTypes.keys.map((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 40),
+                    TextFormField(
+                      decoration:
+                          _getTextFieldDecoration("Account Holder Name *"),
+                    ),
+                    const SizedBox(height: 40),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 3,
+                          child: TextFormField(
+                            maxLength: 20,
+                            decoration:
+                                _getTextFieldDecoration("Account Number *"),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          flex: 2,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextFormField(
+                                  maxLength: 6,
+                                  decoration:
+                                      _getTextFieldDecoration("Branch Code *"),
+                                ),
+                              ),
+                              const Padding(
+                                padding: EdgeInsets.only(left: 8.0, bottom: 18),
+                                child: Tooltip(
+                                  padding: EdgeInsets.all(8),
+                                  textStyle: TextStyle(color: Colors.white),
+                                  message:
+                                      "• When importing a Public Recipient, enter the Branch Code 0.\n• When making payments to eWallet recipients, please use the FNB Universal Branch Code: 250655",
+                                  child: Icon(Icons.info, color: Colors.grey),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                tabs: const [
-                  Tab(text: "Nedbank"),
-                  Tab(text: "FND"),
-                  Tab(text: "Third Bank"),
-                  Tab(text: "Fourth Bank"),
-                ]),
-          ),
-          SizedBox(
-            height: 300,
-            child: TabBarView(children: [
-              Column(
-                children: [
-                  const SizedBox(height: 40),
-                  TextFormField(
-                    decoration:
-                        _getTextFieldDecoration("Account Holder Name *"),
-                  ),
-                  const SizedBox(height: 40),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: TextFormField(
-                          decoration:
-                              _getTextFieldDecoration("Account Number *"),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        flex: 2,
-                        child: TextFormField(
-                          decoration: _getTextFieldDecoration("Branch Code *"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Column(
-                children: [
-                  const SizedBox(height: 40),
-                  Row(
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(bottom: 1),
-                        child: Text(
-                          "Account Type *:",
-                          style: TextStyle(color: Colors.black, fontSize: 18),
-                        ),
-                      ),
-                      const SizedBox(width: 28),
-                      DropdownButtonHideUnderline(
-                        child: DropdownButton<String>(
-                          value: _selectedFNDAccountType,
-                          onChanged: (newValue) {
-                            if (newValue == null) return;
-                            setState(() => _selectedFNDAccountType = newValue);
-                          },
-                          items: _fndAccountTypes.keys.map((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 40),
-                  TextFormField(
-                    decoration:
-                        _getTextFieldDecoration("Account Holder Name *"),
-                  ),
-                  const SizedBox(height: 40),
-                  Row(
-                    children: [
-                      Expanded(
-                        flex: 3,
-                        child: TextFormField(
-                          maxLength: 20,
-                          decoration:
-                              _getTextFieldDecoration("Account Number *"),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        flex: 2,
-                        child: TextFormField(
-                          maxLength: 6,
-                          decoration: _getTextFieldDecoration("Branch Code *",
-                              "• When importing a Public Recipient, enter the value 0.\n• When making payments to eWallet recipients, please use the FNB Universal Branch Code: 250655"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              Text("Third Bank"),
-              Text("Fourth Bank"),
-            ]),
-          ),
-        ],
+                Text("Third Bank"),
+                Text("Fourth Bank"),
+              ]),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1068,9 +1105,21 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
             ],
           ),
           const SizedBox(height: 40),
-          const Text(
-            "Vehicle Documents *",
-            style: TextStyle(color: Colors.black, fontSize: 18),
+          Row(
+            children: const [
+              Text(
+                "Vehicle Documents *",
+                style: TextStyle(color: Colors.black, fontSize: 18),
+              ),
+              SizedBox(width: 10),
+              Tooltip(
+                padding: EdgeInsets.all(8),
+                textStyle: TextStyle(color: Colors.white),
+                message:
+                    "Please put all the vehicle's documents in one folder and upload it.",
+                child: Icon(Icons.info, color: Colors.grey),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
           TextButton(
