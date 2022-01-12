@@ -21,27 +21,23 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Hamba Admin"),
-        foregroundColor: Colors.black,
-        backgroundColor: theme.scaffoldBackgroundColor,
-      ),
       body: SingleChildScrollView(
         child: Center(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            // crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 35, bottom: 45),
-                child: Text(
-                  "DRIVER REGISTRATION",
-                  style: theme.textTheme.headline5?.copyWith(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
+              // Padding(
+              //   padding: const EdgeInsets.only(top: 35, bottom: 45),
+              //   child: Text(
+              //     "Driver Registration",
+              //     style: theme.textTheme.headline5?.copyWith(
+              //       color: Colors.blue,
+              //       fontWeight: FontWeight.bold,
+              //       letterSpacing: 1.2,
+              //     ),
+              //   ),
+              // ),
+              const SizedBox(height: 50),
               Card(
                 elevation: 5,
                 child: Container(
