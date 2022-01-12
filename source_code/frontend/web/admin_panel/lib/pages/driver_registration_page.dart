@@ -87,15 +87,34 @@ class _DriverRegistrationForm extends StatefulWidget {
   _DriverRegistrationFormState createState() => _DriverRegistrationFormState();
 }
 
+// TODO refactor
 class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
   final _formKey = GlobalKey<FormState>();
   bool _isSouthAfricanCitizen = true;
   bool _hasAdditionalCertifications = false;
-  bool _dropZoneHovered = false;
-  DropzoneViewController? _filePicker;
+  bool _pictureDropZoneHovered = false;
+  DropzoneViewController? _profilePicturePicker;
   String? _nationality;
   String _gender = "";
   String _profilePictureName = "";
+  String _documentsFolderName = "";
+  late final FileUploadInputElement _folderPicker = FileUploadInputElement()
+    ..attributes["webkitdirectory"] = ""
+    ..onChange.listen((event) {
+      if (_folderPicker.files != null && _folderPicker.files!.isNotEmpty) {
+        final files = _folderPicker.files!;
+        final splitedPath = files.first.relativePath!.split("/");
+        String folderDescription = "The selected folder \"";
+        folderDescription += splitedPath.elementAt(splitedPath.length - 2);
+        folderDescription += "\" contains ${files.length} files :\n";
+        files.forEach((file) {
+          // TODO process
+          folderDescription += "${file.name},      ";
+        });
+        // folderDescription.r
+        setState(() => _documentsFolderName = folderDescription);
+      }
+    });
 
   @override
   Widget build(BuildContext context) {
@@ -108,7 +127,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             "Driver Informations",
             style: Theme.of(context).textTheme.headline6,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -124,7 +143,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -141,7 +160,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           const Text(
             "Driver Profile Picture *",
             style: TextStyle(color: Colors.black, fontSize: 18),
@@ -154,23 +173,24 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: DropzoneView(
                   mime: const ['image/jpeg', 'image/png'],
                   operation: DragOperation.copy,
-                  onCreated: (controller) => _filePicker = controller,
+                  onCreated: (controller) => _profilePicturePicker = controller,
                   onDrop: (imageFile) {
                     imageFile as File;
                     setState(() {
                       _profilePictureName = imageFile.name;
-                      _dropZoneHovered = false;
+                      _pictureDropZoneHovered = false;
                     });
                   },
-                  onHover: () => setState(() => _dropZoneHovered = true),
-                  onLeave: () => setState(() => _dropZoneHovered = false),
+                  onHover: () => setState(() => _pictureDropZoneHovered = true),
+                  onLeave: () =>
+                      setState(() => _pictureDropZoneHovered = false),
                 ),
               ),
               TextButton(
                 onPressed: () async {
                   // var mediaData = await ImagePickerWeb.getImageInfo;
-                  if (_filePicker == null) return;
-                  File imageFile = (await _filePicker!
+                  if (_profilePicturePicker == null) return;
+                  File imageFile = (await _profilePicturePicker!
                           .pickFiles(mime: ['image/jpeg', 'image/png']))
                       .first;
                   setState(() => _profilePictureName = imageFile.name);
@@ -181,7 +201,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                   primary: Colors.black87,
                 ),
                 child: Center(
-                  child: _dropZoneHovered
+                  child: _pictureDropZoneHovered
                       ? const Text(
                           "Drop Picture Here",
                           style: TextStyle(
@@ -220,11 +240,11 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               ),
               child: Text(
                 _profilePictureName,
-                style: TextStyle(color: Colors.blue),
+                style: const TextStyle(color: Colors.blue),
               ),
             )
           ],
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           const Text(
             "Is The Driver a South African citizen? *",
             style: TextStyle(color: Colors.black, fontSize: 18),
@@ -267,7 +287,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -289,7 +309,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -305,7 +325,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -318,7 +338,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const Expanded(child: SizedBox()),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           const Text(
             "Gender *",
             style: TextStyle(color: Colors.black, fontSize: 18),
@@ -360,11 +380,105 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
-          TextFormField(
-            decoration: _getTextFieldDecoration("Home Address *"),
+          const SizedBox(height: 40),
+          const Text(
+            "Home Address *",
+            style: TextStyle(color: Colors.black, fontSize: 18),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 16),
+          TextFormField(
+            decoration: _getTextFieldDecoration("Street Address *"),
+          ),
+          const SizedBox(height: 40),
+          TextFormField(
+            decoration: _getTextFieldDecoration("Street Address Line 2"),
+          ),
+          const SizedBox(height: 40),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("City *"),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("Province *"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("Postal Code *"),
+                ),
+              ),
+              const SizedBox(width: 16),
+              const Expanded(child: SizedBox()),
+            ],
+          ),
+          const SizedBox(height: 40),
+          const Text(
+            "Emergency Contact *",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("First Name  *"),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("Last Name"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
+          TextFormField(
+            decoration:
+                _getTextFieldDecoration("Emergency Contact Phone Number *"),
+          ),
+          const SizedBox(height: 40),
+          const Text(
+            "Emergency Contact 2",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("First Name"),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("Last Name"),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 40),
+          TextFormField(
+            decoration:
+                _getTextFieldDecoration("Emergency Contact 2 Phone Number"),
+          ),
+          const SizedBox(height: 40),
+          const Text(
+            "Driver's License",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
@@ -382,7 +496,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -393,15 +507,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
-                child: TextFormField(
-                  decoration: _getTextFieldDecoration(
-                      "Average ratings for Uber Bolt and Didi"),
-                ),
+              const Expanded(
+                child: SizedBox(),
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           const Text(
             "Does the Driver has Additional Certifications? *",
             style: TextStyle(color: Colors.black, fontSize: 18),
@@ -444,7 +555,64 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
+          TextFormField(
+            decoration: _getTextFieldDecoration(
+              "Average ratings for Uber Bolt and Didi",
+            ),
+          ),
+          const SizedBox(height: 40),
+          const SizedBox(height: 40),
+          const Text(
+            "Driver Documents Folder *",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () {
+              _folderPicker.click();
+            },
+            style: TextButton.styleFrom(
+              fixedSize: const Size(double.infinity, 130),
+              backgroundColor: Colors.blueGrey[50],
+              primary: Colors.black87,
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.upload_file,
+                    size: 32,
+                    color: Colors.black87,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Browse Folders",
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text("Folder drag and drop is not supported yet."),
+                ],
+              ),
+            ),
+          ),
+          if (_documentsFolderName.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(8),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.blueGrey[50]?.withAlpha(150),
+              ),
+              child: Text(
+                _documentsFolderName,
+                style: const TextStyle(color: Colors.blue, height: 2),
+              ),
+            )
+          ],
+          const SizedBox(height: 40),
           Align(
             alignment: Alignment.center,
             child: ElevatedButton(
@@ -488,6 +656,24 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
   bool _hasAssurance = false;
   bool _isSpeedometerOn = false;
   String _selectedCategory = _carCategories.first;
+  String _carDocumentsFolderName = "";
+  late final FileUploadInputElement _folderPicker = FileUploadInputElement()
+    ..attributes["webkitdirectory"] = ""
+    ..onChange.listen((event) {
+      if (_folderPicker.files != null && _folderPicker.files!.isNotEmpty) {
+        final files = _folderPicker.files!;
+        final splitedPath = files.first.relativePath!.split("/");
+        String folderDescription = "The selected folder \"";
+        folderDescription += splitedPath.elementAt(splitedPath.length - 2);
+        folderDescription += "\" contains ${files.length} files :\n";
+        files.forEach((file) {
+          // TODO process
+          folderDescription += "${file.name},      ";
+        });
+        // folderDescription.r
+        setState(() => _carDocumentsFolderName = folderDescription);
+      }
+    });
 
   @override
   Widget build(BuildContext context) {
@@ -500,7 +686,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
             "Vehicle Informations",
             style: Theme.of(context).textTheme.headline6,
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -516,7 +702,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               const Padding(
@@ -544,7 +730,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -562,7 +748,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -578,7 +764,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -596,7 +782,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           const Text(
             "Has Vehicle Inspection report? *",
             style: TextStyle(color: Colors.black, fontSize: 18),
@@ -639,7 +825,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           const Text(
             "Has Assurance? *",
             style: TextStyle(color: Colors.black, fontSize: 18),
@@ -680,7 +866,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
           const Text(
             "Speedometer State? *",
             style: TextStyle(color: Colors.black, fontSize: 18),
@@ -721,7 +907,57 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               ),
             ],
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: 40),
+          const Text(
+            "Vehicle Documents *",
+            style: TextStyle(color: Colors.black, fontSize: 18),
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () async {
+              _folderPicker.click();
+            },
+            style: TextButton.styleFrom(
+              fixedSize: const Size(double.infinity, 130),
+              backgroundColor: Colors.blueGrey[50],
+              primary: Colors.black87,
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  Icon(
+                    Icons.upload_file,
+                    size: 32,
+                    color: Colors.black87,
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    "Browse Folders",
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 8),
+                  Text("Folder drag and drop is not supported yet."),
+                ],
+              ),
+            ),
+          ),
+          if (_carDocumentsFolderName.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Container(
+              padding: const EdgeInsets.all(8),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                color: Colors.blueGrey[50]?.withAlpha(150),
+              ),
+              child: Text(
+                _carDocumentsFolderName,
+                style: const TextStyle(color: Colors.blue, height: 2),
+              ),
+            )
+          ],
+          const SizedBox(height: 40),
           Align(
             alignment: Alignment.center,
             child: Column(
