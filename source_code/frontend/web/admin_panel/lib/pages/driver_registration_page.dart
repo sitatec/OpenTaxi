@@ -563,7 +563,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             style: TextStyle(color: Colors.black, fontSize: 18),
           ),
           const SizedBox(height: 24),
-          const _BackInformationWidget(),
+          _BackInformationWidget(),
           const SizedBox(height: 40),
           const Text(
             "Driver Documents Folder *",
@@ -642,8 +642,28 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
   }
 }
 
-class _BackInformationWidget extends StatelessWidget {
+const _fndAccountTypes = {
+  "Public Recipient": "0",
+  "Current (cheque/bond) account": "1",
+  "Savings account": "2",
+  "Transmission account": "3",
+  "Bond Account": "4",
+  "Subscription Share Account": "6",
+  "eWallet Account (eWallet Pro)": "D",
+  "eWallet Account (Send Money)": "S",
+  "FNB Card Account": "F",
+  "WesBank": "W"
+};
+
+class _BackInformationWidget extends StatefulWidget {
   const _BackInformationWidget({Key? key}) : super(key: key);
+
+  @override
+  State<_BackInformationWidget> createState() => _BackInformationWidgetState();
+}
+
+class _BackInformationWidgetState extends State<_BackInformationWidget> {
+  String _selectedFNDAccountType = _fndAccountTypes.keys.first;
 
   @override
   Widget build(BuildContext context) {
@@ -711,7 +731,65 @@ class _BackInformationWidget extends StatelessWidget {
                   ),
                 ],
               ),
-              Text("FND"),
+              Column(
+                children: [
+                  const SizedBox(height: 40),
+                  Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 1),
+                        child: Text(
+                          "Account Type *:",
+                          style: TextStyle(color: Colors.black, fontSize: 18),
+                        ),
+                      ),
+                      const SizedBox(width: 28),
+                      DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value: _selectedFNDAccountType,
+                          onChanged: (newValue) {
+                            if (newValue == null) return;
+                            setState(() => _selectedFNDAccountType = newValue);
+                          },
+                          items: _fndAccountTypes.keys.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+                  TextFormField(
+                    decoration:
+                        _getTextFieldDecoration("Account Holder Name *"),
+                  ),
+                  const SizedBox(height: 40),
+                  Row(
+                    children: [
+                      Expanded(
+                        flex: 3,
+                        child: TextFormField(
+                          maxLength: 20,
+                          decoration:
+                              _getTextFieldDecoration("Account Number *"),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: TextFormField(
+                          maxLength: 6,
+                          decoration: _getTextFieldDecoration("Branch Code *",
+                              "• When importing a Public Recipient, enter the value 0.\n• When making payments to eWallet recipients, please use the FNB Universal Branch Code: 250655"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
               Text("Third Bank"),
               Text("Fourth Bank"),
             ]),
@@ -1076,8 +1154,10 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
   }
 }
 
-InputDecoration _getTextFieldDecoration(String label) => InputDecoration(
+InputDecoration _getTextFieldDecoration(String label, [String? helperText]) =>
+    InputDecoration(
       labelText: label,
+      helperText: helperText,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(5),
       ),
