@@ -115,8 +115,7 @@ class _ChatScreenState extends State<ChatScreen> {
         });
       }
     } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("No old Messages")));
+      _showSnakBar("No old Messages");
     }
   }
 
@@ -193,6 +192,19 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: MessageWidet(
                           message,
                           isReceived: !message.sender!.isCurrentUser,
+                          onDelete: () async {
+                            await _communicationManager
+                                .deleteMessage(message.messageId);
+                            setState(() {
+                              _messages.removeWhere(
+                                (element) =>
+                                    element.messageId == message.messageId,
+                              );
+                            });
+                          },
+                          onUpdate: () async {
+                            // TODO
+                          },
                         ),
                       );
                     },
@@ -298,11 +310,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             } catch (e) {
                               setState(() {
                                 _isSendingMessage = false;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Failed to send message"),
-                                  ),
-                                );
+                                _showSnakBar("Failed to send message");
                               });
                             }
                           },
@@ -341,13 +349,23 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
+  void _showSnakBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
+  }
 }
 
 class MessageWidet extends StatefulWidget {
   final bool isReceived;
   final BaseMessage message;
-
-  const MessageWidet(this.message, {Key? key, this.isReceived = true})
+  final Future<void> Function() onDelete;
+  final Future<void> Function() onUpdate;
+  const MessageWidet(this.message,
+      {Key? key,
+      this.isReceived = true,
+      required this.onDelete,
+      required this.onUpdate})
       : super(key: key);
 
   @override
@@ -356,6 +374,7 @@ class MessageWidet extends StatefulWidget {
 
 class _MessageWidetState extends State<MessageWidet> {
   bool isTooltipVisible = false;
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -410,89 +429,109 @@ class _MessageWidetState extends State<MessageWidet> {
                       _getTimeFromTimestamp(widget.message.createdAt),
                       style: const TextStyle(color: gray, fontSize: 13),
                     ),
-                    Positioned(
-                      right: 0,
-                      child: SimpleTooltip(
-                        animationDuration: const Duration(milliseconds: 1),
-                        tooltipDirection: TooltipDirection.horizontal,
-                        ballonPadding: EdgeInsets.zero,
-                        borderWidth: 0,
-                        arrowLength: 0,
-                        arrowTipDistance: 0,
-                        arrowBaseWidth: 0,
-                        maxWidth: 100,
-                        minimumOutSidePadding: 0,
-                        content: Focus(
-                          child: Builder(builder: (context) {
-                            final focusNode = Focus.of(context);
-                            focusNode.requestFocus();
-                            focusNode.addListener(() {
-                              if (!focusNode.hasFocus) {
-                                setState(() {
-                                  isTooltipVisible = false;
-                                });
-                              }
-                            });
-                            return Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      print("Detail");
-                                    },
-                                    child: Text(
-                                      "Detail",
-                                      style:
-                                          Theme.of(context).textTheme.bodyText1,
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  GestureDetector(
-                                    onTap: () {
-                                      print("Delete");
-                                    },
-                                    child: Text(
-                                      "Delete",
-                                      style:
-                                          Theme.of(context).textTheme.bodyText1,
-                                    ),
-                                  ),
-                                  const Divider(),
-                                  GestureDetector(
-                                    onTap: () {
-                                      print("Update");
-                                    },
-                                    child: Text("Update",
+                    if (widget.message.sender!.isCurrentUser && !isLoading)
+                      Positioned(
+                        right: 0,
+                        child: SimpleTooltip(
+                          animationDuration: const Duration(milliseconds: 1),
+                          tooltipDirection: TooltipDirection.horizontal,
+                          ballonPadding: EdgeInsets.zero,
+                          borderWidth: 0,
+                          arrowLength: 0,
+                          arrowTipDistance: 0,
+                          arrowBaseWidth: 0,
+                          maxWidth: 100,
+                          minimumOutSidePadding: 0,
+                          hideOnTooltipTap: true,
+                          content: Focus(
+                            child: Builder(builder: (context) {
+                              final focusNode = Focus.of(context);
+                              focusNode.requestFocus();
+                              focusNode.addListener(() {
+                                if (!focusNode.hasFocus) {
+                                  setState(() {
+                                    isTooltipVisible = false;
+                                  });
+                                }
+                              });
+                              return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    // GestureDetector(
+                                    //   onTap: () {
+                                    //     print("Update");
+                                    //   },
+                                    //   child: Text("Update",
+                                    //       style: Theme.of(context)
+                                    //           .textTheme
+                                    //           .bodyText1),
+                                    // ),
+                                    // const Divider(),
+                                    GestureDetector(
+                                      onTap: () async {
+                                        setState(() {
+                                          isLoading = true;
+                                          isTooltipVisible = false;
+                                        });
+                                        try {
+                                          await widget.onDelete();
+                                        } catch (e) {
+                                          _showSnakBar(
+                                              "Failed to delete the message.");
+                                        } finally {
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        }
+                                      },
+                                      child: Text(
+                                        "Delete",
                                         style: Theme.of(context)
                                             .textTheme
-                                            .bodyText1),
-                                  ),
-                                ],
-                              ),
-                            );
-                          }),
-                        ),
-                        show: isTooltipVisible,
-                        child: InkWell(
-                          onTap: () => setState(() {
-                            isTooltipVisible = true;
-                          }),
-                          child: Icon(
-                            Icons.more_horiz,
-                            color: gray.withAlpha(180),
+                                            .bodyText1,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ),
+                          show: isTooltipVisible,
+                          child: InkWell(
+                            onTap: () => setState(() {
+                              isTooltipVisible = true;
+                            }),
+                            child: Icon(
+                              Icons.more_horiz,
+                              color: gray.withAlpha(180),
+                            ),
                           ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),
             ),
-            if (!widget.isReceived)
+            if (isLoading)
+              Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 5),
+                    child: Text(""),
+                  ),
+                  Container(
+                    width: 24,
+                    height: 24,
+                    margin: const EdgeInsets.only(left: 5),
+                    child: const CircularProgressIndicator(),
+                  ),
+                ],
+              ),
+            if (!widget.isReceived && !isLoading)
               Column(
                 children: const [
                   Padding(
@@ -506,6 +545,11 @@ class _MessageWidetState extends State<MessageWidet> {
         ),
       ],
     );
+  }
+
+  void _showSnakBar(String message) {
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: Text(message)));
   }
 
   String _getTimeFromTimestamp(int timestamp) {
