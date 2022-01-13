@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:communication/src/domain/communication_manager.dart';
 import 'package:flutter/material.dart';
-import 'package:sendbird_sdk/constant/enums.dart';
 import 'package:sendbird_sdk/core/message/base_message.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
 import 'package:shared/shared.dart' show gray, idToProfilePicture, lightGray;
@@ -30,15 +29,14 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _loadingMoreMessages = false;
   late final _communicationManager = widget._communicationManager;
   StreamSubscription? _newMessageStreamSubscription;
-  late bool _isFirstBuild;
+  bool _isSendingMessage = false;
+  final _listViewScrollController = ScrollController();
   // TODO find a meaningfull name
   int _lastMessageIndex = CommunicationManager.messageLoadPageSize - 1;
 
   @override
   void initState() {
     super.initState();
-    _isFirstBuild = true;
-    print("initState");
     _newMessageStreamSubscription =
         _communicationManager.newMessagesStream?.listen(
       (newMessage) {
@@ -54,6 +52,9 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {});
         // show or hide fast reply messages
       }
+    });
+    _listViewScrollController.addListener(() {
+      FocusManager.instance.primaryFocus?.unfocus();
     });
   }
 
@@ -100,6 +101,13 @@ class _ChatScreenState extends State<ChatScreen> {
           _messages.addAll(previousMessage);
           _loadingMoreMessages = false;
         });
+        if (_messages.length > CommunicationManager.messageLoadPageSize) {
+          _listViewScrollController.animateTo(
+            _listViewScrollController.offset + 150,
+            duration: const Duration(milliseconds: 600),
+            curve: Curves.easeIn,
+          );
+        }
       } catch (e) {
         print(e);
         setState(() {
@@ -166,6 +174,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Stack(
                 children: [
                   ListView.builder(
+                    controller: _listViewScrollController,
                     reverse: true,
                     padding:
                         const EdgeInsets.only(left: 16, right: 16, bottom: 55),
@@ -222,6 +231,16 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       ),
                     ),
+                  if (_isSendingMessage)
+                    Align(
+                        alignment: Alignment.bottomRight,
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          margin: const EdgeInsets.only(bottom: 16, right: 45),
+                          child: CircularProgressIndicator(
+                              color: theme.primaryColor),
+                        )),
                   if (_loadingMoreMessages)
                     Align(
                       alignment: Alignment.topCenter,
@@ -229,7 +248,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         width: 28,
                         height: 28,
                         margin: const EdgeInsets.all(16),
-                        child: const CircularProgressIndicator(),
+                        child: CircularProgressIndicator(
+                            color: theme.primaryColor),
                       ),
                     ),
                 ],
@@ -263,16 +283,40 @@ class _ChatScreenState extends State<ChatScreen> {
                         suffixIcon: IconButton(
                           onPressed: () async {
                             // TODO check if `_typedMessage` is not empty and add send file feature as well. and add loading message while sending message
-                            final message = await _communicationManager
-                                .sendTextMessage(_textFieldController.text);
-                            _messages.insert(0, message);
+                            if (_isSendingMessage) return;
+                            setState(() {
+                              _isSendingMessage = true;
+                            });
+                            try {
+                              final message = await _communicationManager
+                                  .sendTextMessage(_textFieldController.text);
+                              setState(() {
+                                _messages.insert(0, message);
+                                _isSendingMessage = false;
+                                _textFieldController.text = "";
+                              });
+                            } catch (e) {
+                              setState(() {
+                                _isSendingMessage = false;
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text("Failed to send message"),
+                                  ),
+                                );
+                              });
+                            }
                           },
                           icon: Transform.rotate(
-                            angle: -40,
-                            child: Icon(
-                              Icons.send,
-                              color: theme.primaryColor,
-                              size: 22,
+                            angle: -0.6,
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 4),
+                              child: Icon(
+                                Icons.send,
+                                color: _isSendingMessage
+                                    ? theme.disabledColor
+                                    : theme.primaryColor,
+                                size: 22,
+                              ),
                             ),
                           ),
                         ),
@@ -369,6 +413,7 @@ class _MessageWidetState extends State<MessageWidet> {
                     Positioned(
                       right: 0,
                       child: SimpleTooltip(
+                        animationDuration: const Duration(milliseconds: 1),
                         tooltipDirection: TooltipDirection.horizontal,
                         ballonPadding: EdgeInsets.zero,
                         borderWidth: 0,
