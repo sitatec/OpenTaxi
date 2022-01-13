@@ -4,6 +4,7 @@ import 'package:communication/src/domain/communication_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:sendbird_sdk/constant/enums.dart';
 import 'package:sendbird_sdk/core/message/base_message.dart';
+import 'package:sendbird_sdk/sendbird_sdk.dart';
 import 'package:shared/shared.dart' show gray, idToProfilePicture, lightGray;
 import 'package:simple_tooltip/simple_tooltip.dart';
 
@@ -15,9 +16,8 @@ const fastReplyMessage = [
 
 class ChatScreen extends StatefulWidget {
   final bool canCall;
-  // final ComunicationManager _communicationManager;
-  const ChatScreen(
-      /*this._communicationManager,*/ {Key? key, this.canCall = true})
+  final CommunicationManager _communicationManager;
+  const ChatScreen(this._communicationManager, {Key? key, this.canCall = true})
       : super(key: key);
 
   @override
@@ -26,27 +26,33 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final _messages = <BaseMessage>[];
-  // String _typedMessage = "";
   var _textFieldController = TextEditingController();
-  // late final _communicationManager = widget._communicationManager;
+  bool _loadingMoreMessages = false;
+  late final _communicationManager = widget._communicationManager;
   StreamSubscription? _newMessageStreamSubscription;
+  late bool _isFirstBuild;
+  // TODO find a meaningfull name
+  int _lastMessageIndex = CommunicationManager.messageLoadPageSize - 1;
 
   @override
   void initState() {
     super.initState();
-    // _newMessageStreamSubscription =
-    //     _communicationManager.newMessagesStream?.listen(
-    //   (newMessage) {
-    //     if (newMessage != null) {
-    //       setState(() => _messages.insert(0, newMessage));
-    //     }
-    //   },
-    // );
+    _isFirstBuild = true;
+    print("initState");
+    _newMessageStreamSubscription =
+        _communicationManager.newMessagesStream?.listen(
+      (newMessage) {
+        if (newMessage != null) {
+          setState(() => _messages.insert(0, newMessage));
+        }
+      },
+    );
     _loadPreviousMessages();
     _textFieldController.addListener(() {
       if (_textFieldController.text.isEmpty ||
           _textFieldController.text.length == 1) {
         setState(() {});
+        // show or hide fast reply messages
       }
     });
   }
@@ -58,39 +64,51 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Future<void> _loadPreviousMessages() async {
-    if (_messages.length < 35) {
-      for (int i = _messages.length, j = i + 10; i < j; i++) {
-        final message = i % 3 == 0
-            ? "Short Message"
-            : i % 5 == 0
-                ? "Medium message length just here."
-                : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dui, facilisis a mi rutrum integer. Augue commodo convallis dictum bibendum tellus. Ipsum lobortis elit sit amet leo.";
-        _messages.add(
-          BaseMessage(
-              message: message,
-              sendingStatus: null,
-              channelUrl: "channelUrl",
-              channelType: ChannelType.group),
-        );
+    if (_loadingMoreMessages) return;
+    // if (_messages.length < 35) {
+    //   for (int i = _messages.length, j = i + 10; i < j; i++) {
+    //     final message = i % 3 == 0
+    //         ? "Short Message"
+    //         : i % 5 == 0
+    //             ? "Medium message length just here."
+    //             : "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Dui, facilisis a mi rutrum integer. Augue commodo convallis dictum bibendum tellus. Ipsum lobortis elit sit amet leo.";
+    //     _messages.add(
+    //       BaseMessage(
+    //           message: message,
+    //           sendingStatus: null,
+    //           channelUrl: "channelUrl",
+    //           channelType: ChannelType.group),
+    //     );
+    //   }
+    //   _messages.add(
+    //     BaseMessage(
+    //         message: "",
+    //         sendingStatus: null,
+    //         channelUrl: "channelUrl",
+    //         channelType: ChannelType.group),
+    //   );
+    //   await Future.delayed(const Duration(seconds: 1));
+    //   setState(() {});
+    if (_communicationManager.previousMessagesQuery!.hasNext) {
+      try {
+        setState(() {
+          _loadingMoreMessages = true;
+        });
+        final previousMessage =
+            await _communicationManager.previousMessagesQuery!.loadNext();
+        setState(() {
+          _messages.addAll(previousMessage);
+          _loadingMoreMessages = false;
+        });
+      } catch (e) {
+        print(e);
+        setState(() {
+          _loadingMoreMessages = false;
+        });
       }
-      _messages.add(
-        BaseMessage(
-            message: "",
-            sendingStatus: null,
-            channelUrl: "channelUrl",
-            channelType: ChannelType.group),
-      );
-      await Future.delayed(const Duration(seconds: 1));
-      setState(() {});
-      // if (_communicationManager.previousMessagesQuery!.hasNext) {
-      //   final previousMessage =
-      //       await _communicationManager.previousMessagesQuery!.loadNext();
-      //   setState(() {
-      //     _messages.addAll(previousMessage);
-      //   });
     } else {
       ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("No old Message")));
+          .showSnackBar(const SnackBar(content: Text("No old Messages")));
     }
   }
 
@@ -119,9 +137,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 radius: 24,
               ),
               const SizedBox(width: 8),
-              const Text(
-                "Nicole Mason",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              Text(
+                _communicationManager.channelData.remoteUserName,
+                style:
+                    const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
               if (widget.canCall) ...[
                 const Expanded(child: SizedBox()),
@@ -146,23 +165,28 @@ class _ChatScreenState extends State<ChatScreen> {
             Expanded(
               child: Stack(
                 children: [
-                  RefreshIndicator(
-                    onRefresh: _loadPreviousMessages,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.only(
-                          left: 16, right: 16, bottom: 55),
-                      itemCount: _messages.length,
-                      // reverse: true,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 40),
-                          child: MessageWidet(
-                            _messages[index],
-                            isReceived: index % 2 == 0,
-                          ),
-                        );
-                      },
-                    ),
+                  ListView.builder(
+                    reverse: true,
+                    padding:
+                        const EdgeInsets.only(left: 16, right: 16, bottom: 55),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      if (index >= _lastMessageIndex) {
+                        Future.delayed(Duration.zero, () async {
+                          await _loadPreviousMessages();
+                          _lastMessageIndex +=
+                              CommunicationManager.messageLoadPageSize;
+                        });
+                      }
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 40),
+                        child: MessageWidet(
+                          message,
+                          isReceived: !message.sender!.isCurrentUser,
+                        ),
+                      );
+                    },
                   ),
                   if (_textFieldController.text.isEmpty)
                     Align(
@@ -197,7 +221,17 @@ class _ChatScreenState extends State<ChatScreen> {
                           ],
                         ),
                       ),
-                    )
+                    ),
+                  if (_loadingMoreMessages)
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        margin: const EdgeInsets.all(16),
+                        child: const CircularProgressIndicator(),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -227,13 +261,19 @@ class _ChatScreenState extends State<ChatScreen> {
                       minLines: 1,
                       decoration: InputDecoration(
                         suffixIcon: IconButton(
-                          onPressed: () {
-                            print("Sending Message...");
+                          onPressed: () async {
+                            // TODO check if `_typedMessage` is not empty and add send file feature as well. and add loading message while sending message
+                            final message = await _communicationManager
+                                .sendTextMessage(_textFieldController.text);
+                            _messages.insert(0, message);
                           },
-                          icon: Icon(
-                            Icons.send,
-                            color: theme.primaryColor,
-                            size: 22,
+                          icon: Transform.rotate(
+                            angle: -40,
+                            child: Icon(
+                              Icons.send,
+                              color: theme.primaryColor,
+                              size: 22,
+                            ),
                           ),
                         ),
                         contentPadding: const EdgeInsets.all(11),

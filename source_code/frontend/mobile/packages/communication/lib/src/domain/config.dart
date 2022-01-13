@@ -1,1 +1,1 @@
-const sendbirdAppId = "";
+const sendbirdAppId = "BCEB41D6-49EB-4D03-A0E8-B032C67C7C01";
