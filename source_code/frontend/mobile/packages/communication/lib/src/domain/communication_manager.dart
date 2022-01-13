@@ -116,6 +116,48 @@ class ComunicationManager {
     }
   }
 
+  Future<void> updateFileMessage(FileMessage message) async {
+    if (_comunicationChannel == null) {
+      return; // TODO: must join before been able to send messages
+    }
+    try {
+      await _comunicationChannel!.updateFileMessage(
+        message.messageId,
+        FileMessageParams.withUrl(message.url),
+      );
+    } catch (e) {
+      print(e);
+      rethrow; //TODO handle
+    }
+  }
+
+  Future<void> updateTextMessage(UserMessage message) async {
+    if (_comunicationChannel == null) {
+      return; // TODO: must join before been able to send messages
+    }
+    try {
+      await _comunicationChannel!.updateUserMessage(
+        message.messageId,
+        UserMessageParams.withMessage(message),
+      );
+    } catch (e) {
+      print(e);
+      rethrow; //TODO handle
+    }
+  }
+
+  Future<void> deleteMessage(int messageId) async {
+    if (_comunicationChannel == null) {
+      return; // TODO: must join before been able to send messages
+    }
+    try {
+      await _comunicationChannel!.deleteMessage(messageId);
+    } catch (e) {
+      print(e);
+      rethrow; //TODO handle
+    }
+  }
+
   Future<void> makeAudioCall() async {}
 
   Future<void> dispose() async {
