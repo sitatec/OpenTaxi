@@ -533,12 +533,16 @@ class _MessageWidetState extends State<MessageWidet> {
               ),
             if (!widget.isReceived && !isLoading)
               Column(
-                children: const [
-                  Padding(
+                children: [
+                  const Padding(
                     padding: EdgeInsets.only(bottom: 5),
                     child: Text(""),
                   ),
-                  Icon(Icons.check, color: gray),
+                  Image.asset(
+                    "assets/images/delivered.png",
+                    package: "communication",
+                    width: 24,
+                  ),
                 ],
               )
           ],
