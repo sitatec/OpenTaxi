@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:communication/src/domain/communication_manager.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final _listViewScrollController = ScrollController();
   // TODO find a meaningfull name
   int _lastMessageIndex = CommunicationManager.messageLoadPageSize - 1;
+  final _imagePicker = ImagePicker();
 
   @override
   void initState() {
@@ -278,7 +281,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Row(
                 children: [
                   InkWell(
-                    onTap: () {},
+                    onTap: _showImageSourcesDialog,
                     child: Image.asset(
                       "assets/images/image_icon.png",
                       package: "communication",
@@ -350,6 +353,138 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  void _showSendImageDialog(File imageFile) {
+    double uploadProgress = 0;
+    bool isUploading = false;
+    final theme = Theme.of(context);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(builder: (context, _setState) {
+            return AlertDialog(
+              title: const Text("Confirm Image", textAlign: TextAlign.center),
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(child: Image.file(imageFile)),
+                  if (isUploading) ...[
+                    const SizedBox(height: 16),
+                    const Text("Uploading...", style: TextStyle(fontSize: 13)),
+                    LinearProgressIndicator(
+                      value: uploadProgress,
+                      color: theme.primaryColor.withAlpha(200),
+                      backgroundColor: theme.primaryColor.withAlpha(50),
+                    )
+                  ]
+                ],
+              ),
+              actionsAlignment: MainAxisAlignment.center,
+              actions: [
+                TextButton(
+                  onPressed:
+                      isUploading ? null : () => Navigator.of(context).pop(),
+                  child: const Text("Cancel"),
+                ),
+                const SizedBox(width: 24),
+                TextButton.icon(
+                  onPressed: isUploading
+                      ? null
+                      : () async {
+                          if (_isSendingMessage) return;
+                          setState(() {
+                            _isSendingMessage = true;
+                          });
+                          _setState(() {
+                            isUploading = true;
+                          });
+                          try {
+                            final message = await _communicationManager
+                                .sendFileMessage(imageFile,
+                                    progress: (sentBytes, totalBytes) {
+                              _setState(() {
+                                uploadProgress = sentBytes / totalBytes;
+                              });
+                            });
+                            setState(() {
+                              _messages.insert(0, message);
+                              _isSendingMessage = false;
+                            });
+                          } catch (e) {
+                            setState(() {
+                              _isSendingMessage = false;
+                              _showSnakBar("Failed to send image");
+                            });
+                          } finally {
+                            Navigator.of(context).pop();
+                            _setState(() {
+                              isUploading = true;
+                            });
+                          }
+                        },
+                  label: const Text("Send"),
+                  icon: const Icon(Icons.send_outlined, size: 20),
+                  style: TextButton.styleFrom(
+                    backgroundColor: Theme.of(context).primaryColor,
+                    primary: Colors.white,
+                  ),
+                )
+              ],
+            );
+          });
+        });
+  }
+
+  void _showImageSourcesDialog() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text("Choose Source", textAlign: TextAlign.center),
+            content: Wrap(
+              alignment: WrapAlignment.spaceEvenly,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    final file = await _imagePicker.pickImage(
+                      source: ImageSource.gallery,
+                    );
+                    if (file != null) {
+                      _showSendImageDialog(File(file.path));
+                    }
+                  },
+                  child: Column(
+                    children: const [
+                      Icon(Icons.photo, size: 48),
+                      SizedBox(height: 5),
+                      Text("Gallery"),
+                    ],
+                  ),
+                ),
+                InkWell(
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    final file = await _imagePicker.pickImage(
+                      source: ImageSource.camera,
+                    );
+                    if (file != null) {
+                      _showSendImageDialog(File(file.path));
+                    }
+                  },
+                  child: Column(
+                    children: const [
+                      Icon(Icons.camera_alt, size: 48),
+                      SizedBox(height: 4),
+                      Text("Camera"),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   void _showSnakBar(String message) {
     ScaffoldMessenger.of(context)
         .showSnackBar(SnackBar(content: Text(message)));
@@ -375,8 +510,13 @@ class MessageWidet extends StatefulWidget {
 class _MessageWidetState extends State<MessageWidet> {
   bool isTooltipVisible = false;
   bool isLoading = false;
+  FileMessage? fileMessage;
+
   @override
   Widget build(BuildContext context) {
+    if (widget.message is FileMessage) {
+      fileMessage = widget.message as FileMessage;
+    }
     return Column(
       crossAxisAlignment:
           widget.isReceived ? CrossAxisAlignment.start : CrossAxisAlignment.end,
@@ -417,11 +557,19 @@ class _MessageWidetState extends State<MessageWidet> {
                                 ? null
                                 : Border.all(color: const Color(0x40707C97)),
                           ),
-                          child: Text(
-                            widget.message.message,
-                            style: TextStyle(
-                                color: widget.isReceived ? Colors.white : gray),
-                          ),
+                          child: fileMessage != null
+                              ? fileMessage?.localFile != null
+                                  ? Image.file(fileMessage!.localFile!)
+                                  : Image.network(
+                                      (widget.message as FileMessage)
+                                          .secureUrl!)
+                              : Text(
+                                  widget.message.message,
+                                  style: TextStyle(
+                                      color: widget.isReceived
+                                          ? Colors.white
+                                          : gray),
+                                ),
                         ),
                       ],
                     ),
