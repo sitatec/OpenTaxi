@@ -70,4 +70,5 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:29.0.1')
     implementation 'com.google.firebase:firebase-analytics'
     implementation "androidx.multidex:multidex:2.0.1"
+    implementation 'com.sendbird.sdk:sendbird-calls:1.8.0'// SENDBIRD
 }
