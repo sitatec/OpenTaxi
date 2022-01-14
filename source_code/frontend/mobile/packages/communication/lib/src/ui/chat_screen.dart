@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:communication/src/domain/communication_manager.dart';
@@ -212,7 +213,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       );
                     },
                   ),
-                  if (_textFieldController.text.isEmpty)
+                  if (_textFieldController.text.isEmpty && !_isSendingMessage)
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: SingleChildScrollView(
@@ -358,6 +359,7 @@ class _ChatScreenState extends State<ChatScreen> {
     bool isUploading = false;
     final theme = Theme.of(context);
     showDialog(
+        barrierDismissible: false,
         context: context,
         builder: (context) {
           return StatefulBuilder(builder: (context, _setState) {
@@ -365,8 +367,14 @@ class _ChatScreenState extends State<ChatScreen> {
               title: const Text("Confirm Image", textAlign: TextAlign.center),
               content: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(child: Image.file(imageFile)),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.6,
+                    ),
+                    child: Image.file(imageFile),
+                  ),
                   if (isUploading) ...[
                     const SizedBox(height: 16),
                     const Text("Uploading...", style: TextStyle(fontSize: 13)),
@@ -519,6 +527,9 @@ class _MessageWidetState extends State<MessageWidet> {
     } else {
       fileMessage = null;
     }
+    final imagesSize = MediaQuery.of(context).size.width * 0.65;
+    final theme = Theme.of(context);
+
     return Column(
       crossAxisAlignment:
           widget.isReceived ? CrossAxisAlignment.start : CrossAxisAlignment.end,
@@ -562,9 +573,52 @@ class _MessageWidetState extends State<MessageWidet> {
                           child: fileMessage != null
                               ? fileMessage?.localFile != null
                                   ? Image.file(fileMessage!.localFile!)
-                                  : Image.network(
-                                      (widget.message as FileMessage)
-                                          .secureUrl!)
+                                  : CachedNetworkImage(
+                                      width: imagesSize,
+                                      height: imagesSize,
+                                      imageUrl: fileMessage!.secureUrl!,
+                                      progressIndicatorBuilder: (
+                                        context,
+                                        url,
+                                        downloadProgress,
+                                      ) =>
+                                          Padding(
+                                            padding: const EdgeInsets.all(70),
+                                            child: CircularProgressIndicator(
+                                              value: downloadProgress.progress,
+                                            ),
+                                          ),
+                                      errorWidget: (_, __, error) {
+                                        return Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            const Icon(
+                                              Icons.error,
+                                              color: Colors.red,
+                                              size: 30,
+                                            ),
+                                            const SizedBox(height: 10),
+                                            const Text(
+                                                "Failed to download image"),
+                                            const SizedBox(height: 16),
+                                            TextButton(
+                                              onPressed: () => setState(() {}),
+                                              child: const Text("Retry"),
+                                              style: TextButton.styleFrom(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(5),
+                                                  side: BorderSide(
+                                                    color: theme.primaryColor
+                                                        .withAlpha(70),
+                                                  ),
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        );
+                                      })
                               : Text(
                                   widget.message.message,
                                   style: TextStyle(
