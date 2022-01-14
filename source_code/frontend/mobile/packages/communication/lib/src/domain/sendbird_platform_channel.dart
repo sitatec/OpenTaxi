@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
 
-class SendbirdChannels {
+class SendbirdPlatformChannel {
   Function(String? callerId, String? callerNickname)? directCallReceived;
   Function()? directCallEnded;
   Function()? directCallEstablished;
@@ -10,7 +10,7 @@ class SendbirdChannels {
   late String appId;
   late String userId;
 
-  SendbirdChannels({
+  SendbirdPlatformChannel({
     this.directCallReceived,
     this.directCallConnected,
     this.directCallEstablished,
