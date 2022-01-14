@@ -5,6 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:communication/src/domain/communication_manager.dart';
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:sendbird_sdk/core/message/base_message.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
 import 'package:shared/shared.dart' show gray, idToProfilePicture, lightGray;
@@ -443,6 +444,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showImageSourcesDialog() {
+    final theme = Theme.of(context);
     showDialog(
         context: context,
         builder: (context) {
@@ -462,10 +464,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     }
                   },
                   child: Column(
-                    children: const [
-                      Icon(Icons.photo, size: 48),
-                      SizedBox(height: 5),
-                      Text("Gallery"),
+                    children: [
+                      Icon(
+                        Icons.photo,
+                        size: 48,
+                        color: theme.primaryColor,
+                      ),
+                      const SizedBox(height: 5),
+                      const Text("Gallery"),
                     ],
                   ),
                 ),
@@ -480,10 +486,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     }
                   },
                   child: Column(
-                    children: const [
-                      Icon(Icons.camera_alt, size: 48),
-                      SizedBox(height: 4),
-                      Text("Camera"),
+                    children: [
+                      Icon(
+                        Icons.camera_alt,
+                        size: 48,
+                        color: theme.primaryColor,
+                      ),
+                      const SizedBox(height: 4),
+                      const Text("Camera"),
                     ],
                   ),
                 ),
@@ -558,74 +568,87 @@ class _MessageWidetState extends State<MessageWidet> {
                           padding: EdgeInsets.only(bottom: 5),
                           child: Text(""),
                         ),
-                        Container(
-                          constraints: const BoxConstraints(minWidth: 100),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: widget.isReceived
-                                ? const Color(0xFF546071)
-                                : Colors.white,
-                            borderRadius: _getMessageBorderRadius(),
-                            border: widget.isReceived
-                                ? null
-                                : Border.all(color: const Color(0x40707C97)),
-                          ),
-                          child: fileMessage != null
-                              ? fileMessage?.localFile != null
-                                  ? Image.file(fileMessage!.localFile!)
-                                  : CachedNetworkImage(
-                                      width: imagesSize,
-                                      height: imagesSize,
-                                      imageUrl: fileMessage!.secureUrl!,
-                                      progressIndicatorBuilder: (
-                                        context,
-                                        url,
-                                        downloadProgress,
-                                      ) =>
-                                          Padding(
-                                            padding: const EdgeInsets.all(70),
-                                            child: CircularProgressIndicator(
-                                              value: downloadProgress.progress,
+                        GestureDetector(
+                          onTap: fileMessage == null
+                              ? null
+                              : () => _showImageDialog(fileMessage!.secureUrl!),
+                          child: Container(
+                            constraints: const BoxConstraints(minWidth: 100),
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: widget.isReceived
+                                  ? const Color(0xFF546071)
+                                  : Colors.white,
+                              borderRadius: _getMessageBorderRadius(),
+                              border: widget.isReceived
+                                  ? null
+                                  : Border.all(color: const Color(0x40707C97)),
+                            ),
+                            child: fileMessage != null
+                                ? fileMessage?.localFile != null
+                                    ? Image.file(
+                                        fileMessage!.localFile!,
+                                        width: imagesSize,
+                                        height: imagesSize,
+                                      )
+                                    : CachedNetworkImage(
+                                        width: imagesSize,
+                                        height: imagesSize,
+                                        imageUrl: fileMessage!.secureUrl!,
+                                        progressIndicatorBuilder: (
+                                          context,
+                                          url,
+                                          downloadProgress,
+                                        ) =>
+                                            Padding(
+                                              padding: const EdgeInsets.all(70),
+                                              child: CircularProgressIndicator(
+                                                value:
+                                                    downloadProgress.progress,
+                                              ),
                                             ),
-                                          ),
-                                      errorWidget: (_, __, error) {
-                                        return Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            const Icon(
-                                              Icons.error,
-                                              color: Colors.red,
-                                              size: 30,
-                                            ),
-                                            const SizedBox(height: 10),
-                                            const Text(
-                                                "Failed to download image"),
-                                            const SizedBox(height: 16),
-                                            TextButton(
-                                              onPressed: () => setState(() {}),
-                                              child: const Text("Retry"),
-                                              style: TextButton.styleFrom(
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(5),
-                                                  side: BorderSide(
-                                                    color: theme.primaryColor
-                                                        .withAlpha(70),
+                                        errorWidget: (_, __, error) {
+                                          return Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              const Icon(
+                                                Icons.error,
+                                                color: Colors.red,
+                                                size: 30,
+                                              ),
+                                              const SizedBox(height: 10),
+                                              const Text(
+                                                  "Failed to download image"),
+                                              const SizedBox(height: 16),
+                                              TextButton(
+                                                onPressed: () =>
+                                                    setState(() {}),
+                                                child: const Text("Retry"),
+                                                style: TextButton.styleFrom(
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            5),
+                                                    side: BorderSide(
+                                                      color: theme.primaryColor
+                                                          .withAlpha(70),
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            )
-                                          ],
-                                        );
-                                      })
-                              : Text(
-                                  widget.message.message,
-                                  style: TextStyle(
+                                              )
+                                            ],
+                                          );
+                                        })
+                                : Text(
+                                    widget.message.message,
+                                    style: TextStyle(
                                       color: widget.isReceived
                                           ? Colors.white
-                                          : gray),
-                                ),
+                                          : gray,
+                                    ),
+                                  ),
+                          ),
                         ),
                       ],
                     ),
@@ -675,6 +698,17 @@ class _MessageWidetState extends State<MessageWidet> {
                                     //           .bodyText1),
                                     // ),
                                     // const Divider(),
+                                    if (fileMessage != null) ...[
+                                      GestureDetector(
+                                        onTap: () => _showImageDialog(
+                                            fileMessage!.secureUrl!),
+                                        child: Text("Expand",
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyText1),
+                                      ),
+                                      const Divider(),
+                                    ],
                                     GestureDetector(
                                       onTap: () async {
                                         setState(() {
@@ -752,6 +786,36 @@ class _MessageWidetState extends State<MessageWidet> {
           ],
         ),
       ],
+    );
+  }
+
+  void _showImageDialog(String url) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Scaffold(
+          body: Stack(
+            children: [
+              PhotoView(imageProvider: CachedNetworkImageProvider(url)),
+              Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    margin: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(4),
+                    child: const Icon(Icons.close),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 
