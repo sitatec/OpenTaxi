@@ -5,7 +5,9 @@
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Hamba Driver need access to your photo library. This permission is required if you want to send photo in the chat.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>Hamba Driver need permission to access the camera. This permission is required if you want to take pictures and send them in the chat.</string>
+	<string>Hamba Driver need permission to access the camera. This permission is required if you want take pictures and send them in the chat or scan QR code.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Hamba Driver need permission to access the microphone for audio calls.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleExecutable</key>
@@ -14,6 +16,8 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>CFBundleDisplayName</key>
+	<string>Hamba Driver</string>
 	<key>CFBundleName</key>
 	<string>Hamba Driver</string>
 	<key>CFBundlePackageType</key>
@@ -37,9 +41,6 @@
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
