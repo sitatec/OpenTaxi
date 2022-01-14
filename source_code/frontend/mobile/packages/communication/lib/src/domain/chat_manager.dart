@@ -6,10 +6,10 @@ import 'package:communication/src/domain/models.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
 
 // TODO refactor (Completly encapsulate the sendbird api and don't expose any class from sendbird)
-class CommunicationManager {
+class ChatManager {
   static const messageLoadPageSize = 20;
 
-  final CommunicationChannelData channelData;
+  final ChannelData channelData;
   SendbirdSdk? _sendbirdSdk;
   GroupChannel? _comunicationChannel;
 
@@ -19,7 +19,7 @@ class CommunicationManager {
   Stream<BaseMessage?>? get newMessagesStream =>
       _sendbirdSdk?.messageReceiveStream(channelUrl: channelData.channelId);
 
-  CommunicationManager(this.channelData, {SendbirdSdk? sendbirdSdk})
+  ChatManager(this.channelData, {SendbirdSdk? sendbirdSdk})
       : _sendbirdSdk = sendbirdSdk;
 
   Future<void> initialize() async {

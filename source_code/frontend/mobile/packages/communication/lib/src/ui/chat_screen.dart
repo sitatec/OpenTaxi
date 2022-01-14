@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:communication/src/domain/communication_manager.dart';
+import 'package:communication/src/domain/chat_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
@@ -18,7 +18,7 @@ const fastReplyMessage = [
 
 class ChatScreen extends StatefulWidget {
   final bool canCall;
-  final CommunicationManager _communicationManager;
+  final ChatManager _communicationManager;
   const ChatScreen(this._communicationManager, {Key? key, this.canCall = true})
       : super(key: key);
 
@@ -35,7 +35,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isSendingMessage = false;
   final _listViewScrollController = ScrollController();
   // TODO find a meaningfull name
-  int _lastMessageIndex = CommunicationManager.messageLoadPageSize - 1;
+  int _lastMessageIndex = ChatManager.messageLoadPageSize - 1;
   final _imagePicker = ImagePicker();
 
   @override
@@ -105,7 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
           _messages.addAll(previousMessage);
           _loadingMoreMessages = false;
         });
-        if (_messages.length > CommunicationManager.messageLoadPageSize) {
+        if (_messages.length > ChatManager.messageLoadPageSize) {
           _listViewScrollController.animateTo(
             _listViewScrollController.offset + 150,
             duration: const Duration(milliseconds: 600),
@@ -187,8 +187,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (index >= _lastMessageIndex) {
                         Future.delayed(Duration.zero, () async {
                           await _loadPreviousMessages();
-                          _lastMessageIndex +=
-                              CommunicationManager.messageLoadPageSize;
+                          _lastMessageIndex += ChatManager.messageLoadPageSize;
                         });
                       }
                       return Padding(
