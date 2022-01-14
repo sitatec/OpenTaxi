@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import 'package:communication/src/domain/communication_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:sendbird_sdk/core/message/base_message.dart';
 import 'package:sendbird_sdk/sendbird_sdk.dart';
 import 'package:shared/shared.dart' show gray, idToProfilePicture, lightGray;
 import 'package:simple_tooltip/simple_tooltip.dart';
