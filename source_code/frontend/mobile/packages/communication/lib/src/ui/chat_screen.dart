@@ -516,6 +516,8 @@ class _MessageWidetState extends State<MessageWidet> {
   Widget build(BuildContext context) {
     if (widget.message is FileMessage) {
       fileMessage = widget.message as FileMessage;
+    } else {
+      fileMessage = null;
     }
     return Column(
       crossAxisAlignment:
