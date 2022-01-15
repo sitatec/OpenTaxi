@@ -41,7 +41,8 @@ class NotificationManagerImpl implements NotificationManager {
 
   @override
   Future<AuthorizationStatus> requestPermission() async {
-    final notificationSettings = await _firebaseMessaging.requestPermission();
+    final notificationSettings =
+        await _firebaseMessaging.requestPermission(carPlay: true);
     return notificationSettings.authorizationStatus;
   }
 
