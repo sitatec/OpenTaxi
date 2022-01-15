@@ -8,6 +8,8 @@ part 'notification_manager_impl.dart';
 
 abstract class NotificationManager {
   Stream<Notification> get incomingNotificationStream;
+  Stream<String> get notificationTokenStream;
+  String? notificationToken;
 
   factory NotificationManager() => NotificationManagerImpl._singleton;
 
