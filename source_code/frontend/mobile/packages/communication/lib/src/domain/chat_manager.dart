@@ -22,7 +22,7 @@ class ChatManager {
   ChatManager(this.channelData, {SendbirdSdk? sendbirdSdk})
       : _sendbirdSdk = sendbirdSdk;
 
-  Future<void> initialize() async {
+  Future<void> initialize([String? notificationToken]) async {
     // TODO set envent listenners such as `onReconnectionSucceeded` to `refresh` data when user reconnected
     if (isInitialized) return;
     try {
@@ -32,6 +32,12 @@ class ChatManager {
           channelType: ChannelType.group, channelUrl: channelData.channelId)
         ..reverse = true
         ..limit = messageLoadPageSize;
+      if (notificationToken != null) {
+        await _sendbirdSdk!.registerPushToken(
+          type: PushTokenType.fcm,
+          token: notificationToken,
+        );
+      }
       isInitialized = true;
     } catch (e) {
       //TODO

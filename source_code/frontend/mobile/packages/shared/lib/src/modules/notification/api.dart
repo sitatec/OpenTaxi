@@ -9,13 +9,14 @@ part 'notification_manager_impl.dart';
 abstract class NotificationManager {
   Stream<Notification> get incomingNotificationStream;
   Stream<String> get notificationTokenStream;
-  String? notificationToken;
 
   factory NotificationManager() => NotificationManagerImpl._singleton;
 
   Future<AuthorizationStatus> requestPermission();
 
   Future<void> sendNotification(Notification notification, String recipientId);
+
+  Future<String?> getNotificationToken();
 }
 
 class Notification {

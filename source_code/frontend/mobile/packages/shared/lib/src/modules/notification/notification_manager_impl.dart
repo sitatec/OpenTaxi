@@ -8,8 +8,7 @@ class NotificationManagerImpl implements NotificationManager {
   final _notificationTokenStreamController =
       StreamController<String>.broadcast();
 
-  @override
-  String? notificationToken;
+  String? _notificationToken;
 
   static final NotificationManagerImpl _singleton = NotificationManagerImpl();
 
@@ -36,21 +35,24 @@ class NotificationManagerImpl implements NotificationManager {
     FirebaseMessaging.onMessageOpenedApp
         .listen(_addMessageToNotificationStream);
     _notificationTokenStreamController.onListen = () {
-      if (notificationToken != null) {
-        _notificationTokenStreamController.add(notificationToken!);
+      if (_notificationToken != null) {
+        _notificationTokenStreamController.add(_notificationToken!);
       }
     };
     _firebaseMessaging.getToken().then((token) {
-      notificationToken = token;
+      _notificationToken = token;
       if (token != null) {
         _notificationTokenStreamController.add(token);
       }
     });
     _firebaseMessaging.onTokenRefresh.listen((token) {
-      notificationToken = token;
+      _notificationToken = token;
       _notificationTokenStreamController.add(token);
     });
   }
+
+  @override
+  Future<String?> getNotificationToken() => _firebaseMessaging.getToken();
 
   Notification _remoteMessageToNotification(RemoteMessage message) =>
       Notification(

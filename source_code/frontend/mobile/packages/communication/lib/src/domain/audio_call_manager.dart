@@ -21,7 +21,7 @@ class AudioCallManager {
 
   AudioCallManager(this.channelData, {this.sendbirdPlatformChannel});
 
-  Future<void> initialize(String pushNotificationToken) async {
+  Future<void> initialize([String? pushNotificationToken]) async {
     sendbirdPlatformChannel ??= SendbirdPlatformChannel(
       directCallReceived: _onCallReceived,
       directCallConnected: _onCallConnected,
@@ -34,8 +34,8 @@ class AudioCallManager {
     initialized = await sendbirdPlatformChannel!.initSendbird(
       appId: sendbirdAppId,
       userId: channelData.currentUserId,
+      accessToken: pushNotificationToken,
     );
-    print("AudioCallManager.initialized ==> " + initialized.toString());
   }
 
   void dispose() {

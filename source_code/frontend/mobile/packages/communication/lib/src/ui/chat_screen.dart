@@ -28,12 +28,9 @@ class ChatScreen extends StatefulWidget {
       : _audioCache = audioCache ??
             AudioCache(
                 prefix: "packages/communication/assets/audios/",
-                fixedPlayer: _audioPlayer),
-        super(key: key) {
-    _audioCache
-      ..duckAudio = true
-      ..load("chat_notification.mpeg");
-  }
+                fixedPlayer: _audioPlayer)
+          ..load("chat_notification.mpeg"),
+        super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
