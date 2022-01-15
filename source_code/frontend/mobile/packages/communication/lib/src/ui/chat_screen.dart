@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
@@ -16,11 +17,23 @@ const fastReplyMessage = [
   "Hurry Up! I am waiting"
 ];
 
+final _audioPlayer = AudioPlayer(playerId: "chat");
+
 class ChatScreen extends StatefulWidget {
   final bool canCall;
   final ChatManager _communicationManager;
-  const ChatScreen(this._communicationManager, {Key? key, this.canCall = true})
-      : super(key: key);
+  final AudioCache _audioCache;
+  ChatScreen(this._communicationManager,
+      {Key? key, this.canCall = true, AudioCache? audioCache})
+      : _audioCache = audioCache ??
+            AudioCache(
+                prefix: "packages/communication/assets/audios/",
+                fixedPlayer: _audioPlayer),
+        super(key: key) {
+    _audioCache
+      ..duckAudio = true
+      ..load("chat_notification.mpeg");
+  }
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -45,6 +58,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _communicationManager.newMessagesStream?.listen(
       (newMessage) {
         if (newMessage != null) {
+          widget._audioCache.play("chat_notification.mpeg");
           setState(() => _messages.insert(0, newMessage));
         }
       },
@@ -588,11 +602,13 @@ class _MessageWidetState extends State<MessageWidet> {
                                         fileMessage!.localFile!,
                                         width: imagesSize,
                                         height: imagesSize,
+                                        fit: BoxFit.cover,
                                       )
                                     : CachedNetworkImage(
                                         width: imagesSize,
                                         height: imagesSize,
                                         imageUrl: fileMessage!.secureUrl!,
+                                        fit: BoxFit.cover,
                                         progressIndicatorBuilder: (
                                           context,
                                           url,

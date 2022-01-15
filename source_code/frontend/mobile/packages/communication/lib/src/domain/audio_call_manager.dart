@@ -34,8 +34,17 @@ class AudioCallManager {
     initialized = await sendbirdPlatformChannel!.initSendbird(
       appId: sendbirdAppId,
       userId: channelData.currentUserId,
-      accessToken: pushNotificationToken,
     );
+    print("AudioCallManager.initialized ==> " + initialized.toString());
+  }
+
+  void dispose() {
+    _callConnectedListenners.clear();
+    _callEstablishedListenners.clear();
+    _callReceivedListenners.clear();
+    _callEndedListenners.clear();
+    _errorListenners.clear();
+    _logListenners.clear();
   }
 
   void addEventListeners({
@@ -80,7 +89,7 @@ class AudioCallManager {
     if (sendbirdPlatformChannel == null || !initialized) {
       throw Exception("AudioCallManager uninitialized!");
     }
-    return sendbirdPlatformChannel!.startCall(channelData.currentUserId);
+    return sendbirdPlatformChannel!.startCall(channelData.remoteUserId);
   }
 
   Future<bool> answerCall() {
@@ -100,6 +109,7 @@ class AudioCallManager {
   //------------------ LISTENNERS --------------------//
 
   _onCallReceived(String? callerId, String? callerNickname) {
+    print("------------- AudioCallManager --_onCallReceived -----------");
     for (var listener in _callReceivedListenners) {
       listener(callerId, callerNickname);
     }
@@ -124,12 +134,14 @@ class AudioCallManager {
   }
 
   _onError(String message) {
+    print(message);
     for (var listener in _errorListenners) {
       listener(message);
     }
   }
 
   _onLog(String message) {
+    print(message);
     for (var listener in _logListenners) {
       listener(message);
     }
