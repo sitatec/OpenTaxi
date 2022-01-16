@@ -5,6 +5,8 @@ import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 
 const double _registrationFormWidth = 800;
+const _nationalitiesCSVUrl =
+    "https://gist.githubusercontent.com/sitatec/84ba82abf161cb2115845dc4e47ff03e/raw/0045fb5f54f9ad357e301cf30e23d9834058618a/nationalities.csv";
 
 class DriverRegistrationPage extends StatefulWidget {
   const DriverRegistrationPage({Key? key}) : super(key: key);
@@ -433,7 +435,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
-                  decoration: _getTextFieldDecoration("Last Name"),
+                  decoration: _getTextFieldDecoration("Last Name *"),
                 ),
               ),
             ],
@@ -576,7 +578,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 padding: EdgeInsets.all(8),
                 textStyle: TextStyle(color: Colors.white),
                 message:
-                    "Please put all the driver's documents (excluding those specific to his vehicle) in one folder and upload it.",
+                    "Please put all the driver's documents (excluding those specific to his vehicle, and his profile picture) in one folder and upload it.",
                 child: Icon(Icons.info, color: Colors.grey),
               ),
             ],
@@ -606,7 +608,8 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                     style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
-                  Text("Folder drag and drop is not supported yet."),
+                  Text(
+                      "Please click to select a folder, drag and drop is not supported for folders yet."),
                 ],
               ),
             ),
@@ -902,27 +905,39 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
           const SizedBox(height: 40),
           Row(
             children: [
-              const Padding(
-                padding: EdgeInsets.only(bottom: 1),
-                child: Text(
-                  "Category :",
-                  style: TextStyle(color: Colors.black, fontSize: 18),
+              Expanded(
+                child: Row(
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 1),
+                      child: Text(
+                        "Category :",
+                        style: TextStyle(color: Colors.black, fontSize: 18),
+                      ),
+                    ),
+                    const SizedBox(width: 28),
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: _selectedCategory,
+                        onChanged: (newValue) {
+                          if (newValue == null) return;
+                          setState(() => _selectedCategory = newValue);
+                        },
+                        items: _carCategories.map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(width: 28),
-              DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedCategory,
-                  onChanged: (newValue) {
-                    if (newValue == null) return;
-                    setState(() => _selectedCategory = newValue);
-                  },
-                  items: _carCategories.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
+                  decoration: _getTextFieldDecoration("Color *"),
                 ),
               ),
             ],
@@ -1146,7 +1161,8 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                     style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 8),
-                  Text("Folder drag and drop is not supported yet."),
+                  Text(
+                      "Please click to select a folder, drag and drop is not supported for folders yet."),
                 ],
               ),
             ),
