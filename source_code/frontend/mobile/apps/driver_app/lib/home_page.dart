@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               FlutterSwitch(
-                value: _isDriverOnline || _inTrip,
+                value: _isDriverOnline,
                 onToggle: _toggleDriverOnlineStatus,
                 activeText: const Text(
                   "Online",
@@ -340,8 +340,6 @@ class _HomePageState extends State<HomePage> {
               _locationStreamSubscription?.cancel();
               _locationStreamSubscription =
                   tripRoom.locationStream.listen(_updateDriverLocation);
-              // Reduce the dispatcher workload while the driver is in trip.
-              _dispatcher.disconnect();
               _showInfoDialog("Trip Successfully Initialized", "");
               break;
             case TripEvent.joinFailed:
