@@ -3,7 +3,7 @@
 CREATE TYPE TRIP_STATUS AS ENUM (
   'DRIVER_ON_THE_WAY',
   'DRIVER_ARRIVED_PICKUP', 
-  'IN_TRIP', 
+  'STARTED', 
   'COMPLETED', 
   'CANCELED'
 );
@@ -114,7 +114,7 @@ CREATE TABLE public.review (
   id INTEGER NOT NULL DEFAULT nextval('public.review_id_seq'),
   author_id VARCHAR,
   recipient_id VARCHAR,
-  trip_id VARCHAR NOT NULL,
+  trip_id INTEGER NOT NULL,
   comment VARCHAR(140),
   rating SMALLINT NOT NULL,
   CONSTRAINT review_pk PRIMARY KEY (id)
@@ -160,7 +160,7 @@ CREATE TABLE public.vehicle (
   speedometer_on BOOLEAN NOT NULL,
   color VARCHAR NOT NULL,
   driver_id VARCHAR NOT NULL,
-  type VEHICLE_CATEGORY NOT NULL,
+  category VEHICLE_CATEGORY NOT NULL,
   CONSTRAINT vehicle_pk PRIMARY KEY (id)
 );
 
@@ -191,8 +191,8 @@ CREATE TABLE public.booking (
   rider_id VARCHAR,-- NULLABLE in case the rider account is deleted, the company still needs the booking details.
   driver_id VARCHAR,
   booked_at TIMESTAMP NOT NULL,
-  departure_address_id VARCHAR NOT NULL,
-  destination_address_id VARCHAR NOT NULL,
+  departure_address_id INTEGER NOT NULL,
+  destination_address_id INTEGER NOT NULL,
   CONSTRAINT booking_pk PRIMARY KEY (id)
 );
 
@@ -244,8 +244,8 @@ CREATE TABLE public.bank_account (
   bank_name SUPPORTED_BANK NOT NULL,
   account_type VARCHAR,
   account_holder_name VARCHAR NOT NULL,
-  account_number VARCHAR,
-  branch_code VARCHAR,
+  account_number VARCHAR NOT NULL,
+  branch_code VARCHAR NOT NULL,
   driver_id VARCHAR NOT NULL,
   CONSTRAINT bank_account_pk PRIMARY KEY (id)
 )

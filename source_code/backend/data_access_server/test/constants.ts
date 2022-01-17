@@ -14,7 +14,7 @@ export const BOOKING_URL = `${BASE_URL}/booking`;
 
 export const PAYMENT_URL = `${BASE_URL}/payment`;
 
-export const CAR_URL = `${BASE_URL}/car`;
+export const VEHICLE_URL = `${BASE_URL}/vehicle`;
 
 export const REVIEW_URL = `${BASE_URL}/review`;
 
