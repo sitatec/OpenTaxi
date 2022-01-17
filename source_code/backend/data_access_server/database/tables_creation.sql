@@ -282,6 +282,7 @@ ON DELETE CASCADE
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
+-- TODO make sure when deleting the driver to delete his address
 ALTER TABLE public.driver ADD CONSTRAINT driver_home_address_fk
 FOREIGN KEY (home_address_id)
 REFERENCES public.address (id)

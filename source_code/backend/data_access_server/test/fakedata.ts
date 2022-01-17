@@ -30,13 +30,22 @@ export const ACCOUNT_1 = {
 export const RIDER = {
   account_id: ACCOUNT.id,
   driver_gender_preference: "FEMALE",
-  balance: 122.0,
+  balance: "122.00",
+  payment_token: null
+};
+
+export const ADDRESS = {
+  id: 1,
+  street_address: "slkfjs",
+  street_address_line_two: "lfjs",
+  postal_code: "sSFG",
+  city: "CITY",
+  province: "PROVINCE",
 };
 
 export const DRIVER = {
   account_id: ACCOUNT_1.id,
   bio: "some fake bio sljfksjfk", // test if the bio has more than 140
-  address: "fake address",
   price_by_km: "75.65",
   id_number: "id_number",
   nationality: "lskfjsfs",
@@ -46,12 +55,10 @@ export const DRIVER = {
   driver_license_code: "lsjfdkfjs",
   alternative_phone_number: "2453675674543",
   has_additional_certifications: true,
-  home_address_id: 1,
+  home_address_id: ADDRESS.id,
   is_south_african_citizen: true,
   is_online: false,
-  other_platform_rating_url: "lsjfds",
-  price_by_minute: "29.34",
-  id_url: "slfjlksjflks",
+  price_by_minute: "29.34"
 };
 
 const PAYMENT_ID = 43;
@@ -78,21 +85,13 @@ export const BOOKING = {
   driver_id: DRIVER.account_id,
 };
 
-export const ADDRESS = {
-  id: 1,
-  street_address: "slkfjs",
-  street_address_line_two: "lfjs",
-  postal_code: "sSFG",
-  city: "CITY",
-  province: "PROVINCE",
-};
 
 export const EMERGENCY_CONTACT = {
   id: 1,
   first_name: "fs",
   last_name: "s",
   phone_number: "3467474223",
-  account_id: ACCOUNT.id,
+  account_id: ACCOUNT_ID,
   is_primary: true,
 };
 
@@ -117,15 +116,13 @@ export const TRIP = {
 
 export const VEHICLE = {
   id: 1,
-  number_of_seats: 4,
   category: "STANDARD",
   model: "S",
   driver_id: DRIVER.account_id,
-  additional_info: "slfsf",
   registration_number: "XS-456",
   color: "RED",
   make: "TESLA",
-  year: 2014,
+  year: "2014",
   vin_number: "SFS",
   license_plate_number: "slfjslfjsdl",
   license_disk_number: "slfjslfjsdl",

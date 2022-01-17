@@ -19,14 +19,17 @@ const createBooking = async () => {
 
 describe("ENDPOINT: BOOKING", () => {
   beforeAll(async () => {
+    await execQuery("DELETE FROM booking");
     await execQuery("DELETE FROM payment");
     await deleteAllAccounts();
+    await execQuery("DELETE FROM address");
     await createBookingWithParentTables();
   });
 
   afterAll(async () => {
+    await execQuery("DELETE FROM address");
     await execQuery("DELETE FROM booking");
-    await execQuery("DELETE FROM payment");    
+    await execQuery("DELETE FROM payment");
     await deleteAllAccounts();
   });
 
@@ -44,19 +47,18 @@ describe("ENDPOINT: BOOKING", () => {
     expect(response.data).toMatchObject(getSuccessResponse(BOOKING));
   });
 
-  
   it("Should successfully get only one field from booking.", async () => {
     await createBooking(); // Create it first
     // End then get it.
     const response = await Axios.get(getUrlWithQuery("/id?id=" + BOOKING.id));
     expect(response.status).toBe(200);
-    expect(response.data).toMatchObject(getSuccessResponse({id: BOOKING.id}));
+    expect(response.data).toMatchObject(getSuccessResponse({ id: BOOKING.id }));
   });
 
   it("Should successfully update an booking.", async () => {
     await createBooking(); // Create it first
     const newBooking = cloneObjec(BOOKING) as typeof BOOKING;
-    newBooking.departure_address = "halurl";
+    newBooking.departure_address_id = 2;
 
     // End then update it.
     const response = await Axios.patch(
@@ -72,7 +74,7 @@ describe("ENDPOINT: BOOKING", () => {
 
     // End then update it.
     const response = await Axios.patch(getUrlWithQuery("/" + BOOKING.id), {
-      departure_address: "httrl",
+      departure_address_id: 2,
     });
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);

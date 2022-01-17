@@ -1,7 +1,7 @@
 import Axios from "axios";
 import { VEHICLE_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "../constants";
 import { VEHICLE } from "../fakedata";
-import { execQuery } from "../utils";
+import { createAddress, execQuery } from "../utils";
 import { cloneObjec, createDriver, deleteAllAccounts, getSuccessResponse } from "../utils";
 
 const getUrlWithQuery = (queryParams: string) => VEHICLE_URL + queryParams;
@@ -17,12 +17,15 @@ describe("ENDPOINT: VEHICLE", () => {
   beforeAll(async () => {
     await execQuery("DELETE FROM vehicle");
     await deleteAllAccounts();
+    await execQuery("DELETE FROM address");
+    await createAddress();
     await createDriver();
   });
 
   afterAll(async () => {
     await execQuery("DELETE FROM vehicle");
     await deleteAllAccounts();
+    await execQuery("DELETE FROM address");
   });
 
   beforeEach(async () => {
@@ -66,7 +69,7 @@ describe("ENDPOINT: VEHICLE", () => {
 
     // End then update it.
     const response = await Axios.patch(getUrlWithQuery("/" + VEHICLE.id), {
-      brand: "x",
+      make: "x",
     });
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);

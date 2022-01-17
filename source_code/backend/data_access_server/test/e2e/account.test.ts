@@ -53,14 +53,14 @@ describe("ENDPOINT: ACCOUNT", () => {
     await createAccount(); // Create it first
     // End then get it.
     const response = await Axios.get(
-      getUrlWithQuery("/id,first_name,surname,email?id=" + ACCOUNT.id)
+      getUrlWithQuery("/id,first_name,last_name,email?id=" + ACCOUNT.id)
     );
     expect(response.status).toBe(200);
     expect(response.data).toEqual(
       getSuccessResponse({
         first_name: ACCOUNT.first_name,
         id: ACCOUNT.id,
-        surname: ACCOUNT.surname,
+        last_name: ACCOUNT.last_name,
         email: ACCOUNT.email,
       })
     );
@@ -70,7 +70,7 @@ describe("ENDPOINT: ACCOUNT", () => {
     await createAccount(); // Create it first
     const newAccount = cloneObjec(ACCOUNT);
     newAccount.first_name = "Elon";
-    newAccount.surname = "Musk";
+    newAccount.last_name = "Musk";
     delete newAccount.account_status; // To prevent security check because only
     //admin users are able to change the status of an account.
 
@@ -88,7 +88,7 @@ describe("ENDPOINT: ACCOUNT", () => {
 
     // End then update it.
     const response = await Axios.patch(getUrlWithQuery("/" + ACCOUNT.id), {
-      surname: "Musk",
+      last_name: "Musk",
     });
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);

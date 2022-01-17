@@ -2,6 +2,7 @@ import Axios from "axios";
 import { JSObject } from "../src/types";
 import {
   ACCOUNT_URL,
+  ADDRESS_URL,
   BOOKING_URL,
   DRIVER_URL,
   PAYMENT_URL,
@@ -10,6 +11,7 @@ import {
 import {
   ACCOUNT,
   ACCOUNT_1,
+  ADDRESS,
   BOOKING,
   DRIVER,
   PAYMENT,
@@ -55,10 +57,15 @@ export const createUsers = async () => {
   return createDriver();
 };
 
-export const createBookingWithParentTables = async () => {
-  await createRider();
+export const createAddress = async (address: typeof ADDRESS = ADDRESS) => await Axios.post(ADDRESS_URL, address);
 
-  await createDriver();
+export const createBookingWithParentTables = async () => {
+  createAddress();
+  const secondAddress: typeof ADDRESS = cloneObjec(ADDRESS);
+  secondAddress.id = 2;
+  createAddress(secondAddress);
+
+  await createUsers();
 
   await Axios.post(PAYMENT_URL, PAYMENT);
 

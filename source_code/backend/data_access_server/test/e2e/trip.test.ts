@@ -6,7 +6,7 @@ import { cloneObjec, createBookingWithParentTables, getSuccessResponse } from ".
 
 const getUrlWithQuery = (queryParams: string) => TRIP_URL + queryParams;
 
-const createTrip = async () => {
+export const createTrip = async () => {
   const response = await Axios.post(TRIP_URL, TRIP);
   expect(response.status).toBe(201);
   expect(response.data).toEqual(getSuccessResponse(TRIP.id));
@@ -20,14 +20,14 @@ describe("ENDPOINT: TRIP", () => {
     await execQuery("DELETE FROM payment");
     await execQuery("DELETE FROM account");
     await createBookingWithParentTables();
-  })
+  });
 
   afterAll(async () => {
     await execQuery("DELETE FROM trip");
     await execQuery("DELETE FROM booking");
     await execQuery("DELETE FROM payment");
     await execQuery("DELETE FROM account");
-  })
+  });
 
   beforeEach(async () => {
     await execQuery("DELETE FROM trip");

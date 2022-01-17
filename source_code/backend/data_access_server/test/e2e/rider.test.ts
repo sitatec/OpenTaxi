@@ -71,7 +71,7 @@ describe("ENDPOINT: RIDER", () => {
 
     const newAccount = cloneObjec(ACCOUNT);
     newAccount.first_name = "Elon";
-    newAccount.surname = "Musk";
+    newAccount.last_name = "Musk";
     delete newAccount.account_status; // To prevent security check because only
     //admin users are able to change the status of an account.
     // End then update it.

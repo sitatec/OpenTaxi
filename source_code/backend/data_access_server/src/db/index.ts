@@ -3,12 +3,17 @@ import {
   Pool,
   PoolClient,
   PoolConfig,
+  types,
 } from "pg";
 import { Query, QueryResult } from "../types/db";
 import { convertToDatabaseError } from "./error";
 
 // TODO Document.
 // TODO set the posgresql server's timezone the south africa's timezone.
+
+
+// By default pg-node convert dates to timestamps.
+types.setTypeParser(types.builtins.DATE, (date) => date);
 
 interface NewPooConfig extends PoolConfig {
   allowExitOnIdle: boolean;

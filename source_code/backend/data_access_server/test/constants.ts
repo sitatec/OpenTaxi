@@ -18,4 +18,10 @@ export const VEHICLE_URL = `${BASE_URL}/vehicle`;
 
 export const REVIEW_URL = `${BASE_URL}/review`;
 
+export const ADDRESS_URL = `${BASE_URL}/address`;
+
+export const BANK_ACCOUNT_URL = `${BASE_URL}/bank_account`;
+
+export const EMERGENCY_CONTACT_URL = `${BASE_URL}/emergency_contact`;
+
 export const DEFAULT_SUCCESS_RESPONSE = getSuccessResponse(1);

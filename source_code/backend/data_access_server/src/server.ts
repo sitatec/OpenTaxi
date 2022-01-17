@@ -23,12 +23,12 @@ export default class Server {
   }
 
   private setupRouters() {
-    this.app.use("/car", VehicleRouter);
     this.app.use("/trip", TripRouter);
     this.app.use("/rider", RiderRouter);
     this.app.use("/review", ReviewRouter);
     this.app.use("/driver", DriverRouter);
     this.app.use("/payment", PaymentRouter);
+    this.app.use("/vehicle", VehicleRouter);
     this.app.use("/booking", BookingRouter);
     this.app.use("/account", AccountRouter);
     this.app.use("/address", AddressRouter);

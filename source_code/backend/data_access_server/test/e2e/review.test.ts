@@ -1,13 +1,14 @@
 import Axios from "axios";
 import { REVIEW_URL, DEFAULT_SUCCESS_RESPONSE } from "../constants";
 import { REVIEW } from "../fakedata";
-import { execQuery } from "../utils";
+import { createBookingWithParentTables, execQuery } from "../utils";
 import {
   cloneObjec,
   createUsers,
   deleteAllAccounts,
   getSuccessResponse,
 } from "../utils";
+import { createTrip } from "./trip.test";
 
 const getUrlWithQuery = (queryParams: string) => REVIEW_URL + queryParams;
 
@@ -20,12 +21,17 @@ const createReview = async () => {
 describe("ENDPOINT: REVIEW", () => {
   beforeAll(async () => {
     await execQuery("DELETE FROM review");
+    await execQuery("DELETE FROM trip");
+    await execQuery("DELETE FROM booking");
     await deleteAllAccounts();
-    await createUsers();
+    await createBookingWithParentTables();
+    createTrip();
   });
 
   afterAll(async () => {
     await execQuery("DELETE FROM review");
+    await execQuery("DELETE FROM trip");
+    await execQuery("DELETE FROM booking");
     await deleteAllAccounts();
   });
 
@@ -42,13 +48,13 @@ describe("ENDPOINT: REVIEW", () => {
     expect(response.status).toBe(200);
     expect(response.data).toMatchObject(getSuccessResponse(REVIEW));
   });
-  
+
   it("Should successfully get only one field from review.", async () => {
     await createReview(); // Create it first
     // End then get it.
     const response = await Axios.get(getUrlWithQuery("/id?id=" + REVIEW.id));
     expect(response.status).toBe(200);
-    expect(response.data).toMatchObject(getSuccessResponse({id: REVIEW.id}));
+    expect(response.data).toMatchObject(getSuccessResponse({ id: REVIEW.id }));
   });
 
   it("Should successfully update an review.", async () => {
