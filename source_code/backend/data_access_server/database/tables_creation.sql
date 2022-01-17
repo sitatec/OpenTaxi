@@ -1,14 +1,15 @@
 --------------------- ENUM TYPES CREATION ------------------- 
 
 CREATE TYPE TRIP_STATUS AS ENUM (
-  'DRIVER_ON_THE_WAY', 
-  'IN_PROGRESS', 
-  'FINISHED', 
+  'DRIVER_ON_THE_WAY',
+  'DRIVER_ARRIVED_PICKUP', 
+  'IN_TRIP', 
+  'COMPLETED', 
   'CANCELED'
 );
 
 
-CREATE TYPE USER_ROLE AS ENUM (
+CREATE TYPE ACCOUNT_ROLE AS ENUM (
   'RIDER',
   'DRIVER',
   'ADMIN'
@@ -21,7 +22,6 @@ CREATE TYPE ACCOUNT_STATUS AS ENUM (
   'SUSPENDED_FOR_UNPAID',
   'TEMPORARILY_SUSPENDED',
   'DEFINITIVELY_BANNED',
-  'REGISTRATION_IN_PROGRESS'
 );
 
 
@@ -33,11 +33,11 @@ CREATE TYPE PAYMENT_TYPE AS ENUM (
 );
 
 
-CREATE TYPE CAR_TYPE AS ENUM (
+CREATE TYPE VEHICLE_CATEGORY AS ENUM (
   'STANDARD',
   'PREMIUM',
-  'VAN',
-  'SPECIALIST',
+  'CREW',
+  'UBUNTU',
   'LITE'
 );
 
@@ -46,6 +46,15 @@ CREATE TYPE GENDER AS ENUM (
   'MALE',
   'FEMALE'
 );
+
+CREATE TYPE SUPPORTED_BANK AS ENUM (
+  'FNB', 
+  'STANDARD_BANK',
+  'NEDBANK', 
+  'ABSA',
+  'CAPITECH',
+  'TYME'
+)
 
 
 ---------------------  TABLES CREATION ---------------------
@@ -63,91 +72,106 @@ CREATE TABLE public.trip (
   CONSTRAINT trip_pk PRIMARY KEY (id)
 );
 
-
 ALTER SEQUENCE public.trip_id_seq OWNED BY public.trip.id;
+
 
 CREATE TABLE public.account (
   id VARCHAR NOT NULL,
   first_name VARCHAR NOT NULL,
-  surname VARCHAR NOT NULL,
-  nickname VARCHAR,
+  last_name VARCHAR NOT NULL,
+  display_name VARCHAR,
   registered_at DATE DEFAULT CURRENT_DATE NOT NULL,
   profile_picture_url VARCHAR NOT NULL,
   gender GENDER NOT NULL,
   email VARCHAR NOT NULL UNIQUE,
-  role USER_ROLE NOT NULL,
-  payment_token VARCHAR,
+  role ACCOUNT_ROLE NOT NULL,
   notification_token VARCHAR,
   account_status ACCOUNT_STATUS NOT NULL,
   phone_number NUMERIC(15) NOT NULL UNIQUE,
-  balance DECIMAL(14,2) DEFAULT 0 NOT NULL,
   CONSTRAINT account_pk PRIMARY KEY (id)
 );
 
 
+CREATE SEQUENCE public.payment_id_seq;
+
 CREATE TABLE public.payment (
-  id INTEGER NOT NULL,
-  amount DECIMAL(11,2) NOT NULL,
+  id INTEGER NOT NULL DEFAULT nextval('public.payment_id_seq'),
+  amount DECIMAL(12,2) NOT NULL,
   date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  recipient_id VARCHAR, /*FOR PITY PAYMENT AND PARTNER PAYMENT*/
-  payer_id VARCHAR NOT NULL,
+  recipient_id VARCHAR, -- FOR KITY PAYMENT AND PARTNER PAYMENT
+  payer_id VARCHAR, -- NULLABLE in case the payer account is deleted, we still need the payment detail for the company.
   payment_type PAYMENT_TYPE NOT NULL,
   payment_gateway_transaction_id BIGINT NOT NULL,
   CONSTRAINT payment_pk PRIMARY KEY (id)
 );
 
+ALTER SEQUENCE public.payment_id_seq OWNED BY public.payment.id;
+
+
+CREATE SEQUENCE public.review_id_seq;
 
 CREATE TABLE public.review (
-  id INTEGER NOT NULL,
+  id INTEGER NOT NULL DEFAULT nextval('public.review_id_seq'),
   author_id VARCHAR,
+  recipient_id VARCHAR,
+  trip_id VARCHAR NOT NULL,
   comment VARCHAR(140),
-  recipient_id VARCHAR NOT NULL,
   rating SMALLINT NOT NULL,
   CONSTRAINT review_pk PRIMARY KEY (id)
 );
 
+ALTER SEQUENCE public.review_id_seq OWNED BY public.review.id;
+
 
 CREATE TABLE public.driver (
   account_id VARCHAR NOT NULL,
-  id_url VARCHAR NOT NULL,
-  address VARCHAR NOT NULL,
+  id_number VARCHAR NOT NULL,
+  nationality VARCHAR NOT NULL,
+  date_of_birth DATE NOT NULL,
   alternative_phone_number NUMERIC(15),
   is_south_african_citizen BOOLEAN NOT NULL,
-  driver_licence_url VARCHAR NOT NULL,
-  proof_of_residence_url VARCHAR NOT NULL,
-  bank_account_confirmation_url VARCHAR NOT NULL,
-  additional_certification_urls VARCHAR[] NOT NULL,
-  other_platform_rating_url VARCHAR,
-  bio VARCHAR,
+  driver_license_number VARCHAR NOT NULL,
+  driver_license_code VARCHAR NOT NULL,
+  driver_license_expiry_date DATE NOT NULL,
+  has_additional_certifications BOOLEAN NOT NULL,
+  home_address_id INTEGER NOT NULL,
+  bio VARCHAR(160),
   is_online BOOLEAN DEFAULT FALSE NOT NULL,
-  price_by_minute DECIMAL(8,2),
-  price_by_km DECIMAL(8,2),
+  price_by_minute DECIMAL(9,2),
+  price_by_km DECIMAL(9,2),
   CONSTRAINT driver_pk PRIMARY KEY (account_id)
 );
 
-CREATE SEQUENCE public.car_id_seq;
 
-CREATE TABLE public.car (
-  id INTEGER NOT NULL DEFAULT nextval('public.car_id_seq'),
-  brand VARCHAR NOT NULL,
+CREATE SEQUENCE public.vehicle_id_seq;
+
+CREATE TABLE public.vehicle (
+  id INTEGER NOT NULL DEFAULT nextval('public.vehicle_id_seq'),
+  make VARCHAR NOT NULL,
   model VARCHAR NOT NULL,
-  number_of_seats SMALLINT NOT NULL,
-  additional_info VARCHAR(150),
-  registration_number VARCHAR(15) NOT NULL,
+  year NUMERIC(4) NOT NULL,
+  registration_number VARCHAR NOT NULL,
+  vin_number VARCHAR NOT NULL,
+  license_plate_number VARCHAR NOT NULL,
+  license_disk_number VARCHAR NOT NULL,
+  license_disk_expiry_date DATE NOT NULL,
+  has_inspection_report BOOLEAN NOT NULL,
+  has_assurance BOOLEAN NOT NULL,
+  speedometer_on BOOLEAN NOT NULL,
   color VARCHAR NOT NULL,
   driver_id VARCHAR NOT NULL,
-  type CAR_TYPE NOT NULL,
-  CONSTRAINT car_pk PRIMARY KEY (id)
+  type VEHICLE_CATEGORY NOT NULL,
+  CONSTRAINT vehicle_pk PRIMARY KEY (id)
 );
 
+ALTER SEQUENCE public.vehicle_id_seq OWNED BY public.vehicle.id;
 
-ALTER SEQUENCE public.car_id_seq OWNED BY public.car.id;
 
 CREATE TABLE public.rider (
   account_id VARCHAR NOT NULL,
   driver_gender_preference GENDER,
-  recent_places VARCHAR[],
-  saved_places VARCHAR[],
+  payment_token VARCHAR,
+  balance DECIMAL(14,2) DEFAULT 0 NOT NULL,  
   CONSTRAINT rider_pk PRIMARY KEY (account_id)
 );
 
@@ -159,17 +183,125 @@ CREATE TABLE public.favorite_driver (
 );
 
 
+CREATE SEQUENCE public.booking_id_seq;
+
 CREATE TABLE public.booking (
-  id INTEGER NOT NULL,
+  id INTEGER NOT NULL DEFAULT nextval('public.booking_id_seq'),
   payment_id INTEGER NOT NULL,
-  rider_id VARCHAR NOT NULL,
-  driver_id VARCHAR NOT NULL,
+  rider_id VARCHAR,-- NULLABLE in case the rider account is deleted, the company still needs the booking details.
+  driver_id VARCHAR,
   booked_at TIMESTAMP NOT NULL,
-  departure_address VARCHAR NOT NULL,
-  destination_address VARCHAR NOT NULL,
+  departure_address_id VARCHAR NOT NULL,
+  destination_address_id VARCHAR NOT NULL,
   CONSTRAINT booking_pk PRIMARY KEY (id)
 );
 
+ALTER SEQUENCE public.booking_id_seq OWNED BY public.booking.id;
+
+
+CREATE SEQUENCE public.address_id_seq;
+
+CREATE TABLE public.address (
+  id INTEGER NOT NULL DEFAULT nextval('public.address_id_seq'),
+  street_address VARCHAR NOT NULL,
+  street_address_line_two VARCHAR,
+  postal_code VARCHAR NOT NULL,
+  city VARCHAR NOT NULL,
+  province VARCHAR NOT NULL,
+  CONSTRAINT address_pk PRIMARY KEY (id)
+);
+
+ALTER SEQUENCE public.address_id_seq OWNED BY public.address.id;
+
+
+CREATE TABLE public.favorite_place (
+  address_id INTEGER NOT NULL,
+  rider_id VARCHAR NOT NULL,
+  place_name VARCHAR,
+  CONSTRAINT favorite_place_pk PRIMARY KEY (address_id)
+);
+
+
+CREATE SEQUENCE public.emergency_contact_id_seq;
+
+CREATE TABLE public.emergency_contact (
+  id INTEGER NOT NULL DEFAULT nextval('public.emergency_contact_id_seq'),
+  first_name VARCHAR NOT NULL,
+  last_name VARCHAR NOT NULL,
+  phone_number NUMERIC(15) NOT NULL,
+  account_id VARCHAR NOT NULL,
+  is_primary BOOLEAN NOT NULL,
+  CONSTRAINT emergency_contact_pk PRIMARY KEY (id)
+);
+
+ALTER SEQUENCE public.emergency_contact_id_seq OWNED BY public.emergency_contact.id;
+
+
+CREATE SEQUENCE public.bank_account_id_seq;
+
+CREATE TABLE public.bank_account (
+  id INTEGER NOT NULL DEFAULT nextval('public.bank_account_id_seq'),
+  bank_name SUPPORTED_BANK NOT NULL,
+  account_type VARCHAR,
+  account_holder_name VARCHAR NOT NULL,
+  account_number VARCHAR,
+  branch_code VARCHAR,
+  driver_id VARCHAR NOT NULL,
+  CONSTRAINT bank_account_pk PRIMARY KEY (id)
+)
+
+ALTER SEQUENCE public.bank_account_id_seq OWNED BY public.bank_account.id;
+
+------------------------------ CONSTRAINTS --------------------------------
+
+ALTER TABLE public.bank_account ADD CONSTRAINT bank_account_driver_fk
+FOREIGN KEY (driver_id)
+REFERENCES public.driver (account_id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.emergency_contact ADD CONSTRAINT emergency_contact_account_fk
+FOREIGN KEY (account_id)
+REFERENCES public.account (id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.favorite_place ADD CONSTRAINT favorite_place_address_fk
+FOREIGN KEY (address_id)
+REFERENCES public.address (id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.favorite_place ADD CONSTRAINT favorite_place_rider_fk
+FOREIGN KEY (rider_id)
+REFERENCES public.rider (account_id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.driver ADD CONSTRAINT driver_home_address_fk
+FOREIGN KEY (home_address_id)
+REFERENCES public.address (id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.booking ADD CONSTRAINT booking_destination_addr_fk
+FOREIGN KEY (destination_address_id)
+REFERENCES public.address (id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.booking ADD CONSTRAINT booking_departure_addr_fk
+FOREIGN KEY (departure_address_id)
+REFERENCES public.address (id)
+ON UPDATE NO ACTION
+ON DELETE NO ACTION
+NOT DEFERRABLE;
 
 ALTER TABLE public.trip ADD CONSTRAINT booking_trip_fk
 FOREIGN KEY (booking_id)
@@ -192,31 +324,38 @@ ON DELETE CASCADE
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE public.review ADD CONSTRAINT account_review_fk
+ALTER TABLE public.review ADD CONSTRAINT account_review_author_fk
 FOREIGN KEY (author_id)
 REFERENCES public.account (id)
 ON DELETE SET NULL
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE public.review ADD CONSTRAINT account_review_fk1
+ALTER TABLE public.review ADD CONSTRAINT account_review_recipient_fk
 FOREIGN KEY (recipient_id)
 REFERENCES public.account (id)
+ON DELETE SET NULL
+ON UPDATE NO ACTION
+NOT DEFERRABLE;
+
+ALTER TABLE public.review ADD CONSTRAINT trip_review_fk
+FOREIGN KEY (trip_id)
+REFERENCES public.review (id)
 ON DELETE CASCADE
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE public.payment ADD CONSTRAINT account_payment_fk
+ALTER TABLE public.payment ADD CONSTRAINT account_payment_payer_fk
 FOREIGN KEY (payer_id)
 REFERENCES public.account (id)
-ON DELETE NO ACTION
+ON DELETE SET NULL
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE public.payment ADD CONSTRAINT account_payment_fk1
+ALTER TABLE public.payment ADD CONSTRAINT account_payment_recipient_fk
 FOREIGN KEY (recipient_id)
 REFERENCES public.account (id)
-ON DELETE NO ACTION
+ON DELETE SET NULL
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
@@ -227,17 +366,17 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE public.car ADD CONSTRAINT driver_car_fk
+ALTER TABLE public.vehicle ADD CONSTRAINT driver_vehicle_fk
 FOREIGN KEY (driver_id)
 REFERENCES public.driver (account_id)
-ON DELETE NO ACTION
+ON DELETE CASCADE
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
 ALTER TABLE public.booking ADD CONSTRAINT driver_booking_fk
 FOREIGN KEY (driver_id)
 REFERENCES public.driver (account_id)
-ON DELETE NO ACTION
+ON DELETE SET NULL
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
@@ -251,7 +390,7 @@ NOT DEFERRABLE;
 ALTER TABLE public.booking ADD CONSTRAINT rider_booking_fk
 FOREIGN KEY (rider_id)
 REFERENCES public.rider (account_id)
-ON DELETE NO ACTION
+ON DELETE SET NULL
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
