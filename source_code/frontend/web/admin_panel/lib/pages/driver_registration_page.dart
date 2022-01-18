@@ -119,9 +119,16 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
   var _nationalitiesList = ["South African", "Loading..."];
   String _gender = "";
   String _profilePictureName = "";
-  String _documentsFolderName = "";
+  String _documentsFolderDescription = "";
   String _selectedFNDAccountType = _fndAccountTypes.keys.first;
   String _selectedBank = _supportedBanks.first;
+
+  File? _profilePictureFile;
+  var _driverDocumentsFolder = <File>[];
+
+  String _profilePictureErrorMessage = "";
+  String _documentsFolderErrorMessage = "";
+  String _genderErrorMessage = "";
 
   @override
   initState() {
@@ -154,7 +161,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           folderDescription += "${file.name},      ";
         });
         // folderDescription.r
-        setState(() => _documentsFolderName = folderDescription);
+        setState(() => _documentsFolderDescription = folderDescription);
       }
     });
 
@@ -176,6 +183,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("First Names *"),
                   maxLength: 60,
+                  validator: (value) {
+                    if (value == null || value.length < 2) {
+                      return "First Name must contain at least 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -183,6 +196,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Last Name *"),
                   maxLength: 60,
+                  validator: (value) {
+                    if (value == null || value.length < 2) {
+                      return "Last Name must contain at least 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -194,6 +213,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Display Name *"),
                   maxLength: 60,
+                  validator: (value) {
+                    if (value == null || value.length < 2) {
+                      return "Display Name must contain at least 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -202,14 +227,30 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                   decoration: _getTextFieldDecoration(
                       " Date of Birth (yyyy-mm-dd) *", ""),
                   inputFormatters: [MaskedInputFormatter("0000-00-00")],
+                  validator: (value) {
+                    if (value == null || value.length < 10) {
+                      return "Please enter a valid date with this format (yyyy-mm-dd).";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
           ),
           const SizedBox(height: 40),
-          const Text(
-            "Driver Profile Picture *",
-            style: TextStyle(color: Colors.black, fontSize: 18),
+          Row(
+            children: [
+              const Text(
+                "Driver Profile Picture *",
+                style: TextStyle(color: Colors.black, fontSize: 18),
+              ),
+              const SizedBox(width: 10),
+              if (_profilePictureErrorMessage.isNotEmpty)
+                Text(
+                  _profilePictureErrorMessage,
+                  style: const TextStyle(color: Colors.red),
+                )
+            ],
           ),
           const SizedBox(height: 16),
           Stack(
@@ -225,6 +266,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                     setState(() {
                       _profilePictureName = imageFile.name;
                       _pictureDropZoneHovered = false;
+                      _profilePictureErrorMessage = "";
                     });
                   },
                   onHover: () => setState(() => _pictureDropZoneHovered = true),
@@ -236,10 +278,13 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 onPressed: () async {
                   // var mediaData = await ImagePickerWeb.getImageInfo;
                   if (_profilePicturePicker == null) return;
-                  File imageFile = (await _profilePicturePicker!
-                          .pickFiles(mime: ['image/jpeg', 'image/png']))
-                      .first;
-                  setState(() => _profilePictureName = imageFile.name);
+                  var imageFiles = (await _profilePicturePicker!
+                      .pickFiles(mime: ['image/jpeg', 'image/png']));
+                  if (imageFiles.isEmpty) return;
+                  setState(() {
+                    _profilePictureName = imageFiles.first.name;
+                    _profilePictureErrorMessage = "";
+                  });
                 },
                 style: TextButton.styleFrom(
                   fixedSize: const Size(double.infinity, 130),
@@ -370,12 +415,25 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Email *"),
+                  validator: (email) {
+                    if (email == null ||
+                        !RegExp(emailPattern).hasMatch(email)) {
+                      return "Invalid email address.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("ID/Passport Number *"),
+                  validator: (idNumber) {
+                    if (idNumber == null || idNumber.length < 5) {
+                      return "Minimum 5 caracters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -393,6 +451,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                     prefixText: "+27 ",
                   ),
                   inputFormatters: [MaskedInputFormatter("00 000 0000")],
+                  validator: (phoneNumber) {
+                    if (phoneNumber == null || phoneNumber.length < 11) {
+                      return "Please enter 9 digits excluding (+27)";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -406,14 +470,30 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                     prefixText: "+27 ",
                   ),
                   inputFormatters: [MaskedInputFormatter("00 000 0000")],
+                  validator: (phoneNumber) {
+                    if (phoneNumber == null || phoneNumber.length < 11) {
+                      return "Please enter 9 digits excluding (+27)";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
           ),
           const SizedBox(height: 40),
-          const Text(
-            "Gender *",
-            style: TextStyle(color: Colors.black, fontSize: 18),
+          Row(
+            children: [
+              const Text(
+                "Gender *",
+                style: TextStyle(color: Colors.black, fontSize: 18),
+              ),
+              const SizedBox(width: 10),
+              if (_genderErrorMessage.isNotEmpty)
+                Text(
+                  _genderErrorMessage,
+                  style: const TextStyle(color: Colors.red),
+                )
+            ],
           ),
           const SizedBox(height: 16),
           Column(
@@ -460,6 +540,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           const SizedBox(height: 16),
           TextFormField(
             decoration: _getTextFieldDecoration("Street Address *"),
+            validator: (address) {
+              if (address == null || address.length < 5) {
+                return "Require at least 5 characters.";
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 40),
           TextFormField(
@@ -471,12 +557,24 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("City *"),
+                  validator: (address) {
+                    if (address == null || address.length < 2) {
+                      return "Require at least 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Province *"),
+                  validator: (address) {
+                    if (address == null || address.length < 2) {
+                      return "Require at least 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -487,6 +585,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Postal Code *"),
+                  validator: (address) {
+                    if (address == null || address.length < 2) {
+                      return "Require at least 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -505,6 +609,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("First Name  *"),
                   maxLength: 60,
+                  validator: (address) {
+                    if (address == null || address.length < 2) {
+                      return "Require at least 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -512,6 +622,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Last Name *"),
                   maxLength: 60,
+                  validator: (address) {
+                    if (address == null || address.length < 2) {
+                      return "Require at least 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -526,6 +642,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               prefixText: "+27 ",
             ),
             inputFormatters: [MaskedInputFormatter("00 000 0000")],
+            validator: (phoneNumber) {
+              if (phoneNumber == null || phoneNumber.length < 11) {
+                return "Please enter 9 digits excluding (+27)";
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 40),
           const Text(
@@ -546,6 +668,13 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Last Name"),
                   maxLength: 60,
+                  validator: (address) {
+                    // TODO check if first name is not empty (which means last is required)
+                    // if (address != null && address.length < 2) {
+                    //   return "Require at least 2 characters.";
+                    // }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -560,6 +689,13 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               prefixText: "+27 ",
             ),
             inputFormatters: [MaskedInputFormatter("00 000 0000")],
+            validator: (phoneNumber) {
+              // TODO check if emergency contact 2 first name is not empty.
+              // if (phoneNumber != null && phoneNumber.length < 11) {
+              //   return "Please enter 9 digits excluding (+27)";
+              // }
+              return null;
+            },
           ),
           const SizedBox(height: 40),
           const Text(
@@ -573,6 +709,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: TextFormField(
                   decoration:
                       _getTextFieldDecoration("Driver's License Number *"),
+                  validator: (address) {
+                    if (address == null || address.length < 3) {
+                      return "Require at least 3 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -580,6 +722,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 child: TextFormField(
                   decoration:
                       _getTextFieldDecoration("Driver's License Code *"),
+                  validator: (address) {
+                    if (address == null || address.isEmpty) {
+                      return "Required.";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -592,6 +740,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                   decoration: _getTextFieldDecoration(
                       "Driver's License Expiry Date (yyyy-mm-dd) *"),
                   inputFormatters: [MaskedInputFormatter("0000-00-00")],
+                  validator: (value) {
+                    if (value == null || value.length < 10) {
+                      return "Please enter a valid date with this format (yyyy-mm-dd).";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -649,6 +803,13 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               "Average ratings for Uber Bolt and Didi",
             ),
             inputFormatters: [MaskedInputFormatter("0.0")],
+            validator: (value) {
+              if (value != null && value.isNotEmpty) {
+                final rating = double.parse(value);
+                if (rating > 5 || rating < 0) return "Minimum 0, Maximum 5.";
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 40),
           const Text(
@@ -711,6 +872,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             const SizedBox(height: 30),
             TextFormField(
               decoration: _getTextFieldDecoration("Account Holder Name *"),
+              validator: (value) {
+                if (value == null || value.length < 2) {
+                  return "Minimum 2 characters.";
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 40),
             Row(
@@ -724,6 +891,12 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                           maxLength: 20,
                           decoration:
                               _getTextFieldDecoration("Account Number *"),
+                          validator: (value) {
+                            if (value == null || value.length < 5) {
+                              return "Minimum 5 characters.";
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const Padding(
@@ -753,6 +926,12 @@ You can enter the given digits and the zeros will be filled automatically.
                         child: TextFormField(
                           maxLength: 6,
                           decoration: _getTextFieldDecoration("Branch Code *"),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Required.";
+                            }
+                            return null;
+                          },
                         ),
                       ),
                       const Padding(
@@ -776,6 +955,12 @@ You can enter the given digits and the zeros will be filled automatically.
             TextFormField(
               decoration: _getTextFieldDecoration("Account Holder Name *"),
               maxLength: 35,
+              validator: (value) {
+                if (value == null || value.length < 2) {
+                  return "Minimum 2 characters.";
+                }
+                return null;
+              },
             ),
             const SizedBox(height: 40),
             Row(
@@ -784,6 +969,12 @@ You can enter the given digits and the zeros will be filled automatically.
                   flex: 3,
                   child: TextFormField(
                     decoration: _getTextFieldDecoration("Account Number *", ""),
+                    validator: (value) {
+                      if (value == null || value.length < 5) {
+                        return "Minimum 5 characters.";
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -792,6 +983,12 @@ You can enter the given digits and the zeros will be filled automatically.
                   child: TextFormField(
                     decoration: _getTextFieldDecoration("Branch Code *"),
                     maxLength: 5,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return "Required.";
+                      }
+                      return null;
+                    },
                   ),
                 ),
               ],
@@ -799,19 +996,25 @@ You can enter the given digits and the zeros will be filled automatically.
           ],
           const SizedBox(height: 40),
           Row(
-            children: const [
-              Text(
+            children: [
+              const Text(
                 "Driver Documents Folder *",
                 style: TextStyle(color: Colors.black, fontSize: 18),
               ),
-              SizedBox(width: 10),
-              Tooltip(
+              const SizedBox(width: 10),
+              const Tooltip(
                 padding: EdgeInsets.all(8),
                 textStyle: TextStyle(color: Colors.white),
                 message:
                     "Please put all the driver's documents (excluding those specific to his vehicle, and his profile picture) in one folder and upload it.",
                 child: Icon(Icons.info, color: Colors.blue),
               ),
+              const SizedBox(width: 10),
+              if (_documentsFolderErrorMessage.isNotEmpty)
+                Text(
+                  _documentsFolderErrorMessage,
+                  style: const TextStyle(color: Colors.red),
+                )
             ],
           ),
           const SizedBox(height: 16),
@@ -845,7 +1048,7 @@ You can enter the given digits and the zeros will be filled automatically.
               ),
             ),
           ),
-          if (_documentsFolderName.isNotEmpty) ...[
+          if (_documentsFolderDescription.isNotEmpty) ...[
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(8),
@@ -855,7 +1058,7 @@ You can enter the given digits and the zeros will be filled automatically.
                 color: Colors.blueGrey[50]?.withAlpha(150),
               ),
               child: Text(
-                _documentsFolderName,
+                _documentsFolderDescription,
                 style: const TextStyle(color: Colors.blue, height: 2),
               ),
             )
@@ -865,8 +1068,10 @@ You can enter the given digits and the zeros will be filled automatically.
             alignment: Alignment.center,
             child: ElevatedButton(
               onPressed: () {
-                // TODO push data
-                widget.onSubmitted?.call("sfs");
+                if (_validateForm()) {
+                  // TODO push data
+                  widget.onSubmitted?.call("sfs");
+                }
               },
               child: const Text(
                 "SUBMIT",
@@ -886,7 +1091,34 @@ You can enter the given digits and the zeros will be filled automatically.
       ),
     );
   }
+
+  bool _validateForm() {
+    bool isValidForm = true;
+    if (_gender.isEmpty) {
+      _genderErrorMessage = "REQUIRED";
+      isValidForm = false;
+    } else {
+      _genderErrorMessage = "";
+    }
+    if (_profilePictureFile == null) {
+      _profilePictureErrorMessage = "REQUIRED";
+      isValidForm = false;
+    } else {
+      _profilePictureErrorMessage = "";
+    }
+    if (_driverDocumentsFolder.isEmpty) {
+      _documentsFolderErrorMessage = "REQUIRED";
+      isValidForm = false;
+    } else {
+      _documentsFolderErrorMessage = "";
+    }
+    setState(() {});
+    return _formKey.currentState!.validate() && isValidForm;
+  }
 }
+
+const emailPattern =
+    r'^(([^<>()[\]\\.,%`~&ç;:\s@\"]+(\.[^<>()[\]\\.,%`~&ç;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,15}))$';
 
 const _carCategories = ["STANDARD", "LITE", "PREMIUM", "CREW", "UBUNTU"];
 
@@ -1039,6 +1271,12 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                   decoration: _getTextFieldDecoration(
                       "License Disk Expiry Date (yyyy-mm-dd) *"),
                   inputFormatters: [MaskedInputFormatter("0000-00-00")],
+                  validator: (value) {
+                    if (value == null || value.length < 10) {
+                      return "Please enter a valid date with this format (yyyy-mm-dd).";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
