@@ -156,7 +156,7 @@ CREATE TABLE public.vehicle (
   license_disk_number VARCHAR NOT NULL,
   license_disk_expiry_date DATE NOT NULL,
   has_inspection_report BOOLEAN NOT NULL,
-  has_assurance BOOLEAN NOT NULL,
+  has_insurance BOOLEAN NOT NULL,
   speedometer_on BOOLEAN NOT NULL,
   color VARCHAR NOT NULL,
   driver_id VARCHAR NOT NULL,

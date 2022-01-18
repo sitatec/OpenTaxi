@@ -128,7 +128,7 @@ export const VEHICLE = {
   license_disk_number: "slfjslfjsdl",
   license_disk_expiry_date: "2004-10-19",
   has_inspection_report: true,
-  has_assurance: true,
+  has_insurance: true,
   speedometer_on: true,
 };
 
