@@ -3,5 +3,5 @@ import 'package:http_client/http_client.dart';
 
 class CarRepository extends BaseRepository {
   CarRepository([HttpClient? httpClient])
-      : super("/car", httpClient: httpClient);
+      : super("/vehicle", httpClient: httpClient);
 }
