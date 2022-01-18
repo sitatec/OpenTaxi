@@ -34,7 +34,7 @@ class Router {
         appBar: AppBar(
           titleSpacing: 0,
           toolbarHeight: 50,
-          title: const Text("Hamba Admin", textScaleFactor: 0.96),
+          title: const Text("Hamba Admin", textScaleFactor: 0.95),
           actions: [
             InkWell(
               onTap: () {},

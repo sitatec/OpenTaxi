@@ -3,6 +3,7 @@ import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
+import 'package:dio/dio.dart';
 
 const double _registrationFormWidth = 800;
 const _nationalitiesCSVUrl =
@@ -114,12 +115,30 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
   bool _hasAdditionalCertifications = false;
   bool _pictureDropZoneHovered = false;
   DropzoneViewController? _profilePicturePicker;
-  String? _nationality;
+  String _nationality = "South African";
+  var _nationalitiesList = ["South African", "Loading..."];
   String _gender = "";
   String _profilePictureName = "";
   String _documentsFolderName = "";
   String _selectedFNDAccountType = _fndAccountTypes.keys.first;
   String _selectedBank = _supportedBanks.first;
+
+  @override
+  initState() {
+    super.initState();
+    _loadNationalities();
+  }
+
+  Future<void> _loadNationalities() async {
+    final response = await Dio().get<String>(_nationalitiesCSVUrl);
+    setState(() {
+      if (response.data != null) {
+        _nationalitiesList = response.data!.split(",");
+      } else {
+        _nationalitiesList = ["Loading failed."];
+      }
+    });
+  }
 
   late final FileUploadInputElement _folderPicker = FileUploadInputElement()
     ..attributes["webkitdirectory"] = ""
@@ -313,22 +332,30 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           const SizedBox(height: 40),
           Row(
             children: [
-              Expanded(
-                child: TextFormField(
-                  decoration: _getTextFieldDecoration("ID/Passport Number *"),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 1),
+                child: Text(
+                  "Nationality :",
+                  style: TextStyle(color: Colors.black, fontSize: 18),
                 ),
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: TextFormField(
-                  controller: TextEditingController(
-                      text: _isSouthAfricanCitizen &&
-                              (_nationality?.isEmpty ?? true)
-                          ? "South African"
-                          : _nationality),
-                  decoration: _getTextFieldDecoration("Nationality *"),
-                  onChanged: (newValue) => _nationality = newValue,
-                ),
+              const SizedBox(width: 28),
+              DropdownButton<String>(
+                value: _nationality,
+                onChanged: (newValue) {
+                  if (newValue == null) return;
+                  setState(() {
+                    if (newValue != "Loading...") {
+                      _nationality = newValue;
+                    }
+                  });
+                },
+                items: _nationalitiesList.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
             ],
           ),
@@ -343,7 +370,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
-                  decoration: _getTextFieldDecoration("Phone Number *"),
+                  decoration: _getTextFieldDecoration("ID/Passport Number *"),
                 ),
               ),
             ],
@@ -353,12 +380,16 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  decoration: _getTextFieldDecoration("Phone Number *"),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: TextFormField(
                   decoration:
                       _getTextFieldDecoration("Alternative Phone Number"),
                 ),
               ),
-              const SizedBox(width: 16),
-              const Expanded(child: SizedBox()),
             ],
           ),
           const SizedBox(height: 40),
@@ -600,20 +631,18 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 ),
               ),
               const SizedBox(width: 28),
-              DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: _selectedBank,
-                  onChanged: (newValue) {
-                    if (newValue == null) return;
-                    setState(() => _selectedBank = newValue);
-                  },
-                  items: _supportedBanks.map((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                ),
+              DropdownButton<String>(
+                value: _selectedBank,
+                onChanged: (newValue) {
+                  if (newValue == null) return;
+                  setState(() => _selectedBank = newValue);
+                },
+                items: _supportedBanks.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
               ),
             ],
           ),
@@ -629,20 +658,18 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                   ),
                 ),
                 const SizedBox(width: 28),
-                DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: _selectedFNDAccountType,
-                    onChanged: (newValue) {
-                      if (newValue == null) return;
-                      setState(() => _selectedFNDAccountType = newValue);
-                    },
-                    items: _fndAccountTypes.keys.map((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
-                  ),
+                DropdownButton<String>(
+                  value: _selectedFNDAccountType,
+                  onChanged: (newValue) {
+                    if (newValue == null) return;
+                    setState(() => _selectedFNDAccountType = newValue);
+                  },
+                  items: _fndAccountTypes.keys.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
                 ),
               ],
             ),
@@ -902,20 +929,18 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                       ),
                     ),
                     const SizedBox(width: 28),
-                    DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value: _selectedCategory,
-                        onChanged: (newValue) {
-                          if (newValue == null) return;
-                          setState(() => _selectedCategory = newValue);
-                        },
-                        items: _carCategories.map((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
+                    DropdownButton<String>(
+                      value: _selectedCategory,
+                      onChanged: (newValue) {
+                        if (newValue == null) return;
+                        setState(() => _selectedCategory = newValue);
+                      },
+                      items: _carCategories.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
                     ),
                   ],
                 ),
