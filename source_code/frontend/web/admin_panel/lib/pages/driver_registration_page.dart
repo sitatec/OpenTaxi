@@ -66,7 +66,7 @@ class _DriverRegistrationPageState extends State<DriverRegistrationPage> {
                   ),
                   constraints:
                       const BoxConstraints(maxWidth: _registrationFormWidth),
-                  child: _CarRegistrationForm(_driverId),
+                  child: _VehicleRegistrationForm(_driverId),
                 ),
               ),
               const SizedBox(height: 50),
@@ -1120,23 +1120,27 @@ You can enter the given digits and the zeros will be filled automatically.
 const emailPattern =
     r'^(([^<>()[\]\\.,%`~&ç;:\s@\"]+(\.[^<>()[\]\\.,%`~&ç;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,15}))$';
 
-const _carCategories = ["STANDARD", "LITE", "PREMIUM", "CREW", "UBUNTU"];
+const _vehicleCategories = ["STANDARD", "LITE", "PREMIUM", "CREW", "UBUNTU"];
 
-class _CarRegistrationForm extends StatefulWidget {
+class _VehicleRegistrationForm extends StatefulWidget {
   final String driverId;
-  const _CarRegistrationForm(this.driverId, {Key? key}) : super(key: key);
+  const _VehicleRegistrationForm(this.driverId, {Key? key}) : super(key: key);
 
   @override
-  __CarRegistrationFormState createState() => __CarRegistrationFormState();
+  __VehicleRegistrationFormState createState() =>
+      __VehicleRegistrationFormState();
 }
 
-class __CarRegistrationFormState extends State<_CarRegistrationForm> {
+class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
   final _formKey = GlobalKey<FormState>();
   bool _vehicleInspectionReport = false;
   bool _hasAssurance = false;
   bool _isSpeedometerOn = false;
-  String _selectedCategory = _carCategories.first;
-  String _carDocumentsFolderName = "";
+  String _selectedCategory = _vehicleCategories.first;
+  String _vehicleDocumentsFolderName = "";
+  List<File> _vehicleDocuments = [];
+  String _vehicleDocumentsErrorMessage = "";
+
   late final FileUploadInputElement _folderPicker = FileUploadInputElement()
     ..attributes["webkitdirectory"] = ""
     ..onChange.listen((event) {
@@ -1151,7 +1155,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
           folderDescription += "${file.name},      ";
         });
         // folderDescription.r
-        setState(() => _carDocumentsFolderName = folderDescription);
+        setState(() => _vehicleDocumentsFolderName = folderDescription);
       }
     });
 
@@ -1173,6 +1177,12 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Vehicle Make *"),
                   maxLength: 50,
+                  validator: (value) {
+                    if (value == null || value.length < 2) {
+                      return "Minimum 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -1180,6 +1190,12 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Vehicle Model *"),
                   maxLength: 60,
+                  validator: (value) {
+                    if (value == null || value.length < 2) {
+                      return "Minimum 2 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -1204,7 +1220,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                         if (newValue == null) return;
                         setState(() => _selectedCategory = newValue);
                       },
-                      items: _carCategories.map((String value) {
+                      items: _vehicleCategories.map((String value) {
                         return DropdownMenuItem<String>(
                           value: value,
                           child: Text(value),
@@ -1219,6 +1235,12 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Color *"),
                   maxLength: 40,
+                  validator: (value) {
+                    if (value == null || value.length < 3) {
+                      return "Minimum 3 characters.";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -1230,6 +1252,12 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Vehicle Year *"),
                   inputFormatters: [MaskedInputFormatter("0000")],
+                  validator: (value) {
+                    if (value == null || value.length < 4) {
+                      return "Minimum 4 digits (e.g 2014, 2022,...).";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -1237,6 +1265,12 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                 child: TextFormField(
                   decoration:
                       _getTextFieldDecoration("Vehicle registration Number *"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Required.";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -1247,12 +1281,24 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("VIN Number *"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Required.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("License Plate number *"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Required.";
+                    }
+                    return null;
+                  },
                 ),
               ),
             ],
@@ -1263,6 +1309,12 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("License Disk number *"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return "Required.";
+                    }
+                    return null;
+                  },
                 ),
               ),
               const SizedBox(width: 16),
@@ -1408,19 +1460,25 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
           ),
           const SizedBox(height: 40),
           Row(
-            children: const [
-              Text(
+            children: [
+              const Text(
                 "Vehicle Documents *",
                 style: TextStyle(color: Colors.black, fontSize: 18),
               ),
-              SizedBox(width: 10),
-              Tooltip(
+              const SizedBox(width: 10),
+              const Tooltip(
                 padding: EdgeInsets.all(8),
                 textStyle: TextStyle(color: Colors.white),
                 message:
                     "Please put all the vehicle's documents in one folder and upload it.",
                 child: Icon(Icons.info, color: Colors.blue),
               ),
+              const SizedBox(width: 10),
+              if (_vehicleDocumentsErrorMessage.isNotEmpty)
+                Text(
+                  _vehicleDocumentsErrorMessage,
+                  style: const TextStyle(color: Colors.red),
+                )
             ],
           ),
           const SizedBox(height: 16),
@@ -1454,7 +1512,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               ),
             ),
           ),
-          if (_carDocumentsFolderName.isNotEmpty) ...[
+          if (_vehicleDocumentsFolderName.isNotEmpty) ...[
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(8),
@@ -1464,7 +1522,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
                 color: Colors.blueGrey[50]?.withAlpha(150),
               ),
               child: Text(
-                _carDocumentsFolderName,
+                _vehicleDocumentsFolderName,
                 style: const TextStyle(color: Colors.blue, height: 2),
               ),
             )
@@ -1475,7 +1533,13 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
             child: Column(
               children: [
                 ElevatedButton(
-                  onPressed: widget.driverId.isEmpty ? null : () {},
+                  onPressed: widget.driverId.isEmpty
+                      ? null
+                      : () {
+                          if (_validateForm()) {
+                            // TODO
+                          }
+                        },
                   child: const Text(
                     "SUBMIT",
                     style: TextStyle(
@@ -1503,6 +1567,18 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
         ],
       ),
     );
+  }
+
+  bool _validateForm() {
+    bool _isValidForm = true;
+    if (_vehicleDocuments.isEmpty) {
+      _vehicleDocumentsErrorMessage = "REQUIRED";
+      _isValidForm = false;
+    } else {
+      _vehicleDocumentsErrorMessage = "";
+    }
+    setState(() {});
+    return _formKey.currentState!.validate() && _isValidForm;
   }
 }
 
