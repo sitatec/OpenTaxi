@@ -175,12 +175,14 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("First Names *"),
+                  maxLength: 60,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Last Name *"),
+                  maxLength: 60,
                 ),
               ),
             ],
@@ -190,13 +192,15 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
-                    decoration: _getTextFieldDecoration("Display Name *")),
+                  decoration: _getTextFieldDecoration("Display Name *"),
+                  maxLength: 60,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
-                  decoration:
-                      _getTextFieldDecoration(" Date of Birth (yyyy-mm-dd) *"),
+                  decoration: _getTextFieldDecoration(
+                      " Date of Birth (yyyy-mm-dd) *", ""),
                   inputFormatters: [MaskedInputFormatter("0000-00-00")],
                 ),
               ),
@@ -345,7 +349,8 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                 onChanged: (newValue) {
                   if (newValue == null) return;
                   setState(() {
-                    if (newValue != "Loading...") {
+                    if (newValue != "Loading..." &&
+                        newValue != "Loading failed.") {
                       _nationality = newValue;
                     }
                   });
@@ -380,14 +385,27 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
-                  decoration: _getTextFieldDecoration("Phone Number *"),
+                  decoration: InputDecoration(
+                    labelText: "Phone Number *",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    prefixText: "+27 ",
+                  ),
+                  inputFormatters: [MaskedInputFormatter("00 000 0000")],
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
-                  decoration:
-                      _getTextFieldDecoration("Alternative Phone Number"),
+                  decoration: InputDecoration(
+                    labelText: "Alternative Phone Number",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    prefixText: "+27 ",
+                  ),
+                  inputFormatters: [MaskedInputFormatter("00 000 0000")],
                 ),
               ),
             ],
@@ -486,20 +504,28 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("First Name  *"),
+                  maxLength: 60,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Last Name *"),
+                  maxLength: 60,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 40),
           TextFormField(
-            decoration:
-                _getTextFieldDecoration("Emergency Contact Phone Number *"),
+            decoration: InputDecoration(
+              labelText: "Emergency Contact Phone Number *",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              prefixText: "+27 ",
+            ),
+            inputFormatters: [MaskedInputFormatter("00 000 0000")],
           ),
           const SizedBox(height: 40),
           const Text(
@@ -512,20 +538,28 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("First Name"),
+                  maxLength: 60,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Last Name"),
+                  maxLength: 60,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 40),
           TextFormField(
-            decoration:
-                _getTextFieldDecoration("Emergency Contact 2 Phone Number"),
+            decoration: InputDecoration(
+              labelText: "Emergency Contact 2 Phone Number",
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              prefixText: "+27 ",
+            ),
+            inputFormatters: [MaskedInputFormatter("00 000 0000")],
           ),
           const SizedBox(height: 40),
           const Text(
@@ -614,6 +648,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             decoration: _getTextFieldDecoration(
               "Average ratings for Uber Bolt and Didi",
             ),
+            inputFormatters: [MaskedInputFormatter("0.0")],
           ),
           const SizedBox(height: 40),
           const Text(
@@ -905,12 +940,14 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Vehicle Make *"),
+                  maxLength: 50,
                 ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Vehicle Model *"),
+                  maxLength: 60,
                 ),
               ),
             ],
@@ -949,6 +986,7 @@ class __CarRegistrationFormState extends State<_CarRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   decoration: _getTextFieldDecoration("Color *"),
+                  maxLength: 40,
                 ),
               ),
             ],
