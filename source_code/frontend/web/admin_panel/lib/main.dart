@@ -33,14 +33,16 @@ class Router {
       return Scaffold(
         appBar: AppBar(
           titleSpacing: 0,
+          toolbarHeight: 50,
           title: const Text("Hamba Admin", textScaleFactor: 0.96),
           actions: [
             InkWell(
               onTap: () {},
               child: const CircleAvatar(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Icon(Icons.person),
+                radius: 19,
+                child: Icon(
+                  Icons.person,
+                  size: 20,
                 ),
               ),
             ),
