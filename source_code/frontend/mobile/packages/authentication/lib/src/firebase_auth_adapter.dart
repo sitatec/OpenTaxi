@@ -48,7 +48,8 @@ class FirebaseAuthProvider
   Stream<AuthState> get authBinaryState => _authStateStreamController.stream;
 
   @override
-  Future<String>? get getCurrentAccountToken => _firebaseAuth.currentUser?.getIdToken();
+  Future<String>? get getCurrentAccountToken =>
+      _firebaseAuth.currentUser?.getIdToken();
 
   @override
   void dispose() {
@@ -109,7 +110,8 @@ class FirebaseAuthProvider
       final userIdToken = await credentials.user!.getIdToken();
       await _accountRepository
           .create(account.toJsonObject(), userIdToken) // Retry on fail.
-          .catchError((e) => _accountRepository.create(account.toJsonObject(), userIdToken));
+          .catchError((e) =>
+              _accountRepository.create(account.toJsonObject(), userIdToken));
       // TODO handle the case when the user is registered with firebase but the account creation on our db fails.
     } catch (e) {
       _account = null;
@@ -202,7 +204,7 @@ extension on User {
         return Account(
           id: uid,
           firstName: "",
-          surname: "",
+          lastName: "",
           profilePicture: "",
           email: "",
           genre: Gender.UNDEFINED,
@@ -210,10 +212,9 @@ extension on User {
           registeredAt: metadata.creationTime ?? DateTime.now(),
           role: AccountRole.UNDEFINED,
           status: AccountStatus.REGISTRATION_IN_PROGRESS,
-          balance: 0,
           accountRepository: accountRepository,
         );
-      }else {
+      } else {
         rethrow;
       }
     }

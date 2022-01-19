@@ -4,8 +4,8 @@ import 'package:shared/shared.dart';
 class Account {
   String id;
   String firstName;
-  String surname;
-  String nickname;
+  String lastName;
+  String displayName;
   String email;
   String phoneNumber;
   String notificationToken;
@@ -13,7 +13,6 @@ class Account {
   AccountRole role;
   AccountStatus status;
   String profilePicture;
-  double balance;
   Gender genre;
   final AccountRepository repository;
   final AuthenticationProvider _authenticationProvider;
@@ -24,16 +23,15 @@ class Account {
   Account({
     required this.id,
     required this.firstName,
-    required this.surname,
+    required this.lastName,
     required this.email,
     required this.profilePicture,
     required this.phoneNumber,
     required this.registeredAt,
     required this.role,
     required this.status,
-    required this.balance,
     required this.genre,
-    this.nickname = "",
+    this.displayName = "",
     this.notificationToken = "",
     AuthenticationProvider? authenticationProvider,
     AccountRepository? accountRepository,
@@ -45,7 +43,7 @@ class Account {
       : this(
           id: jsonObject["id"],
           firstName: jsonObject["first_name"],
-          surname: jsonObject["surname"],
+          lastName: jsonObject["surname"],
           email: jsonObject["email"],
           profilePicture: jsonObject["profile_picture_url"],
           phoneNumber: jsonObject["phone_number"],
@@ -54,23 +52,21 @@ class Account {
           status:
               stringToEnum(jsonObject["account_status"], AccountStatus.values),
           genre: stringToEnum(jsonObject["gender"], Gender.values),
-          balance: double.parse(jsonObject["balance"]),
-          nickname: jsonObject["nickname"] ?? "",
+          displayName: jsonObject["nickname"] ?? "",
           notificationToken: jsonObject["notification_token"] ?? "",
         );
 
   JsonObject toJsonObject() => {
         "id": id,
         "first_name": firstName,
-        "surname": surname,
+        "last_name": lastName,
         "email": email,
         "phone_number": phoneNumber,
         "registered_at": registeredAt.toIso8601String(),
         "role": enumToString(role),
         "account_status": enumToString(status),
         "gender": enumToString(genre),
-        "balance": balance,
-        "nickname": nickname.isEmpty ? null : nickname,
+        "diplay_name": displayName.isEmpty ? null : displayName,
         "profile_picture_url": profilePicture,
         "notification_token":
             notificationToken.isEmpty ? null : notificationToken
