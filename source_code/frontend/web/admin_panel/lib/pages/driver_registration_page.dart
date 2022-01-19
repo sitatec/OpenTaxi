@@ -1234,7 +1234,6 @@ You can enter the given digits and the zeros will be filled automatically.
     return showDialog(
       barrierDismissible: false,
       builder: (context) {
-        String dialogTitle = "Pushing Driver Data...";
         bool pushingDriverDataDone = false;
         bool uploadProfilePictureDone = false;
         bool uploadDriverDocumentsDone = false;
@@ -1242,12 +1241,18 @@ You can enter the given digits and the zeros will be filled automatically.
         String nameOfDocumentBeenUploaded = "";
         double currentUploadProgress = 0;
         bool isFirsBuild = true;
+
+        const profilePictureUploadTitle = "Uploading Profile Picture...";
+        const driverDocumentUploadTile = "Uploading Driver's Documents...";
+        const driverDataPushTitle = "Pushing Driver Data...";
+        String dialogTitle = driverDataPushTitle;
+
         return StatefulBuilder(
           builder: (context, _setState) {
             if (isFirsBuild) {
-              _pushData().then((value) {
+              _pushData().then((_) {
                 _setState(() {
-                  dialogTitle = "Uploading Profile Picture...";
+                  dialogTitle = profilePictureUploadTitle;
                   pushingDriverDataDone = true;
                 });
                 nameOfDocumentBeenUploaded = " ";
@@ -1258,7 +1263,7 @@ You can enter the given digits and the zeros will be filled automatically.
                   });
                 }).then((_) {
                   _setState(() {
-                    dialogTitle = "Uploading Driver's Documents...";
+                    dialogTitle = driverDocumentUploadTile;
                     uploadProfilePictureDone = true;
                   });
                   _uploadDriversDocuments(
@@ -1308,7 +1313,14 @@ You can enter the given digits and the zeros will be filled automatically.
                           color:
                               pushingDriverDataDone ? null : Colors.grey[400],
                         ),
-                      )
+                      ),
+                      const SizedBox(width: 8),
+                      if (dialogTitle == driverDataPushTitle)
+                        const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -1327,7 +1339,14 @@ You can enter the given digits and the zeros will be filled automatically.
                           color:
                               pushingDriverDataDone ? null : Colors.grey[400],
                         ),
-                      )
+                      ),
+                      const SizedBox(width: 8),
+                      if (dialogTitle == profilePictureUploadTitle)
+                        const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(),
+                        ),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -1432,7 +1451,7 @@ You can enter the given digits and the zeros will be filled automatically.
   }) {
     final _fileNameExtension = _profilePictureFile!.name.split(".").last;
     return _uploadFile(
-      _cloudStorage.ref(driverId),
+      _cloudStorage.ref("drivers").child(driverId),
       _profilePictureFile!,
       destinationFileName: "profile_picture.$_fileNameExtension",
       progress: progress,
@@ -1450,7 +1469,8 @@ You can enter the given digits and the zeros will be filled automatically.
     int uploadedFilesCount = 0;
     final totalFilesCount = _driverDocumentsFolder.length;
     totalPogress?.call(uploadedFilesCount, totalFilesCount);
-    final reference = _cloudStorage.ref(driverId).child("driver_documents");
+    final reference =
+        _cloudStorage.ref("drivers").child(driverId).child("driver_documents");
     for (File document in _driverDocumentsFolder) {
       await _uploadFile(
         reference,
@@ -1467,30 +1487,29 @@ You can enter the given digits and the zeros will be filled automatically.
       totalPogress?.call(++uploadedFilesCount, totalFilesCount);
     }
   }
+}
 
-  Future<void> _uploadFile(
-    Reference reference,
-    File sourceFile, {
-    String? destinationFileName,
-    void Function(int transferedBytes, int totalBytes)? progress,
-    void Function(FirebaseException error)? onError,
-  }) {
-    final completer = Completer();
-    destinationFileName ??= sourceFile.name;
-    final task =
-        reference.child(destinationFileName).putBlob(sourceFile.slice());
-    task.snapshotEvents.listen(
-      (snapshot) {
-        progress?.call(snapshot.bytesTransferred, snapshot.totalBytes);
-        if (snapshot.state != TaskState.running &&
-            snapshot.state != TaskState.paused) {
-          completer.complete();
-        }
-      },
-      onError: onError,
-    );
-    return completer.future;
-  }
+Future<void> _uploadFile(
+  Reference reference,
+  File sourceFile, {
+  String? destinationFileName,
+  void Function(int transferedBytes, int totalBytes)? progress,
+  void Function(FirebaseException error)? onError,
+}) {
+  final completer = Completer();
+  destinationFileName ??= sourceFile.name;
+  final task = reference.child(destinationFileName).putBlob(sourceFile.slice());
+  task.snapshotEvents.listen(
+    (snapshot) {
+      progress?.call(snapshot.bytesTransferred, snapshot.totalBytes);
+      if (snapshot.state != TaskState.running &&
+          snapshot.state != TaskState.paused) {
+        completer.complete();
+      }
+    },
+    onError: onError,
+  );
+  return completer.future;
 }
 
 const _emailPattern =
@@ -1509,24 +1528,28 @@ class _VehicleRegistrationForm extends StatefulWidget {
 
 class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
   final _formKey = GlobalKey<FormState>();
-  bool _vehicleInspectionReport = false;
+  bool _hasInspectionReport = false;
   bool _hasAssurance = false;
   bool _isSpeedometerOn = false;
   String _selectedCategory = _vehicleCategories.first;
   String _vehicleDocumentsFolderName = "";
   List<File> _vehicleDocuments = [];
   String _vehicleDocumentsErrorMessage = "";
+  final _cloudStorage = FirebaseStorage.instance;
+
+  final _formData = <String, dynamic>{};
 
   late final FileUploadInputElement _folderPicker = FileUploadInputElement()
     ..attributes["webkitdirectory"] = ""
     ..onChange.listen((event) {
       if (_folderPicker.files != null && _folderPicker.files!.isNotEmpty) {
-        final files = _folderPicker.files!;
-        final splitedPath = files.first.relativePath!.split("/");
+        _vehicleDocuments = _folderPicker.files!;
+        final splitedPath = _vehicleDocuments.first.relativePath!.split("/");
         String folderDescription = "The selected folder \"";
         folderDescription += splitedPath.elementAt(splitedPath.length - 2);
-        folderDescription += "\" contains ${files.length} files :\n";
-        files.forEach((file) {
+        folderDescription +=
+            "\" contains ${_vehicleDocuments.length} files :\n";
+        _vehicleDocuments.forEach((file) {
           // TODO process
           folderDescription += "${file.name},      ";
         });
@@ -1552,7 +1575,7 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
               Expanded(
                 child: TextFormField(
                   onSaved: (newValue) {
-                    print("ON_SAVED === $newValue");
+                    _formData["make"] = newValue;
                   },
                   decoration: _getTextFieldDecoration("Vehicle Make *"),
                   maxLength: 50,
@@ -1567,6 +1590,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["model"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Vehicle Model *"),
                   maxLength: 60,
                   validator: (value) {
@@ -1612,6 +1638,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["color"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Color *"),
                   maxLength: 40,
                   validator: (value) {
@@ -1629,6 +1658,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["year"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Vehicle Year *"),
                   inputFormatters: [MaskedInputFormatter("0000")],
                   validator: (value) {
@@ -1642,6 +1674,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["registration_number"] = newValue;
+                  },
                   decoration:
                       _getTextFieldDecoration("Vehicle registration Number *"),
                   validator: (value) {
@@ -1659,6 +1694,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["vin_number"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("VIN Number *"),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -1671,6 +1709,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["license_plate_number"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("License Plate number *"),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -1687,6 +1728,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["license_disk_number"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("License Disk number *"),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -1699,6 +1743,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["license_disk_expiry_date"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration(
                       "License Disk Expiry Date (yyyy-mm-dd) *"),
                   inputFormatters: [MaskedInputFormatter("0000-00-00")],
@@ -1725,9 +1772,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
                 children: [
                   Radio(
                     value: true,
-                    groupValue: _vehicleInspectionReport,
+                    groupValue: _hasInspectionReport,
                     onChanged: (_) =>
-                        setState(() => _vehicleInspectionReport = true),
+                        setState(() => _hasInspectionReport = true),
                   ),
                   const SizedBox(width: 5),
                   const Text(
@@ -1742,9 +1789,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
                 children: [
                   Radio(
                     value: false,
-                    groupValue: _vehicleInspectionReport,
+                    groupValue: _hasInspectionReport,
                     onChanged: (_) =>
-                        setState(() => _vehicleInspectionReport = false),
+                        setState(() => _hasInspectionReport = false),
                   ),
                   const SizedBox(width: 5),
                   const Text(
@@ -1912,14 +1959,7 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
             child: Column(
               children: [
                 ElevatedButton(
-                  onPressed: widget.driverId.isEmpty
-                      ? null
-                      : () {
-                          if (_validateForm()) {
-                            _formKey.currentState!.save();
-                            // TODO
-                          }
-                        },
+                  onPressed: widget.driverId.isEmpty ? null : _submit,
                   child: const Text(
                     "SUBMIT",
                     style: TextStyle(
@@ -1949,6 +1989,12 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
     );
   }
 
+  void _submit() {
+    if (_validateForm()) {
+      _hidrateData();
+    }
+  }
+
   bool _validateForm() {
     bool _isValidForm = true;
     if (_vehicleDocuments.isEmpty) {
@@ -1961,9 +2007,163 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
     return _formKey.currentState!.validate() && _isValidForm;
   }
 
-  Future<void> _submitData() async {}
+  void _hidrateData() {
+    _formKey.currentState!.save();
 
-  Future<void> _uploadVehiclesDocuments() async {}
+    _formData["driver_id"] = widget.driverId;
+    _formData["has_inspection_report"] = _hasInspectionReport;
+    _formData["has_insurance"] = _hasAssurance;
+    _formData["speedometer_on"] = _isSpeedometerOn;
+    _formData["category"] = _selectedCategory;
+  }
+
+  Future<void> _showSubmissionProgressDialog() {
+    return showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        bool pushingVehicleDataDone = false;
+        bool uploadVehicleDocumentsDone = false;
+        int uploadedDocumentsCount = 0, totalDocumentsCount = 0;
+        String nameOfDocumentBeenUploaded = "";
+        double currentUploadProgress = 0;
+        bool isFirsBuild = true;
+
+        const vehicleDocumentUploadTile = "Uploading Vehicle's Documents...";
+        const vehicleDataPushTitle = "Pushing Vehicle Data...";
+        String dialogTitle = vehicleDataPushTitle;
+
+        return StatefulBuilder(
+          builder: (context, _setState) {
+            if (isFirsBuild) {
+              _pushVehicleData().then((_) {
+                _setState(() {
+                  dialogTitle = vehicleDocumentUploadTile;
+                  pushingVehicleDataDone = true;
+                });
+                _uploadVehiclesDocuments(
+                  widget.driverId,
+                  totalPogress: (uploadedFilesCount, totalFilesCount) {
+                    setState(() {
+                      totalDocumentsCount = totalFilesCount;
+                      uploadedDocumentsCount = uploadedFilesCount;
+                    });
+                  },
+                  currentUploadProgression:
+                      (transferedBytes, totalBytes, currentFileName) {
+                    setState(() {
+                      nameOfDocumentBeenUploaded = currentFileName;
+                      currentUploadProgress = transferedBytes / totalBytes;
+                    });
+                  },
+                ).then((_) {
+                  setState(() {
+                    dialogTitle = "Done";
+                    uploadVehicleDocumentsDone = true;
+                  });
+                  Future.delayed(const Duration(seconds: 1), () {
+                    Navigator.of(context).pop();
+                  });
+                });
+              });
+              isFirsBuild = false;
+            }
+            return AlertDialog(
+              title: Text(dialogTitle),
+              content: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: pushingVehicleDataDone
+                            ? Colors.green
+                            : Colors.grey[400],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Push Vehicle Data",
+                        style: TextStyle(
+                          color:
+                              pushingVehicleDataDone ? null : Colors.grey[400],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (dialogTitle == vehicleDataPushTitle)
+                        const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: uploadVehicleDocumentsDone
+                            ? Colors.green
+                            : Colors.grey[400],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Upload Vehicle Documents  ($uploadedDocumentsCount/$totalDocumentsCount)",
+                        style: TextStyle(
+                          color:
+                              pushingVehicleDataDone ? null : Colors.grey[400],
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(nameOfDocumentBeenUploaded),
+                  LinearProgressIndicator(
+                    value: currentUploadProgress,
+                    color: Colors.blue,
+                    backgroundColor: Colors.blue[100],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Future<void> _pushVehicleData() async {
+    await Dio().post("$_dataAccessServerBaseUrl/vehicle", data: _formData);
+  }
+
+  Future<void> _uploadVehiclesDocuments(
+    String driverId, {
+    void Function(int uploadedFilesCount, int totalFilesCount)? totalPogress,
+    void Function(int transferedBytes, int totalBytes, String currentFileName)?
+        currentUploadProgression,
+    void Function(FirebaseException error, String currentFileName)? onError,
+  }) async {
+    int uploadedFilesCount = 0;
+    final totalFilesCount = _vehicleDocuments.length;
+    totalPogress?.call(uploadedFilesCount, totalFilesCount);
+    final reference =
+        _cloudStorage.ref("drivers").child(driverId).child("vehicle_documents");
+    for (File document in _vehicleDocuments) {
+      await _uploadFile(
+        reference,
+        document,
+        progress: (transferedBytes, totalBytes) {
+          currentUploadProgression?.call(
+            transferedBytes,
+            totalBytes,
+            document.name,
+          );
+        },
+        onError: (error) => onError?.call(error, document.name),
+      );
+      totalPogress?.call(++uploadedFilesCount, totalFilesCount);
+    }
+  }
 }
 
 InputDecoration _getTextFieldDecoration(String label, [String? helperText]) =>
