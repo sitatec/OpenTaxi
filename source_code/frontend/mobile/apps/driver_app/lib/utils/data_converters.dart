@@ -9,5 +9,5 @@ JsonObject locationToJson(Coordinates location) => {
 Future<JsonObject> driverToDispatcherData(Driver driver) async => {
       "id": driver.account.id,
       "gnr": enumToString(driver.account.genre),
-      "crT": enumToString((await driver.car).type),
+      "crT": enumToString((await driver.car).category),
     };

@@ -1,49 +1,35 @@
 import 'package:shared/shared.dart';
 
 class Driver {
-  String idImageUrl;
-  String driverLicenceUrl;
-  String proofOfResidenceUrl;
-  String bankAccountConfirmationUrl;
-  List<String> additionalCertificationUrls;
-  String otherPlatformsRatingUrl;
   String bio;
-  bool isSouthAfricanCitizen;
-  String homeAddress;
+  String homeAddressId;
   String alternativePhoneNumber;
   double priceByMinute;
   double priceByKm;
+  bool hasAdditionalCertifications;
   final Account account;
   final DriverRepository repository;
-  late final Future<Car> car;
+  late final Future<Vehicle> car;
 
   Driver({
-    this.idImageUrl = "",
-    this.driverLicenceUrl = "",
-    this.proofOfResidenceUrl = "",
-    this.bankAccountConfirmationUrl = "",
-    this.additionalCertificationUrls = const [],
-    this.otherPlatformsRatingUrl = "",
     this.bio = "",
-    this.isSouthAfricanCitizen = false,
-    this.homeAddress = "",
+    this.homeAddressId = "",
     this.alternativePhoneNumber = "0",
     this.priceByMinute = 0,
     this.priceByKm = 0,
+    this.hasAdditionalCertifications = false,
     required this.account,
     DriverRepository? driverRepository,
-    CarRepository? carReposioty,
+    VehicleRepository? carReposioty,
   }) : repository = driverRepository ?? DriverRepository() {
-    carReposioty ??= CarRepository();
-    car = Future.value(Car(
-      additionalInfo: '',
-      brand: "BMW",
+    carReposioty ??= VehicleRepository();
+    car = Future.value(Vehicle(
+      make: "BMW",
       model: "n:a",
-      numberOfSeats: 4,
       registrationNumber: "GS454",
       color: "bleu",
       driverId: account.id,
-      type: CarType.STANDARD,
+      category: VehicleCategory.STANDARD,
       id: 1,
     ));
     // account.accessToken!.then((accessToken) async {
@@ -56,73 +42,46 @@ class Driver {
   Driver.fromJsonAndAccount(JsonObject jsonObject, Account account)
       : this(
           account: account,
-          idImageUrl: jsonObject["id_url"],
-          driverLicenceUrl: jsonObject["driver_licence_url"],
-          proofOfResidenceUrl: jsonObject["proof_of_residence_url"],
-          bankAccountConfirmationUrl:
-              jsonObject["bank_account_confirmation_url"],
-          additionalCertificationUrls:
-              List.from(jsonObject["additional_certification_urls"]),
-          otherPlatformsRatingUrl: jsonObject["other_platform_rating_url"],
           bio: jsonObject["bio"],
           priceByMinute: double.parse(jsonObject["price_by_minute"]),
           priceByKm: double.parse(jsonObject["price_by_km"]),
-          isSouthAfricanCitizen: jsonObject["is_south_african_citizen"],
-          homeAddress: jsonObject["address"],
+          homeAddressId: jsonObject["address_id"],
           alternativePhoneNumber: jsonObject["alternative_phone_number"],
+          hasAdditionalCertifications:
+              jsonObject["has_additional_certifications"],
         );
 
   Driver.fromJson(JsonObject jsonObject)
       : this(
           account: Account.fromJson(jsonObject),
-          idImageUrl: jsonObject["id_url"],
-          driverLicenceUrl: jsonObject["driver_licence_url"],
-          proofOfResidenceUrl: jsonObject["proof_of_residence_url"],
-          bankAccountConfirmationUrl:
-              jsonObject["bank_account_confirmation_url"],
-          additionalCertificationUrls:
-              List.from(jsonObject["additional_certification_urls"]),
-          otherPlatformsRatingUrl: jsonObject["other_platform_rating_url"],
           bio: jsonObject["bio"],
           priceByMinute: double.parse(jsonObject["price_by_minute"]),
           priceByKm: double.parse(jsonObject["price_by_km"]),
-          isSouthAfricanCitizen: jsonObject["is_south_african_citizen"],
-          homeAddress: jsonObject["address"],
+          homeAddressId: jsonObject["address"],
           alternativePhoneNumber: jsonObject["alternative_phone_number"],
+          hasAdditionalCertifications:
+              jsonObject["has_additional_certifications"],
         );
 
   void updateWithJson(JsonObject jsonObject) {
-    idImageUrl = jsonObject["id_url"];
-    driverLicenceUrl = jsonObject["driver_licence_url"];
-    proofOfResidenceUrl = jsonObject["proof_of_residence_url"];
-    bankAccountConfirmationUrl = jsonObject["bank_account_confirmation_url"];
-    additionalCertificationUrls =
-        List.from(jsonObject["additional_certification_urls"]);
-    otherPlatformsRatingUrl = jsonObject["other_platform_rating_url"] ?? "";
     bio = jsonObject["bio"];
     priceByMinute = double.parse(jsonObject["price_by_minute"]);
     priceByKm = double.parse(jsonObject["price_by_km"]);
-    isSouthAfricanCitizen = jsonObject["is_south_african_citizen"];
-    homeAddress = jsonObject["address"];
+    homeAddressId = jsonObject["address"];
     alternativePhoneNumber = jsonObject["alternative_phone_number"] ?? "";
+    hasAdditionalCertifications = jsonObject["has_additional_certifications"];
   }
 
   JsonObject toJsonObject() => {
         "account": account.toJsonObject(),
         "driver": {
           "account_id": account.id,
-          "id_url": idImageUrl,
-          "driver_licence_url": driverLicenceUrl,
-          "proof_of_residence_url": proofOfResidenceUrl,
-          "bank_account_confirmation_url": bankAccountConfirmationUrl,
-          "additional_certification_urls": additionalCertificationUrls,
-          "other_platform_rating_url": otherPlatformsRatingUrl,
           "bio": bio,
           "price_by_minute": priceByMinute,
           "price_by_km": priceByKm,
-          "is_south_african_citizen": isSouthAfricanCitizen,
-          "address": homeAddress,
+          "address_id": homeAddressId,
           "alternative_phone_number": alternativePhoneNumber,
+          "has_additional_certifications": hasAdditionalCertifications,
         }
       };
 }
