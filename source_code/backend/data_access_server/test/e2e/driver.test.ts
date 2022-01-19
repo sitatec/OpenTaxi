@@ -1,7 +1,13 @@
 import Axios from "axios";
 import { DRIVER_URL, DEFAULT_SUCCESS_RESPONSE } from "../constants";
-import { ACCOUNT_1, DRIVER } from "../fakedata";
-import { createAddress, execQuery } from "../utils";
+import {
+  ACCOUNT_1,
+  ADDRESS,
+  BANK_ACCOUNT,
+  DRIVER,
+  EMERGENCY_CONTACT,
+} from "../fakedata";
+import { createAddress, deleteAllAccounts, execQuery } from "../utils";
 import { cloneObjec, getSuccessResponse } from "../utils";
 
 const getUrlWithQuery = (queryParams: string) => DRIVER_URL + queryParams;
@@ -9,7 +15,7 @@ const getUrlWithQuery = (queryParams: string) => DRIVER_URL + queryParams;
 const createDriver = async () => {
   const response = await Axios.post(DRIVER_URL, {
     account: ACCOUNT_1,
-    driver: DRIVER
+    driver: DRIVER,
   });
   expect(response.status).toBe(201);
   expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
@@ -115,5 +121,39 @@ describe("ENDPOINT: DRIVER", () => {
     );
     expect(response.status).toBe(200);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+  });
+});
+
+describe("ENDPOINT: DRIVER/REGISTER", () => {
+  beforeAll(async () => {
+    await execQuery("DELETE FROM emergency_contact");
+    await execQuery("DELETE FROM bank_account");
+    await deleteAllAccounts();
+    await execQuery("DELETE FROM address");
+  });
+
+  afterAll(async () => {
+    await execQuery("DELETE FROM emergency_contact");
+    await execQuery("DELETE FROM bank_account");
+    await deleteAllAccounts();
+    await execQuery("DELETE FROM address");
+  });
+
+  it("Should successfully register a driver", async () => {
+    const driver = cloneObjec(DRIVER);
+    delete driver.home_address_id;
+
+    const emergencyContact = cloneObjec(EMERGENCY_CONTACT);
+    emergencyContact.account_id = ACCOUNT_1.id;
+    const response = await Axios.post(getUrlWithQuery("/register"), {
+      driver: driver,
+      account: ACCOUNT_1,
+      address: ADDRESS,
+      emergency_contacts: [emergencyContact],
+      bank_account: BANK_ACCOUNT,
+    });
+
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(getSuccessResponse(ACCOUNT_1.id));
   });
 });

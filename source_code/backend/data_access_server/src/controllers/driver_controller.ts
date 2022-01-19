@@ -71,11 +71,11 @@ export default class DriverController extends Controller {
             insertDriverAccountQuery.text,
             insertDriverAccountQuery.paramValues
           );
-          const addressId = await dbClient.query(
+          const insertAddressQueryResponse = await dbClient.query(
             insertDriverHomeAddressQuery.text,
             insertDriverHomeAddressQuery.paramValues
           );
-          data.driver.home_address_id = addressId;
+          data.driver.home_address_id = insertAddressQueryResponse.rows[0].id;
           const insertDriverQuery = buildInsertQueryFromJSON(
             "driver",
             data.driver
@@ -104,6 +104,7 @@ export default class DriverController extends Controller {
       );
       sendSuccessResponse(httpResponse, 200, data.account.id);
     } catch (e) {
+      console.error(`\n\n${e}\n\n`);
       handleDbQueryError(e, httpResponse);
     }
   };
