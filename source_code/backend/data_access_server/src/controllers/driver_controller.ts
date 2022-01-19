@@ -1,4 +1,8 @@
 import { Request, Response } from "express";
+import { Database } from "../db";
+import { JSObject } from "../types";
+import { buildInsertQueryFromJSON, handleDbQueryError } from "../utils/database_utils";
+import { sendSuccessResponse } from "../utils/http_utils";
 import Controller from "./controller";
 
 export default class DriverController extends Controller {
@@ -18,8 +22,8 @@ export default class DriverController extends Controller {
       httpResponse
     );
 
-  getDriverData = (httpRequest: Request, httpResponse: Response) => 
-  this.entityManager.getEntity("driver", httpRequest, httpResponse);
+  getDriverData = (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.getEntity("driver", httpRequest, httpResponse);
 
   updateDriver = (httpRequest: Request, httpResponse: Response) => {
     if (httpRequest.body.account) {
@@ -42,4 +46,65 @@ export default class DriverController extends Controller {
     this.entityManager.deleteEntity("account", httpRequest, httpResponse); // Deleting the account will delete the
   // driver data too, because a CASCADE constraint is specified on the account_id
   // column.
+
+  registerDriver = async (httpRequest: Request, httpResponse: Response) => {
+    // TODO refactor
+    try {
+      const data = httpRequest.body;
+      const insertDriverAccountQuery = buildInsertQueryFromJSON(
+        "account",
+        data.account
+      );
+      const insertDriverHomeAddressQuery = buildInsertQueryFromJSON(
+        "address",
+        data.address,
+        "id"
+      );
+      const insertDriverBankAccountQuery = buildInsertQueryFromJSON(
+        "bank_account",
+        data.bank_account
+      );
+
+      await Database.instance.wrappeInTransaction(
+        async (dbClient) => {
+          await dbClient.query(
+            insertDriverAccountQuery.text,
+            insertDriverAccountQuery.paramValues
+          );
+          const addressId = await dbClient.query(
+            insertDriverHomeAddressQuery.text,
+            insertDriverHomeAddressQuery.paramValues
+          );
+          data.driver.home_address_id = addressId;
+          const insertDriverQuery = buildInsertQueryFromJSON(
+            "driver",
+            data.driver
+          );
+          await dbClient.query(
+            insertDriverQuery.text,
+            insertDriverQuery.paramValues
+          );
+          data.emergency_contacts.forEach(
+            async (emergencyContact: JSObject) => {
+              const insertEmergencyContactQuery = buildInsertQueryFromJSON(
+                "emergency_contact",
+                emergencyContact
+              );
+              await dbClient.query(
+                insertEmergencyContactQuery.text,
+                insertEmergencyContactQuery.paramValues
+              );
+            }
+          );
+          return dbClient.query(
+            insertDriverBankAccountQuery.text,
+            insertDriverBankAccountQuery.paramValues
+          );
+        }
+      );
+      sendSuccessResponse(httpResponse, 200, data.account.id);
+    } catch (e) {
+      handleDbQueryError(e, httpResponse);
+    }
+  };
 }

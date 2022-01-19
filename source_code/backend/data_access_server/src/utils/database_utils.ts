@@ -14,11 +14,11 @@ type DbQueryColumnsAndParams = {
 export const buildInsertQueryFromJSON = (
   tableName: string,
   json: JSObject,
-  primaryKeyName?: string
+  returnColumnName?: string
 ): Query => {
   const columns = extractColumnNameAndValuesFromJSON(json);
   return {
-    text: `INSERT INTO ${tableName} (${columns.names}) VALUES (${columns.params}) ${primaryKeyName ? 'RETURNING ' + primaryKeyName : ''}`,
+    text: `INSERT INTO ${tableName} (${columns.names}) VALUES (${columns.params}) ${returnColumnName ? 'RETURNING ' + returnColumnName : ''}`,
     paramValues: columns.paramValues,
   };
 };

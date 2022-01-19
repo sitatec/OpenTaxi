@@ -7,6 +7,8 @@ const router = Router();
 
 router.post("/", driverController.createDriver); // TODO add httpRequest data validation step.
 
+router.post("/register", driverController.registerDriver);
+
 router.get("/data", driverController.getDriverData);
 
 router.get("/data/:fields", driverController.getDriverData);
