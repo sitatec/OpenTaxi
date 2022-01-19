@@ -193,6 +193,19 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             style: Theme.of(context).textTheme.headline6,
           ),
           const SizedBox(height: 40),
+          TextFormField(
+            onSaved: (newValue) {
+              _formData["account"]["id"] = newValue;
+            },
+            decoration: _getTextFieldDecoration("Driver's Unique ID *"),
+            validator: (value) {
+              if (value == null || value.length < 28) {
+                return "Minimum 28 characters.";
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 40),
           Row(
             children: [
               Expanded(
@@ -1210,14 +1223,15 @@ You can enter the given digits and the zeros will be filled automatically.
   Future<void> _submit() async {
     if (_validateForm()) {
       _hidrateFormData();
-      final driverId = await _showSubmissionProgressDialog();
-      widget.onSubmitted?.call(driverId!);
+      final driverId = _formData["account"]["id"];
+      await _showSubmissionProgressDialog(driverId);
+      widget.onSubmitted?.call(driverId);
     }
   }
 
-  Future<String?> _showSubmissionProgressDialog() {
+  Future<void> _showSubmissionProgressDialog(String driverId) {
     // TODO refactor.
-    return showDialog<String>(
+    return showDialog(
       barrierDismissible: false,
       builder: (context) {
         String dialogTitle = "Pushing Driver Data...";
@@ -1228,12 +1242,10 @@ You can enter the given digits and the zeros will be filled automatically.
         String nameOfDocumentBeenUploaded = "";
         double currentUploadProgress = 0;
         bool isFirsBuild = true;
-        late String driverId;
         return StatefulBuilder(
           builder: (context, _setState) {
             if (isFirsBuild) {
               _pushData().then((value) {
-                driverId = value;
                 _setState(() {
                   dialogTitle = "Uploading Profile Picture...";
                   pushingDriverDataDone = true;
@@ -1269,8 +1281,8 @@ You can enter the given digits and the zeros will be filled automatically.
                       dialogTitle = "Done";
                       uploadDriverDocumentsDone = true;
                     });
-                    Future.delayed(Duration(seconds: 1), () {
-                      Navigator.of(context).pop(driverId);
+                    Future.delayed(const Duration(seconds: 1), () {
+                      Navigator.of(context).pop();
                     });
                   });
                 });
@@ -1380,19 +1392,28 @@ You can enter the given digits and the zeros will be filled automatically.
 
   void _hidrateFormData() {
     _formKey.currentState!.save();
+    final String driverId = _formData["account"]["id"];
+
+    _formData["driver"]["account_id"] = driverId;
     _formData["driver"]["is_south_african_citizen"] = _isSouthAfricanCitizen;
     _formData["driver"]["nationality"] = _nationality;
     _formData["driver"]["has_additional_certifications"] =
         _hasAdditionalCertifications;
 
     _formData["account"]["gender"] = _gender;
+    _formData["account"]["role"] = "DRIVER";
+    _formData["account"]["account_status"] = "LIVE";
     _formData["account"]["profile_picture_url"] =
         "$_cloudStorageBucketUrl/TODO";
 
+    _formData["bank_account"]["driver_id"] = driverId;
     _formData["bank_account"]["bank_name"] = _selectedBank;
     if (_selectedBank != "NEDBANK") {
       _formData["bank_account"]["account_type"] = _selectedFNDAccountType;
     }
+
+    _formData["emergency_contacts"][0]["account_id"] = driverId;
+    _formData["emergency_contacts"][1]["account_id"] = driverId;
   }
 
   Future<String> _pushData() async {
