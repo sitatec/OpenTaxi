@@ -63,11 +63,11 @@ CREATE TYPE SUPPORTED_BANK AS ENUM (
 CREATE SEQUENCE public.trip_id_seq;
 
 CREATE TABLE public.trip (
-  id INTEGER NOT NULL DEFAULT nextval('public.trip_id_seq'),
+  id BIGINT NOT NULL DEFAULT nextval('public.trip_id_seq'),
   started_at TIMESTAMP,
   finished_at TIMESTAMP,
   security_video_url VARCHAR,
-  booking_id INTEGER NOT NULL,
+  booking_id BIGINT NOT NULL,
   status TRIP_STATUS NOT NULL,
   CONSTRAINT trip_pk PRIMARY KEY (id)
 );
@@ -95,7 +95,7 @@ CREATE TABLE public.account (
 CREATE SEQUENCE public.payment_id_seq;
 
 CREATE TABLE public.payment (
-  id INTEGER NOT NULL DEFAULT nextval('public.payment_id_seq'),
+  id BIGINT NOT NULL DEFAULT nextval('public.payment_id_seq'),
   amount DECIMAL(12,2) NOT NULL,
   date_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
   recipient_id VARCHAR, -- FOR KITY PAYMENT AND PARTNER PAYMENT
@@ -111,7 +111,7 @@ ALTER SEQUENCE public.payment_id_seq OWNED BY public.payment.id;
 CREATE SEQUENCE public.review_id_seq;
 
 CREATE TABLE public.review (
-  id INTEGER NOT NULL DEFAULT nextval('public.review_id_seq'),
+  id BIGINT NOT NULL DEFAULT nextval('public.review_id_seq'),
   author_id VARCHAR,
   recipient_id VARCHAR,
   trip_id INTEGER NOT NULL,
@@ -186,13 +186,13 @@ CREATE TABLE public.favorite_driver (
 CREATE SEQUENCE public.booking_id_seq;
 
 CREATE TABLE public.booking (
-  id INTEGER NOT NULL DEFAULT nextval('public.booking_id_seq'),
-  payment_id INTEGER NOT NULL,
+  id BIGINT NOT NULL DEFAULT nextval('public.booking_id_seq'),
+  payment_id BIGINT NOT NULL,
   rider_id VARCHAR,-- NULLABLE in case the rider account is deleted, the company still needs the booking details.
   driver_id VARCHAR,
   booked_at TIMESTAMP NOT NULL,
-  departure_address_id INTEGER NOT NULL,
-  destination_address_id INTEGER NOT NULL,
+  departure_address_id BIGINT NOT NULL,
+  destination_address_id BIGINT NOT NULL,
   CONSTRAINT booking_pk PRIMARY KEY (id)
 );
 
@@ -202,7 +202,7 @@ ALTER SEQUENCE public.booking_id_seq OWNED BY public.booking.id;
 CREATE SEQUENCE public.address_id_seq;
 
 CREATE TABLE public.address (
-  id INTEGER NOT NULL DEFAULT nextval('public.address_id_seq'),
+  id BIGINT NOT NULL DEFAULT nextval('public.address_id_seq'),
   street_address VARCHAR NOT NULL,
   street_address_line_two VARCHAR,
   postal_code VARCHAR NOT NULL,
@@ -215,7 +215,7 @@ ALTER SEQUENCE public.address_id_seq OWNED BY public.address.id;
 
 
 CREATE TABLE public.favorite_place (
-  address_id INTEGER NOT NULL,
+  address_id BIGINT NOT NULL,
   rider_id VARCHAR NOT NULL,
   place_name VARCHAR,
   CONSTRAINT favorite_place_pk PRIMARY KEY (address_id)
@@ -225,7 +225,7 @@ CREATE TABLE public.favorite_place (
 CREATE SEQUENCE public.emergency_contact_id_seq;
 
 CREATE TABLE public.emergency_contact (
-  id INTEGER NOT NULL DEFAULT nextval('public.emergency_contact_id_seq'),
+  id BIGINT NOT NULL DEFAULT nextval('public.emergency_contact_id_seq'),
   first_name VARCHAR NOT NULL,
   last_name VARCHAR NOT NULL,
   phone_number NUMERIC(15) NOT NULL,
