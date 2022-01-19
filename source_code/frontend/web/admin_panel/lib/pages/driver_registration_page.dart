@@ -1,13 +1,17 @@
+import 'dart:async';
 import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
 const double _registrationFormWidth = 800;
 const _nationalitiesCSVUrl =
     "https://gist.githubusercontent.com/sitatec/84ba82abf161cb2115845dc4e47ff03e/raw/0045fb5f54f9ad357e301cf30e23d9834058618a/nationalities.csv";
+const _cloudStorageBucketUrl = "";
+const _dataAccessServerBaseUrl = "https://hamba-project.uc.r.appspot.com";
 
 class DriverRegistrationPage extends StatefulWidget {
   const DriverRegistrationPage({Key? key}) : super(key: key);
@@ -130,6 +134,16 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
   String _documentsFolderErrorMessage = "";
   String _genderErrorMessage = "";
 
+  final _cloudStorage = FirebaseStorage.instance;
+
+  final Map<String, dynamic> _formData = {
+    "account": {},
+    "driver": {},
+    "address": {},
+    "emergency_contacts": [],
+    "bank_account": {},
+  };
+
   @override
   initState() {
     super.initState();
@@ -151,12 +165,14 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
     ..attributes["webkitdirectory"] = ""
     ..onChange.listen((event) {
       if (_folderPicker.files != null && _folderPicker.files!.isNotEmpty) {
-        final files = _folderPicker.files!;
-        final splitedPath = files.first.relativePath!.split("/");
+        _driverDocumentsFolder = _folderPicker.files!;
+        final splitedPath =
+            _driverDocumentsFolder.first.relativePath!.split("/");
         String folderDescription = "The selected folder \"";
         folderDescription += splitedPath.elementAt(splitedPath.length - 2);
-        folderDescription += "\" contains ${files.length} files :\n";
-        files.forEach((file) {
+        folderDescription +=
+            "\" contains ${_driverDocumentsFolder.length} files :\n";
+        _driverDocumentsFolder.forEach((file) {
           // TODO process
           folderDescription += "${file.name},      ";
         });
@@ -181,6 +197,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["account"]["first_name"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("First Names *"),
                   maxLength: 60,
                   validator: (value) {
@@ -194,6 +213,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["account"]["last_name"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Last Name *"),
                   maxLength: 60,
                   validator: (value) {
@@ -211,6 +233,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["account"]["display_name"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Display Name *"),
                   maxLength: 60,
                   validator: (value) {
@@ -224,6 +249,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["driver"]["date_of_birth"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration(
                       " Date of Birth (yyyy-mm-dd) *", ""),
                   inputFormatters: [MaskedInputFormatter("0000-00-00")],
@@ -267,6 +295,7 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                       _profilePictureName = imageFile.name;
                       _pictureDropZoneHovered = false;
                       _profilePictureErrorMessage = "";
+                      _profilePictureFile = imageFile;
                     });
                   },
                   onHover: () => setState(() => _pictureDropZoneHovered = true),
@@ -282,7 +311,8 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                       .pickFiles(mime: ['image/jpeg', 'image/png']));
                   if (imageFiles.isEmpty) return;
                   setState(() {
-                    _profilePictureName = imageFiles.first.name;
+                    _profilePictureFile = imageFiles.first;
+                    _profilePictureName = _profilePictureFile!.name;
                     _profilePictureErrorMessage = "";
                   });
                 },
@@ -414,10 +444,13 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["account"]["email"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Email *"),
                   validator: (email) {
                     if (email == null ||
-                        !RegExp(emailPattern).hasMatch(email)) {
+                        !RegExp(_emailPattern).hasMatch(email)) {
                       return "Invalid email address.";
                     }
                     return null;
@@ -427,6 +460,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["driver"]["id_number"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("ID/Passport Number *"),
                   validator: (idNumber) {
                     if (idNumber == null || idNumber.length < 5) {
@@ -443,6 +479,10 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["account"]["phone_number"] =
+                        newValue!.replaceAll(" ", "");
+                  },
                   decoration: InputDecoration(
                     labelText: "Phone Number *",
                     border: OutlineInputBorder(
@@ -462,8 +502,14 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    if (newValue == null || newValue.isEmpty) return;
+                    _formData["driver"]["alternative_phone_number"] =
+                        newValue.replaceAll(" ", "");
+                  },
                   decoration: InputDecoration(
                     labelText: "Alternative Phone Number",
+                    helperText: "",
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(5),
                     ),
@@ -471,7 +517,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                   ),
                   inputFormatters: [MaskedInputFormatter("00 000 0000")],
                   validator: (phoneNumber) {
-                    if (phoneNumber == null || phoneNumber.length < 11) {
+                    if (phoneNumber != null &&
+                        phoneNumber.isNotEmpty &&
+                        phoneNumber.length < 11) {
                       return "Please enter 9 digits excluding (+27)";
                     }
                     return null;
@@ -539,6 +587,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           ),
           const SizedBox(height: 16),
           TextFormField(
+            onSaved: (newValue) {
+              _formData["address"]["street_address"] = newValue;
+            },
             decoration: _getTextFieldDecoration("Street Address *"),
             validator: (address) {
               if (address == null || address.length < 5) {
@@ -549,6 +600,10 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           ),
           const SizedBox(height: 40),
           TextFormField(
+            onSaved: (newValue) {
+              if (newValue == null || newValue.isEmpty) return;
+              _formData["address"]["street_address_line_two"] = newValue;
+            },
             decoration: _getTextFieldDecoration("Street Address Line 2"),
           ),
           const SizedBox(height: 40),
@@ -556,6 +611,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["address"]["city"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("City *"),
                   validator: (address) {
                     if (address == null || address.length < 2) {
@@ -568,6 +626,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["address"]["province"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Province *"),
                   validator: (address) {
                     if (address == null || address.length < 2) {
@@ -584,6 +645,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["address"]["postal_code"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Postal Code *"),
                   validator: (address) {
                     if (address == null || address.length < 2) {
@@ -607,6 +671,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["emergency_contacts"][0]["first_name"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("First Name  *"),
                   maxLength: 60,
                   validator: (address) {
@@ -620,6 +687,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["emergency_contacts"][0]["last_name"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Last Name *"),
                   maxLength: 60,
                   validator: (address) {
@@ -634,6 +704,10 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           ),
           const SizedBox(height: 40),
           TextFormField(
+            onSaved: (newValue) {
+              _formData["emergency_contacts"][0]["phone_number"] = newValue;
+              _formData["emergency_contacts"][0]["is_primary"] = true;
+            },
             decoration: InputDecoration(
               labelText: "Emergency Contact Phone Number *",
               border: OutlineInputBorder(
@@ -659,6 +733,10 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    if (newValue == null || newValue.isEmpty) return;
+                    _formData["emergency_contacts"][1]["first_name"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("First Name"),
                   maxLength: 60,
                 ),
@@ -666,6 +744,10 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    if (newValue == null || newValue.isEmpty) return;
+                    _formData["emergency_contacts"][1]["last_name"] = newValue;
+                  },
                   decoration: _getTextFieldDecoration("Last Name"),
                   maxLength: 60,
                   validator: (address) {
@@ -681,6 +763,11 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           ),
           const SizedBox(height: 40),
           TextFormField(
+            onSaved: (newValue) {
+              if (newValue == null || newValue.isEmpty) return;
+              _formData["emergency_contacts"][1]["phone_number"] = newValue;
+              _formData["emergency_contacts"][1]["is_primary"] = false;
+            },
             decoration: InputDecoration(
               labelText: "Emergency Contact 2 Phone Number",
               border: OutlineInputBorder(
@@ -707,6 +794,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["driver"]["driver_license_number"] = newValue;
+                  },
                   decoration:
                       _getTextFieldDecoration("Driver's License Number *"),
                   validator: (address) {
@@ -720,6 +810,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
               const SizedBox(width: 16),
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["driver"]["driver_license_code"] = newValue;
+                  },
                   decoration:
                       _getTextFieldDecoration("Driver's License Code *"),
                   validator: (address) {
@@ -737,6 +830,10 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    _formData["driver"]["driver_license_expiry_date"] =
+                        newValue;
+                  },
                   decoration: _getTextFieldDecoration(
                       "Driver's License Expiry Date (yyyy-mm-dd) *"),
                   inputFormatters: [MaskedInputFormatter("0000-00-00")],
@@ -799,6 +896,10 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
           ),
           const SizedBox(height: 40),
           TextFormField(
+            onSaved: (newValue) {
+              if (newValue == null || newValue.isEmpty) return;
+              _formData["rating"] = newValue;
+            },
             decoration: _getTextFieldDecoration(
               "Average ratings for Uber Bolt and Didi",
             ),
@@ -871,6 +972,9 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
             ),
             const SizedBox(height: 30),
             TextFormField(
+              onSaved: (newValue) {
+                _formData["bank_account"]["account_holder_name"] = newValue;
+              },
               decoration: _getTextFieldDecoration("Account Holder Name *"),
               validator: (value) {
                 if (value == null || value.length < 2) {
@@ -888,6 +992,10 @@ class _DriverRegistrationFormState extends State<_DriverRegistrationForm> {
                     children: [
                       Expanded(
                         child: TextFormField(
+                          onSaved: (newValue) {
+                            _formData["bank_account"]["account_number"] =
+                                newValue;
+                          },
                           maxLength: 20,
                           decoration:
                               _getTextFieldDecoration("Account Number *"),
@@ -924,6 +1032,9 @@ You can enter the given digits and the zeros will be filled automatically.
                     children: [
                       Expanded(
                         child: TextFormField(
+                          onSaved: (newValue) {
+                            _formData["bank_account"]["branch_code"] = newValue;
+                          },
                           maxLength: 6,
                           decoration: _getTextFieldDecoration("Branch Code *"),
                           validator: (value) {
@@ -953,6 +1064,9 @@ You can enter the given digits and the zeros will be filled automatically.
           if (_selectedBank == "NEDBANK") ...[
             const SizedBox(height: 40),
             TextFormField(
+              onSaved: (newValue) {
+                _formData["bank_account"]["account_holder_name"] = newValue;
+              },
               decoration: _getTextFieldDecoration("Account Holder Name *"),
               maxLength: 35,
               validator: (value) {
@@ -968,6 +1082,9 @@ You can enter the given digits and the zeros will be filled automatically.
                 Expanded(
                   flex: 3,
                   child: TextFormField(
+                    onSaved: (newValue) {
+                      _formData["bank_account"]["account_number"] = newValue;
+                    },
                     decoration: _getTextFieldDecoration("Account Number *", ""),
                     validator: (value) {
                       if (value == null || value.length < 5) {
@@ -981,6 +1098,9 @@ You can enter the given digits and the zeros will be filled automatically.
                 Expanded(
                   flex: 2,
                   child: TextFormField(
+                    onSaved: (newValue) {
+                      _formData["bank_account"]["branch_code"] = newValue;
+                    },
                     decoration: _getTextFieldDecoration("Branch Code *"),
                     maxLength: 5,
                     validator: (value) {
@@ -1067,12 +1187,7 @@ You can enter the given digits and the zeros will be filled automatically.
           Align(
             alignment: Alignment.center,
             child: ElevatedButton(
-              onPressed: () {
-                if (_validateForm()) {
-                  // TODO push data
-                  widget.onSubmitted?.call("sfs");
-                }
-              },
+              onPressed: _submit,
               child: const Text(
                 "SUBMIT",
                 style: TextStyle(
@@ -1089,6 +1204,153 @@ You can enter the given digits and the zeros will be filled automatically.
           )
         ],
       ),
+    );
+  }
+
+  Future<void> _submit() async {
+    if (_validateForm()) {
+      _hidrateFormData();
+      final driverId = await _showSubmissionProgressDialog();
+      widget.onSubmitted?.call(driverId!);
+    }
+  }
+
+  Future<String?> _showSubmissionProgressDialog() {
+    // TODO refactor.
+    return showDialog<String>(
+      barrierDismissible: false,
+      builder: (context) {
+        String dialogTitle = "Pushing Driver Data...";
+        bool pushingDriverDataDone = false;
+        bool uploadProfilePictureDone = false;
+        bool uploadDriverDocumentsDone = false;
+        int uploadedDocumentsCount = 0, totalDocumentsCount = 0;
+        String nameOfDocumentBeenUploaded = "";
+        double currentUploadProgress = 0;
+        bool isFirsBuild = true;
+        late String driverId;
+        return StatefulBuilder(
+          builder: (context, _setState) {
+            if (isFirsBuild) {
+              _pushData().then((value) {
+                driverId = value;
+                _setState(() {
+                  dialogTitle = "Uploading Profile Picture...";
+                  pushingDriverDataDone = true;
+                });
+                nameOfDocumentBeenUploaded = " ";
+                _uploadProfilePicture(driverId,
+                    progress: (transferedBytes, totalBytes) {
+                  setState(() {
+                    currentUploadProgress = transferedBytes / totalBytes;
+                  });
+                }).then((_) {
+                  _setState(() {
+                    dialogTitle = "Uploading Driver's Documents...";
+                    uploadProfilePictureDone = true;
+                  });
+                  _uploadDriversDocuments(
+                    driverId,
+                    totalPogress: (uploadedFilesCount, totalFilesCount) {
+                      setState(() {
+                        totalDocumentsCount = totalFilesCount;
+                        uploadedDocumentsCount = uploadedFilesCount;
+                      });
+                    },
+                    currentUploadProgression:
+                        (transferedBytes, totalBytes, currentFileName) {
+                      setState(() {
+                        nameOfDocumentBeenUploaded = currentFileName;
+                        currentUploadProgress = transferedBytes / totalBytes;
+                      });
+                    },
+                  ).then((_) {
+                    setState(() {
+                      dialogTitle = "Done";
+                      uploadDriverDocumentsDone = true;
+                    });
+                    Future.delayed(Duration(seconds: 1), () {
+                      Navigator.of(context).pop(driverId);
+                    });
+                  });
+                });
+              });
+              isFirsBuild = false;
+            }
+            return AlertDialog(
+              title: Text(dialogTitle),
+              content: Column(
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: pushingDriverDataDone
+                            ? Colors.green
+                            : Colors.grey[400],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Push Driver Data",
+                        style: TextStyle(
+                          color:
+                              pushingDriverDataDone ? null : Colors.grey[400],
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: uploadProfilePictureDone
+                            ? Colors.green
+                            : Colors.grey[400],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Upload Profile Picture",
+                        style: TextStyle(
+                          color:
+                              pushingDriverDataDone ? null : Colors.grey[400],
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.check_circle,
+                        color: uploadDriverDocumentsDone
+                            ? Colors.green
+                            : Colors.grey[400],
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Upload Driver Documents  ($uploadedDocumentsCount/$totalDocumentsCount)",
+                        style: TextStyle(
+                          color:
+                              pushingDriverDataDone ? null : Colors.grey[400],
+                        ),
+                      )
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text(nameOfDocumentBeenUploaded),
+                  LinearProgressIndicator(
+                    value: currentUploadProgress,
+                    color: Colors.blue,
+                    backgroundColor: Colors.blue[100],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+      context: context,
     );
   }
 
@@ -1115,9 +1377,102 @@ You can enter the given digits and the zeros will be filled automatically.
     setState(() {});
     return _formKey.currentState!.validate() && isValidForm;
   }
+
+  void _hidrateFormData() {
+    _formKey.currentState!.save();
+    _formData["driver"]["is_south_african_citizen"] = _isSouthAfricanCitizen;
+    _formData["driver"]["nationality"] = _nationality;
+    _formData["driver"]["has_additional_certifications"] =
+        _hasAdditionalCertifications;
+
+    _formData["account"]["gender"] = _gender;
+    _formData["account"]["profile_picture_url"] =
+        "$_cloudStorageBucketUrl/TODO";
+
+    _formData["bank_account"]["bank_name"] = _selectedBank;
+    if (_selectedBank != "NEDBANK") {
+      _formData["bank_account"]["account_type"] = _selectedFNDAccountType;
+    }
+  }
+
+  Future<String> _pushData() async {
+    final serverResponse = await Dio().post(
+      "$_dataAccessServerBaseUrl/driver/register",
+      data: _formData,
+    );
+
+    return serverResponse.data["data"];
+  }
+
+  Future<void> _uploadProfilePicture(
+    String driverId, {
+    void Function(int transferedBytes, int totalBytes)? progress,
+    void Function(FirebaseException error)? onError,
+  }) {
+    final _fileNameExtension = _profilePictureFile!.name.split(".").last;
+    return _uploadFile(
+      _cloudStorage.ref(driverId),
+      _profilePictureFile!,
+      destinationFileName: "profile_picture.$_fileNameExtension",
+      progress: progress,
+      onError: onError,
+    );
+  }
+
+  Future<void> _uploadDriversDocuments(
+    String driverId, {
+    void Function(int uploadedFilesCount, int totalFilesCount)? totalPogress,
+    void Function(int transferedBytes, int totalBytes, String currentFileName)?
+        currentUploadProgression,
+    void Function(FirebaseException error, String currentFileName)? onError,
+  }) async {
+    int uploadedFilesCount = 0;
+    final totalFilesCount = _driverDocumentsFolder.length;
+    totalPogress?.call(uploadedFilesCount, totalFilesCount);
+    final reference = _cloudStorage.ref(driverId).child("driver_documents");
+    for (File document in _driverDocumentsFolder) {
+      await _uploadFile(
+        reference,
+        document,
+        progress: (transferedBytes, totalBytes) {
+          currentUploadProgression?.call(
+            transferedBytes,
+            totalBytes,
+            document.name,
+          );
+        },
+        onError: (error) => onError?.call(error, document.name),
+      );
+      totalPogress?.call(++uploadedFilesCount, totalFilesCount);
+    }
+  }
+
+  Future<void> _uploadFile(
+    Reference reference,
+    File sourceFile, {
+    String? destinationFileName,
+    void Function(int transferedBytes, int totalBytes)? progress,
+    void Function(FirebaseException error)? onError,
+  }) {
+    final completer = Completer();
+    destinationFileName ??= sourceFile.name;
+    final task =
+        reference.child(destinationFileName).putBlob(sourceFile.slice());
+    task.snapshotEvents.listen(
+      (snapshot) {
+        progress?.call(snapshot.bytesTransferred, snapshot.totalBytes);
+        if (snapshot.state != TaskState.running &&
+            snapshot.state != TaskState.paused) {
+          completer.complete();
+        }
+      },
+      onError: onError,
+    );
+    return completer.future;
+  }
 }
 
-const emailPattern =
+const _emailPattern =
     r'^(([^<>()[\]\\.,%`~&ç;:\s@\"]+(\.[^<>()[\]\\.,%`~&ç;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,15}))$';
 
 const _vehicleCategories = ["STANDARD", "LITE", "PREMIUM", "CREW", "UBUNTU"];
@@ -1175,6 +1530,9 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
             children: [
               Expanded(
                 child: TextFormField(
+                  onSaved: (newValue) {
+                    print("ON_SAVED === $newValue");
+                  },
                   decoration: _getTextFieldDecoration("Vehicle Make *"),
                   maxLength: 50,
                   validator: (value) {
@@ -1537,6 +1895,7 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
                       ? null
                       : () {
                           if (_validateForm()) {
+                            _formKey.currentState!.save();
                             // TODO
                           }
                         },
@@ -1580,6 +1939,10 @@ class __VehicleRegistrationFormState extends State<_VehicleRegistrationForm> {
     setState(() {});
     return _formKey.currentState!.validate() && _isValidForm;
   }
+
+  Future<void> _submitData() async {}
+
+  Future<void> _uploadVehiclesDocuments() async {}
 }
 
 InputDecoration _getTextFieldDecoration(String label, [String? helperText]) =>
