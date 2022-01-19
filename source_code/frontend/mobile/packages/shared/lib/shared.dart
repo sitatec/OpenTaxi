@@ -4,7 +4,7 @@ export 'src/constants/colors.dart';
 export 'src/constants/values.dart';
 export 'src/utils/enum_utils.dart';
 export 'src/widgets/simple_widgets.dart';
-export 'src/entities/car.dart';
+export 'src/entities/vehicle.dart';
 export 'src/modules/trip_room/api.dart' hide TripRoomImplementation;
 export 'src/widgets/map_widget.dart';
 export 'src/utils/data_converters.dart';
@@ -13,6 +13,7 @@ export 'src/entities/dispatcher.dart';
 export 'src/modules/notification/api.dart' hide NotificationManagerImpl;
 export 'src/modules/payment/api.dart';
 export 'src/widgets/custom_web_view.dart';
+export 'src/screens/splash_screen.dart';
 // ----------------------- Exported Packages -------------------------- //
 export 'package:flutter_svg/flutter_svg.dart';
 export 'package:flutter_multi_formatter/flutter_multi_formatter.dart'
