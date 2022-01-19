@@ -55,10 +55,10 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(7.6),
                           onClicked: showFavoritePlaceDialog,
                         ),
-                        SizedBox(width: 12),
-                        FavoritePlaceWidget(child: Text("Home")),
-                        SizedBox(width: 12),
-                        FavoritePlaceWidget(child: Text("Work"))
+                        const SizedBox(width: 12),
+                        const FavoritePlaceWidget(child: Text("Home")),
+                        const SizedBox(width: 12),
+                        const FavoritePlaceWidget(child: Text("Work"))
                       ],
                     ),
                   ),
@@ -118,7 +118,7 @@ class _HomePageState extends State<HomePage> {
               controller: TextEditingController(text: placeName),
               onChanged: (newValue) => placeName = newValue,
               decoration: const InputDecoration(
-                labelText: "Name (e.g. Home)",
+                labelText: "Label (e.g. Home, Work)",
               ),
             ),
             TextField(

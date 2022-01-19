@@ -1,6 +1,19 @@
 package com.hamba.rider
 
+import android.content.Context
+import androidx.annotation.NonNull
+import com.sendbird.calls.*
+import com.sendbird.calls.SendBirdCall.addListener
+import com.sendbird.calls.SendBirdCall.dial
+import com.sendbird.calls.handler.AuthenticateHandler
+import com.sendbird.calls.handler.DialHandler
+import com.sendbird.calls.handler.DirectCallListener
+import com.sendbird.calls.handler.SendBirdCallListener
 import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.BinaryMessenger
+import io.flutter.plugin.common.MethodChannel
+import java.util.*
 
 class MainActivity: FlutterActivity() {
     private val METHOD_CHANNEL_NAME = "com.sendbird.calls/method"
@@ -69,6 +82,7 @@ class MainActivity: FlutterActivity() {
                 }
                 "answer_direct_call"->{
                     directCall?.accept(AcceptParams())
+                    println("\n------ CURRENT AUDIO DEVICE ===> ${directCall!!.currentAudioDevice} --------\n")
                 }
                 "end_direct_call" -> {
                     // End a call
@@ -86,11 +100,12 @@ class MainActivity: FlutterActivity() {
         // Initialize SendBirdCall instance to use APIs in your app.
         if(SendBirdCall.init(context, appId)){
             // Initialization successful
+        println("\n------ initSendbird ==== Initialization successful -----\n")
 
                 // Add event listeners
             SendBirdCall.addListener(UUID.randomUUID().toString(), object: SendBirdCallListener() {
                 override fun onRinging(call: DirectCall) {
-
+                  println("\n --------- SendBirdCall.onRinging --------- \n")
                     methodChannel?.invokeMethod("direct_call_received"){
                     }
 

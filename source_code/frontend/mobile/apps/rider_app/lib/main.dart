@@ -25,6 +25,14 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final channelData = ChannelData(
+      currentUserId: "rider",
+      remoteUserId: "driver",
+      remoteUserName: "Driver",
+    );
+    final communicationManager =
+        ChatManager(channelData); // AudioCallManager(channelData);
+    final splashDelay = Future.delayed(const Duration(seconds: 2));
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Hamba',
@@ -35,62 +43,116 @@ class App extends StatelessWidget {
         accentColor: const Color(0xFF2BC25F),
         fontFamily: GoogleFonts.poppins().fontFamily,
       ),
-      home: true
-          ? QrCodeScanPage(validateQrCode: (_) => true)
-          : SafeArea(
-              child: FutureBuilder<FirebaseApp>(
-                  future: Firebase.initializeApp(
-                    options: DefaultFirebaseOptions.currentPlatform,
-                  ),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasError) {
-                      // TODO check if internet connection is available, if not show appropriate screen
-                      // TODO show "something went wrong" screen when internet connection is available.
-                    }
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      final authenticationProvider =
-                          AuthenticationProvider.instance;
-                      return StreamBuilder<AuthState>(
-                          stream: authenticationProvider.authBinaryState,
-                          initialData: AuthState.uninitialized,
-                          builder: (context, authSnapshot) {
-                            if (authSnapshot.data == AuthState.uninitialized) {
-                              return const Center(
-                                  child: Text("Authenticating..."));
-                            }
-                            if (authSnapshot.data == AuthState.authenticated) {
-                              final riderAccount =
-                                  authenticationProvider.account!;
-                              if (riderAccount.role != AccountRole.UNDEFINED &&
-                                  riderAccount.role != AccountRole.RIDER) {
-                                // TODO handle if the user is not a driver.
-                                return const Center(
-                                  child: Text(
-                                    "This account is not a driver account!",
+      home:
+          // ? FutureBuilder(
+          //     future: communicationManager
+          //         .initialize()
+          //         .then((value) => communicationManager.joinChatChannel()),
+          //     builder: (context, snapshot) {
+          //       if (snapshot.connectionState == ConnectionState.done) {
+          //         return ChatScreen(communicationManager);
+          //       }
+          //       return Text("Loading");
+          //     })
+          // FutureBuilder(
+          // future: communicationManager.initialize(""),
+          // builder: (context, snapshot) {
+          //   if (snapshot.connectionState == ConnectionState.done) {
+          //     communicationManager.addEventListeners(
+          //         onCallReceived: (_, __) {
+          //       print("----------- onCallReceived --------------");
+          //       Navigator.of(context).push(MaterialPageRoute(
+          //           builder: (context) =>
+          //               CallScreen(communicationManager)));
+          //     });
+          //     return Text("Waiting For call");
+          //   }
+          //   return Text("Loading");
+          // })
+          SafeArea(
+        child: FutureBuilder<FirebaseApp>(
+            future: Firebase.initializeApp(
+              options: DefaultFirebaseOptions.currentPlatform,
+            ).then((value) async {
+              await splashDelay;
+              return value;
+            }),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                // TODO check if internet connection is available, if not show appropriate screen
+                // TODO show "something went wrong" screen when internet connection is available.
+              }
+              if (snapshot.connectionState == ConnectionState.done) {
+                final authenticationProvider = AuthenticationProvider.instance;
+                return StreamBuilder<AuthState>(
+                    stream: authenticationProvider.authBinaryState,
+                    initialData: AuthState.uninitialized,
+                    builder: (context, authSnapshot) {
+                      if (authSnapshot.data == AuthState.uninitialized) {
+                        return const SplashScreen(authenticating: true);
+                      }
+                      if (authSnapshot.data == AuthState.authenticated) {
+                        final riderAccount = authenticationProvider.account!;
+                        if (riderAccount.role != AccountRole.UNDEFINED &&
+                            riderAccount.role != AccountRole.RIDER) {
+                          // TODO handle if the user is not a driver.
+                          return Scaffold(
+                            body: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text(
+                                    "This account is not a rider account!",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
-                                );
-                              } else {
-                                return HomePage();
-                                // return MainScreen(driver);
-                                // if (riderAccount.status ==
-                                //     AccountStatus.REGISTRATION_IN_PROGRESS) {
-                                //   return RegistrationScreen(driver);
-                                // } else if (riderAccount.status ==
-                                //     AccountStatus.WAITING_FOR_APPROVAL) {
-                                //   return const RegistrationStatusPage(
-                                //     RegistrationStatus.underReview,
-                                //   );
-                                // }
-                                // return MainScreen(driver);
-                              }
-                            } else {
-                              return const PhoneAuthScreen();
-                            }
-                          });
-                    }
-                    return const Center(child: Text("Loading..."));
-                  }),
-            ),
+                                  const SizedBox(height: 32),
+                                  TextButton(
+                                    onPressed: authenticationProvider.signOut,
+                                    child: const Text(
+                                      "Logout",
+                                      textScaleFactor: 1.5,
+                                    ),
+                                    style: TextButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(5),
+                                        side: BorderSide(
+                                          color: Theme.of(context)
+                                              .primaryColor
+                                              .withAlpha(30),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        } else {
+                          return const HomePage();
+                          // return MainScreen(driver);
+                          // if (riderAccount.status ==
+                          //     AccountStatus.REGISTRATION_IN_PROGRESS) {
+                          //   return RegistrationScreen(driver);
+                          // } else if (riderAccount.status ==
+                          //     AccountStatus.WAITING_FOR_APPROVAL) {
+                          //   return const RegistrationStatusPage(
+                          //     RegistrationStatus.underReview,
+                          //   );
+                          // }
+                          // return MainScreen(driver);
+                        }
+                      } else {
+                        return const PhoneAuthScreen();
+                      }
+                    });
+              }
+              return const SplashScreen();
+            }),
+      ),
     );
   }
 }
