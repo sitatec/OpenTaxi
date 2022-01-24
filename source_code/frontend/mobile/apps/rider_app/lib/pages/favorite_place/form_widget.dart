@@ -60,11 +60,13 @@ class _FavoritePlaceFormWidegetState extends State<FavoritePlaceFormWideget> {
             labelText: "Address",
           ),
         ),
-        Column(
-          children: [
-            for (String? suggestion in _placeSuggestions)
-              if (suggestion != null) Text(suggestion),
-          ],
+        SingleChildScrollView(
+          child: Column(
+            children: [
+              for (String? suggestion in _placeSuggestions)
+                if (suggestion != null) Text(suggestion),
+            ],
+          ),
         ),
       ],
     );
