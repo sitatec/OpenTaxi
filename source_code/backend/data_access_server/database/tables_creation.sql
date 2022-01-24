@@ -214,12 +214,17 @@ CREATE TABLE public.address (
 ALTER SEQUENCE public.address_id_seq OWNED BY public.address.id;
 
 
+CREATE SEQUENCE public.favorite_place_id_seq;
+
 CREATE TABLE public.favorite_place (
-  address_id BIGINT NOT NULL,
+  id BIGINT NOT NULL DEFAULT nextval('public.favorite_place_id_seq'),
+  street_address VARCHAR NOT NULL,
   rider_id VARCHAR NOT NULL,
   place_name VARCHAR,
-  CONSTRAINT favorite_place_pk PRIMARY KEY (address_id)
+  CONSTRAINT favorite_place_pk PRIMARY KEY (id)
 );
+
+ALTER SEQUENCE public.favorite_place_id_seq OWNED BY public.favorite_place.id;
 
 
 CREATE SEQUENCE public.emergency_contact_id_seq;
@@ -264,13 +269,6 @@ NOT DEFERRABLE;
 ALTER TABLE public.emergency_contact ADD CONSTRAINT emergency_contact_account_fk
 FOREIGN KEY (account_id)
 REFERENCES public.account (id)
-ON DELETE CASCADE
-ON UPDATE NO ACTION
-NOT DEFERRABLE;
-
-ALTER TABLE public.favorite_place ADD CONSTRAINT favorite_place_address_fk
-FOREIGN KEY (address_id)
-REFERENCES public.address (id)
 ON DELETE CASCADE
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
