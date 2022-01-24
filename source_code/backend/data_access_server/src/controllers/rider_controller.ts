@@ -94,4 +94,16 @@ export default class RiderController extends Controller {
     this.entityManager.deleteEntity("account", httpRequest, httpResponse); // Deleting the account will delete the
   // rider data too, because a CASCADE constraint is specified on the account_id
   // column.
+  
+  addFavoritePlace = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.createEntity("favorite_place", httpRequest, httpResponse);
+
+  getFavoritePlace = (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.getEntity("favorite_place", httpRequest, httpResponse);
+
+  updateFavoritePlace = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.updateEntity("favorite_place", httpRequest, httpResponse);
+
+  deleteFavoritePlace = async (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.deleteEntity("favorite_place", httpRequest, httpResponse);
 }
