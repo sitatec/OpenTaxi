@@ -12,7 +12,7 @@ const favoritePlacesRouter = Router();
 // some routes like "rider/:id" will be resolved as "rider/favorite_drivers"
 router.use("/favorite_drivers", favoriteDriversRouter);
 
-router.use("favorite_places", favoritePlacesRouter);
+router.use("/favorite_places", favoritePlacesRouter);
 
 router.post("/", riderController.createRider); // TODO add httpRequest data validation step.
 
@@ -36,8 +36,10 @@ favoritePlacesRouter.post("/", riderController.addFavoritePlace);
 
 favoritePlacesRouter.get("/", riderController.getFavoritePlace);
 
-favoritePlacesRouter.patch("/", riderController.updateFavoritePlace);
+favoritePlacesRouter.get("/:fields", riderController.getFavoritePlace);
 
-favoritePlacesRouter.delete("/", riderController.deleteFavoritePlace);
+favoritePlacesRouter.patch("/:id", riderController.updateFavoritePlace);
+
+favoritePlacesRouter.delete("/:id", riderController.deleteFavoritePlace);
 
 export default router;

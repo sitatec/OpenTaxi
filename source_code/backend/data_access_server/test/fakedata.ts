@@ -31,7 +31,7 @@ export const RIDER = {
   account_id: ACCOUNT.id,
   driver_gender_preference: "FEMALE",
   balance: "122.00",
-  payment_token: null
+  payment_token: null,
 };
 
 export const ADDRESS = {
@@ -58,7 +58,7 @@ export const DRIVER = {
   home_address_id: ADDRESS.id,
   is_south_african_citizen: true,
   is_online: false,
-  price_by_minute: "29.34"
+  price_by_minute: "29.34",
 };
 
 const PAYMENT_ID = 43;
@@ -84,7 +84,6 @@ export const BOOKING = {
   rider_id: RIDER.account_id,
   driver_id: DRIVER.account_id,
 };
-
 
 export const EMERGENCY_CONTACT = {
   id: 1,
@@ -139,4 +138,11 @@ export const REVIEW = {
   comment: "slfjslkf",
   author_id: RIDER.account_id,
   trip_id: TRIP.id,
+};
+
+export const FAVORITE_PLACE = {
+  id: "0",
+  street_address: "addr",
+  rider_id: RIDER.account_id,
+  place_label: "name",
 };

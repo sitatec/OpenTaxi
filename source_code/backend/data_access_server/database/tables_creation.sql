@@ -21,7 +21,7 @@ CREATE TYPE ACCOUNT_STATUS AS ENUM (
   'WAITING_FOR_APPROVAL',
   'SUSPENDED_FOR_UNPAID',
   'TEMPORARILY_SUSPENDED',
-  'DEFINITIVELY_BANNED',
+  'DEFINITIVELY_BANNED'
 );
 
 
@@ -54,7 +54,7 @@ CREATE TYPE SUPPORTED_BANK AS ENUM (
   'ABSA',
   'CAPITECH',
   'TYME'
-)
+);
 
 
 ---------------------  TABLES CREATION ---------------------
@@ -220,7 +220,7 @@ CREATE TABLE public.favorite_place (
   id BIGINT NOT NULL DEFAULT nextval('public.favorite_place_id_seq'),
   street_address VARCHAR NOT NULL,
   rider_id VARCHAR NOT NULL,
-  place_name VARCHAR,
+  place_label VARCHAR,
   CONSTRAINT favorite_place_pk PRIMARY KEY (id)
 );
 
@@ -253,7 +253,7 @@ CREATE TABLE public.bank_account (
   branch_code VARCHAR NOT NULL,
   driver_id VARCHAR NOT NULL,
   CONSTRAINT bank_account_pk PRIMARY KEY (id)
-)
+);
 
 ALTER SEQUENCE public.bank_account_id_seq OWNED BY public.bank_account.id;
 
