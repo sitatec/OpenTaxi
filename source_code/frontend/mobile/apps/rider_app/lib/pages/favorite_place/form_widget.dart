@@ -64,7 +64,16 @@ class _FavoritePlaceFormWidegetState extends State<FavoritePlaceFormWideget> {
           child: Column(
             children: [
               for (String? suggestion in _placeSuggestions)
-                if (suggestion != null) Text(suggestion),
+                if (suggestion != null)
+                  InkWell(
+                    child: Text(suggestion),
+                    onTap: () {
+                      setState(() {
+                        widget._placeAddressController.text = suggestion;
+                        _placeSuggestions.clear();
+                      });
+                    },
+                  ),
             ],
           ),
         ),
