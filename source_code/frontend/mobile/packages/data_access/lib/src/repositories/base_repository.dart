@@ -2,6 +2,8 @@ import 'package:data_access/src/constants.dart';
 import 'package:http_client/http_client.dart';
 import '../type_alias.dart';
 
+// TODO request only the needed field of the entities to reduce bandwidth and eventually improve data transfert speed (e.g: we need only some fields of the the driver entity)
+
 abstract class BaseRepository {
   final String entityPath;
   final HttpClient httpClient;

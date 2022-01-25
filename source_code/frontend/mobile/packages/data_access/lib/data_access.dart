@@ -12,4 +12,6 @@ export 'src/repositories/subscription_repository.dart';
 export 'src/repositories/trip_repository.dart';
 export 'src/repositories/address_repository.dart';
 export 'src/type_alias.dart';
+export 'src/repositories/favorite_place_repository.dart';
+
 export 'package:http_client/http_client.dart' show HttpException;
