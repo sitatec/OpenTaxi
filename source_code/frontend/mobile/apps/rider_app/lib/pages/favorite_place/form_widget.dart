@@ -5,7 +5,10 @@ class FavoritePlaceFormWideget extends StatefulWidget {
   final TextEditingController _placeLabelController;
   final TextEditingController _placeAddressController;
   final GoogleMapsPlaces _googleMapsPlaces;
+  final GlobalKey _formKey;
+
   FavoritePlaceFormWideget(
+    this._formKey,
     this._googleMapsPlaces, {
     Key? key,
     TextEditingController? placeLabelController,
@@ -40,44 +43,59 @@ class _FavoritePlaceFormWidegetState extends State<FavoritePlaceFormWideget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          controller: widget._placeLabelController,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
+    return Form(
+      key: widget._formKey,
+      child: Column(
+        children: [
+          TextFormField(
+            controller: widget._placeLabelController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              labelText: "Label (e.g. Home, Work)",
             ),
-            labelText: "Label (e.g. Home, Work)",
+            validator: (value) {
+              if (value == null || value.length < 2) {
+                return "Minimum 2 caracters";
+              }
+              return null;
+            },
           ),
-        ),
-        TextField(
-          controller: widget._placeAddressController,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(5),
+          TextFormField(
+            controller: widget._placeAddressController,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(5),
+              ),
+              labelText: "Address",
             ),
-            labelText: "Address",
+            validator: (value) {
+              if (value == null || value.length < 5) {
+                return "Minimum 5 caracters";
+              }
+              return null;
+            },
           ),
-        ),
-        SingleChildScrollView(
-          child: Column(
-            children: [
-              for (String? suggestion in _placeSuggestions)
-                if (suggestion != null)
-                  InkWell(
-                    child: Text(suggestion),
-                    onTap: () {
-                      setState(() {
-                        widget._placeAddressController.text = suggestion;
-                        _placeSuggestions.clear();
-                      });
-                    },
-                  ),
-            ],
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                for (String? suggestion in _placeSuggestions)
+                  if (suggestion != null)
+                    InkWell(
+                      child: Text(suggestion),
+                      onTap: () {
+                        setState(() {
+                          widget._placeAddressController.text = suggestion;
+                          _placeSuggestions.clear();
+                        });
+                      },
+                    ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

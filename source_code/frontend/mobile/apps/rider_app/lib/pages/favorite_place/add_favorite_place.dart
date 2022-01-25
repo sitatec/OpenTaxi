@@ -8,6 +8,7 @@ class AddFavoritePlacePage extends StatelessWidget {
   final _placeLabelController = TextEditingController();
   final _placeAddressController = TextEditingController();
   final Account _riderAccount;
+  final _formKey = GlobalKey<FormState>();
 
   AddFavoritePlacePage(this._riderAccount, {Key? key}) : super(key: key);
 
@@ -22,6 +23,7 @@ class AddFavoritePlacePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FavoritePlaceFormWideget(
+              _formKey,
               _googleMapsPlaces,
               placeLabelController: _placeLabelController,
               placeAddressController: _placeAddressController,
@@ -41,17 +43,19 @@ class AddFavoritePlacePage extends StatelessWidget {
   }
 
   Future<void> _addFavoritePlace() async {
-    final favoritePlaceRepository = FavoritePlaceRepository();
-    final accessToken = await _riderAccount.accessToken;
+    if (_formKey.currentState!.validate()) {
+      final favoritePlaceRepository = FavoritePlaceRepository();
+      final accessToken = await _riderAccount.accessToken;
 
-    await favoritePlaceRepository.create(
-      {
-        "street_address": _placeAddressController.text,
-        "rider_id": _riderAccount.id,
-        "place_label": _placeLabelController.text
-      },
-      accessToken!,
-    );
+      await favoritePlaceRepository.create(
+        {
+          "street_address": _placeAddressController.text,
+          "rider_id": _riderAccount.id,
+          "place_label": _placeLabelController.text
+        },
+        accessToken!,
+      );
+    }
   }
 
   void _showConfirmationDialog(BuildContext context) {

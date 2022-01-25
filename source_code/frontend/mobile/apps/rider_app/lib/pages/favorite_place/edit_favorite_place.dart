@@ -10,6 +10,7 @@ class AddFavoritePlacePage extends StatelessWidget {
   final String _accessToken;
   final String _id;
   final _favoritePlaceRepository = FavoritePlaceRepository();
+  final _formKey = GlobalKey<FormState>();
 
   AddFavoritePlacePage(
       String placeLabel, String placeAddress, this._accessToken, this._id,
@@ -41,6 +42,7 @@ class AddFavoritePlacePage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FavoritePlaceFormWideget(
+              _formKey,
               _googleMapsPlaces,
               placeLabelController: _placeLabelController,
               placeAddressController: _placeAddressController,
@@ -60,14 +62,16 @@ class AddFavoritePlacePage extends StatelessWidget {
   }
 
   Future<void> _updateFavoritePlace() async {
-    await _favoritePlaceRepository.update(
-      _id,
-      {
-        "street_address": _placeAddressController.text,
-        "place_label": _placeLabelController.text
-      },
-      _accessToken,
-    );
+    if (_formKey.currentState!.validate()) {
+      await _favoritePlaceRepository.update(
+        _id,
+        {
+          "street_address": _placeAddressController.text,
+          "place_label": _placeLabelController.text
+        },
+        _accessToken,
+      );
+    }
   }
 
   Future<void> _deleteFavoritePlace() async {
