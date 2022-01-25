@@ -3,7 +3,7 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:rider_app/pages/favorite_place/form_widget.dart';
 import 'package:shared/shared.dart';
 
-class AddFavoritePlacePage extends StatelessWidget {
+class EditFavoritePlacePage extends StatelessWidget {
   final _googleMapsPlaces = GoogleMapsPlaces();
   final TextEditingController _placeLabelController;
   final TextEditingController _placeAddressController;
@@ -12,7 +12,7 @@ class AddFavoritePlacePage extends StatelessWidget {
   final _favoritePlaceRepository = FavoritePlaceRepository();
   final _formKey = GlobalKey<FormState>();
 
-  AddFavoritePlacePage(
+  EditFavoritePlacePage(
       String placeLabel, String placeAddress, this._accessToken, this._id,
       {Key? key})
       : _placeAddressController = TextEditingController(text: placeAddress),
