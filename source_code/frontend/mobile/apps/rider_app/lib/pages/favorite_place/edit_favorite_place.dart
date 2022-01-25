@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:rider_app/pages/favorite_place/form_widget.dart';
+import 'package:shared/shared.dart';
 
 class AddFavoritePlacePage extends StatelessWidget {
   final _googleMapsPlaces = GoogleMapsPlaces();
   final TextEditingController _placeLabelController;
   final TextEditingController _placeAddressController;
+  final String _accessToken;
+  final String _id;
+  final _favoritePlaceRepository = FavoritePlaceRepository();
 
-  AddFavoritePlacePage(String placeLabel, String placeAddress, {Key? key})
+  AddFavoritePlacePage(
+      String placeLabel, String placeAddress, this._accessToken, this._id,
+      {Key? key})
       : _placeAddressController = TextEditingController(text: placeAddress),
         _placeLabelController = TextEditingController(text: placeLabel),
         super(key: key);
@@ -16,10 +22,13 @@ class AddFavoritePlacePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Edit Favorite Place"),
+        title: Text("Edit ${_placeLabelController.text}"),
         actions: [
           IconButton(
-            onPressed: _deleteFavoritePlace,
+            onPressed: () async {
+              await _deleteFavoritePlace();
+              _showConfirmationDialog(context, updated: false);
+            },
             icon: const Icon(
               Icons.delete,
               color: Colors.red,
@@ -38,7 +47,10 @@ class AddFavoritePlacePage extends StatelessWidget {
             ),
             const SizedBox(height: 32),
             TextButton(
-              onPressed: _updateFavoritePlace,
+              onPressed: () async {
+                await _updateFavoritePlace();
+                _showConfirmationDialog(context);
+              },
               child: const Text("UPDATE"),
             ),
           ],
@@ -47,7 +59,41 @@ class AddFavoritePlacePage extends StatelessWidget {
     );
   }
 
-  void _updateFavoritePlace() {}
+  Future<void> _updateFavoritePlace() async {
+    await _favoritePlaceRepository.update(
+      _id,
+      {
+        "street_address": _placeAddressController.text,
+        "place_label": _placeLabelController.text
+      },
+      _accessToken,
+    );
+  }
 
-  void _deleteFavoritePlace() {}
+  Future<void> _deleteFavoritePlace() async {
+    await _favoritePlaceRepository.delete(_id, _accessToken);
+  }
+
+  void _showConfirmationDialog(BuildContext context, {bool updated = true}) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "${_placeLabelController.text} Successfully ${updated ? 'added to' : 'deleted from'} your favorite places.",
+            textAlign: TextAlign.center,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text("OK"),
+            )
+          ],
+        );
+      },
+    );
+  }
 }
