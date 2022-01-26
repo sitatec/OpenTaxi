@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:shared/shared.dart';
 
 class PlaceSelectionPage extends StatefulWidget {
@@ -18,6 +20,29 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
   bool destinationTextFieldHasFocus = false;
   final List<String> originAutocompletedAddresses = [];
   final List<String> destinationAutocompletedAddresses = [];
+  bool isKeyboardVisible = false;
+  late StreamSubscription<bool> keyboardSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final keyboardVisibilityController = KeyboardVisibilityController();
+
+    keyboardSubscription =
+        keyboardVisibilityController.onChange.listen((bool visible) {
+      debugPrint("IS_KEYBOARD_VISIBLE === $visible");
+      setState(() {
+        isKeyboardVisible = visible;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    keyboardSubscription.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,75 +110,127 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                     style: TextButton.styleFrom(padding: EdgeInsets.zero),
                   ),
                 ),
-                if (!_shouldShowAutocompletedAddresses())
-                  Column(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.only(
-                          left: 16,
-                          top: 16,
-                          bottom: 5,
-                        ),
-                        width: double.infinity,
-                        color: lightGray,
-                        child: const Text(
-                          "FAVORITE ADDRESSES",
-                          style: TextStyle(color: gray, fontSize: 13),
+                Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        top: 16,
+                        bottom: 5,
+                      ),
+                      width: double.infinity,
+                      color: lightGray,
+                      child: const Text(
+                        "FAVORITE ADDRESSES",
+                        style: TextStyle(color: gray, fontSize: 13),
+                      ),
+                    ),
+                    _FavoritePlaceWidget(
+                      icon: Icon(
+                        Icons.house,
+                        color: theme.disabledColor,
+                        size: 26,
+                      ),
+                      title: const Text("Home", textScaleFactor: 1.2),
+                      address: Text(
+                        "Ponomarenko 98",
+                        style: TextStyle(color: theme.disabledColor),
+                      ),
+                    ),
+                    const Divider(indent: 56, height: 1),
+                    _FavoritePlaceWidget(
+                      icon: Icon(
+                        Icons.work,
+                        color: theme.disabledColor,
+                        size: 26,
+                      ),
+                      title: const Text("Work", textScaleFactor: 1.2),
+                      address: Text(
+                        "prospekt Dzerzhinskogo, 123lsjflsjflksqljd",
+                        overflow: TextOverflow.fade,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: TextStyle(
+                          color: theme.disabledColor,
                         ),
                       ),
-                      _FavoritePlaceWidget(
-                        icon: Icon(
-                          Icons.house,
-                          color: theme.disabledColor,
-                          size: 26,
-                        ),
-                        title: const Text("Home", textScaleFactor: 1.2),
-                        address: Text(
-                          "Ponomarenko 98",
-                          style: TextStyle(color: theme.disabledColor),
-                        ),
-                      ),
-                      const Divider(indent: 56, height: 1),
-                      _FavoritePlaceWidget(
-                        icon: Icon(
-                          Icons.work,
-                          color: theme.disabledColor,
-                          size: 26,
-                        ),
-                        title: const Text("Work", textScaleFactor: 1.2),
-                        address: Text(
-                          "prospekt Dzerzhinskogo, 123lsjflsjflksqljd",
-                          overflow: TextOverflow.fade,
-                          maxLines: 1,
-                          softWrap: false,
-                          style: TextStyle(
-                            color: theme.disabledColor,
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
+                    )
+                  ],
+                ),
               ],
             ),
           ),
-          TextButton(
-            onPressed: () {},
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: const [
-                Text(
-                  "Choose on map",
-                  style: TextStyle(fontSize: 17),
+          isKeyboardVisible
+              ? TextButton(
+                  onPressed: () {},
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Text(
+                        "Choose on map",
+                        style: TextStyle(fontSize: 17),
+                      )
+                    ],
+                  ),
+                  style: TextButton.styleFrom(
+                    elevation: 5,
+                    backgroundColor: Colors.white,
+                    // primary: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 9),
+                  ),
                 )
-              ],
-            ),
-            style: TextButton.styleFrom(
-              elevation: 5,
-              backgroundColor: Colors.white,
-              // primary: Colors.black,
-              padding: const EdgeInsets.symmetric(vertical: 9),
-            ),
-          )
+              : Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      TextButton(
+                        onPressed: () {},
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: const Text(
+                            "Ride Now",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          primary: Colors.white,
+                          backgroundColor: theme.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextButton(
+                        onPressed: () {},
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 5),
+                          child: const Text(
+                            "Ride Later",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        style: TextButton.styleFrom(
+                          primary: Colors.white,
+                          backgroundColor: theme.primaryColor,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
         ],
       ),
     );

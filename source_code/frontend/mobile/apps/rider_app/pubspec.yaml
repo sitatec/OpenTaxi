@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
   firebase_core: ^1.10.0
   qr_code_scanner: ^0.6.1
+  flutter_keyboard_visibility: ^5.1.1
   google_maps_webservice: ^0.0.20-nullsafety.5
   shared:
     path: ../../packages/shared

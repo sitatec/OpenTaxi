@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:rider_app/pages/place_selection_page.dart';
 import 'package:shared/shared.dart';
 
 class HomePage extends StatefulWidget {
@@ -41,28 +42,28 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                      children: [
-                        FavoritePlaceWidget(
-                          child: const Icon(
-                            Icons.add,
-                            color: Colors.black87,
-                          ),
-                          padding: const EdgeInsets.all(7.6),
-                          onClicked: showFavoritePlaceDialog,
-                        ),
-                        const SizedBox(width: 12),
-                        const FavoritePlaceWidget(child: Text("Home")),
-                        const SizedBox(width: 12),
-                        const FavoritePlaceWidget(child: Text("Work"))
-                      ],
-                    ),
-                  ),
-                ),
+                // Align(
+                //   alignment: Alignment.bottomLeft,
+                //   child: Padding(
+                //     padding: const EdgeInsets.all(8),
+                //     child: Row(
+                //       children: [
+                //         FavoritePlaceWidget(
+                //           child: const Icon(
+                //             Icons.add,
+                //             color: Colors.black87,
+                //           ),
+                //           padding: const EdgeInsets.all(7.6),
+                //           onClicked: showFavoritePlaceDialog,
+                //         ),
+                //         const SizedBox(width: 12),
+                //         const FavoritePlaceWidget(child: Text("Home")),
+                //         const SizedBox(width: 12),
+                //         const FavoritePlaceWidget(child: Text("Work"))
+                //       ],
+                //     ),
+                //   ),
+                // ),
               ],
             ),
           ),
@@ -75,7 +76,15 @@ class _HomePageState extends State<HomePage> {
             ),
             color: Colors.white,
             child: InkWell(
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return const PlaceSelectionPage();
+                    },
+                  ),
+                );
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 16,
@@ -100,80 +109,80 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> showFavoritePlaceDialog([String? _placeName, String? _address]) {
-    String? placeName = _placeName;
-    String? address = _address;
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          "New Favorite Place",
-          textAlign: TextAlign.center,
-        ),
-        contentPadding: const EdgeInsets.all(16),
-        content: Wrap(
-          alignment: WrapAlignment.center,
-          children: [
-            TextField(
-              controller: TextEditingController(text: placeName),
-              onChanged: (newValue) => placeName = newValue,
-              decoration: const InputDecoration(
-                labelText: "Label (e.g. Home, Work)",
-              ),
-            ),
-            TextField(
-              controller: TextEditingController(text: address),
-              onChanged: (newValue) => address = newValue,
-              decoration: const InputDecoration(
-                labelText: "Address",
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: SmallRoundedCornerButton(
-                "Add",
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 8,
-                ),
-                onPressed: () =>
-                    Navigator.of(context).pop(MapEntry(placeName, address)),
-                backgroundColor: Theme.of(context).primaryColor,
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
+  // Future<void> showFavoritePlaceDialog([String? _placeName, String? _address]) {
+  //   String? placeName = _placeName;
+  //   String? address = _address;
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       title: const Text(
+  //         "New Favorite Place",
+  //         textAlign: TextAlign.center,
+  //       ),
+  //       contentPadding: const EdgeInsets.all(16),
+  //       content: Wrap(
+  //         alignment: WrapAlignment.center,
+  //         children: [
+  //           TextField(
+  //             controller: TextEditingController(text: placeName),
+  //             onChanged: (newValue) => placeName = newValue,
+  //             decoration: const InputDecoration(
+  //               labelText: "Label (e.g. Home, Work)",
+  //             ),
+  //           ),
+  //           TextField(
+  //             controller: TextEditingController(text: address),
+  //             onChanged: (newValue) => address = newValue,
+  //             decoration: const InputDecoration(
+  //               labelText: "Address",
+  //             ),
+  //           ),
+  //           Padding(
+  //             padding: const EdgeInsets.only(top: 16),
+  //             child: SmallRoundedCornerButton(
+  //               "Add",
+  //               padding: const EdgeInsets.symmetric(
+  //                 horizontal: 24,
+  //                 vertical: 8,
+  //               ),
+  //               onPressed: () =>
+  //                   Navigator.of(context).pop(MapEntry(placeName, address)),
+  //               backgroundColor: Theme.of(context).primaryColor,
+  //             ),
+  //           )
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 }
 
-class FavoritePlaceWidget extends StatelessWidget {
-  final Color backgroundColor;
-  final Widget child;
-  final VoidCallback? onClicked;
-  final EdgeInsets padding;
+// class FavoritePlaceWidget extends StatelessWidget {
+//   final Color backgroundColor;
+//   final Widget child;
+//   final VoidCallback? onClicked;
+//   final EdgeInsets padding;
 
-  const FavoritePlaceWidget({
-    Key? key,
-    required this.child,
-    this.onClicked,
-    this.padding = const EdgeInsets.all(8),
-    this.backgroundColor = Colors.white,
-  }) : super(key: key);
+//   const FavoritePlaceWidget({
+//     Key? key,
+//     required this.child,
+//     this.onClicked,
+//     this.padding = const EdgeInsets.all(8),
+//     this.backgroundColor = Colors.white,
+//   }) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onClicked,
-      child: Container(
-        padding: padding,
-        decoration: BoxDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(5),
-        ),
-        child: child,
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return InkWell(
+//       onTap: onClicked,
+//       child: Container(
+//         padding: padding,
+//         decoration: BoxDecoration(
+//           color: backgroundColor,
+//           borderRadius: BorderRadius.circular(5),
+//         ),
+//         child: child,
+//       ),
+//     );
+//   }
+// }
