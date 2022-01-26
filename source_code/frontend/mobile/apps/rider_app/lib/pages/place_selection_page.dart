@@ -27,6 +27,16 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
   final _googlePlacesApi = GoogleMapsPlaces(apiKey: googlePlacesAPIKey);
   Location? autocompleteOrigin, autocompleteLocation;
   final locationManager = LocationManager();
+  final stopAddresses = <String>[];
+
+  bool get buttonsEnabled {
+    for (String address in stopAddresses) {
+      if (address.length < 5) {
+        return false;
+      }
+    }
+    return origin.length > 5 && destination.length > 5;
+  }
 
   @override
   void initState() {
@@ -57,12 +67,11 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
     final theme = Theme.of(context);
     return Scaffold(
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SingleChildScrollView(
-            child: Column(
+          Expanded(
+            child: ListView(
               children: [
-                const SizedBox(height: 75),
+                const SizedBox(height: 50),
                 Row(
                   children: [
                     Padding(
@@ -139,6 +148,83 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                     )
                   ],
                 ),
+                for (int i = 0; i < stopAddresses.length; i++) ...[
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Icon(
+                          Icons.stop_circle_outlined,
+                          color: theme.accentColor,
+                        ),
+                      ),
+                      Expanded(
+                        child: Autocomplete<Prediction>(
+                          optionsBuilder: (textEditingValue) async {
+                            if (textEditingValue.text.trim().isEmpty) {
+                              return const <Prediction>[];
+                            }
+                            final autocompleteResponse =
+                                await _googlePlacesApi.autocomplete(
+                              textEditingValue.text,
+                              origin: autocompleteOrigin,
+                              location: autocompleteLocation,
+                            );
+                            return autocompleteResponse.predictions;
+                          },
+                          optionsViewBuilder: (context, onSelected, options) {
+                            return ListView.builder(
+                                itemBuilder: (context, index) {
+                              final prediction = options.elementAt(index);
+                              return ListTile(
+                                title: Text(prediction.description ?? ""),
+                              );
+                            });
+                          },
+                          fieldViewBuilder: (
+                            context,
+                            textEditingController,
+                            focusNode,
+                            onFieldSubmitted,
+                          ) {
+                            return TextField(
+                              controller: textEditingController,
+                              focusNode: focusNode,
+                              onChanged: (value) => stopAddresses[i] = value,
+                              decoration: InputDecoration(
+                                contentPadding:
+                                    const EdgeInsets.symmetric(horizontal: 8),
+                                hintText: "Stop",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFDADADA),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      InkWell(
+                        onTap: () {
+                          setState(() {
+                            stopAddresses.removeAt(i);
+                          });
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Icons.close,
+                            size: 26,
+                            color: theme.disabledColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
                 const SizedBox(height: 16),
                 Row(
                   children: [
@@ -194,7 +280,21 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                       ),
                     ),
                     InkWell(
-                      onTap: () {},
+                      onTap: () {
+                        if (stopAddresses.isNotEmpty &&
+                            stopAddresses.last.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                  "Please enter the address of the previous stop first."),
+                            ),
+                          );
+                          return;
+                        }
+                        setState(() {
+                          stopAddresses.add("");
+                        });
+                      },
                       child: const Padding(
                         padding: EdgeInsets.all(8),
                         child: Icon(
@@ -254,87 +354,88 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
               ],
             ),
           ),
-          isKeyboardVisible
-              ? TextButton(
-                  onPressed: () {},
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: const [
-                      Text(
-                        "Choose on map",
-                        style: TextStyle(fontSize: 17),
-                      )
-                    ],
-                  ),
-                  style: TextButton.styleFrom(
-                    elevation: 5,
-                    backgroundColor: Colors.white,
-                    // primary: Colors.black,
-                    padding: const EdgeInsets.symmetric(vertical: 9),
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    children: [
-                      TextButton(
-                        onPressed: origin.length < 5 && destination.length < 5
-                            ? null
-                            : () {},
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: const Text(
-                            "Ride Now",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: isKeyboardVisible
+                ? TextButton(
+                    onPressed: () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Text(
+                          "Choose on map",
+                          style: TextStyle(fontSize: 17),
+                        )
+                      ],
+                    ),
+                    style: TextButton.styleFrom(
+                      elevation: 5,
+                      backgroundColor: Colors.white,
+                      // primary: Colors.black,
+                      padding: const EdgeInsets.symmetric(vertical: 9),
+                    ),
+                  )
+                : Container(
+                    color: theme.scaffoldBackgroundColor,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        TextButton(
+                          onPressed: !buttonsEnabled ? null : () {},
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: const Text(
+                              "Ride Now",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          style: TextButton.styleFrom(
+                            primary: Colors.white,
+                            elevation: 3,
+                            backgroundColor: buttonsEnabled
+                                ? theme.primaryColor
+                                : theme.scaffoldBackgroundColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
                         ),
-                        style: TextButton.styleFrom(
-                          primary: Colors.white,
-                          backgroundColor:
-                              origin.length < 5 && destination.length < 5
-                                  ? null
-                                  : theme.primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                        const SizedBox(height: 16),
+                        TextButton(
+                          onPressed: !buttonsEnabled ? null : () {},
+                          child: Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: const Text(
+                              "Ride Later",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      TextButton(
-                        onPressed: origin.length < 5 && destination.length < 5
-                            ? null
-                            : () {},
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          child: const Text(
-                            "Ride Later",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                          style: TextButton.styleFrom(
+                            primary: Colors.white,
+                            backgroundColor: buttonsEnabled
+                                ? theme.primaryColor
+                                : theme.scaffoldBackgroundColor,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
                             ),
                           ),
                         ),
-                        style: TextButton.styleFrom(
-                          primary: Colors.white,
-                          backgroundColor:
-                              origin.length < 5 && destination.length < 5
-                                  ? null
-                                  : theme.primaryColor,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+          ),
         ],
       ),
     );
