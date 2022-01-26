@@ -63,143 +63,193 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
             child: Column(
               children: [
                 const SizedBox(height: 75),
-                Autocomplete<Prediction>(
-                  optionsBuilder: (TextEditingValue textEditingValue) async {
-                    if (textEditingValue.text.trim().isEmpty) {
-                      return const <Prediction>[];
-                    }
-                    final autocompleteResponse =
-                        await _googlePlacesApi.autocomplete(
-                      textEditingValue.text,
-                      origin: autocompleteOrigin,
-                      location: autocompleteLocation,
-                    );
-                    print(autocompleteResponse.status);
-                    print(autocompleteResponse.predictions.length);
-                    return autocompleteResponse.predictions;
-                  },
-                  optionsViewBuilder: (context, onSelected, options) {
-                    return ListView.builder(itemBuilder: (context, index) {
-                      final prediction = options.elementAt(index);
-                      return ListTile(
-                        title: Text(prediction.description ?? ""),
-                      );
-                    });
-                  },
-                  fieldViewBuilder: (
-                    context,
-                    textEditingController,
-                    focusNode,
-                    onFieldSubmitted,
-                  ) {
-                    focusNode.addListener(() {
-                      setState(() {
-                        originTextFieldHint =
-                            focusNode.hasFocus ? "From" : "Current location";
-                      });
-                    });
-                    return TextField(
-                      controller: textEditingController,
-                      onChanged: (value) => origin = value,
-                      focusNode: focusNode,
-                      decoration: InputDecoration(
-                        hintText: originTextFieldHint,
-                        border: InputBorder.none,
-                        prefixIcon: Transform.rotate(
-                          angle: 0.7,
-                          child: Icon(
-                            Icons.navigation,
-                            color: theme.primaryColor,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                const Divider(indent: 48, height: 1),
-                Autocomplete<Prediction>(
-                  optionsBuilder: (textEditingValue) async {
-                    if (textEditingValue.text.trim().isEmpty) {
-                      return const <Prediction>[];
-                    }
-                    final autocompleteResponse =
-                        await _googlePlacesApi.autocomplete(
-                      textEditingValue.text,
-                      origin: autocompleteOrigin,
-                      location: autocompleteLocation,
-                    );
-                    return autocompleteResponse.predictions;
-                  },
-                  optionsViewBuilder: (context, onSelected, options) {
-                    return ListView.builder(itemBuilder: (context, index) {
-                      final prediction = options.elementAt(index);
-                      return ListTile(
-                        title: Text(prediction.description ?? ""),
-                      );
-                    });
-                  },
-                  fieldViewBuilder: (context, textEditingController, focusNode,
-                      onFieldSubmitted) {
-                    return TextField(
-                      controller: textEditingController,
-                      focusNode: focusNode,
-                      onChanged: (value) => destination = value,
-                      decoration: InputDecoration(
-                        hintText: "To",
-                        border: InputBorder.none,
-                        prefixIcon: Icon(
-                          Icons.location_on,
-                          color: theme.errorColor,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Image.asset(
+                        "assets/images/pickup.png",
+                        width: 23,
+                        height: 23,
+                      ),
+                    ),
+                    Expanded(
+                      child: Autocomplete<Prediction>(
+                        optionsBuilder:
+                            (TextEditingValue textEditingValue) async {
+                          if (textEditingValue.text.trim().isEmpty) {
+                            return const <Prediction>[];
+                          }
+                          final autocompleteResponse =
+                              await _googlePlacesApi.autocomplete(
+                            textEditingValue.text,
+                            origin: autocompleteOrigin,
+                            location: autocompleteLocation,
+                          );
+                          print(autocompleteResponse.status);
+                          print(autocompleteResponse.predictions.length);
+                          return autocompleteResponse.predictions;
+                        },
+                        optionsViewBuilder: (context, onSelected, options) {
+                          return ListView.builder(
+                              itemBuilder: (context, index) {
+                            final prediction = options.elementAt(index);
+                            return ListTile(
+                              title: Text(prediction.description ?? ""),
+                            );
+                          });
+                        },
+                        fieldViewBuilder: (
+                          context,
+                          textEditingController,
+                          focusNode,
+                          onFieldSubmitted,
+                        ) {
+                          focusNode.addListener(() {
+                            setState(() {
+                              originTextFieldHint = focusNode.hasFocus
+                                  ? "From"
+                                  : "Current location";
+                            });
+                          });
+                          return TextField(
+                            controller: textEditingController,
+                            onChanged: (value) => origin = value,
+                            focusNode: focusNode,
+                            decoration: InputDecoration(
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              hintText: originTextFieldHint,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(6),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFDADADA),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
                     const Padding(
-                      padding: EdgeInsets.only(
-                        left: 16,
-                        top: 16,
-                        bottom: 5,
-                      ),
-                      child: Text(
-                        "FAVORITE ADDRESSES",
-                        style: TextStyle(color: gray, fontSize: 13),
-                      ),
-                    ),
-                    _FavoritePlaceWidget(
-                      icon: Icon(
-                        Icons.house,
-                        color: theme.disabledColor,
-                        size: 26,
-                      ),
-                      title: const Text("Home", textScaleFactor: 1.2),
-                      address: Text(
-                        "Ponomarenko 98",
-                        style: TextStyle(color: theme.disabledColor),
-                      ),
-                    ),
-                    const Divider(indent: 56, height: 1),
-                    _FavoritePlaceWidget(
-                      icon: Icon(
-                        Icons.work,
-                        color: theme.disabledColor,
-                        size: 26,
-                      ),
-                      title: const Text("Work", textScaleFactor: 1.2),
-                      address: Text(
-                        "prospekt Dzerzhinskogo, 123lsjflsjflksqljd",
-                        overflow: TextOverflow.fade,
-                        maxLines: 1,
-                        softWrap: false,
-                        style: TextStyle(
-                          color: theme.disabledColor,
-                        ),
+                      padding: EdgeInsets.all(8),
+                      child: SizedBox(
+                        width: 26,
                       ),
                     )
                   ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Icon(
+                        Icons.location_on,
+                        color: theme.errorColor,
+                      ),
+                    ),
+                    Expanded(
+                      child: Autocomplete<Prediction>(
+                        optionsBuilder: (textEditingValue) async {
+                          if (textEditingValue.text.trim().isEmpty) {
+                            return const <Prediction>[];
+                          }
+                          final autocompleteResponse =
+                              await _googlePlacesApi.autocomplete(
+                            textEditingValue.text,
+                            origin: autocompleteOrigin,
+                            location: autocompleteLocation,
+                          );
+                          return autocompleteResponse.predictions;
+                        },
+                        optionsViewBuilder: (context, onSelected, options) {
+                          return ListView.builder(
+                              itemBuilder: (context, index) {
+                            final prediction = options.elementAt(index);
+                            return ListTile(
+                              title: Text(prediction.description ?? ""),
+                            );
+                          });
+                        },
+                        fieldViewBuilder: (context, textEditingController,
+                            focusNode, onFieldSubmitted) {
+                          return TextField(
+                            controller: textEditingController,
+                            focusNode: focusNode,
+                            onChanged: (value) => destination = value,
+                            decoration: InputDecoration(
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 8),
+                              hintText: "To",
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(6),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFFDADADA),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {},
+                      child: const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Icon(
+                          Icons.add,
+                          size: 26,
+                          color: gray,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          "FAVORITE ADDRESSES",
+                          style: TextStyle(fontSize: 13),
+                        ),
+                      ),
+                      _FavoritePlaceWidget(
+                        icon: Icon(
+                          Icons.house,
+                          color: theme.disabledColor,
+                        ),
+                        title: const Text("Home", textScaleFactor: 1.2),
+                        address: Text(
+                          "Ponomarenko 98",
+                          style: TextStyle(color: theme.disabledColor),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _FavoritePlaceWidget(
+                        icon: Icon(
+                          Icons.work,
+                          color: theme.disabledColor,
+                        ),
+                        title: const Text("Work", textScaleFactor: 1.2),
+                        address: Text(
+                          "prospekt Dzerzhinskogo, 123lsjflsjflksqljd",
+                          overflow: TextOverflow.fade,
+                          maxLines: 1,
+                          softWrap: false,
+                          style: TextStyle(
+                            color: theme.disabledColor,
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -314,8 +364,13 @@ class _FavoritePlaceWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      decoration: BoxDecoration(
+        color: lightGray,
+        border: Border.all(color: gray.withAlpha(100)),
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Row(
         children: [
           icon,
