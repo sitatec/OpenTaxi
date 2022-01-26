@@ -1,8 +1,9 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:rider_app/configs/secrets.dart';
 import 'package:shared/shared.dart';
 
 class PlaceSelectionPage extends StatefulWidget {
@@ -22,16 +23,23 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
   final List<String> destinationAutocompletedAddresses = [];
   bool isKeyboardVisible = false;
   late StreamSubscription<bool> keyboardSubscription;
+  final keyboardVisibilityController = KeyboardVisibilityController();
+  final _googlePlacesApi = GoogleMapsPlaces(apiKey: googlePlacesAPIKey);
+  Location? autocompleteOrigin, autocompleteLocation;
+  final locationManager = LocationManager();
 
   @override
   void initState() {
     super.initState();
-
-    final keyboardVisibilityController = KeyboardVisibilityController();
-
+    locationManager.initialize().then((_) {
+      locationManager.getCurrentCoordinates().then((value) {
+        final location = Location(lat: value.latitude, lng: value.longitude);
+        autocompleteLocation = location;
+        autocompleteOrigin = location;
+      });
+    });
     keyboardSubscription =
         keyboardVisibilityController.onChange.listen((bool visible) {
-      debugPrint("IS_KEYBOARD_VISIBLE === $visible");
       setState(() {
         isKeyboardVisible = visible;
       });
@@ -54,73 +62,109 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
           SingleChildScrollView(
             child: Column(
               children: [
-                Container(height: 75, color: lightGray),
-                Focus(
-                  onFocusChange: (hasFocus) => setState(() {
-                    originTextFieldHasFocus = hasFocus;
-                    originTextFieldHint =
-                        hasFocus ? "From" : "Current location";
-                  }),
-                  child: TextField(
-                    onChanged: (value) => origin = value,
-                    decoration: InputDecoration(
-                      hintText: originTextFieldHint,
-                      border: InputBorder.none,
-                      prefixIcon: Transform.rotate(
-                        angle: 0.7,
-                        child: IconButton(
-                          icon: Icon(
+                const SizedBox(height: 75),
+                Autocomplete<Prediction>(
+                  optionsBuilder: (TextEditingValue textEditingValue) async {
+                    if (textEditingValue.text.trim().isEmpty) {
+                      return const <Prediction>[];
+                    }
+                    final autocompleteResponse =
+                        await _googlePlacesApi.autocomplete(
+                      textEditingValue.text,
+                      origin: autocompleteOrigin,
+                      location: autocompleteLocation,
+                    );
+                    print(autocompleteResponse.status);
+                    print(autocompleteResponse.predictions.length);
+                    return autocompleteResponse.predictions;
+                  },
+                  optionsViewBuilder: (context, onSelected, options) {
+                    return ListView.builder(itemBuilder: (context, index) {
+                      final prediction = options.elementAt(index);
+                      return ListTile(
+                        title: Text(prediction.description ?? ""),
+                      );
+                    });
+                  },
+                  fieldViewBuilder: (
+                    context,
+                    textEditingController,
+                    focusNode,
+                    onFieldSubmitted,
+                  ) {
+                    focusNode.addListener(() {
+                      setState(() {
+                        originTextFieldHint =
+                            focusNode.hasFocus ? "From" : "Current location";
+                      });
+                    });
+                    return TextField(
+                      controller: textEditingController,
+                      onChanged: (value) => origin = value,
+                      focusNode: focusNode,
+                      decoration: InputDecoration(
+                        hintText: originTextFieldHint,
+                        border: InputBorder.none,
+                        prefixIcon: Transform.rotate(
+                          angle: 0.7,
+                          child: Icon(
                             Icons.navigation,
                             color: theme.primaryColor,
                           ),
-                          onPressed: null,
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
                 const Divider(indent: 48, height: 1),
-                Focus(
-                  onFocusChange: (hasFocus) => setState(() {
-                    destinationTextFieldHasFocus = hasFocus;
-                  }),
-                  child: TextField(
-                    onChanged: (value) => destination = value,
-                    decoration: InputDecoration(
-                      hintText: "To",
-                      border: InputBorder.none,
-                      prefixIcon: IconButton(
-                        icon: Icon(
+                Autocomplete<Prediction>(
+                  optionsBuilder: (textEditingValue) async {
+                    if (textEditingValue.text.trim().isEmpty) {
+                      return const <Prediction>[];
+                    }
+                    final autocompleteResponse =
+                        await _googlePlacesApi.autocomplete(
+                      textEditingValue.text,
+                      origin: autocompleteOrigin,
+                      location: autocompleteLocation,
+                    );
+                    return autocompleteResponse.predictions;
+                  },
+                  optionsViewBuilder: (context, onSelected, options) {
+                    return ListView.builder(itemBuilder: (context, index) {
+                      final prediction = options.elementAt(index);
+                      return ListTile(
+                        title: Text(prediction.description ?? ""),
+                      );
+                    });
+                  },
+                  fieldViewBuilder: (context, textEditingController, focusNode,
+                      onFieldSubmitted) {
+                    return TextField(
+                      controller: textEditingController,
+                      focusNode: focusNode,
+                      onChanged: (value) => destination = value,
+                      decoration: InputDecoration(
+                        hintText: "To",
+                        border: InputBorder.none,
+                        prefixIcon: Icon(
                           Icons.location_on,
                           color: theme.errorColor,
                         ),
-                        onPressed: null,
                       ),
-                    ),
-                  ),
-                ),
-                Container(
-                  alignment: Alignment.centerLeft,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  width: double.infinity,
-                  color: lightGray,
-                  child: TextButton(
-                    onPressed: () {},
-                    child: const Text("+ Add stop"),
-                    style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                  ),
+                    );
+                  },
                 ),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      padding: const EdgeInsets.only(
+                    const Padding(
+                      padding: EdgeInsets.only(
                         left: 16,
                         top: 16,
                         bottom: 5,
                       ),
-                      width: double.infinity,
-                      color: lightGray,
-                      child: const Text(
+                      child: Text(
                         "FAVORITE ADDRESSES",
                         style: TextStyle(color: gray, fontSize: 13),
                       ),
@@ -184,7 +228,9 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                   child: Column(
                     children: [
                       TextButton(
-                        onPressed: () {},
+                        onPressed: origin.length < 5 && destination.length < 5
+                            ? null
+                            : () {},
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(vertical: 5),
@@ -199,7 +245,10 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                         ),
                         style: TextButton.styleFrom(
                           primary: Colors.white,
-                          backgroundColor: theme.primaryColor,
+                          backgroundColor:
+                              origin.length < 5 && destination.length < 5
+                                  ? null
+                                  : theme.primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -207,7 +256,9 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                       ),
                       const SizedBox(height: 16),
                       TextButton(
-                        onPressed: () {},
+                        onPressed: origin.length < 5 && destination.length < 5
+                            ? null
+                            : () {},
                         child: Container(
                           width: double.infinity,
                           padding: const EdgeInsets.symmetric(vertical: 5),
@@ -222,7 +273,10 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                         ),
                         style: TextButton.styleFrom(
                           primary: Colors.white,
-                          backgroundColor: theme.primaryColor,
+                          backgroundColor:
+                              origin.length < 5 && destination.length < 5
+                                  ? null
+                                  : theme.primaryColor,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -236,15 +290,15 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
     );
   }
 
-  bool _shouldShowAutocompletedAddresses() {
-    if (destinationTextFieldHasFocus) {
-      return destinationAutocompletedAddresses.isNotEmpty;
-    } else if (originTextFieldHasFocus) {
-      return originAutocompletedAddresses.isNotEmpty;
-    } else {
-      return false;
-    }
-  }
+  // bool _shouldShowAutocompletedAddresses() {
+  //   if (destinationTextFieldHasFocus) {
+  //     return destinationAutocompletedAddresses.isNotEmpty;
+  //   } else if (originTextFieldHasFocus) {
+  //     return originAutocompletedAddresses.isNotEmpty;
+  //   } else {
+  //     return false;
+  //   }
+  // }
 }
 
 class _FavoritePlaceWidget extends StatelessWidget {
