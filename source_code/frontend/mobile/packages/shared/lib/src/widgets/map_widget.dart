@@ -2,16 +2,24 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:shared/shared.dart';
 
 class MapWidget extends StatefulWidget {
   final EdgeInsets padding;
   final Set<Polyline> polylines;
   final Completer<GoogleMapController> controller;
   final Set<Marker> markers;
+  final bool myLocationEnabled;
+  final bool myLocationButtonEnabled;
+  final Coordinates? initialCoordinates;
+
   const MapWidget({
     Key? key,
     this.padding = EdgeInsets.zero,
     this.polylines = const {},
+    this.myLocationEnabled = false,
+    this.myLocationButtonEnabled = false,
+    this.initialCoordinates,
     required this.controller,
     this.markers = const {},
   }) : super(key: key);
@@ -21,22 +29,37 @@ class MapWidget extends StatefulWidget {
 }
 
 class _MapWidgetState extends State<MapWidget> {
-  static const CameraPosition _southAfrica = CameraPosition(
-    target: LatLng(-34.2973267, 18.252956),
-    zoom: 5,
-  );
+  LatLng _getInitalLocation() {
+    if (widget.initialCoordinates != null) {
+      return LatLng(
+        widget.initialCoordinates!.latitude,
+        widget.initialCoordinates!.longitude,
+      );
+    } else {
+      return const LatLng(-34.2973267, 18.252956); // South Africa
+    }
+  }
+
+  CameraPosition _getInitialCameraPosition() {
+    return CameraPosition(
+      target: _getInitalLocation(),
+      zoom: 5,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return GoogleMap(
       padding: widget.padding,
-      initialCameraPosition: _southAfrica,
+      initialCameraPosition: _getInitialCameraPosition(),
       zoomControlsEnabled: false,
       markers: widget.markers,
       polylines: widget.polylines,
       onMapCreated: (GoogleMapController controller) {
         widget.controller.complete(controller);
       },
+      myLocationEnabled: widget.myLocationEnabled,
+      myLocationButtonEnabled: widget.myLocationButtonEnabled,
     );
   }
 }
