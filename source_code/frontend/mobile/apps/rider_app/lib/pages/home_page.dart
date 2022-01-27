@@ -5,7 +5,8 @@ import 'package:rider_app/pages/place_selection_page.dart';
 import 'package:shared/shared.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  final Account _riderAccount;
+  const HomePage(this._riderAccount, {Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -80,7 +81,7 @@ class _HomePageState extends State<HomePage> {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (context) {
-                      return const PlaceSelectionPage();
+                      return PlaceSelectionPage(widget._riderAccount);
                     },
                   ),
                 );

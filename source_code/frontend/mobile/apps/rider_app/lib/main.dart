@@ -132,7 +132,7 @@ class App extends StatelessWidget {
                             ),
                           );
                         } else {
-                          return const HomePage();
+                          return HomePage(riderAccount);
                           // return MainScreen(driver);
                           // if (riderAccount.status ==
                           //     AccountStatus.REGISTRATION_IN_PROGRESS) {

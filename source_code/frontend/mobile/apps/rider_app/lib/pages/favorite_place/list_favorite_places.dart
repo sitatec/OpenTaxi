@@ -67,6 +67,7 @@ class _ListFavoritePlacesState extends State<ListFavoritePlaces> {
                   child: Text("You don't have any Favorite place yet."),
                 )
               : ListView.builder(
+                  itemCount: _favoritePlaces.length,
                   itemBuilder: (context, index) {
                     final place = _favoritePlaces[index];
                     return ListTile(

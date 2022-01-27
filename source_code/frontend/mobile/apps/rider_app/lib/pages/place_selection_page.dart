@@ -7,7 +7,8 @@ import 'package:rider_app/configs/secrets.dart';
 import 'package:shared/shared.dart';
 
 class PlaceSelectionPage extends StatefulWidget {
-  const PlaceSelectionPage({Key? key}) : super(key: key);
+  final Account _riderAccount;
+  const PlaceSelectionPage(this._riderAccount, {Key? key}) : super(key: key);
 
   @override
   State<PlaceSelectionPage> createState() => _PlaceSelectionPageState();
@@ -28,6 +29,9 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
   Location? autocompleteOrigin, autocompleteLocation;
   final locationManager = LocationManager();
   final stopAddresses = <String>[];
+  bool _isLoadingFavoritePlaces = true;
+  List<Map<String, String>> _favoritePlaces = [];
+  final _favoritePlaceRepository = FavoritePlaceRepository();
 
   bool get buttonsEnabled {
     for (String address in stopAddresses) {
@@ -53,6 +57,19 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
       setState(() {
         isKeyboardVisible = visible;
       });
+    });
+    _fetchFavoritePlaces();
+  }
+
+  Future<void> _fetchFavoritePlaces() async {
+    final accessToken = await widget._riderAccount.accessToken;
+    final response = await _favoritePlaceRepository.get(
+      {"rider_id": widget._riderAccount.id},
+      accessToken!,
+    );
+    setState(() {
+      _favoritePlaces = List.from(response["data"]);
+      _isLoadingFavoritePlaces = false;
     });
   }
 
@@ -108,6 +125,8 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                             );
                           });
                         },
+                        displayStringForOption: (prediction) =>
+                            prediction.description!,
                         fieldViewBuilder: (
                           context,
                           textEditingController,
@@ -182,6 +201,8 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                               );
                             });
                           },
+                          displayStringForOption: (prediction) =>
+                              prediction.description!,
                           fieldViewBuilder: (
                             context,
                             textEditingController,
@@ -258,6 +279,8 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                             );
                           });
                         },
+                        displayStringForOption: (prediction) =>
+                            prediction.description!,
                         fieldViewBuilder: (context, textEditingController,
                             focusNode, onFieldSubmitted) {
                           return TextField(
@@ -320,34 +343,44 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                           style: TextStyle(fontSize: 13),
                         ),
                       ),
-                      _FavoritePlaceWidget(
-                        icon: Icon(
-                          Icons.house,
-                          color: theme.disabledColor,
-                        ),
-                        title: const Text("Home", textScaleFactor: 1.2),
-                        address: Text(
-                          "Ponomarenko 98",
-                          style: TextStyle(color: theme.disabledColor),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _FavoritePlaceWidget(
-                        icon: Icon(
-                          Icons.work,
-                          color: theme.disabledColor,
-                        ),
-                        title: const Text("Work", textScaleFactor: 1.2),
-                        address: Text(
-                          "prospekt Dzerzhinskogo, 123lsjflsjflksqljd",
-                          overflow: TextOverflow.fade,
-                          maxLines: 1,
-                          softWrap: false,
-                          style: TextStyle(
-                            color: theme.disabledColor,
-                          ),
-                        ),
-                      )
+                      _isLoadingFavoritePlaces
+                          ? const Center(
+                              child: SizedBox(
+                                height: 26,
+                                width: 26,
+                                child: CircularProgressIndicator(),
+                              ),
+                            )
+                          : ListView.builder(
+                              itemCount: _favoritePlaces.length,
+                              itemBuilder: (context, index) {
+                                final place = _favoritePlaces[index];
+                                final placeLabel = place["place_label"]!;
+                                final lowerCaseLabel =
+                                    placeLabel.trim().toLowerCase();
+                                return _FavoritePlaceWidget(
+                                  icon: lowerCaseLabel == "home"
+                                      ? Icon(
+                                          Icons.house,
+                                          color: theme.disabledColor,
+                                        )
+                                      : lowerCaseLabel == "work"
+                                          ? Icon(
+                                              Icons.work,
+                                              color: theme.disabledColor,
+                                            )
+                                          : Icon(
+                                              Icons.place,
+                                              color: theme.disabledColor,
+                                            ),
+                                  title: Text(placeLabel, textScaleFactor: 1.2),
+                                  address: Text(
+                                    place["street_address"]!,
+                                    style:
+                                        TextStyle(color: theme.disabledColor),
+                                  ),
+                                );
+                              }),
                     ],
                   ),
                 ),
@@ -377,58 +410,66 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                   )
                 : Container(
                     color: theme.scaffoldBackgroundColor,
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+                    padding: const EdgeInsets.only(
+                      top: 8,
+                      left: 16,
+                      right: 16,
+                      bottom: 24,
+                    ),
+                    child: Row(
                       children: [
-                        TextButton(
-                          onPressed: !buttonsEnabled ? null : () {},
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: const Text(
-                              "Ride Now",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                        Expanded(
+                          child: TextButton(
+                            onPressed: !buttonsEnabled ? null : () {},
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: const Text(
+                                "Ride Later",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
-                          ),
-                          style: TextButton.styleFrom(
-                            primary: Colors.white,
-                            elevation: 3,
-                            backgroundColor: buttonsEnabled
-                                ? theme.primaryColor
-                                : theme.scaffoldBackgroundColor,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                            style: TextButton.styleFrom(
+                              primary: Colors.white,
+                              elevation: 3,
+                              backgroundColor: buttonsEnabled
+                                  ? theme.primaryColor
+                                  : theme.scaffoldBackgroundColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        TextButton(
-                          onPressed: !buttonsEnabled ? null : () {},
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: const Text(
-                              "Ride Later",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w500,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: TextButton(
+                            onPressed: !buttonsEnabled ? null : () {},
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: const Text(
+                                "Ride Now",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ),
-                          ),
-                          style: TextButton.styleFrom(
-                            primary: Colors.white,
-                            backgroundColor: buttonsEnabled
-                                ? theme.primaryColor
-                                : theme.scaffoldBackgroundColor,
-                            elevation: 3,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                            style: TextButton.styleFrom(
+                              primary: Colors.white,
+                              backgroundColor: buttonsEnabled
+                                  ? theme.primaryColor
+                                  : theme.scaffoldBackgroundColor,
+                              elevation: 3,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
                             ),
                           ),
                         ),
