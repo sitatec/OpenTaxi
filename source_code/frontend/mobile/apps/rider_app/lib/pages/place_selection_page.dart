@@ -284,6 +284,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                         fieldViewBuilder: (context, textEditingController,
                             focusNode, onFieldSubmitted) {
                           return TextField(
+                            autofocus: true,
                             controller: textEditingController,
                             focusNode: focusNode,
                             onChanged: (value) => destination = value,
