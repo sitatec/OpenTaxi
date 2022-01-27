@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:rider_app/configs/secrets.dart';
+import 'package:rider_app/pages/choose_place_on_map_page.dart';
 import 'package:shared/shared.dart';
 
 class PlaceSelectionPage extends StatefulWidget {
@@ -392,7 +393,16 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
             alignment: Alignment.bottomCenter,
             child: isKeyboardVisible
                 ? TextButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final result = await Navigator.of(context).push<String>(
+                        MaterialPageRoute(
+                          builder: (_) => const ChoosePlaceOnMapPage(),
+                        ),
+                      );
+                      if (result != null) {
+                        // TODO
+                      }
+                    },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: const [
