@@ -2,20 +2,19 @@ import 'package:rider_app/entities/address.dart';
 import 'package:shared/shared.dart';
 
 class DispatchRequestData {
-  final Address originStreetAddress;
-  final Address destinationStreetAddress;
-  final List<Address> stopStreetAddresses;
+  final Address originAddress;
+  final Address destinationAddress;
+  final List<Address> stopAddresses;
   final data = <String, dynamic>{};
 
   DispatchRequestData(
-    this.originStreetAddress,
-    this.destinationStreetAddress,
-    this.stopStreetAddresses,
+    this.originAddress,
+    this.destinationAddress,
+    this.stopAddresses,
   ) {
-    data["loc"] = originStreetAddress.toMap();
-    data["des"] = destinationStreetAddress.toMap();
-    data["stp"] =
-        stopStreetAddresses.map((address) => address.toMap()).toList();
+    data["loc"] = originAddress.toMap();
+    data["des"] = destinationAddress.toMap();
+    data["stp"] = stopAddresses.map((address) => address.toMap()).toList();
   }
 
   void setRiderInfo(Account riderAccount) {

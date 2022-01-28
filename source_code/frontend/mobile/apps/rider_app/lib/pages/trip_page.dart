@@ -4,7 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 
 class TripPage extends StatefulWidget {
-  const TripPage({Key? key}) : super(key: key);
+  final TripRoom tripRoom;
+  final String puckUpStreetAddress;
+  final String dropOffStreetAddress;
+  const TripPage(
+    this.tripRoom,
+    this.puckUpStreetAddress,
+    this.dropOffStreetAddress, {
+    Key? key,
+  }) : super(key: key);
 
   @override
   _TripPageState createState() => _TripPageState();
@@ -119,10 +127,11 @@ class _TripPageState extends State<TripPage> {
                           color: theme.disabledColor,
                         ),
                       ),
-                      subtitle: Text("bookingRequestData.pickUpAddress"),
+                      subtitle: Text(widget.puckUpStreetAddress),
                     ),
                     ListTile(
-                      contentPadding: EdgeInsets.only(bottom: 24, left: 16),
+                      contentPadding:
+                          const EdgeInsets.only(bottom: 24, left: 16),
                       leading: CircleAvatar(
                         child: SvgPicture.asset(
                             "assets/images/dropoff_icon.svg",
@@ -137,7 +146,7 @@ class _TripPageState extends State<TripPage> {
                           color: theme.disabledColor,
                         ),
                       ),
-                      subtitle: Text("bookingRequestData.dropOfAddress"),
+                      subtitle: Text(widget.dropOffStreetAddress),
                     ),
                   ]
                 ],

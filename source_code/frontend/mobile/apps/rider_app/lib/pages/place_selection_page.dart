@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:rider_app/configs/secrets.dart';
+import 'package:rider_app/entities/address.dart';
+import 'package:rider_app/entities/dispatch_request_data.dart';
 import 'package:rider_app/pages/choose_place_on_map_page.dart';
+import 'package:rider_app/pages/order_page.dart';
 import 'package:shared/shared.dart';
 
 class PlaceSelectionPage extends StatefulWidget {
@@ -16,31 +19,30 @@ class PlaceSelectionPage extends StatefulWidget {
 }
 
 class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
-  String origin = "";
-  String destination = "";
+  Address origin = Address(streetAddress: "");
+  Address destination = Address(streetAddress: "");
   String originTextFieldHint = "Current location";
   bool originTextFieldHasFocus = false;
   bool destinationTextFieldHasFocus = false;
-  final List<String> originAutocompletedAddresses = [];
-  final List<String> destinationAutocompletedAddresses = [];
   bool isKeyboardVisible = false;
   late StreamSubscription<bool> keyboardSubscription;
   final keyboardVisibilityController = KeyboardVisibilityController();
   final _googlePlacesApi = GoogleMapsPlaces(apiKey: googlePlacesAPIKey);
   Location? autocompleteOrigin, autocompleteLocation;
   final locationManager = LocationManager();
-  final stopAddresses = <String>[];
+  final stopAddresses = <Address>[];
   bool _isLoadingFavoritePlaces = true;
   List<Map<String, String>> _favoritePlaces = [];
   final _favoritePlaceRepository = FavoritePlaceRepository();
 
   bool get buttonsEnabled {
-    for (String address in stopAddresses) {
-      if (address.length < 5) {
+    for (Address address in stopAddresses) {
+      if (address.streetAddress.length < 5) {
         return false;
       }
     }
-    return origin.length > 5 && destination.length > 5;
+    return origin.streetAddress.length > 5 &&
+        destination.streetAddress.length > 5;
   }
 
   @override
@@ -112,9 +114,8 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                             textEditingValue.text,
                             origin: autocompleteOrigin,
                             location: autocompleteLocation,
+                            language: "en",
                           );
-                          print(autocompleteResponse.status);
-                          print(autocompleteResponse.predictions.length);
                           return autocompleteResponse.predictions;
                         },
                         optionsViewBuilder: (context, onSelected, options) {
@@ -123,6 +124,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                             final prediction = options.elementAt(index);
                             return ListTile(
                               title: Text(prediction.description ?? ""),
+                              onTap: () => onSelected(prediction),
                             );
                           });
                         },
@@ -143,7 +145,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                           });
                           return TextField(
                             controller: textEditingController,
-                            onChanged: (value) => origin = value,
+                            onChanged: (value) => origin.streetAddress = value,
                             focusNode: focusNode,
                             decoration: InputDecoration(
                               contentPadding:
@@ -190,6 +192,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                               textEditingValue.text,
                               origin: autocompleteOrigin,
                               location: autocompleteLocation,
+                              language: "en",
                             );
                             return autocompleteResponse.predictions;
                           },
@@ -213,7 +216,8 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                             return TextField(
                               controller: textEditingController,
                               focusNode: focusNode,
-                              onChanged: (value) => stopAddresses[i] = value,
+                              onChanged: (value) =>
+                                  stopAddresses[i].streetAddress = value,
                               decoration: InputDecoration(
                                 contentPadding:
                                     const EdgeInsets.symmetric(horizontal: 8),
@@ -268,6 +272,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                             textEditingValue.text,
                             origin: autocompleteOrigin,
                             location: autocompleteLocation,
+                            language: "en",
                           );
                           return autocompleteResponse.predictions;
                         },
@@ -288,7 +293,8 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                             autofocus: true,
                             controller: textEditingController,
                             focusNode: focusNode,
-                            onChanged: (value) => destination = value,
+                            onChanged: (value) =>
+                                destination.streetAddress = value,
                             decoration: InputDecoration(
                               contentPadding:
                                   const EdgeInsets.symmetric(horizontal: 8),
@@ -307,7 +313,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                     InkWell(
                       onTap: () {
                         if (stopAddresses.isNotEmpty &&
-                            stopAddresses.last.isEmpty) {
+                            stopAddresses.last.streetAddress.isEmpty) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                               content: Text(
@@ -317,7 +323,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                           return;
                         }
                         setState(() {
-                          stopAddresses.add("");
+                          stopAddresses.add(Address(streetAddress: ""));
                         });
                       },
                       child: const Padding(
@@ -459,7 +465,23 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                         const SizedBox(width: 16),
                         Expanded(
                           child: TextButton(
-                            onPressed: !buttonsEnabled ? null : () {},
+                            onPressed: !buttonsEnabled
+                                ? null
+                                : () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) {
+                                          return OrderPage(
+                                            DispatchRequestData(
+                                              origin,
+                                              destination,
+                                              stopAddresses,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(vertical: 5),

@@ -1,10 +1,15 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:rider_app/entities/dispatch_request_data.dart';
+import 'package:rider_app/pages/trip_page.dart';
+import 'package:rider_app/utils/widget_utils.dart';
 import 'package:shared/shared.dart';
 
 class OrderPage extends StatefulWidget {
-  const OrderPage({Key? key}) : super(key: key);
+  final DispatchRequestData _bookingData;
+  const OrderPage(this._bookingData, {Key? key}) : super(key: key);
 
   @override
   _OrderPageState createState() => _OrderPageState();
@@ -12,7 +17,98 @@ class OrderPage extends StatefulWidget {
 
 class _OrderPageState extends State<OrderPage> {
   String selectedCar = _CarInfo.economy.type;
-  bool isSearchingForDriver = false;
+  String notificationMessage = "";
+  late final dispatchRequestData = widget._bookingData;
+  final dispatcher = Dispatcher();
+  StreamSubscription? dispatcherDataStreamSub;
+  Map<String, dynamic>? currentDriverCandidate;
+  String errorMessage = "";
+
+  @override
+  void initState() {
+    super.initState();
+    dispatcherDataStreamSub = dispatcher.dataStream.listen((data) {
+      switch (data.key) {
+        case FramType.ACCEPT_BOOKING:
+          final tripRoom = TripRoom(data.value);
+          Navigator.of(context).push(MaterialPageRoute(builder: (_) {
+            return TripPage(
+                tripRoom,
+                dispatchRequestData.originAddress.streetAddress,
+                dispatchRequestData.destinationAddress.streetAddress);
+          }));
+          break;
+        case FramType.REFUSE_BOOKING:
+          setState(() {
+            if (currentDriverCandidate != null &&
+                currentDriverCandidate!["idx"].toString() ==
+                    data.value.toString()) {
+              notificationMessage =
+                  "${currentDriverCandidate!['name']} has declined the request, sending request to the next available driver...";
+            } else {
+              notificationMessage =
+                  "The ${_numberToOrdinal(data.value)} driver has declined the request, sending request to the next available driver...";
+            }
+          });
+          break;
+        case FramType.NO_MORE_DRIVER_AVAILABLE:
+          setState(() {
+            notificationMessage = "Oops! No more available drivers.";
+          });
+          break;
+        case FramType.PAIR_DISCONNECTED:
+          final driverName = currentDriverCandidate?['nam'] ?? "The Driver";
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor:
+                  Theme.of(context).errorColor.withBlue(80).withGreen(80),
+              duration: const Duration(seconds: 5),
+              content: Text(
+                "$driverName got disconnected.",
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          );
+          break;
+        case FramType.BOOKING_SENT:
+          currentDriverCandidate = jsonDecode(data.value);
+          setState(() {
+            notificationMessage =
+                """A ride Request has been sent to ${currentDriverCandidate!['nam']}.
+Estimations:
+Distance to the driver's location: ${currentDriverCandidate!['dis']}
+Duration of the trip from the driver's location to yours: ${currentDriverCandidate!['dur']}""";
+          });
+          break;
+        default:
+          debugPrint(
+            "Invalid data fram type received from the dispatcher server : " +
+                data.key.toString(),
+          );
+      }
+    });
+  }
+
+  String _numberToOrdinal(String number) {
+    switch (number) {
+      case "1":
+        return "first";
+      case "2":
+        return "second";
+      case "3":
+        return "third";
+      case "4":
+        return "fourth";
+      default:
+        return number; // support only the first 4 number yet.
+    }
+  }
+
+  @override
+  void dispose() {
+    dispatcherDataStreamSub?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +141,7 @@ class _OrderPageState extends State<OrderPage> {
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
               ),
-              child: isSearchingForDriver
+              child: notificationMessage.isNotEmpty
                   ? Wrap(
                       crossAxisAlignment: WrapCrossAlignment.center,
                       direction: Axis.vertical,
@@ -58,7 +154,7 @@ class _OrderPageState extends State<OrderPage> {
                           padding: const EdgeInsets.all(20),
                           width: MediaQuery.of(context).size.width,
                           child: Text(
-                            "Searching for driver...",
+                            notificationMessage,
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: theme.primaryColor,
@@ -73,8 +169,9 @@ class _OrderPageState extends State<OrderPage> {
                         ListTile(
                           leading: CircleAvatar(
                             child: SvgPicture.asset(
-                                "assets/images/pickup_icon.svg",
-                                package: "shared"),
+                              "assets/images/pickup_icon.svg",
+                              package: "shared",
+                            ),
                             backgroundColor: iconsBackgroundColor,
                           ),
                           title: Text(
@@ -85,13 +182,18 @@ class _OrderPageState extends State<OrderPage> {
                               color: theme.disabledColor,
                             ),
                           ),
-                          subtitle: Text("bookingRequestData.pickUpAddress"),
+                          subtitle: Text(
+                            widget._bookingData.originAddress.streetAddress,
+                          ),
                         ),
                         ListTile(
                           leading: CircleAvatar(
-                            child: SvgPicture.asset(
-                                "assets/images/dropoff_icon.svg",
-                                package: "shared"),
+                            child: Image.asset(
+                              "assets/images/dropoff_icon.png",
+                              package: "shared",
+                              width: 20,
+                              height: 20,
+                            ),
                             backgroundColor: iconsBackgroundColor,
                           ),
                           title: Text(
@@ -102,18 +204,9 @@ class _OrderPageState extends State<OrderPage> {
                               color: theme.disabledColor,
                             ),
                           ),
-                          subtitle: Text("bookingRequestData.dropOfAddress"),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 16),
-                          child: TextButton(
-                            onPressed: () {},
-                            child: const Text(
-                              "+ Add stop",
-                              style: TextStyle(fontSize: 16),
-                            ),
-                            style:
-                                TextButton.styleFrom(padding: EdgeInsets.zero),
+                          subtitle: Text(
+                            widget
+                                ._bookingData.destinationAddress.streetAddress,
                           ),
                         ),
                         SingleChildScrollView(
@@ -172,7 +265,28 @@ class _OrderPageState extends State<OrderPage> {
                               ),
                               Expanded(
                                 child: RoundedCornerButton(
-                                  onPressed: () {},
+                                  onPressed: () async {
+                                    try {
+                                      await dispatcher.connect();
+                                      dispatcher.sendData(
+                                        MapEntry(
+                                          FramType.DISPATCH_REQUEST,
+                                          dispatchRequestData.data,
+                                        ),
+                                      );
+                                      setState(() {
+                                        notificationMessage =
+                                            "Searching for driver...";
+                                      });
+                                    } catch (e) {
+                                      setState(() {
+                                        notificationMessage =
+                                            "Oops! An error occurred.";
+                                      });
+                                      // TODO show proper error message to user.
+                                      debugPrint(e.toString());
+                                    }
+                                  },
                                   child: const Text(
                                     "Order",
                                     style: TextStyle(
