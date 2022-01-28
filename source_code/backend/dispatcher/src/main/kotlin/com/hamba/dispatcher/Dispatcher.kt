@@ -78,7 +78,14 @@ class Dispatcher(
                         bookNextClosestDriver(dispatchData)
                     }
                 }
-                val driverDataAsJson = Json.encodeToString(closestDriver)
+                val driverDataAsJson = Json.encodeToString(
+                    mapOf(
+                        "nam" to closestDriver.first.name,
+                        "dis" to closestDriver.second.distance.text,
+                        "dur" to closestDriver.second.durationInTraffic.text,
+                        "idx" to dispatchData.numberOfCandidateProvided,
+                    )
+                )
                 dispatchData.riderConnection.send(/* bs = BOOKING SENT */"$BOOKING_SENT:${driverDataAsJson}")
                 driverDataRepository.deleteDriverData(closestDriver.first.driverId) // Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
