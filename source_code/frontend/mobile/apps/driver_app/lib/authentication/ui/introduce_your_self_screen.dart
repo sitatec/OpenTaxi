@@ -215,10 +215,9 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
     final accessToken = await driverAccount.accessToken!;
     driverAccount
       ..firstName = firstName
-      ..surname = surName
+      // ..surname = surName
       ..role = AccountRole.DRIVER
       ..genre = stringToEnum(selectedGender, Gender.values);
-    widget.driver.isSouthAfricanCitizen = isShoutAfricanCitizen;
     try {
       await widget.driver.repository
           .create(widget.driver.toJsonObject(), accessToken);

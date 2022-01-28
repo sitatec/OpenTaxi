@@ -7,7 +7,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:shared/shared.dart';
 
 import 'entities/driver.dart';
-import 'main_screen.dart';
 
 void main() {
   if (defaultTargetPlatform == TargetPlatform.android) {
@@ -22,6 +21,14 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final channelData = ChannelData(
+      currentUserId: "driver",
+      remoteUserId: "rider",
+      remoteUserName: "Rider",
+    );
+    final communicationManager =
+        ChatManager(channelData); // AudioCallManager(channelData);
+    late final NotificationManager notificationManager;
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: theme.scaffoldBackgroundColor,
@@ -42,7 +49,33 @@ class App extends StatelessWidget {
       ),
       home: SafeArea(
         child: true
-            ? ChatScreen()
+            ? FutureBuilder(
+                future: Firebase.initializeApp().then((value) {
+                  notificationManager = NotificationManager();
+                  return notificationManager.getNotificationToken().then(
+                        (token) => communicationManager.initialize(token).then(
+                              (_) => communicationManager.createChatChannel(),
+                            ),
+                      );
+                }),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.done)
+                    notificationManager.getNotificationToken().then(
+                        (token) => print("------TOKEN ===> $token  -------"));
+                  if (snapshot.connectionState == ConnectionState.done)
+                    return ChatScreen(communicationManager);
+                  return Text("Loading");
+                })
+            // FutureBuilder(
+            // future: communicationManager.initialize("").then((value) =>
+            //     communicationManager
+            //         .makeCall()
+            //         .then((value) => print("Make Call ==> $value"))),
+            // builder: (context, snapshot) {
+            //   if (snapshot.connectionState == ConnectionState.done)
+            //     return CallScreen(communicationManager);
+            //   return Text("Loading");
+            // })
             : Scaffold(
                 body: FutureBuilder<FirebaseApp>(
                     future: Firebase.initializeApp(),

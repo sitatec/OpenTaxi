@@ -1318,8 +1318,8 @@ class NavigationDrawer extends StatelessWidget {
             ),
             visualDensity: VisualDensity(vertical: -2),
             tileColor: lightGray,
-            leading: Icon(Icons.home),
-            title: Text(
+            leading: const Icon(Icons.home),
+            title: const Text(
               "Home",
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
@@ -1332,8 +1332,8 @@ class NavigationDrawer extends StatelessWidget {
             ),
             visualDensity: VisualDensity(vertical: -2),
             tileColor: lightGray,
-            leading: Icon(Icons.home),
-            title: Text(
+            leading: const Icon(Icons.account_balance_wallet),
+            title: const Text(
               "Earnings",
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
@@ -1346,8 +1346,8 @@ class NavigationDrawer extends StatelessWidget {
             ),
             visualDensity: VisualDensity(vertical: -2),
             tileColor: lightGray,
-            leading: Icon(Icons.home),
-            title: Text(
+            leading: const Icon(Icons.settings),
+            title: const Text(
               "Settings",
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
@@ -1360,9 +1360,9 @@ class NavigationDrawer extends StatelessWidget {
             ),
             visualDensity: VisualDensity(vertical: -2),
             tileColor: lightGray,
-            leading: Icon(Icons.home),
-            title: Text(
-              "Bookings",
+            leading: const Icon(Icons.directions_car),
+            title: const Text(
+              "My Rides",
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
@@ -1374,26 +1374,32 @@ class NavigationDrawer extends StatelessWidget {
             ),
             visualDensity: VisualDensity(vertical: -2),
             tileColor: lightGray,
-            leading: Icon(Icons.home),
-            title: Text(
+            leading: const Icon(Icons.help),
+            title: const Text(
               "Help and Support",
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
           ),
           const SizedBox(height: 80),
-          ListTile(
-            onTap: () {
-              // TODO logout
-            },
-            horizontalTitleGap: 0,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10),
-            ),
-            visualDensity: VisualDensity(vertical: -2),
-            leading: Icon(Icons.home),
-            title: Text(
-              "Logout",
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+          Container(
+            decoration: BoxDecoration(
+                border: Border.symmetric(
+                    horizontal: BorderSide(color: Colors.blueGrey[100]!))),
+            child: ListTile(
+              onTap: () {
+                // TODO logout
+              },
+              horizontalTitleGap: 0,
+              visualDensity: const VisualDensity(vertical: -1.8),
+              leading: const Icon(Icons.logout, color: Colors.red),
+              title: const Text(
+                "Logout",
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.red,
+                ),
+              ),
             ),
           ),
         ],
