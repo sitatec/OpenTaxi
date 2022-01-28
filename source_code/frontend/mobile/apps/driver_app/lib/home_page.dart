@@ -279,7 +279,7 @@ class _HomePageState extends State<HomePage> {
         riderRatingData = (riderRatingData as JsonObject)["data"];
         final riderRating = int.parse(riderRatingData["count"]) > 0
             ? riderRatingData["avg"]
-            : "NEW USER";
+            : "UNRATED";
         final riderData = _RiderData(
           imageURL: idToProfilePicture(data["id"]),
           rating: riderRating,
@@ -312,7 +312,7 @@ class _HomePageState extends State<HomePage> {
         break;
       case FramType.PAIR_DISCONNECTED:
         await _showInfoDialog(
-          "Rider Disconnected",
+          "Warning!",
           "Rider connection lost.",
         );
         _onStateResetedListenners.forEach(_callFunction);
@@ -630,7 +630,7 @@ class _HomePageState extends State<HomePage> {
     final theme = Theme.of(context);
     final iconsBackgroundColor = theme.disabledColor.withAlpha(100);
     const requestTimeoutDuration = Duration(minutes: 1);
-    const requestTimeoutWarningDuration = Duration(seconds: 12); // A warning
+    const requestTimeoutWarningDuration = Duration(seconds: 15); // A warning
     // color will be shown if it remains only this duration.
     final countdownController = CountdownSliderController();
     const price =
