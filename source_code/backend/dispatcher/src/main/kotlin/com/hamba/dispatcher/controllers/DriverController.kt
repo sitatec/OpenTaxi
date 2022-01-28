@@ -46,7 +46,7 @@ class DriverController(
 
     suspend fun deleteDriverData(driverId: String?, driverSession: DefaultWebSocketServerSession) {
         if (driverId != null) {
-            // When the driver is disconnected all he's data will be removed
+            // When the driver is disconnected all he's data will be removed in the websockets server's "driver" endpoint in the finally of the try/catch.
             driverSession.close(CloseReason(CloseReason.Codes.NORMAL, ""))// Normal disconnection
             userStatusManager.driverGoOffline(driverId)
         }else {
