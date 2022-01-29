@@ -1,6 +1,7 @@
 package com.hamba.dispatcher
 
 import com.hamba.dispatcher.data.DriverDataRepository
+import com.hamba.dispatcher.data.model.DirectionAPIResponse
 import com.hamba.dispatcher.websockets.FrameType.*
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
@@ -10,6 +11,7 @@ import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
 import java.util.*
@@ -120,14 +122,33 @@ class Dispatcher(
                 dispatchData.riderConnection.send("$PAIR_DISCONNECTED:$driverId")
                 bookNextClosestDriver(dispatchData)
             } else {
-                val pickupDirectionData = routeApiClient.findDirection(
-                    dispatchData.getCurrentCandidate().first.location,
-                    dispatchData.getDestination(),
+                val pickupDirectionData = Json.decodeFromString<DirectionAPIResponse>(
+                    routeApiClient.findDirection(
+                        dispatchData.getCurrentCandidate().first.location,
+                        dispatchData.getDestination(),
+                    )
                 )
-                val tripDirectionData = Json.encodeToString(dispatchData.directions)
+                val pickupDirectionPolylines = mutableListOf<String>()
+                pickupDirectionData.routes.forEach { route ->
+                    route.legs.forEach { leg ->
+                        pickupDirectionPolylines.addAll(leg.steps.map { step -> step.polyline!!.points!! })
+                    }
+                }
+
+                val tripDirectionPolylines = mutableListOf<String>()
+                dispatchData.directions.forEach {
+                    it.routes.forEach { route ->
+                        route.legs.forEach { leg ->
+                            tripDirectionPolylines.addAll(leg.steps.map { step -> step.polyline!!.points!! })
+                        }
+                    }
+                }
                 val tripRoomData = mutableMapOf(
                     "rider" to dispatchData.id,
-                    "dir" to mapOf("pickup" to pickupDirectionData, "trip" to tripDirectionData)
+                    "dir" to mapOf(
+                        "pickup" to Json.encodeToString(pickupDirectionPolylines),
+                        "trip" to Json.encodeToString(tripDirectionPolylines)
+                    )
                 )
                 firebaseDatabaseWrapper.putData("trip_rooms/$driverId", tripRoomData)
                 dispatchData.riderConnection.send("$ACCEPT_BOOKING:$driverId")
