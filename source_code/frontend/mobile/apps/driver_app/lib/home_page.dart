@@ -43,6 +43,8 @@ class _HomePageState extends State<HomePage> {
   StreamSubscription? _onlineStatusSubscription;
   StreamSubscription? _dataStreamSubscription;
   StreamSubscription? _locationStreamSubscription;
+  StreamSubscription? _tripEventStreamSubscritpion;
+  StreamSubscription? _customEventStreamSubscritpion;
   late Dispatcher _dispatcher;
   BitmapDescriptor? _myLocationIcon;
   BitmapDescriptor? _whiteCarIcon;
@@ -69,7 +71,7 @@ class _HomePageState extends State<HomePage> {
     _onlineStatusSubscription = _dispatcher.isConnected.listen((_isConnected) {
       if (_isConnected) {
         _dataStreamSubscription =
-            _dispatcher.dataStream?.listen(_onDataRecieved);
+            _dispatcher.dataStream.listen(_onDataRecieved);
         widget._locationManager
             .getCurrentCoordinates()
             .then(_sendDriverInitialDataToDispatcher);
@@ -92,6 +94,9 @@ class _HomePageState extends State<HomePage> {
   void dispose() {
     _onlineStatusSubscription?.cancel();
     _dataStreamSubscription?.cancel();
+    _tripEventStreamSubscritpion?.cancel();
+    _customEventStreamSubscritpion?.cancel();
+    _locationStreamSubscription?.cancel();
     super.dispose();
   }
 
@@ -354,7 +359,7 @@ class _HomePageState extends State<HomePage> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: const Text(
-                    "A user joined the trip.",
+                    "A user joined the trip as spectator.",
                     style: TextStyle(color: Colors.white),
                   ),
                   backgroundColor: Theme.of(context).accentColor,
@@ -366,6 +371,10 @@ class _HomePageState extends State<HomePage> {
               break;
             default:
           }
+        });
+        _customEventStreamSubscritpion =
+            tripRoom.customEventStream.listen((event) {
+          //TODO
         });
         // TODO: Handle this case.
         break;
@@ -424,7 +433,11 @@ class _HomePageState extends State<HomePage> {
           _notification = _buildStatusNotification(_StatusNotification.offline);
         });
       }
-      await widget._dispatcher.connect();
+      await widget._dispatcher.connect(onServerDisconnect: (serverMessage) {
+        if (serverMessage?.isNotEmpty ?? false) {
+          _showInfoDialog("Server Disconnected", serverMessage!);
+        }
+      });
     } else {
       await widget._dispatcher.disconnect();
     }

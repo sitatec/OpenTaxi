@@ -268,7 +268,17 @@ Duration of the trip from the driver's location to yours: ${currentDriverCandida
                                 child: RoundedCornerButton(
                                   onPressed: () async {
                                     try {
-                                      await dispatcher.connect();
+                                      await dispatcher.connect(
+                                          onServerDisconnect: (serverMessage) {
+                                        if (serverMessage?.isNotEmpty ??
+                                            false) {
+                                          showInfoDialog(
+                                            "Server Disconnected",
+                                            serverMessage!,
+                                            context,
+                                          );
+                                        }
+                                      });
                                       dispatcher.sendData(
                                         MapEntry(
                                           FramType.DISPATCH_REQUEST,

@@ -38,6 +38,7 @@ class Address {
   }
 
   Future<void> completeAddress() async {
+    // TODO tell Lu about the extrat geocoding requests.
     if (coordinates == null) {
       final geocoder = GoogleMapsGeocoding(apiKey: googlePlacesAPIKey);
       final result = await geocoder.searchByAddress(
