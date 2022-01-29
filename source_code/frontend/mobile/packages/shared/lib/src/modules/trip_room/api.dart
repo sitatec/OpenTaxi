@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:location_manager/location_manager.dart';
 import 'package:meta/meta.dart';
 import 'dart:async';
@@ -20,6 +22,10 @@ abstract class TripRoom {
   String get driverId;
 
   String? get viewerId;
+
+  Future<List<String>> get pickUpDirectionPolylines;
+
+  Future<List<String>> get tripDirectionPolyliens;
 
   factory TripRoom(
     String id, {

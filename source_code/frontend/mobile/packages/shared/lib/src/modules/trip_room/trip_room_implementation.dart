@@ -15,6 +15,9 @@ class TripRoomImplementation extends TripRoom {
   TripEvent? _lastEvent;
   String? _lastCustomEvent;
 
+  final _tripDirectionPolylines = Completer<List<String>>();
+  final _pickUpDirectionPolylines = Completer<List<String>>();
+
   final _locationStreamController = StreamController<Coordinates>.broadcast();
   final _tripEventStreamController = StreamController<TripEvent>.broadcast();
   final _customEventStreamController = StreamController<String>.broadcast();
@@ -76,6 +79,26 @@ class TripRoomImplementation extends TripRoom {
   Stream<String> get customEventStream => _customEventStreamController.stream;
 
   @override
+  Future<List<String>> get tripDirectionPolyliens {
+    if (!_joined) {
+      throw Exception(
+          "You must join the trip before getting the trip direction polylines");
+    } else {
+      return _tripDirectionPolylines.future;
+    }
+  }
+
+  @override
+  Future<List<String>> get pickUpDirectionPolylines {
+    if (!_joined) {
+      throw Exception(
+          "You must join the trip before getting the pick up direction polylines");
+    } else {
+      return _pickUpDirectionPolylines.future;
+    }
+  }
+
+  @override
   void join() {
     if (_joined) {
       return _emitTripEvent(TripEvent.cantJoinTwice);
@@ -100,6 +123,14 @@ class TripRoomImplementation extends TripRoom {
             _customEventStreamController.add(nodeValue);
           }
           _lastCustomEvent = nodeValue;
+          break;
+        case "dir":
+          _tripDirectionPolylines.complete(
+            List.from(jsonDecode(nodeValue["trip"]), growable: false),
+          );
+          _pickUpDirectionPolylines.complete(
+            List.from(jsonDecode(nodeValue["pickup"]), growable: false),
+          );
       }
     });
     _emitTripEvent(TripEvent.joined);
