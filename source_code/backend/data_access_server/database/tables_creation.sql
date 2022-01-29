@@ -187,12 +187,12 @@ CREATE SEQUENCE public.booking_id_seq;
 
 CREATE TABLE public.booking (
   id BIGINT NOT NULL DEFAULT nextval('public.booking_id_seq'),
-  payment_id BIGINT NOT NULL,
+  payment_id BIGINT,
   rider_id VARCHAR,-- NULLABLE in case the rider account is deleted, the company still needs the booking details.
   driver_id VARCHAR,
-  booked_at TIMESTAMP NOT NULL,
-  departure_address_id BIGINT NOT NULL,
-  destination_address_id BIGINT NOT NULL,
+  booked_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  pickup_address_id BIGINT NOT NULL,
+  dropoff_address_id BIGINT NOT NULL,
   CONSTRAINT booking_pk PRIMARY KEY (id)
 );
 
@@ -220,7 +220,7 @@ CREATE TABLE public.favorite_place (
   id BIGINT NOT NULL DEFAULT nextval('public.favorite_place_id_seq'),
   street_address VARCHAR NOT NULL,
   rider_id VARCHAR NOT NULL,
-  place_label VARCHAR,
+  place_label VARCHAR NOT NULL,
   CONSTRAINT favorite_place_pk PRIMARY KEY (id)
 );
 
@@ -288,15 +288,15 @@ ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE public.booking ADD CONSTRAINT booking_destination_addr_fk
-FOREIGN KEY (destination_address_id)
+ALTER TABLE public.booking ADD CONSTRAINT booking_dropoff_addr_fk
+FOREIGN KEY (dropoff_address_id)
 REFERENCES public.address (id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
 NOT DEFERRABLE;
 
-ALTER TABLE public.booking ADD CONSTRAINT booking_departure_addr_fk
-FOREIGN KEY (departure_address_id)
+ALTER TABLE public.booking ADD CONSTRAINT booking_pickup_addr_fk
+FOREIGN KEY (pickup_address_id)
 REFERENCES public.address (id)
 ON UPDATE NO ACTION
 ON DELETE NO ACTION

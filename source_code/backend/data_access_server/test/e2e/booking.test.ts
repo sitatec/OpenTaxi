@@ -1,6 +1,6 @@
 import Axios from "axios";
 import { BOOKING_URL, DEFAULT_SUCCESS_RESPONSE } from "../constants";
-import { BOOKING } from "../fakedata";
+import { ADDRESS, BOOKING, DRIVER, RIDER } from "../fakedata";
 import {
   cloneObjec,
   createBookingWithParentTables,
@@ -39,6 +39,25 @@ describe("ENDPOINT: BOOKING", () => {
 
   it("Should successfully create an booking.", createBooking);
 
+  it("Should successfully create a booking with the pickup and dropoff address objects", async () => {
+    const pickupAddress = cloneObjec(ADDRESS);
+    const dropoffAddress = cloneObjec(ADDRESS);
+    delete pickupAddress.id;
+    delete dropoffAddress.id;
+
+    const response = await Axios.post(getUrlWithQuery("/with_addresses"), {
+      pickup_address: pickupAddress,
+      dropoff_address: dropoffAddress,
+      booking: {
+        id: BOOKING.id,
+        rider_id: RIDER.account_id,
+        driver_id: DRIVER.account_id,
+      },
+    });
+    expect(response.status).toBe(201);
+    expect(response.data).toEqual(getSuccessResponse(BOOKING.id.toString()));
+  });
+
   it("Should successfully get an booking.", async () => {
     await createBooking(); // Create it first
     // End then get it.
@@ -58,7 +77,7 @@ describe("ENDPOINT: BOOKING", () => {
   it("Should successfully update an booking.", async () => {
     await createBooking(); // Create it first
     const newBooking = cloneObjec(BOOKING) as typeof BOOKING;
-    newBooking.departure_address_id = 2;
+    newBooking.pickup_address_id = 2;
 
     // End then update it.
     const response = await Axios.patch(

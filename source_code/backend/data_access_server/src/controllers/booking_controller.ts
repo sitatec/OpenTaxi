@@ -1,4 +1,10 @@
 import { Request, Response } from "express";
+import { Database } from "../db";
+import {
+  buildInsertQueryFromJSON,
+  handleDbQueryError,
+} from "../utils/database_utils";
+import { sendSuccessResponse } from "../utils/http_utils";
 import Controller from "./controller";
 
 export default class BookingController extends Controller {
@@ -13,4 +19,64 @@ export default class BookingController extends Controller {
 
   deleteBooking = async (httpRequest: Request, httpResponse: Response) =>
     this.entityManager.deleteEntity("booking", httpRequest, httpResponse);
+
+  createBookingWithAddresses = async (
+    httpRequest: Request,
+    httpResponse: Response
+  ) => {
+    // TODO refactor.
+    try {
+      const data = httpRequest.body;
+      if (!data.booking.rider_id || !data.booking.driver_id) {
+        return httpResponse.status(400).send({
+          data: "rider_id and driver_id required for the booking entity",
+          status: "failure",
+        });
+      }
+      const pickupAddressInsertionQuery = buildInsertQueryFromJSON(
+        "address",
+        data.pickup_address,
+        "id"
+      );
+      const dropoffAddressInsertionQuery = buildInsertQueryFromJSON(
+        "address",
+        data.dropoff_address,
+        "id"
+      );
+
+      const bookingInsertionResponse =
+        await Database.instance.wrappeInTransaction(async (dbClient) => {
+          const insertPickupAddressResponse = await dbClient.query(
+            pickupAddressInsertionQuery.text,
+            pickupAddressInsertionQuery.paramValues
+          );
+          const insertDropoffAddressResponse = await dbClient.query(
+            dropoffAddressInsertionQuery.text,
+            dropoffAddressInsertionQuery.paramValues
+          );
+
+          data.booking.pickup_address_id =
+            insertPickupAddressResponse.rows[0].id;
+          data.booking.dropoff_address_id =
+            insertDropoffAddressResponse.rows[0].id;
+          const bookingInsertionQuery = buildInsertQueryFromJSON(
+            "booking",
+            data.booking,
+            "id"
+          );
+          return await dbClient.query(
+            bookingInsertionQuery.text,
+            bookingInsertionQuery.paramValues
+          );
+        });
+      sendSuccessResponse(
+        httpResponse,
+        201,
+        bookingInsertionResponse.rows[0].id
+      );
+    } catch (e) {
+      console.error(`\n\n${e}\n\n`);
+      handleDbQueryError(e, httpResponse);
+    }
+  };
 }

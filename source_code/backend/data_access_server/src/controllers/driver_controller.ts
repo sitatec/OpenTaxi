@@ -102,7 +102,7 @@ export default class DriverController extends Controller {
           );
         }
       );
-      sendSuccessResponse(httpResponse, 200, data.account.id);
+      sendSuccessResponse(httpResponse, 201, data.account.id);
     } catch (e) {
       console.error(`\n\n${e}\n\n`);
       handleDbQueryError(e, httpResponse);

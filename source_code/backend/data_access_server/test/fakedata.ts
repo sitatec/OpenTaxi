@@ -76,8 +76,8 @@ export const PAYMENT = {
 const BOOKING_ID = 366;
 
 export const BOOKING = {
-  departure_address_id: 1,
-  destination_address_id: 2,
+  pickup_address_id: 1,
+  dropoff_address_id: 2,
   payment_id: PAYMENT_ID,
   booked_at: "2004-10-19T10:23:54.000Z",
   id: BOOKING_ID,
