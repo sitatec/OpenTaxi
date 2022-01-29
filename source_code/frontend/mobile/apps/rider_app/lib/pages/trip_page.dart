@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:rider_app/utils/widget_utils.dart';
 import 'package:shared/shared.dart';
 
 class TripPage extends StatefulWidget {
@@ -25,6 +26,85 @@ class _TripPageState extends State<TripPage> {
   bool driverWaiting = false;
   bool tripInProgress = false;
   bool tripJustSarted = true;
+
+  StreamSubscription? tripEventStreamSub;
+  StreamSubscription? customTripEventStreamSub;
+  StreamSubscription? locationStreamSubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.tripRoom.join();
+    tripEventStreamSub = widget.tripRoom.tripEventsStream.listen((event) {
+      switch (event) {
+        case TripEvent.joined:
+          locationStreamSubscription = widget.tripRoom.locationStream
+              .listen(_updateDriverLocationOnTheMap);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                "Trip Successfully Initialized.",
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Theme.of(context).accentColor,
+            ),
+          );
+          break;
+        case TripEvent.joinFailed:
+          showInfoDialog(
+              "Error", "An error happend while initializing the trip.", context,
+              actionButton: TextButton(
+                onPressed: () => widget.tripRoom.join(),
+                child: const Text("RETRY"),
+              ));
+          break;
+        case TripEvent.viewerJoined:
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                "A user joined the trip as spectator.",
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Theme.of(context).accentColor,
+            ),
+          );
+          break;
+        case TripEvent.cantJoinTwice:
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text(
+                "Trip already joinned.",
+                style: TextStyle(color: Colors.white),
+              ),
+              backgroundColor: Theme.of(context).errorColor,
+            ),
+          );
+          break;
+        default:
+      }
+    });
+    customTripEventStreamSub =
+        widget.tripRoom.customEventStream.listen((event) {
+      switch (event) {
+        case "driver_left":
+          // TODO
+          break;
+        default:
+      }
+    });
+  }
+
+  void _updateDriverLocationOnTheMap(Coordinates location) {}
+
+  @override
+  void dispose() {
+    widget.tripRoom.leave("rider");
+    tripEventStreamSub?.cancel();
+    locationStreamSubscription?.cancel();
+    customTripEventStreamSub?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -33,7 +113,7 @@ class _TripPageState extends State<TripPage> {
       body: Stack(
         children: [
           MapWidget(
-            padding: EdgeInsets.only(bottom: 45),
+            padding: const EdgeInsets.only(bottom: 45),
             controller: _mapController,
           ),
           SafeArea(
@@ -78,7 +158,7 @@ class _TripPageState extends State<TripPage> {
                         ? "The taxi Arrived"
                         : tripInProgress
                             ? "Estimated time 12 mins"
-                            : "Arrivin in 4 min",
+                            : "Arriving in 4 min",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: theme.primaryColor,
