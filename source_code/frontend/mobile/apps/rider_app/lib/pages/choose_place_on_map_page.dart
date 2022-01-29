@@ -85,6 +85,8 @@ class _ChoosePlaceOnMapPageState extends State<ChoosePlaceOnMapPage> {
             markers: markers,
             initialCoordinates: currentLocation,
             myLocationEnabled: true,
+            myLocationButtonEnabled: true,
+            padding: const EdgeInsets.only(bottom: 250),
           ),
           Align(
             alignment: Alignment.bottomCenter,

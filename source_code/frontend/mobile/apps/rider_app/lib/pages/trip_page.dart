@@ -1,16 +1,17 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:rider_app/entities/address.dart';
 import 'package:rider_app/utils/widget_utils.dart';
 import 'package:shared/shared.dart';
 
 class TripPage extends StatefulWidget {
   final TripRoom tripRoom;
-  final String puckUpStreetAddress;
+  final Address puckUpAddress;
   final String dropOffStreetAddress;
   const TripPage(
     this.tripRoom,
-    this.puckUpStreetAddress,
+    this.puckUpAddress,
     this.dropOffStreetAddress, {
     Key? key,
   }) : super(key: key);
@@ -21,6 +22,9 @@ class TripPage extends StatefulWidget {
 
 class _TripPageState extends State<TripPage> {
   final Completer<GoogleMapController> _mapController = Completer();
+  final markers = <Marker>{};
+  final polylines = <Polyline>{};
+
   bool tripDetailsShown = false;
   bool driverArrived = false;
   bool driverWaiting = false;
@@ -35,6 +39,7 @@ class _TripPageState extends State<TripPage> {
   void initState() {
     super.initState();
     widget.tripRoom.join();
+    widget.tripRoom.pickUpDirectionPolylines.then(_drawDirection);
     tripEventStreamSub = widget.tripRoom.tripEventsStream.listen((event) {
       switch (event) {
         case TripEvent.joined:
@@ -94,7 +99,57 @@ class _TripPageState extends State<TripPage> {
     });
   }
 
-  void _updateDriverLocationOnTheMap(Coordinates location) {}
+  void _updateDriverLocationOnTheMap(Coordinates location) {
+    setState(() {
+      _showCarMarker(location);
+    });
+  }
+
+  void _drawDirection(List<String> encodedPolylines) {
+    polylines.clear();
+    for (String encodedPolyline in encodedPolylines) {
+      polylines.add(
+        Polyline(
+          polylineId: PolylineId(encodedPolyline),
+          points: decodePolyline(encodedPolyline),
+          color: const Color(0xFFFE1917),
+          width: 4,
+        ),
+      );
+    }
+    setState(() {
+      _showPickUpMarker(widget.puckUpAddress.coordinates!);
+    });
+  }
+
+  Future<void> _showPickUpMarker(Coordinates location) async {
+    markers.removeWhere((marker) => marker.markerId.value == "pick_up");
+    markers.add(
+      Marker(
+        markerId: const MarkerId("pick_up"),
+        icon: await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(size: Size(60, 60)),
+          "assets/images/pickup_icon.png",
+          package: "shared",
+        ),
+        position: LatLng(location.latitude, location.longitude),
+      ),
+    );
+  }
+
+  Future<void> _showCarMarker(Coordinates location) async {
+    markers.removeWhere((marker) => marker.markerId.value == "car");
+    markers.add(
+      Marker(
+        markerId: const MarkerId("car"),
+        icon: await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(size: Size(60, 60)),
+          "assets/images/car.png",
+        ),
+        position: LatLng(location.latitude, location.longitude),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -115,6 +170,8 @@ class _TripPageState extends State<TripPage> {
           MapWidget(
             padding: const EdgeInsets.only(bottom: 45),
             controller: _mapController,
+            polylines: polylines,
+            markers: markers,
           ),
           SafeArea(
             child: Container(
@@ -207,7 +264,7 @@ class _TripPageState extends State<TripPage> {
                           color: theme.disabledColor,
                         ),
                       ),
-                      subtitle: Text(widget.puckUpStreetAddress),
+                      subtitle: Text(widget.puckUpAddress.streetAddress),
                     ),
                     ListTile(
                       contentPadding:

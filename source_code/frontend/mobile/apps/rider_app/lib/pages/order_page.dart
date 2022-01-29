@@ -33,9 +33,10 @@ class _OrderPageState extends State<OrderPage> {
           final tripRoom = TripRoom(data.value);
           Navigator.of(context).push(MaterialPageRoute(builder: (_) {
             return TripPage(
-                tripRoom,
-                dispatchRequestData.originAddress.streetAddress,
-                dispatchRequestData.destinationAddress.streetAddress);
+              tripRoom,
+              dispatchRequestData.originAddress,
+              dispatchRequestData.destinationAddress.streetAddress,
+            );
           }));
           break;
         case FramType.REFUSE_BOOKING:
