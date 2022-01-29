@@ -272,7 +272,7 @@ Duration of the trip from the driver's location to yours: ${currentDriverCandida
                                       dispatcher.sendData(
                                         MapEntry(
                                           FramType.DISPATCH_REQUEST,
-                                          dispatchRequestData.data,
+                                          await dispatchRequestData.data,
                                         ),
                                       );
                                       setState(() {

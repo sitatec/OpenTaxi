@@ -5,32 +5,41 @@ class DispatchRequestData {
   final Address originAddress;
   final Address destinationAddress;
   final List<Address> stopAddresses;
-  final data = <String, dynamic>{};
+  final _data = <String, dynamic>{};
+
+  Future<Map<String, dynamic>> get data async {
+    await originAddress.completeAddress();
+    await destinationAddress.completeAddress();
+    for (var stopAddress in stopAddresses) {
+      await stopAddress.completeAddress();
+    }
+    return _data;
+  }
 
   DispatchRequestData(
     this.originAddress,
     this.destinationAddress,
     this.stopAddresses,
   ) {
-    data["loc"] = originAddress.toMap();
-    data["des"] = destinationAddress.toMap();
-    data["stp"] = stopAddresses.map((address) => address.toMap()).toList();
+    _data["loc"] = originAddress.toMap();
+    _data["des"] = destinationAddress.toMap();
+    _data["stp"] = stopAddresses.map((address) => address.toMap()).toList();
   }
 
   void setRiderInfo(Account riderAccount) {
-    data["id"] = riderAccount.id;
-    data["nam"] = riderAccount.displayName;
+    _data["id"] = riderAccount.id;
+    _data["nam"] = riderAccount.displayName;
   }
 
   void setPaymentMethod(String paymentMethod) {
-    data["pym"] = paymentMethod;
+    _data["pym"] = paymentMethod;
   }
 
   void setGenderPreference(Gender gender) {
-    data["gnr"] = enumToString(gender);
+    _data["gnr"] = enumToString(gender);
   }
 
   void setVehicleCategory(VehicleCategory vehicleCategory) {
-    data["crT"] = enumToString(vehicleCategory);
+    _data["crT"] = enumToString(vehicleCategory);
   }
 }

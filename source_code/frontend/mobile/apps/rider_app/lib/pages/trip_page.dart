@@ -172,6 +172,8 @@ class _TripPageState extends State<TripPage> {
             controller: _mapController,
             polylines: polylines,
             markers: markers,
+            myLocationEnabled: true,
+            myLocationButtonEnabled: true,
           ),
           SafeArea(
             child: Container(
