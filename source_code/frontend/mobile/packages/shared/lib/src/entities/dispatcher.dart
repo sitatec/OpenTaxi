@@ -15,8 +15,9 @@ class Dispatcher {
   bool _isConnected = false;
   MapEntry<FramType, dynamic>? _pendingData;
   Stream<bool> get isConnected => _connectionStreamController.stream;
-  Stream<MapEntry<FramType, dynamic>>? get dataStream =>
+  Stream<MapEntry<FramType, dynamic>> get dataStream =>
       _dataStreamController.stream;
+
   Dispatcher([this._webSocketChannel]) {
     _connectionStreamController = StreamController<bool>.broadcast(
       onListen: () => _connectionStreamController.add(_isConnected),
@@ -45,7 +46,9 @@ class Dispatcher {
     }
   }
 
-  Future<void> connect() async {
+  Future<void> connect({
+    void Function(String? socketCloseReason)? onServerDisconnect,
+  }) async {
     if (_isConnected) return;
     _webSocketChannel =
         WebSocketChannel.connect(Uri.parse(dispatcherServerUrl));
@@ -54,6 +57,7 @@ class Dispatcher {
       _convertData,
       onDone: () {
         _toggleConnectStatus(false);
+        onServerDisconnect?.call(_webSocketChannel!.closeReason);
         print(_webSocketChannel!.closeCode);
       },
       onError: (e) {
