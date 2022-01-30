@@ -4,7 +4,7 @@ CREATE TYPE TRIP_STATUS AS ENUM (
   'DRIVER_ON_THE_WAY',
   'DRIVER_ARRIVED_PICKUP', 
   'STARTED', 
-  'COMPLETED', 
+  'ENDED', 
   'CANCELED'
 );
 
@@ -65,7 +65,8 @@ CREATE SEQUENCE public.trip_id_seq;
 CREATE TABLE public.trip (
   id BIGINT NOT NULL DEFAULT nextval('public.trip_id_seq'),
   started_at TIMESTAMP,
-  finished_at TIMESTAMP,
+  ended_at TIMESTAMP,
+  canceled_at TIMESTAMP,
   security_video_url VARCHAR,
   booking_id BIGINT NOT NULL,
   status TRIP_STATUS NOT NULL,

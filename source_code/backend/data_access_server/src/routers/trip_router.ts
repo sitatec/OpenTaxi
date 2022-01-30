@@ -7,6 +7,8 @@ const router = Router();
 
 router.post("/", tripController.createTrip); // TODO add httpRequest data validation step.
 
+router.post("/with_booking", tripController.createTripWithBooking);
+
 router.get("/", tripController.getTrip);
 
 router.get("/:fields", tripController.getTrip);

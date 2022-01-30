@@ -110,7 +110,7 @@ export const TRIP = {
   booking_id: BOOKING_ID,
   security_video_url: "url",
   started_at: "2004-10-19T10:23:54.000Z",
-  finished_at: "2004-10-19T10:23:54.000Z",
+  ended_at: "2004-10-19T10:23:54.000Z",
 };
 
 export const VEHICLE = {
