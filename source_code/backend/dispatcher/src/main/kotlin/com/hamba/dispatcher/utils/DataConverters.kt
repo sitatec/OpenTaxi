@@ -15,6 +15,7 @@ fun Map<String, Any>.toDriverData(driverId: String = this["id"] as String): Driv
         location,
         this["gnr"] as String,
         this["crT"] as String,
+        this["nam"] as String,
         driverId,
         (this["cID"] as Long).toULong()
     )
@@ -24,7 +25,7 @@ fun DriverData.toJsonForFirebaseDb(): Map<String, *> {
     val locationJson = location.toJsonForFirebaseDb()
     // We are using the driver's id as the node's key in firebase db,
     // so we exclude it from the serialized fields to prevent duplication. Long().toULong()
-    return mapOf("loc" to locationJson, "gnr" to gender, "crT" to carType, "cID" to cellId.toLong())
+    return mapOf("loc" to locationJson, "gnr" to gender, "crT" to carType, "cID" to cellId.toLong(), "nam" to name)
 }
 
 fun Location.toJsonForFirebaseDb() = mapOf("lat" to latitude, "lng" to longitude)
