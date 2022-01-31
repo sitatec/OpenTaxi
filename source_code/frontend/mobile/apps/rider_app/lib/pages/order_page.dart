@@ -90,6 +90,19 @@ Distance to the driver's location: ${currentDriverCandidate!['dis']}
 Duration of the trip from the driver's location to yours: ${currentDriverCandidate!['dur']}""";
           });
           break;
+        case FramType.BOOKING_REQUEST_TIMEOUT:
+          setState(() {
+            if (currentDriverCandidate != null &&
+                currentDriverCandidate!["idx"].toString() ==
+                    data.value.toString()) {
+              notificationMessage =
+                  "${currentDriverCandidate!['nam']} hasn't reacted to the request, sending request to the next available driver...";
+            } else {
+              notificationMessage =
+                  "The ${_numberToOrdinal(data.value)} driver hasn't reacted to the request, sending request to the next available driver...";
+            }
+          });
+          break;
         default:
           debugPrint(
             "Invalid data fram type received from the dispatcher server : " +
