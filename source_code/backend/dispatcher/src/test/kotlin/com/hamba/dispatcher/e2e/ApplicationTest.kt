@@ -8,7 +8,7 @@ import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.*
 import com.hamba.dispatcher.services.api.RouteApiClient
-import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
+import com.hamba.dispatcher.services.sdk.RealTimeDatabase
 import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.services.sdk.initializeFirebase
 import com.hamba.dispatcher.websockets.FrameType
@@ -35,7 +35,7 @@ class ApplicationTest {
     // TODO test for more than 1000 drivers simultaneously connected and memory consumption
     private val driverDataCache = DriverPointDataCache()
     private val firebaseFirestoreWrapper = FirebaseFirestoreWrapper()
-    private val firebaseDatabaseWrapper = FirebaseDatabaseWrapper()
+    private val realTimeDatabase = RealTimeDatabase()
     private lateinit var driverDataRepository: DriverDataRepository
     private lateinit var distanceCalculator: DistanceCalculator
     private val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
@@ -54,7 +54,7 @@ class ApplicationTest {
         driverDataCache.clear()
         driverConnections.clear()
         dispatchDataList.clear()
-        firebaseDatabaseWrapper.deleteData("trip_rooms")
+        realTimeDatabase.deleteData("trip_rooms")
         driverDataRepository = DriverDataRepository(firebaseFirestoreWrapper)
         distanceCalculator = DistanceCalculator(routeApiClient, driverDataCache)
         dispatcher =
@@ -123,7 +123,7 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -184,7 +184,7 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -205,7 +205,7 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -227,7 +227,7 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             // Simulate connected drivers
@@ -293,7 +293,7 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             // Simulate connected drivers
@@ -358,7 +358,7 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             // Simulate connected drivers
@@ -423,7 +423,7 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             var currentDriverIndex = 0
@@ -525,7 +525,7 @@ class ApplicationTest {
                 dispatcher1,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             var currentDriverIndex = 0
@@ -622,7 +622,7 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             // Simulate connected drivers
@@ -689,7 +689,7 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                FirebaseDatabaseWrapper()
+                RealTimeDatabase()
             )
         }) {
             // Simulate connected drivers

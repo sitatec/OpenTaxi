@@ -6,7 +6,8 @@ import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DriverData
 import com.hamba.dispatcher.data.model.Location
-import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
+import com.hamba.dispatcher.services.api.DataAccessClient
+import com.hamba.dispatcher.services.sdk.RealTimeDatabase
 import com.hamba.dispatcher.websockets.FrameType
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
@@ -58,8 +59,9 @@ class DriverController(
     suspend fun acceptBooking(
         driverId: String?,
         dispatchDataId: String,
-        firebaseDatabaseWrapper: FirebaseDatabaseWrapper,
-        driverSession: DefaultWebSocketServerSession
+        realTimeDatabase: RealTimeDatabase,
+        driverSession: DefaultWebSocketServerSession,
+        dataAccessClient: DataAccessClient,
     ) {
         if (driverId == null) {// Should add data before receiving booking request thus before accepting booking.
             driverSession.close(CloseReason(CloseReason.Codes.CANNOT_ACCEPT, ""))
@@ -68,7 +70,7 @@ class DriverController(
             if (dispatchData == null) {// Invalid id or that data have been already removed
                 driverSession.send("${FrameType.INVALID_DISPATCH_ID}:$dispatchDataId")
             } else {
-                dispatcher.onBookingAccepted(dispatchData, firebaseDatabaseWrapper)
+                dispatcher.onBookingAccepted(dispatchData, realTimeDatabase, dataAccessClient)
             }
         }
     }

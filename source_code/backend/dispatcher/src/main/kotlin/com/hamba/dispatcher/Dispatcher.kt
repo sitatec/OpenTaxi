@@ -5,8 +5,10 @@ import com.hamba.dispatcher.data.model.DirectionAPIResponse
 import com.hamba.dispatcher.websockets.FrameType.*
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.data.model.DispatchRequestData
+import com.hamba.dispatcher.services.api.DataAccessClient
 import com.hamba.dispatcher.services.api.RouteApiClient
-import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
+import com.hamba.dispatcher.services.sdk.RealTimeDatabase
+import com.hamba.dispatcher.utils.toJsonForDataAccessServer
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.runBlocking
@@ -114,7 +116,12 @@ class Dispatcher(
         return Json.encodeToString(data)
     }
 
-    suspend fun onBookingAccepted(dispatchData: DispatchData, firebaseDatabaseWrapper: FirebaseDatabaseWrapper) {
+    suspend fun onBookingAccepted(
+        dispatchData: DispatchData,
+        realTimeDatabase: RealTimeDatabase,
+        dataAccessClient: DataAccessClient
+    ) {
+        // TODO refactor
         if (dispatchData.currentBookingRequestTimeout?.cancel() != false) {
             val driverId = dispatchData.getCurrentCandidate().first.driverId
             val driverConnection = driverConnections[driverId]
@@ -122,6 +129,7 @@ class Dispatcher(
                 dispatchData.riderConnection.send("$PAIR_DISCONNECTED:$driverId")
                 bookNextClosestDriver(dispatchData)
             } else {
+                val tripAndBookingIds = createTrip(dispatchData, dataAccessClient)
                 val pickupDirectionData = Json.decodeFromString<DirectionAPIResponse>(
                     routeApiClient.findDirection(
                         dispatchData.getCurrentCandidate().first.location,
@@ -150,13 +158,35 @@ class Dispatcher(
                         "trip" to Json.encodeToString(tripDirectionPolylines)
                     )
                 )
-                firebaseDatabaseWrapper.putData("trip_rooms/$driverId", tripRoomData)
+                val tripId = tripAndBookingIds["trip_id"]
+                val bookingId = tripAndBookingIds["booking_id"]
+                realTimeDatabase.putData("trip_rooms/$tripId", tripRoomData)
                 dispatchData.riderConnection.send("$ACCEPT_BOOKING:$driverId")
-                dispatchData.riderConnection.close(CloseReason(CloseReason.Codes.NORMAL, ""))
-                driverConnection.send("$TRIP_ROOM:$driverId")
+                dispatchData.riderConnection.send("$BOOKING_ID:$bookingId")
+                driverConnection.send("$BOOKING_ID:$bookingId")
+                dispatchData.riderConnection.send("$TRIP_ROOM:$tripId")
+                driverConnection.send("$TRIP_ROOM:$tripId")
                 dispatchDataList.remove(dispatchData.id)
             }
         }
+    }
+
+    private suspend fun createTrip(
+        dispatchData: DispatchData,
+        dataAccessClient: DataAccessClient
+    ): Map<String, String> {
+        val tripData = JsonObject(
+            mapOf(
+                "pickup_address" to dispatchData.dispatchRequestData.pickUpLocation.toJsonForDataAccessServer(),
+                "dropoff_address" to dispatchData.dispatchRequestData.dropOffLocation.toJsonForDataAccessServer(),
+                "booking" to buildJsonObject {
+                    put("rider_id", dispatchData.dispatchRequestData.riderId)
+                    put("driver_id", dispatchData.getCurrentCandidate().first.driverId)
+                },
+                "trip" to buildJsonObject { }
+            ),
+        )
+        return dataAccessClient.createTrip(tripData)
     }
 
     suspend fun onBookingRefused(dispatchData: DispatchData) {

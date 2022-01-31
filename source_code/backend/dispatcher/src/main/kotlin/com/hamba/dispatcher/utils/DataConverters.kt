@@ -3,6 +3,9 @@ package com.hamba.dispatcher.utils
 import com.hamba.dispatcher.data.model.DriverData
 import com.hamba.dispatcher.data.model.Location
 import dilivia.s2.S2CellId
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 
 
 fun Map<String, Any>.toDriverData(driverId: String = this["id"] as String): DriverData {
@@ -27,3 +30,10 @@ fun DriverData.toJsonForFirebaseDb(): Map<String, *> {
 fun Location.toJsonForFirebaseDb() = mapOf("lat" to latitude, "lng" to longitude)
 
 fun ULong.toCellId() = S2CellId(this)
+
+fun Location.toJsonForDataAccessServer() = buildJsonObject {
+    put("street_address", formattedAddress)
+    put("postal_code", postalCode)
+    put("city", city)
+    put("province", province)
+}

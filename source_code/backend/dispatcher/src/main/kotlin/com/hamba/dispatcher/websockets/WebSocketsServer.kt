@@ -5,10 +5,8 @@ import com.hamba.dispatcher.Dispatcher
 import com.hamba.dispatcher.controllers.DispatchController
 import com.hamba.dispatcher.controllers.DriverController
 import com.hamba.dispatcher.data.DriverPointDataCache
-import com.hamba.dispatcher.data.DriverDataRepository
-import com.hamba.dispatcher.data.model.DispatchData
-import com.hamba.dispatcher.data.model.DispatchRequestData
-import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
+import com.hamba.dispatcher.services.api.DataAccessClient
+import com.hamba.dispatcher.services.sdk.RealTimeDatabase
 import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.utils.toDriverData
 import com.hamba.dispatcher.websockets.FrameType.*
@@ -19,8 +17,6 @@ import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.json.Json
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -30,7 +26,8 @@ fun Application.webSocketsServer(
     dispatcher: Dispatcher,
     driverDataCache: DriverPointDataCache,
     firebaseFirestoreWrapper: FirebaseFirestoreWrapper,
-    firebaseDatabaseWrapper: FirebaseDatabaseWrapper
+    realTimeDatabase: RealTimeDatabase,
+    dataAccessClient: DataAccessClient = DataAccessClient(),
 ) {
     // TODO Use proper logging
     install(WebSockets)
@@ -53,7 +50,13 @@ fun Application.webSocketsServer(
                         UPDATE_DRIVER_DATA -> driverController.updateDriverData(driverId, receivedData, this)
                         DELETE_DRIVER_DATA -> driverController.deleteDriverData(driverId, this)
                         ACCEPT_BOOKING -> {
-                            driverController.acceptBooking(driverId, receivedData, firebaseDatabaseWrapper, this)
+                            driverController.acceptBooking(
+                                driverId,
+                                receivedData,
+                                realTimeDatabase,
+                                this,
+                                dataAccessClient,
+                            )
                         }
                         REFUSE_BOOKING -> driverController.refuseBooking(driverId, receivedData, this)
                         else -> close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, "INVALID_FRAME_TYPE"))

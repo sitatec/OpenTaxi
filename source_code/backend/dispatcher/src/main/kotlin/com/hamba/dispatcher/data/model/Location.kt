@@ -12,9 +12,9 @@ data class Location(
     @SerialName("lng") val longitude: Double? = null,
     @SerialName("adr") val formattedAddress: String? = null,
     @SerialName("pId") private val placeId: String? = null,
-    @SerialName("cod") private val postalCode: String? = null,
-    @SerialName("cit") private val city: String? = null,
-    @SerialName("pro") private val province: String? = null,
+    @SerialName("cod") internal val postalCode: String? = null,
+    @SerialName("cit") internal val city: String? = null,
+    @SerialName("pro") internal val province: String? = null,
 ) {
     fun toCellID(): S2CellId {
         return S2CellId.fromLatLng(S2LatLng.fromDegrees(latitude!!, longitude!!))

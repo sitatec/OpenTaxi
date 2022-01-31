@@ -6,7 +6,7 @@ import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.DispatchData
 import com.hamba.dispatcher.services.api.RouteApiClient
-import com.hamba.dispatcher.services.sdk.FirebaseDatabaseWrapper
+import com.hamba.dispatcher.services.sdk.RealTimeDatabase
 import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.services.sdk.initializeFirebase
 import com.hamba.dispatcher.websockets.webSocketsServer
@@ -44,7 +44,7 @@ fun main() {
             dispatcher,
             driverDataCache,
             firebaseDatabaseClient,
-            FirebaseDatabaseWrapper()
+            RealTimeDatabase()
         )
     }.start(wait = true)
 

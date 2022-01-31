@@ -15,6 +15,7 @@ enum class FrameType(private val code: Byte) {
     BOOKING_REQUEST_TIMEOUT(11),
     BOOKING_SENT(12),
     TRIP_ROOM(13),
+    BOOKING_ID(14),
 
     ;
 
@@ -25,7 +26,7 @@ enum class FrameType(private val code: Byte) {
     companion object {
         fun fromRawFrame(rawFrameText: String): FrameType?{
             val code = rawFrameText.substringBefore(":")
-            return FrameType.values().firstOrNull { it.code == code.toByte() }
+            return values().firstOrNull { it.code == code.toByte() }
         }
     }
 }
