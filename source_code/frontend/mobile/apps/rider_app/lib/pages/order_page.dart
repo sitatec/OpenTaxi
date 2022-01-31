@@ -29,7 +29,16 @@ class _OrderPageState extends State<OrderPage> {
     super.initState();
     dispatcherDataStreamSub = dispatcher.dataStream.listen((data) {
       switch (data.key) {
+        case FramType.BOOKING_ID:
+          // TODO
+          break;
         case FramType.ACCEPT_BOOKING:
+          setState(() {
+            notificationMessage =
+                "${currentDriverCandidate!['nam']} has accepted the request.\n Wait a moment please...";
+          });
+          break;
+        case FramType.TRIP_ROOM:
           final tripRoom = TripRoom(data.value);
           Navigator.of(context).push(MaterialPageRoute(builder: (_) {
             return TripPage(
@@ -45,7 +54,7 @@ class _OrderPageState extends State<OrderPage> {
                 currentDriverCandidate!["idx"].toString() ==
                     data.value.toString()) {
               notificationMessage =
-                  "${currentDriverCandidate!['name']} has declined the request, sending request to the next available driver...";
+                  "${currentDriverCandidate!['nam']} has declined the request, sending request to the next available driver...";
             } else {
               notificationMessage =
                   "The ${_numberToOrdinal(data.value)} driver has declined the request, sending request to the next available driver...";
