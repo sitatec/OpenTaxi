@@ -13,13 +13,13 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 // TODO find a solution for testing without having to "shadow" the method by overriding them and make the final by removing the open keyword.
-open class UserStatusManager(private val dataAccessClient: DataAccessClient) {
+class UserStatusManager(private val dataAccessClient: DataAccessClient) {
 
-    open suspend fun driverGoOnline(driverId: String) = dataAccessClient.setDriverIsOnline(driverId, isOnline = true)
+    suspend fun driverGoOnline(driverId: String) = dataAccessClient.setDriverIsOnline(driverId, isOnline = true)
 
-    open suspend fun driverGoOffline(driverId: String) = dataAccessClient.setDriverIsOnline(driverId, isOnline = false)
+    suspend fun driverGoOffline(driverId: String) = dataAccessClient.setDriverIsOnline(driverId, isOnline = false)
 
-    open suspend fun userCanConnect(userId: String): Boolean {
+    suspend fun userCanConnect(userId: String): Boolean {
         return dataAccessClient.getUserAccountStatus(userId) == "LIVE";
     }
 
