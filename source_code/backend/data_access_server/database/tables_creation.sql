@@ -69,7 +69,7 @@ CREATE TABLE public.trip (
   canceled_at TIMESTAMP,
   security_video_url VARCHAR,
   booking_id BIGINT NOT NULL,
-  status TRIP_STATUS NOT NULL,
+  status TRIP_STATUS NOT NULL DEFAULT 'DRIVER_ON_THE_WAY',
   CONSTRAINT trip_pk PRIMARY KEY (id)
 );
 
