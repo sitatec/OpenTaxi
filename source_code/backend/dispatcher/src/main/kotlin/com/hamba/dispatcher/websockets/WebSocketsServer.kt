@@ -17,6 +17,7 @@ import io.ktor.utils.io.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.serialization.ExperimentalSerializationApi
+import java.time.Duration
 
 
 @OptIn(ExperimentalSerializationApi::class)
@@ -30,7 +31,10 @@ fun Application.webSocketsServer(
     dataAccessClient: DataAccessClient = DataAccessClient(),
 ) {
     // TODO Use proper logging
-    install(WebSockets)
+    install(WebSockets){
+        pingPeriod = Duration.ofSeconds(30)
+        timeout = Duration.ofMinutes(1)
+    }
 
     initDriversDataChangeListeners(firebaseFirestoreWrapper, driverDataCache)
 
