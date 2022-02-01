@@ -13,4 +13,7 @@ class DispatchRequestData(
     @SerialName("stp") val stops: List<Location> = emptyList(),
     @SerialName("gnr") val gender: String? = null,
     @SerialName("crT") val carType: String? = null,
-)
+    @SerialName("tim") val timestamp: Long? = null,
+) {
+    fun isFutureBookingRequest() = timestamp != null
+}

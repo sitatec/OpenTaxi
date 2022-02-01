@@ -34,7 +34,10 @@ class Dispatcher(
         dispatchRequestData: DispatchRequestData,
         riderConnection: DefaultWebSocketServerSession
     ) {
-        val closestDrivers = distanceCalculator.getClosestDriverDistance(dispatchRequestData)
+        val closestDrivers = distanceCalculator.getClosestDriverDistance(
+            dispatchRequestData,
+            isFutureBooking = dispatchRequestData.isFutureBookingRequest(),
+        )
         if (closestDrivers.isEmpty()) {
             riderConnection.send("$NO_MORE_DRIVER_AVAILABLE:")
         }
@@ -82,17 +85,20 @@ class Dispatcher(
                         bookNextClosestDriver(dispatchData)
                     }
                 }
-                val driverDataAsJson = Json.encodeToString(
-                    mapOf(
-                        "nam" to closestDriver.first.name,
-                        "dis" to closestDriver.second.distance.text,
-                        "dur" to closestDriver.second.durationInTraffic.text,
-                        "idx" to dispatchData.numberOfCandidateProvided,
-                    )
+                val driverDataAsMap = mutableMapOf(
+                    "nam" to closestDriver.first.name,
+                    "idx" to dispatchData.numberOfCandidateProvided,
                 )
+                if (!dispatchData.dispatchRequestData.isFutureBookingRequest()) {
+                    driverDataAsMap["dis"] = closestDriver.second.distance.text
+                    driverDataAsMap["dur"] = closestDriver.second.durationInTraffic.text
+                }
+                val driverDataAsJson = Json.encodeToString(driverDataAsMap)
                 dispatchData.riderConnection.send(/* bs = BOOKING SENT */"$BOOKING_SENT:${driverDataAsJson}")
-                driverDataRepository.deleteDriverData(closestDriver.first.driverId) // Once we send a booking request to the
-                // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
+                if (!dispatchData.dispatchRequestData.isFutureBookingRequest()) {
+                    driverDataRepository.deleteDriverData(closestDriver.first.driverId) // Once we send a booking request to the
+                    // driver he/she shouldn't be available for until he refuse the booking or he/she complete it. (Only for normal booking, not future booking).
+                }
             }
         }
 
@@ -109,6 +115,9 @@ class Dispatcher(
             put("pym", dispatchRequestData.paymentMethod)
             put("dis", distanceAndDuration.first)
             put("dur", distanceAndDuration.second)
+            if (dispatchRequestData.isFutureBookingRequest()) {
+                put("tim", dispatchRequestData.timestamp)
+            }
             putJsonArray("stp") {
                 dispatchRequestData.stops.forEach { add(it.formattedAddress) }
             }
@@ -128,8 +137,12 @@ class Dispatcher(
             if (driverConnection == null) {
                 dispatchData.riderConnection.send("$PAIR_DISCONNECTED:$driverId")
                 bookNextClosestDriver(dispatchData)
+            } else if (dispatchData.dispatchRequestData.isFutureBookingRequest()) {
+                createBooking(dispatchData, dataAccessClient)
+                dispatchData.riderConnection.send("$ACCEPT_BOOKING:$driverId")
+                dispatchDataList.remove(dispatchData.id)
             } else {
-                val tripAndBookingIds = createTrip(dispatchData, dataAccessClient)
+                val tripAndBookingIds = createTripWithBooking(dispatchData, dataAccessClient)
                 val pickupDirectionData = Json.decodeFromString<DirectionAPIResponse>(
                     routeApiClient.findDirection(
                         dispatchData.getCurrentCandidate().first.location,
@@ -171,7 +184,7 @@ class Dispatcher(
         }
     }
 
-    private suspend fun createTrip(
+    private suspend fun createTripWithBooking(
         dispatchData: DispatchData,
         dataAccessClient: DataAccessClient
     ): Map<String, String> {
@@ -189,9 +202,28 @@ class Dispatcher(
         return dataAccessClient.createTrip(tripData)
     }
 
+    private suspend fun createBooking(
+        dispatchData: DispatchData,
+        dataAccessClient: DataAccessClient
+    ): String {
+        val bookingData = JsonObject(
+            mapOf(
+                "pickup_address" to dispatchData.dispatchRequestData.pickUpLocation.toJsonForDataAccessServer(),
+                "dropoff_address" to dispatchData.dispatchRequestData.dropOffLocation.toJsonForDataAccessServer(),
+                "booking" to buildJsonObject {
+                    put("rider_id", dispatchData.dispatchRequestData.riderId)
+                    put("driver_id", dispatchData.getCurrentCandidate().first.driverId)
+                },
+            ),
+        )
+        return dataAccessClient.createBooking(bookingData)
+    }
+
     suspend fun onBookingRefused(dispatchData: DispatchData) {
         if (dispatchData.currentBookingRequestTimeout?.cancel() != false) {
-            driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings.
+            if (!dispatchData.dispatchRequestData.isFutureBookingRequest()) {
+                driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings. (but we don't remove the driver data for future booking, so we don't need to add it)
+            }
             dispatchData.riderConnection.send("${REFUSE_BOOKING}:${dispatchData.numberOfCandidateProvided}")
             bookNextClosestDriver(dispatchData)
         }
@@ -205,19 +237,23 @@ class Dispatcher(
         val driverConnection = driverConnections[currentCandidate.driverId]
         if (driverConnection != null) {
             driverConnection.send("${CANCEL_BOOKING}:$dispatchId")
-            driverDataRepository.addDriverData(currentCandidate) // Available for new bookings.
+            if (!dispatchData.dispatchRequestData.isFutureBookingRequest()) {
+                driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings. (but we don't remove the driver data for future booking, so we don't need to add it)
+            }
         }
         dispatchData.riderConnection.close(CloseReason(CloseReason.Codes.NORMAL, ""))
         dispatchDataList.remove(dispatchId)
     }
 
     suspend fun onRiderDisconnect(riderId: String) {
-        dispatchDataList.remove(riderId)?.let {
-            val currentCandidate = it.getCurrentCandidate().first
+        dispatchDataList.remove(riderId)?.let { dispatchData ->
+            val currentCandidate = dispatchData.getCurrentCandidate().first
             val currentCandidateConnection = driverConnections[currentCandidate.driverId]
             currentCandidateConnection?.send("${PAIR_DISCONNECTED}:$riderId")// Notify the driver that we sent a
             // booking request that the rider is disconnected
-            driverDataRepository.addDriverData(currentCandidate) // Available for new bookings.
+            if (!dispatchData.dispatchRequestData.isFutureBookingRequest()) {
+                driverDataRepository.addDriverData(dispatchData.getCurrentCandidate().first) // Available for new bookings. (but we don't remove the driver data for future booking, so we don't need to add it)
+            }
         }
     }
 

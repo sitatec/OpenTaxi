@@ -19,7 +19,7 @@ class DistanceCalculator(
     )
 ) {
 
-    fun getClosestDriverDistance(requestData: DispatchRequestData): List<Pair<DriverData, DistanceMatrixElement>> {
+    fun getClosestDriverDistance(requestData: DispatchRequestData, isFutureBooking: Boolean = false): List<Pair<DriverData, DistanceMatrixElement>> {
         var predicate: (DriverData?) -> Boolean = { it != null }
         if (requestData.carType != null && requestData.gender != null) {
             predicate = { it != null && requestData.carType == it.carType && requestData.gender == it.gender }
@@ -30,11 +30,14 @@ class DistanceCalculator(
         }
         val closestDriverAsTheCrowFlies =
             findClosestDistanceAsTheCrowFlies(requestData, PointIndex(driverDataCache.map, predicate))
+        if(isFutureBooking){
+            return closestDriverAsTheCrowFlies.map { driverData -> Pair(driverData, EmptyDistanceMatrixElement) }
+        }
         return findClosestDistanceOnRoad(closestDriverAsTheCrowFlies, requestData.pickUpLocation)
 //        return if(closestDriverAsTheCrowFlies.size > 1){
 //            findClosestDistanceOnRoad(closestDriverAsTheCrowFlies, requestData.pickUpLocation)
 //        } else {// If there is only one driver available near the rider it's useless to make a distance matrix request.
-//            // TODO check if we need the distance matrix elements, if so make a direction request if there is only on driver near the rider.
+//            // TODO check if we need the distance matrix elements, if so make a direction request if there is only one driver near the rider.
 //            //  If we don't need theme we filter the driver's data base on the duration in the elements and then return the driver's data.
 //            closestDriverAsTheCrowFlies.map { Pair(it, EmptyElement) }
 //        }
