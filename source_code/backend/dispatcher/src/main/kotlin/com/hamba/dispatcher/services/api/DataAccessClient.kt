@@ -19,11 +19,30 @@ private const val SERVERS_ACCESS_TOKEN = "skfS43Z5ljSFSJS_sjzr-kss4643jslSGSAOPB
  * A Client of the data access server.
  */
 class DataAccessClient(private val httpClient: HttpClient = HttpClient(CIO)) {
+
     suspend fun createTrip(tripData: JsonObject): Map<String, String> {
-        return httpClient.post("$DATA_ACCESS_SERVER_URL/trip/with_booking") {
+        val response: JsonObject = httpClient.post("$DATA_ACCESS_SERVER_URL/trip/with_booking") {
             contentType(ContentType.Application.Json)
             body = Json.encodeToString(tripData)
             header("Authorization", "Bearer $SERVERS_ACCESS_TOKEN")
+        }
+        if(response["status"]!!.jsonPrimitive.toString() == "success"){
+            return response["data"]!!.jsonObject.mapValues { it.value.jsonPrimitive.toString() }
+        }else{
+            throw Exception(message = "Failed to Create Trip")
+        }
+    }
+
+    suspend fun createBooking(bookingData: JsonObject): String {
+        val response: JsonObject = httpClient.post("$DATA_ACCESS_SERVER_URL/booking/with_addresses") {
+            contentType(ContentType.Application.Json)
+            body = Json.encodeToString(bookingData)
+            header("Authorization", "Bearer $SERVERS_ACCESS_TOKEN")
+        }
+        if(response["status"]!!.jsonPrimitive.toString() == "success"){
+            return response["data"]!!.jsonPrimitive.toString()
+        }else{
+            throw Exception(message = "Failed to Create Booking")
         }
     }
 
