@@ -11,6 +11,7 @@ import com.hamba.dispatcher.services.sdk.RealTimeDatabase
 import com.hamba.dispatcher.utils.toJsonForDataAccessServer
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
@@ -141,6 +142,18 @@ class Dispatcher(
                 createBooking(dispatchData, dataAccessClient)
                 dispatchData.riderConnection.send("$ACCEPT_BOOKING:$driverId")
                 dispatchDataList.remove(dispatchData.id)
+                Timer().schedule(60_000) {
+                    if (dispatchData.riderConnection.isActive) {
+                        runBlocking {
+                            dispatchData.riderConnection.close(
+                                CloseReason(
+                                    CloseReason.Codes.NORMAL,
+                                    "Close connection after booking accepted by the driver."
+                                )
+                            )
+                        }
+                    }
+                }
             } else {
                 val tripAndBookingIds = createTripWithBooking(dispatchData, dataAccessClient)
                 val pickupDirectionData = Json.decodeFromString<DirectionAPIResponse>(
@@ -180,6 +193,18 @@ class Dispatcher(
                 dispatchData.riderConnection.send("$TRIP_ROOM:$tripId")
                 driverConnection.send("$TRIP_ROOM:$tripId")
                 dispatchDataList.remove(dispatchData.id)
+                Timer().schedule(60_000) {
+                    if (dispatchData.riderConnection.isActive) {
+                        runBlocking {
+                            dispatchData.riderConnection.close(
+                                CloseReason(
+                                    CloseReason.Codes.NORMAL,
+                                    "Close connection after booking accepted by the driver."
+                                )
+                            )
+                        }
+                    }
+                }
             }
         }
     }
