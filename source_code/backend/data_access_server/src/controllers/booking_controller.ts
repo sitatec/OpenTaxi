@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { Query } from "pg";
 import { Database } from "../db";
 import {
   buildInsertQueryFromJSON,
@@ -44,6 +45,11 @@ export default class BookingController extends Controller {
         "id"
       );
 
+      const stopAddressesInsertionQuery = (data.stop_addresses as any[]).map(
+        (stopAddress: any) =>
+          buildInsertQueryFromJSON("address", stopAddress, "id")
+      );
+
       const bookingInsertionResponse =
         await Database.instance.wrappeInTransaction(async (dbClient) => {
           const insertPickupAddressResponse = await dbClient.query(
@@ -64,10 +70,32 @@ export default class BookingController extends Controller {
             data.booking,
             "id"
           );
-          return await dbClient.query(
+          const insertBookingResponse = await dbClient.query(
             bookingInsertionQuery.text,
             bookingInsertionQuery.paramValues
           );
+
+          const bookingId = bookingInsertionResponse.rows[0].id;
+
+          for (let query of stopAddressesInsertionQuery) {
+            const response = await dbClient.query(
+              query.text,
+              query.paramValues
+            );
+            const insertBookingStopAddressQuery = buildInsertQueryFromJSON(
+              "booking_stop_address",
+              {
+                booking_id: bookingId,
+                address_id: response.rows[0].id,
+              }
+            );
+            await dbClient.query(
+              insertBookingStopAddressQuery.text,
+              insertBookingStopAddressQuery.paramValues
+            );
+          }
+
+          return insertBookingResponse;
         });
       sendSuccessResponse(
         httpResponse,

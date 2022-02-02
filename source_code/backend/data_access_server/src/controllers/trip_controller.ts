@@ -43,6 +43,11 @@ export default class TripController extends Controller {
         data.dropoff_address,
         "id"
       );
+      
+      const stopAddressesInsertionQuery = (data.stop_addresses as any[]).map(
+        (stopAddress: any) =>
+          buildInsertQueryFromJSON("address", stopAddress, "id")
+      );
 
       let bookingId: any;
       const tripInsertionResponse = await Database.instance.wrappeInTransaction(
@@ -70,6 +75,25 @@ export default class TripController extends Controller {
             bookingInsertionQuery.paramValues
           );
           bookingId = bookingInsertionResponse.rows[0].id;
+          
+          for (let query of stopAddressesInsertionQuery) {
+            const response = await dbClient.query(
+              query.text,
+              query.paramValues
+            );
+            const insertBookingStopAddressQuery = buildInsertQueryFromJSON(
+              "booking_stop_address",
+              {
+                booking_id: bookingId,
+                address_id: response.rows[0].id,
+              }
+            );
+            await dbClient.query(
+              insertBookingStopAddressQuery.text,
+              insertBookingStopAddressQuery.paramValues
+            );
+          }
+
           data.trip.booking_id = bookingId;
           const tripInsertionQuery = buildInsertQueryFromJSON(
             "trip",
