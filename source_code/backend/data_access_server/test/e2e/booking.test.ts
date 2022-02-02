@@ -39,15 +39,23 @@ describe("ENDPOINT: BOOKING", () => {
 
   it("Should successfully create an booking.", createBooking);
 
-  it("Should successfully create a booking with the pickup and dropoff address objects", async () => {
+  it("Should successfully create a booking with the pickup, dropoff and stop address objects", async () => {
     const pickupAddress = cloneObjec(ADDRESS);
     const dropoffAddress = cloneObjec(ADDRESS);
+    const stopAddress = cloneObjec(ADDRESS);
+    const stopAddress1 = cloneObjec(ADDRESS);
+    const stopAddress2 = cloneObjec(ADDRESS);
+
+    delete stopAddress.id;
+    delete stopAddress1.id;
+    delete stopAddress2.id;
     delete pickupAddress.id;
     delete dropoffAddress.id;
 
     const response = await Axios.post(getUrlWithQuery("/with_addresses"), {
       pickup_address: pickupAddress,
       dropoff_address: dropoffAddress,
+      stop_addresses: [stopAddress, stopAddress1, stopAddress2],
       booking: {
         id: BOOKING.id,
         rider_id: RIDER.account_id,
@@ -58,12 +66,46 @@ describe("ENDPOINT: BOOKING", () => {
     expect(response.data).toEqual(getSuccessResponse(BOOKING.id.toString()));
   });
 
-  it("Should successfully get an booking.", async () => {
+  it("Should successfully get a booking.", async () => {
     await createBooking(); // Create it first
     // End then get it.
     const response = await Axios.get(getUrlWithQuery("?id=" + BOOKING.id));
     expect(response.status).toBe(200);
     expect(response.data).toMatchObject(getSuccessResponse(BOOKING));
+  });
+
+  it("Should successfully get a booking's stop addresses.", async () => {
+    const pickupAddress = cloneObjec(ADDRESS);
+    const dropoffAddress = cloneObjec(ADDRESS);
+    const stopAddress = cloneObjec(ADDRESS);
+    const stopAddress1 = cloneObjec(ADDRESS);
+    const stopAddress2 = cloneObjec(ADDRESS);
+
+    delete stopAddress.id;
+    delete stopAddress1.id;
+    delete stopAddress2.id;
+    delete pickupAddress.id;
+    delete dropoffAddress.id;
+    
+    await Axios.post(getUrlWithQuery("/with_addresses"), {
+      pickup_address: pickupAddress,
+      dropoff_address: dropoffAddress,
+      stop_addresses: [stopAddress, stopAddress1, stopAddress2],
+      booking: {
+        id: 911,
+        rider_id: RIDER.account_id,
+        driver_id: DRIVER.account_id,
+      },
+    });
+
+    const response = await Axios.get(
+      getUrlWithQuery("/stop_addresses?booking_id=911")
+    );
+    expect(response.status).toBe(200);
+    console.log(JSON.stringify(response.data));
+    expect(response.data).toMatchObject(
+      getSuccessResponse([stopAddress, stopAddress1, stopAddress2])
+    );
   });
 
   it("Should successfully get only one field from booking.", async () => {
