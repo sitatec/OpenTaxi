@@ -1,5 +1,6 @@
 package com.hamba.dispatcher.data.model
 
+import com.hamba.dispatcher.utils.formatDuration
 import io.ktor.websocket.*
 import java.time.Duration
 import java.time.Period
@@ -37,21 +38,24 @@ class DispatchData(
 
     fun getCurrentCandidate() = candidates.first()
 
-    fun getDistanceAndDurationFromPickupToDropOff(): Pair<String, String> {
+    fun getDistanceAndDurationFromPickupToDropOff(format: Boolean = true): Pair<String, String> {
         var distance = 0L
-        var duration = ""
+        var duration = 0L
         directions.forEach {
             it.routes.forEach { route ->
                 route.legs.forEach { leg ->
                     distance += leg.distance!!.value
-                    duration += leg.duration!!.text// TODO fix: get the value and then format it at the end.
+                    duration += leg.durationInTraffic!!.value// TODO fix: get the value and then format it at the end.
 
                 }
             }
         }
-        if (distance > 1000) {
-            return Pair(String.format("%.2f km", distance / 1000.0), duration)
+        if(format){
+            if (distance > 1000) {
+                return Pair(String.format("%.2f km", distance / 1000.0), Duration.ofSeconds(duration).formatDuration())
+            }
+            return Pair("$distance m", Duration.ofSeconds(duration).formatDuration())
         }
-        return Pair("$distance m", duration)
+        return Pair(distance.toString(), duration.toString())
     }
 }
