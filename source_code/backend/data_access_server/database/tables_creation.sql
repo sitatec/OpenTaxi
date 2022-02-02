@@ -192,12 +192,20 @@ CREATE TABLE public.booking (
   rider_id VARCHAR,-- NULLABLE in case the rider account is deleted, the company still needs the booking details.
   driver_id VARCHAR,
   booked_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  start_timestamp TIMESTAMP, -- FOR future bookings
   pickup_address_id BIGINT NOT NULL,
   dropoff_address_id BIGINT NOT NULL,
   CONSTRAINT booking_pk PRIMARY KEY (id)
 );
 
 ALTER SEQUENCE public.booking_id_seq OWNED BY public.booking.id;
+
+
+CREATE TABLE public.booking_stop_address(
+  booking_id BIGINT NOT NULL,
+  address_id BIGINT NOT NULL,
+  CONSTRAINT booking_stop_addresses_pk PRIMARY KEY (booking_id, address_id)
+)
 
 
 CREATE SEQUENCE public.address_id_seq;
@@ -302,6 +310,20 @@ REFERENCES public.address (id)
 ON UPDATE NO ACTION
 ON DELETE NO ACTION
 NOT DEFERRABLE;
+
+ALTER TABLE public.booking_stop_address ADD CONSTRAINT booking_stop_address_address_id
+FOREIGN KEY (address_id)
+REFERENCES public.address (id)
+ON DELETE NO ACTION
+ON UPDATE NO ACTION
+NOT DEFERRABLE
+
+ALTER TABLE public.booking_stop_address ADD CONSTRAINT booking_stop_address_booking_id
+FOREIGN KEY (booking_id)
+REFERENCES public.booking (id)
+ON DELETE CASCADE
+ON UPDATE NO ACTION
+NOT DEFERRABLE
 
 ALTER TABLE public.trip ADD CONSTRAINT booking_trip_fk
 FOREIGN KEY (booking_id)
