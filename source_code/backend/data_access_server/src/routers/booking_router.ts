@@ -11,6 +11,8 @@ router.post("/with_addresses", bookingController.createBookingWithAddresses);
 
 router.get("/", bookingController.getBooking);
 
+router.get("/stop_addresses", bookingController.getBookingStopAddresses);
+
 router.get("/:fields", bookingController.getBooking);
 
 router.patch("/:id", bookingController.updateBooking); // TODO add httpRequest data validation step.

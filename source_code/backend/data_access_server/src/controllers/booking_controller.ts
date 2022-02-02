@@ -21,6 +21,17 @@ export default class BookingController extends Controller {
   deleteBooking = async (httpRequest: Request, httpResponse: Response) =>
     this.entityManager.deleteEntity("booking", httpRequest, httpResponse);
 
+  getBookingStopAddresses = (httpRequest: Request, httpResponse: Response) =>
+    this.entityManager.getEntityWithRelation(
+      "address",
+      "booking_stop_address",
+      httpRequest,
+      httpResponse,
+      "id",
+      "address_id",
+      "address"
+    );
+
   createBookingWithAddresses = async (
     httpRequest: Request,
     httpResponse: Response
