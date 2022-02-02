@@ -74,7 +74,7 @@ describe("ENDPOINT: BOOKING", () => {
     expect(response.data).toMatchObject(getSuccessResponse(BOOKING));
   });
 
-  it("Should successfully get a booking's stop addresses.", async () => {
+  it("Should successfully get a booking's addresses (pickup, dropoff, stops).", async () => {
     const pickupAddress = cloneObjec(ADDRESS);
     const dropoffAddress = cloneObjec(ADDRESS);
     const stopAddress = cloneObjec(ADDRESS);
@@ -86,7 +86,7 @@ describe("ENDPOINT: BOOKING", () => {
     delete stopAddress2.id;
     delete pickupAddress.id;
     delete dropoffAddress.id;
-    
+
     await Axios.post(getUrlWithQuery("/with_addresses"), {
       pickup_address: pickupAddress,
       dropoff_address: dropoffAddress,
@@ -98,14 +98,22 @@ describe("ENDPOINT: BOOKING", () => {
       },
     });
 
-    const response = await Axios.get(
-      getUrlWithQuery("/stop_addresses?booking_id=911")
-    );
-    expect(response.status).toBe(200);
-    console.log(JSON.stringify(response.data));
-    expect(response.data).toMatchObject(
-      getSuccessResponse([stopAddress, stopAddress1, stopAddress2])
-    );
+    try {
+      const response = await Axios.get(
+        getUrlWithQuery("/addresses?booking_id=911")
+      );
+      expect(response.status).toBe(200);
+      console.log(JSON.stringify(response.data));
+      expect(response.data).toMatchObject(
+        getSuccessResponse({
+          pickup_address: pickupAddress,
+          dropoff_address: dropoffAddress,
+          stop_addresses: [stopAddress, stopAddress1, stopAddress2],
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   it("Should successfully get only one field from booking.", async () => {

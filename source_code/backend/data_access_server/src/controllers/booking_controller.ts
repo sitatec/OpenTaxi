@@ -3,9 +3,10 @@ import { Query } from "pg";
 import { Database } from "../db";
 import {
   buildInsertQueryFromJSON,
+  getRelationByColumns,
   handleDbQueryError,
 } from "../utils/database_utils";
-import { sendSuccessResponse } from "../utils/http_utils";
+import { getQueryParams, sendSuccessResponse } from "../utils/http_utils";
 import Controller from "./controller";
 
 export default class BookingController extends Controller {
@@ -21,17 +22,46 @@ export default class BookingController extends Controller {
   deleteBooking = async (httpRequest: Request, httpResponse: Response) =>
     this.entityManager.deleteEntity("booking", httpRequest, httpResponse);
 
-  getBookingStopAddresses = (httpRequest: Request, httpResponse: Response) =>
-    this.entityManager.getEntityWithRelation(
-      "address",
-      "booking_stop_address",
-      httpRequest,
-      httpResponse,
-      "id",
-      "address_id",
-      "address",
-      true
-    );
+  getBookingAddresses = async (
+    httpRequest: Request,
+    httpResponse: Response
+  ) => {
+    const queryParams = getQueryParams(httpRequest);
+    if (!queryParams) {
+      return httpResponse.status(400).end();
+    }
+    try {
+      // TODO optimize queries.
+      const pickupAddressQueryResponse =
+        await this.entityManager.execCustomQuery(
+          `SELECT address.* FROM booking JOIN address ON booking.id = ${queryParams[0].second} AND booking.pickup_address_id = address.id`
+        );
+      const pickupAddress = pickupAddressQueryResponse.rows[0];
+
+      const dropoffAddressQueryResponse =
+        await this.entityManager.execCustomQuery(
+          `SELECT address.* FROM booking JOIN address ON booking.id = ${queryParams[0].second} AND booking.dropoff_address_id = address.id`
+        );
+      const dropoffAddress = dropoffAddressQueryResponse.rows[0];
+
+      const stopAddresses = await getRelationByColumns(
+        queryParams,
+        "address",
+        "booking_stop_address",
+        "id",
+        "address_id",
+        "address",
+        true
+      );
+      sendSuccessResponse(httpResponse, 200, {
+        pickup_address: pickupAddress,
+        dropoff_address: dropoffAddress,
+        stop_addresses: stopAddresses,
+      });
+    } catch (e) {
+      handleDbQueryError(e, httpResponse);
+    }
+  };
 
   createBookingWithAddresses = async (
     httpRequest: Request,

@@ -11,7 +11,7 @@ router.post("/with_addresses", bookingController.createBookingWithAddresses);
 
 router.get("/", bookingController.getBooking);
 
-router.get("/stop_addresses", bookingController.getBookingStopAddresses);
+router.get("/addresses", bookingController.getBookingAddresses);
 
 router.get("/:fields", bookingController.getBooking);
 
