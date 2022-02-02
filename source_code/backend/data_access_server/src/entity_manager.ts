@@ -101,7 +101,8 @@ export default class EntityManager {
     httpResponse: Response,
     parentTablePrimaryKey = "id",
     childTableForeignKey?: string,
-    returnOnlyColunmOfTable = ""
+    returnOnlyColunmOfTable = "",
+    returnMultipleResult = false,
   ) => {
     const queryParams = getQueryParams(httpRequest);
     if (!queryParams) {
@@ -118,7 +119,8 @@ export default class EntityManager {
           childEntityName,
           parentTablePrimaryKey,
           childTableForeignKey,
-          returnOnlyColunmOfTable
+          returnOnlyColunmOfTable,
+          returnMultipleResult
         );
       }
     );

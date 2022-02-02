@@ -18,7 +18,9 @@ export const buildInsertQueryFromJSON = (
 ): Query => {
   const columns = extractColumnNameAndValuesFromJSON(json);
   return {
-    text: `INSERT INTO ${tableName} (${columns.names}) VALUES (${columns.params}) ${returnColumnName ? 'RETURNING ' + returnColumnName : ''}`,
+    text: `INSERT INTO ${tableName} (${columns.names}) VALUES (${
+      columns.params
+    }) ${returnColumnName ? "RETURNING " + returnColumnName : ""}`,
     paramValues: columns.paramValues,
   };
 };
@@ -83,7 +85,7 @@ export const getRowByColumns = async (
   db = Database.initialize()
 ): Promise<JSObject> => {
   const columnNamesAndParams = getColumnNamesAndParams(columns, table);
-  if(fields.length == 0){
+  if (fields.length == 0) {
     fields = "*";
   }
   const result = await db.execQuery(
@@ -124,13 +126,14 @@ export const getRelationByColumns = async (
   parentTablePrimaryKey: string = "id",
   childTableForeignKey?: string,
   returnOnlyColunmOfTable = "",
+  returnMultipleResult = false,
   db = Database.initialize()
 ): Promise<JSObject> => {
   const columnNamesAndParams = getColumnNamesAndParams(columns, childTable);
-  if(!childTableForeignKey){
+  if (!childTableForeignKey) {
     childTableForeignKey = `${parentTable}_${parentTablePrimaryKey}`;
   }
-  if(returnOnlyColunmOfTable) {
+  if (returnOnlyColunmOfTable) {
     returnOnlyColunmOfTable += ".";
   }
   const queryResult = await db.execQuery(
@@ -139,5 +142,9 @@ export const getRelationByColumns = async (
     WHERE ${columnNamesAndParams.first}`,
     columnNamesAndParams.second
   );
-  return queryResult.rows[0];
+  if (returnMultipleResult) {
+    return queryResult.rows;
+  } else {
+    return queryResult.rows[0];
+  }
 };

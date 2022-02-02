@@ -29,7 +29,8 @@ export default class BookingController extends Controller {
       httpResponse,
       "id",
       "address_id",
-      "address"
+      "address",
+      true
     );
 
   createBookingWithAddresses = async (
@@ -86,7 +87,7 @@ export default class BookingController extends Controller {
             bookingInsertionQuery.paramValues
           );
 
-          const bookingId = bookingInsertionResponse.rows[0].id;
+          const bookingId = insertBookingResponse.rows[0].id;
 
           for (let query of stopAddressesInsertionQuery) {
             const response = await dbClient.query(

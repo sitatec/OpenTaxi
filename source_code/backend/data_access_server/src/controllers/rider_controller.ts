@@ -32,7 +32,8 @@ export default class RiderController extends Controller {
       httpResponse,
       "account_id",
       "driver_id",
-      "driver"
+      "driver",
+      true
     );
 
   addFavoriteDriver = async (httpRequest: Request, httpResponse: Response) => {
