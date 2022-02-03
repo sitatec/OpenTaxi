@@ -30,12 +30,14 @@ dependencies {
     implementation "io.ktor:ktor-websockets:$ktor_version"
 
     implementation "io.ktor:ktor-serialization:$ktor_version"
-    implementation 'io.ktor:ktor-client-core:1.6.6'
-    implementation 'io.ktor:ktor-client-cio:1.6.6'
+    implementation 'io.ktor:ktor-client-core:1.6.7'
+    implementation 'io.ktor:ktor-client-cio:1.6.7'
 
     implementation 'net.enovea:ks2-geometry:1.0.0'
     implementation 'com.google.firebase:firebase-admin:8.1.0'
 
     testImplementation "io.ktor:ktor-server-tests:$ktor_version"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+
+    implementation 'com.google.cloud:google-cloud-tasks:2.1.1'
 }
