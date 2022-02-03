@@ -49,13 +49,14 @@ class Dispatcher(
             *dispatchRequestData.stops.toTypedArray(),
             dispatchRequestData.dropOffLocation,
         )
+        val departureTime = dispatchRequestData.timestamp?.toString() ?: "now"
         val dispatchData =
             DispatchData(
                 dispatchRequestData.riderId,
                 closestDrivers,
                 dispatchRequestData,
                 riderConnection,
-                routeApiClient.getConsecutiveDirections(consecutiveLocations),
+                routeApiClient.getConsecutiveDirections(consecutiveLocations, departureTime),
             )
         dispatchDataList[dispatchRequestData.riderId] = dispatchData
         bookNextClosestDriver(dispatchData)
@@ -178,11 +179,12 @@ class Dispatcher(
                     }
                 }
                 val tripRoomData = mutableMapOf(
+                    "driver" to driverId,
                     "rider" to dispatchData.id,
                     "dir" to mapOf(
                         "pickup" to Json.encodeToString(pickupDirectionPolylines),
                         "trip" to Json.encodeToString(tripDirectionPolylines)
-                    )
+                    )// TODO add estimated distance and duration.
                 )
                 val tripId = tripAndBookingIds["trip_id"]
                 val bookingId = tripAndBookingIds["booking_id"]
@@ -224,7 +226,7 @@ class Dispatcher(
                 "trip" to buildJsonObject { }
             ),
         )
-        return dataAccessClient.createTrip(tripData)
+        return dataAccessClient.createTripWithBooking(tripData)
     }
 
     private suspend fun createBooking(

@@ -16,7 +16,7 @@ const val API_KEY = "AIzaSyAwvDFbXeO-hMSzDldugtisPhk_MArmztA"
 
 private const val BASE_URL = "https://maps.googleapis.com/maps/api"
 private const val DISTANCE_MATRIX_URL = "$BASE_URL/distancematrix/json?departure_time=now&language=en&key=$API_KEY"
-private const val DIRECTION_URL = "$BASE_URL/directions/json?departure_time=now&language=en&key=$API_KEY"
+private const val DIRECTION_URL = "$BASE_URL/directions/json?language=en&key=$API_KEY"
 
 class RouteApiClient(private val httpClient: HttpClient = HttpClient(CIO)) {
 
@@ -36,7 +36,10 @@ class RouteApiClient(private val httpClient: HttpClient = HttpClient(CIO)) {
         }
     }
 
-    suspend fun getConsecutiveDirections(locations: List<Location>): List<DirectionAPIResponse> {
+    suspend fun getConsecutiveDirections(
+        locations: List<Location>,
+        departureTime: String = "now"
+    ): List<DirectionAPIResponse> {
         // TODO
         val lastLocationIndex = locations.lastIndex
         var currentLocationIndex = 0
@@ -44,7 +47,8 @@ class RouteApiClient(private val httpClient: HttpClient = HttpClient(CIO)) {
         var currentUrl: String
         withContext(Dispatchers.IO) {
             while (currentLocationIndex < lastLocationIndex) {
-                currentUrl = buildDirectionUrl(locations[currentLocationIndex], locations[++currentLocationIndex])
+                currentUrl =
+                    buildDirectionUrl(locations[currentLocationIndex], locations[++currentLocationIndex], departureTime)
                 result.add(async {
                     val response: String = httpClient.get(currentUrl)
                     Json.decodeFromString(response)
@@ -54,8 +58,8 @@ class RouteApiClient(private val httpClient: HttpClient = HttpClient(CIO)) {
         return awaitAll(*result.toTypedArray())
     }
 
-    private fun buildDirectionUrl(origin: Location, destination: Location) =
-        "$DIRECTION_URL&origin=$origin&destination=$destination"
+    private fun buildDirectionUrl(origin: Location, destination: Location, departureTime: String = "now") =
+        "$DIRECTION_URL&origin=$origin&destination=$destination&departure_time=$departureTime"
 
     fun release() {
         httpClient.close()

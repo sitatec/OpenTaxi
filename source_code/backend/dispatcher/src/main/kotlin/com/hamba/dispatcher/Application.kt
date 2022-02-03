@@ -5,6 +5,7 @@ import com.hamba.dispatcher.controllers.DriverController
 import com.hamba.dispatcher.data.DriverDataRepository
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.data.model.DispatchData
+import com.hamba.dispatcher.services.api.DataAccessClient
 import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.sdk.RealTimeDatabase
 import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
@@ -27,7 +28,8 @@ fun main() {
     val distanceCalculator = DistanceCalculator(routeApiClient, driverDataCache)
     val driverConnections = Collections.synchronizedMap(mutableMapOf<String, DefaultWebSocketServerSession>())
     val dispatchDataList = Collections.synchronizedMap(mutableMapOf<String, DispatchData>())
-    val userStatusManager = UserStatusManager(httpClient)
+    val dataAccessClient = DataAccessClient()
+    val userStatusManager = UserStatusManager(dataAccessClient)
     val dispatcher =
         Dispatcher(distanceCalculator, driverConnections, routeApiClient, driverDataRepository, dispatchDataList)
 
@@ -40,11 +42,13 @@ fun main() {
                 dispatcher,
                 userStatusManager
             ),
-            DispatchController(driverDataCache, dispatcher, dispatchDataList),
+            DispatchController(driverDataCache, dispatcher, dispatchDataList, userStatusManager),
             dispatcher,
             driverDataCache,
             firebaseDatabaseClient,
-            RealTimeDatabase()
+            RealTimeDatabase(),
+            dataAccessClient,
+            routeApiClient,
         )
     }.start(wait = true)
 

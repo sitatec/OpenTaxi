@@ -6,6 +6,7 @@ import com.hamba.dispatcher.controllers.DispatchController
 import com.hamba.dispatcher.controllers.DriverController
 import com.hamba.dispatcher.data.DriverPointDataCache
 import com.hamba.dispatcher.services.api.DataAccessClient
+import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.sdk.RealTimeDatabase
 import com.hamba.dispatcher.services.sdk.FirebaseFirestoreWrapper
 import com.hamba.dispatcher.utils.toDriverData
@@ -29,9 +30,10 @@ fun Application.webSocketsServer(
     firebaseFirestoreWrapper: FirebaseFirestoreWrapper,
     realTimeDatabase: RealTimeDatabase,
     dataAccessClient: DataAccessClient = DataAccessClient(),
+    routeApiClient: RouteApiClient
 ) {
     // TODO Use proper logging
-    install(WebSockets){
+    install(WebSockets) {
         pingPeriod = Duration.ofSeconds(30)
         timeout = Duration.ofMinutes(1)
     }
@@ -63,6 +65,13 @@ fun Application.webSocketsServer(
                             )
                         }
                         REFUSE_BOOKING -> driverController.refuseBooking(driverId, receivedData, this)
+                        START_FUTURE_BOOKING_TRIP -> driverController.startFutureBookingTrip(
+                            receivedData,
+                            dataAccessClient,
+                            routeApiClient,
+                            realTimeDatabase,
+                            driverConnection = this
+                        )
                         else -> close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, "INVALID_FRAME_TYPE"))
                     }
                 }

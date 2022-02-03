@@ -16,7 +16,7 @@ enum class FrameType(private val code: Byte) {
     BOOKING_SENT(12),
     TRIP_ROOM(13),
     BOOKING_ID(14),
-
+    START_FUTURE_BOOKING_TRIP(15),
     ;
 
     override fun toString(): String {

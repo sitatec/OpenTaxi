@@ -20,16 +20,29 @@ private const val SERVERS_ACCESS_TOKEN = "skfS43Z5ljSFSJS_sjzr-kss4643jslSGSAOPB
  */
 class DataAccessClient(private val httpClient: HttpClient = HttpClient(CIO)) {
 
-    suspend fun createTrip(tripData: JsonObject): Map<String, String> {
+    suspend fun createTripWithBooking(tripData: JsonObject): Map<String, String> {
         val response: JsonObject = httpClient.post("$DATA_ACCESS_SERVER_URL/trip/with_booking") {
             contentType(ContentType.Application.Json)
             body = Json.encodeToString(tripData)
             header("Authorization", "Bearer $SERVERS_ACCESS_TOKEN")
         }
-        if(response["status"]!!.jsonPrimitive.toString() == "success"){
+        if (response["status"]!!.jsonPrimitive.toString() == "success") {
             return response["data"]!!.jsonObject.mapValues { it.value.jsonPrimitive.toString() }
-        }else{
-            throw Exception(message = "Failed to Create Trip")
+        } else {
+            throw Exception("Failed to Create Trip")
+        }
+    }
+
+    suspend fun createTrip(tripData: JsonObject): String {
+        val response: JsonObject = httpClient.post("$DATA_ACCESS_SERVER_URL/trip") {
+            contentType(ContentType.Application.Json)
+            body = Json.encodeToString(tripData)
+            header("Authorization", "Bearer $SERVERS_ACCESS_TOKEN")
+        }
+        if (response["status"]!!.jsonPrimitive.toString() == "success") {
+            return response["data"]!!.jsonPrimitive.toString()
+        } else {
+            throw Exception("Failed to Create Booking")
         }
     }
 
@@ -39,10 +52,34 @@ class DataAccessClient(private val httpClient: HttpClient = HttpClient(CIO)) {
             body = Json.encodeToString(bookingData)
             header("Authorization", "Bearer $SERVERS_ACCESS_TOKEN")
         }
-        if(response["status"]!!.jsonPrimitive.toString() == "success"){
+        if (response["status"]!!.jsonPrimitive.toString() == "success") {
             return response["data"]!!.jsonPrimitive.toString()
-        }else{
-            throw Exception(message = "Failed to Create Booking")
+        } else {
+            throw Exception("Failed to Create Booking")
+        }
+    }
+
+    suspend fun getBooking(bookingId: String): JsonObject {
+        val response: JsonObject = httpClient.get("$DATA_ACCESS_SERVER_URL/booking?id=$bookingId") {
+            contentType(ContentType.Application.Json)
+            header("Authorization", "Bearer $SERVERS_ACCESS_TOKEN")
+        }
+        if (response["status"]!!.jsonPrimitive.toString() == "success") {
+            return response["data"]!!.jsonObject
+        } else {
+            throw Exception("Failed to get Booking with id = $bookingId")
+        }
+    }
+
+    suspend fun getBookingAddresses(bookingId: String): JsonObject {
+        val response: JsonObject = httpClient.get("$DATA_ACCESS_SERVER_URL/booking/addresses?booking_id=$bookingId") {
+            contentType(ContentType.Application.Json)
+            header("Authorization", "Bearer $SERVERS_ACCESS_TOKEN")
+        }
+        if (response["status"]!!.jsonPrimitive.toString() == "success") {
+            return response["data"]!!.jsonObject
+        } else {
+            throw Exception("Failed to get Booking's addresses with id = $bookingId")
         }
     }
 

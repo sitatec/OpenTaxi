@@ -28,7 +28,17 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.AfterClass
 import org.junit.BeforeClass
+import java.time.Duration
 import java.util.*
+
+class Playground {
+    @Test
+    fun playground() {
+        println()
+        println(Duration.ofSeconds(200_000_000_000))
+        println()
+    }
+}
 
 class ApplicationTest {
     // TODO Test Thread safety.
@@ -119,7 +129,8 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -180,7 +191,8 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -201,7 +213,8 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             handleWebSocketConversation("/driver") { incoming, outgoing ->
@@ -223,7 +236,8 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             // Simulate connected drivers
@@ -263,7 +277,8 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
+                val closestDriverData =
+                    receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 delay(1_000)
                 assertFalse(driverDataCache.contains(closestDriverData.first))
@@ -289,7 +304,8 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             // Simulate connected drivers
@@ -328,7 +344,8 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
+                val closestDriverData =
+                    receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("pharmacieNdiolou", closestDriverData.first.driverId)
                 delay(1_000)
                 assertFalse(driverDataCache.contains(closestDriverData.first))
@@ -354,7 +371,8 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             // Simulate connected drivers
@@ -393,7 +411,8 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT"/* bs = BOOKING SENT*/, receivedMessage.substringBefore(":"))
 
-                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
+                val closestDriverData =
+                    receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
                 delay(1_000)
                 assertFalse(driverDataCache.contains(closestDriverData.first))
@@ -419,7 +438,8 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             var currentDriverIndex = 0
@@ -466,7 +486,8 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                var closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
+                var closestDriverData =
+                    receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
@@ -484,7 +505,8 @@ class ApplicationTest {
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
+                closestDriverData =
+                    receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
                 delay(1_000)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
@@ -492,7 +514,10 @@ class ApplicationTest {
                 assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("${ACCEPT_BOOKING}:${closestDriverData.first.driverId}", receivedMessage) // The second-closest driver accept the booking
+                assertEquals(
+                    "${ACCEPT_BOOKING}:${closestDriverData.first.driverId}",
+                    receivedMessage
+                ) // The second-closest driver accept the booking
 
                 delay(1_000)
 
@@ -521,7 +546,8 @@ class ApplicationTest {
                 dispatcher1,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             var currentDriverIndex = 0
@@ -569,7 +595,8 @@ class ApplicationTest {
                 var receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                var closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
+                var closestDriverData =
+                    receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("nearHome", closestDriverData.first.driverId)
                 assertNull(driverDataRepository.getDriverData(closestDriverData.first.driverId))// Once we send a booking request to the
                 // driver he/she shouldn't be available for until he refuse the booking or he/she complete it.
@@ -598,7 +625,10 @@ class ApplicationTest {
                 assertFalse(driverDataCache.contains(closestDriverData.first))
 
                 receivedMessage = (incoming.receive() as Frame.Text).readText()
-                assertEquals("${ACCEPT_BOOKING}:${closestDriverData.first.driverId}", receivedMessage) // The second-closest driver accept the booking
+                assertEquals(
+                    "${ACCEPT_BOOKING}:${closestDriverData.first.driverId}",
+                    receivedMessage
+                ) // The second-closest driver accept the booking
 
                 delay(1_000)
 
@@ -618,7 +648,8 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             // Simulate connected drivers
@@ -654,7 +685,8 @@ class ApplicationTest {
                 val receivedMessage = (incoming.receive() as Frame.Text).readText()
                 assertEquals("$BOOKING_SENT", receivedMessage.substringBefore(":"))
 
-                val closestDriverData = receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
+                val closestDriverData =
+                    receivedMessage.substringAfter(":").decodeFromJson<Pair<DriverData, DistanceMatrixElement>>()
                 assertEquals("garageMalal", closestDriverData.first.driverId)
                 delay(1_500)
                 assertFalse(driverDataCache.contains(closestDriverData.first))
@@ -685,7 +717,8 @@ class ApplicationTest {
                 dispatcher,
                 driverDataCache,
                 firebaseFirestoreWrapper,
-                RealTimeDatabase()
+                RealTimeDatabase(),
+                routeApiClient = routeApiClient
             )
         }) {
             // Simulate connected drivers
