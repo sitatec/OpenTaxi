@@ -8,6 +8,7 @@ import com.hamba.dispatcher.data.model.DispatchRequestData
 import com.hamba.dispatcher.services.api.DataAccessClient
 import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.sdk.RealTimeDatabase
+import com.hamba.dispatcher.utils.getDistanceAndDurationFromDriverLocationToPickup
 import com.hamba.dispatcher.utils.toJsonForDataAccessServer
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
@@ -178,9 +179,23 @@ class Dispatcher(
                         }
                     }
                 }
+
+                val tripDistanceAndDuration = dispatchData.getDistanceAndDurationFromPickupToDropOff(format = false)
+                val pickupDistanceAndDuration = getDistanceAndDurationFromDriverLocationToPickup(pickupDirectionData)
+
                 val tripRoomData = mutableMapOf(
                     "driver" to driverId,
                     "rider" to dispatchData.id,
+                    "est" to mapOf(
+                        "trip" to mapOf(
+                            "dis" to tripDistanceAndDuration.first,
+                            "dur" to tripDistanceAndDuration.second
+                        ),
+                        "pickup" to mapOf(
+                            "dis" to pickupDistanceAndDuration.first,
+                            "dur" to pickupDistanceAndDuration.second
+                        )
+                    ),
                     "dir" to mapOf(
                         "pickup" to Json.encodeToString(pickupDirectionPolylines),
                         "trip" to Json.encodeToString(tripDirectionPolylines)

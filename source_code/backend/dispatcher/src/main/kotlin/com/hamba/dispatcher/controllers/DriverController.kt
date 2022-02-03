@@ -8,6 +8,7 @@ import com.hamba.dispatcher.services.api.DataAccessClient
 import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.sdk.RealTimeDatabase
 import com.hamba.dispatcher.utils.dataAccessServerAddressToLocation
+import com.hamba.dispatcher.utils.getDistanceAndDurationFromDriverLocationToPickup
 import com.hamba.dispatcher.websockets.FrameType
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
@@ -133,7 +134,7 @@ class DriverController(
         val tripRoomData = mutableMapOf(
             "driver" to data["driver_id"]!!,
             "rider" to data["rider_id"]!!,
-            "estimates" to mapOf(
+            "est" to mapOf(
                 "trip" to mapOf(
                     "dis" to tripDistanceAndDuration.first,
                     "dur" to tripDistanceAndDuration.second
@@ -146,7 +147,7 @@ class DriverController(
             "dir" to mapOf(
                 "pickup" to Json.encodeToString(pickupDirectionPolylines),
                 "trip" to Json.encodeToString(tripDirectionPolylines)
-            )// TODO add estimated distance and duration.
+            )
         )
         val tripId = dataAccessClient.createTrip(buildJsonObject {
             put("booking_id", bookingId)
@@ -188,19 +189,6 @@ class DriverController(
                     duration += leg.durationInTraffic!!.value
 
                 }
-            }
-        }
-        return Pair(distance, duration)
-    }
-
-    private fun getDistanceAndDurationFromDriverLocationToPickup(direction: DirectionAPIResponse): Pair<Long, Long> {
-        var distance = 0L
-        var duration = 0L
-        direction.routes.forEach { route ->
-            route.legs.forEach { leg ->
-                distance += leg.distance!!.value
-                duration += leg.durationInTraffic!!.value
-
             }
         }
         return Pair(distance, duration)
