@@ -47,6 +47,7 @@ class _OrderPageState extends State<OrderPage> {
               dispatchRequestData.destinationAddress.streetAddress,
             );
           }));
+          dispatcher.disconnect();
           break;
         case FramType.REFUSE_BOOKING:
           setState(() {
