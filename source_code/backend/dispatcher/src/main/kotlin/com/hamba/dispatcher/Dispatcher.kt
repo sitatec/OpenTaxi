@@ -8,7 +8,8 @@ import com.hamba.dispatcher.data.model.DispatchRequestData
 import com.hamba.dispatcher.services.api.DataAccessClient
 import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.sdk.RealTimeDatabase
-import com.hamba.dispatcher.utils.getDistanceAndDurationFromDriverLocationToPickup
+import com.hamba.dispatcher.utils.formatDistanceAndDuration
+import com.hamba.dispatcher.utils.getTotalDistanceAndDurationFromDirections
 import com.hamba.dispatcher.utils.toJsonForDataAccessServer
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
@@ -32,17 +33,10 @@ class Dispatcher(
 
     private val bookingTimeoutScheduler = Timer()
 
-    suspend fun dispatch(
+    suspend fun initialize(
         dispatchRequestData: DispatchRequestData,
         riderConnection: DefaultWebSocketServerSession
     ) {
-        val closestDrivers = distanceCalculator.getClosestDriverDistance(
-            dispatchRequestData,
-            isFutureBooking = dispatchRequestData.isFutureBookingRequest(),
-        )
-        if (closestDrivers.isEmpty()) {
-            riderConnection.send("$NO_MORE_DRIVER_AVAILABLE:")
-        }
         // [consecutiveLocations] contains all the location from the rider's location (pickup location), passing through
         // all the stops, to the rider's destination (drop off location). The following order must be respected: pickup, stops, drop off.
         val consecutiveLocations = listOf(
@@ -54,12 +48,24 @@ class Dispatcher(
         val dispatchData =
             DispatchData(
                 dispatchRequestData.riderId,
-                closestDrivers,
                 dispatchRequestData,
                 riderConnection,
                 routeApiClient.getConsecutiveDirections(consecutiveLocations, departureTime),
             )
         dispatchDataList[dispatchRequestData.riderId] = dispatchData
+        val tripInfo = Json.encodeToString(dispatchData.getTripInfoAsJsonObject())
+        riderConnection.send("$TRIP_INFO:$tripInfo")
+    }
+
+    suspend fun dispatch(dispatchData: DispatchData) {
+        val closestDrivers = distanceCalculator.getClosestDriverDistance(
+            dispatchData.dispatchRequestData,
+            isFutureBooking = dispatchData.dispatchRequestData.isFutureBookingRequest(),
+        )
+        if (closestDrivers.isEmpty()) {
+            dispatchData.riderConnection.send("$NO_MORE_DRIVER_AVAILABLE:")
+        }
+        dispatchData.candidates = closestDrivers.toMutableList()
         bookNextClosestDriver(dispatchData)
     }
 
@@ -109,15 +115,17 @@ class Dispatcher(
 
     private fun buildBookingRequestData(dispatchRequestData: DispatchRequestData): String {
         val distanceAndDuration =
-            dispatchDataList[dispatchRequestData.riderId]!!.getDistanceAndDurationFromPickupToDropOff()
+            dispatchDataList[dispatchRequestData.riderId]!!.tripDistanceAndDuration
+        val formattedDistanceAndDuration =
+            formatDistanceAndDuration(distance = distanceAndDuration.first, duration = distanceAndDuration.second)
         val data = buildJsonObject {
             put("id", dispatchRequestData.riderId)
             put("nam", dispatchRequestData.riderName)
             put("pic", dispatchRequestData.pickUpLocation.formattedAddress)
             put("drp", dispatchRequestData.dropOffLocation.formattedAddress)
             put("pym", dispatchRequestData.paymentMethod)
-            put("dis", distanceAndDuration.first)
-            put("dur", distanceAndDuration.second)
+            put("dis", formattedDistanceAndDuration.first)
+            put("dur", formattedDistanceAndDuration.second)
             if (dispatchRequestData.isFutureBookingRequest()) {
                 put("tim", dispatchRequestData.timestamp)
             }
@@ -133,7 +141,7 @@ class Dispatcher(
         realTimeDatabase: RealTimeDatabase,
         dataAccessClient: DataAccessClient
     ) {
-        // TODO refactor
+        // TODO refactor reduce the size of this method.
         if (dispatchData.currentBookingRequestTimeout?.cancel() != false) {
             val driverId = dispatchData.getCurrentCandidate().first.driverId
             val driverConnection = driverConnections[driverId]
@@ -171,17 +179,8 @@ class Dispatcher(
                     }
                 }
 
-                val tripDirectionPolylines = mutableListOf<String>()
-                dispatchData.directions.forEach {
-                    it.routes.forEach { route ->
-                        route.legs.forEach { leg ->
-                            tripDirectionPolylines.addAll(leg.steps.map { step -> step.polyline!!.points!! })
-                        }
-                    }
-                }
-
-                val tripDistanceAndDuration = dispatchData.getDistanceAndDurationFromPickupToDropOff(format = false)
-                val pickupDistanceAndDuration = getDistanceAndDurationFromDriverLocationToPickup(pickupDirectionData)
+                val tripDistanceAndDuration = dispatchData.tripDistanceAndDuration
+                val pickupDistanceAndDuration = getTotalDistanceAndDurationFromDirections(listOf(pickupDirectionData))
 
                 val tripRoomData = mutableMapOf(
                     "driver" to driverId,
@@ -198,7 +197,7 @@ class Dispatcher(
                     ),
                     "dir" to mapOf(
                         "pickup" to Json.encodeToString(pickupDirectionPolylines),
-                        "trip" to Json.encodeToString(tripDirectionPolylines)
+                        "trip" to Json.encodeToString(dispatchData.tripDirectionPolylines)
                     )// TODO add estimated distance and duration.
                 )
                 val tripId = tripAndBookingIds["trip_id"]

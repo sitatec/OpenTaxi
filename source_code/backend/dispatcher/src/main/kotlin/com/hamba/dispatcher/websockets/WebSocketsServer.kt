@@ -50,7 +50,7 @@ fun Application.webSocketsServer(
                     if (frame !is Frame.Text) continue
                     receivedText = frame.readText()
                     receivedData = receivedText.substringAfter(":")
-                    when (FrameType.fromRawFrame(receivedText)) {
+                    when (FrameType.fromFrameText(receivedText)) {
                         // TODO add authentication step (firebase auth token verification) before deployment
                         ADD_DRIVER_DATA -> driverId = driverController.addDriverData(receivedData, this)
                         UPDATE_DRIVER_DATA -> driverController.updateDriverData(driverId, receivedData, this)
@@ -94,9 +94,10 @@ fun Application.webSocketsServer(
                     if (frame !is Frame.Text) continue
                     receivedText = frame.readText()
                     receivedData = receivedText.substringAfter(":")
-                    when (FrameType.fromRawFrame(receivedText)) {
+                    when (FrameType.fromFrameText(receivedText)) {
                         // TODO add authentication step (firebase auth token verification) before deployment
-                        DISPATCH_REQUEST -> riderId = dispatchController.dispatch(receivedData, this)
+                        INIT_DISPATCH_SESSION -> riderId = dispatchController.initDispatchSession(receivedData, this)
+                        DISPATCH_REQUEST -> dispatchController.dispatch(riderId, receivedData)
                         CANCEL_BOOKING -> dispatchController.cancelDispatch(riderId, this)
                         else -> close(CloseReason(CloseReason.Codes.PROTOCOL_ERROR, "INVALID_FRAME_TYPE"))
                     }
@@ -120,36 +121,19 @@ fun initDriversDataChangeListeners(
 ) {
     println("ADDING FIRESTORE LISTENERS")
     firebaseFirestoreWrapper.firestoreClient.collection("drivers").addSnapshotListener { querySnapshot, error ->
-        println("\nFIREBASE_DATA_LISTENER CALLED")
         if (error != null) {
             println(error.message)
         }
         if (querySnapshot == null) {
             println("Error firestore event returned a null querySnapshot")
         } else {
-            println("\nDOCUMENT_CHANGES EVENT")
             querySnapshot.documentChanges.forEach { driverDocumentChange ->
-                println("CURRENT DOCUMENT CHANGE ==> $driverDocumentChange")
                 val driverDocument = driverDocumentChange.document
                 val driverData = driverDocument.data.toDriverData(driverDocument.id)
                 when (driverDocumentChange.type) {
-                    ADDED -> {
-                        println("ADDING CHANGED DATA TO DRIVER_DATA_CACHE")
-                        println("DRIVER_DATA_CACHE CONTENT SIZE === ${driverDataCache.size}")
-                        driverDataCache.add(driverData)
-                        println("CHANGED DATA ADDED TO DRIVER_DATA_CACHE")
-                        println("DRIVER_DATA_CACHE CONTENT SIZE === ${driverDataCache.size}")
-                    }
-                    MODIFIED -> {
-                        println("MODIFYING CHANGED DATA TO DRIVER_DATA_CACHE")
-                        driverDataCache.update(driverData)
-                        println("MODIFIED DATA ADDED TO DRIVER_DATA_CACHE")
-                    }
-                    REMOVED -> {
-                        println("REMOVING CHANGED DATA FROM DRIVER_DATA_CACHE")
-                        driverDataCache.remove(driverData)
-                        println("REMOVED DATA ADDED FROM DRIVER_DATA_CACHE")
-                    }
+                    ADDED -> driverDataCache.add(driverData)
+                    MODIFIED -> driverDataCache.update(driverData)
+                    REMOVED -> driverDataCache.remove(driverData)
                 }
             }
         }

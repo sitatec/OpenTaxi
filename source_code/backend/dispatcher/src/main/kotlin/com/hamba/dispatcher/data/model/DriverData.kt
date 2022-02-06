@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class DriverData(
+    // TODO remove abbreviations from all Data models (on the properties @SerialNames)
     @SerialName("loc") var location: Location,
     @SerialName("gnr") val gender: String,
     @SerialName("crT") val carType: String,

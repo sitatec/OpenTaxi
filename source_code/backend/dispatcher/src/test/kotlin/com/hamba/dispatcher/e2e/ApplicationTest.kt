@@ -250,7 +250,7 @@ class ApplicationTest {
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
+                                if (FrameType.fromFrameText(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<JsonObject>(message.substringAfter(":"))
@@ -318,7 +318,7 @@ class ApplicationTest {
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
+                                if (FrameType.fromFrameText(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
@@ -385,7 +385,7 @@ class ApplicationTest {
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
+                                if (FrameType.fromFrameText(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
@@ -453,7 +453,7 @@ class ApplicationTest {
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
+                                if (FrameType.fromFrameText(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
@@ -561,7 +561,7 @@ class ApplicationTest {
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
+                                if (FrameType.fromFrameText(message) == BOOKING_REQUEST) {
                                     delay(1_000) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))
@@ -662,7 +662,7 @@ class ApplicationTest {
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
+                                if (FrameType.fromFrameText(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val cancellationMessage = (incoming.receive() as Frame.Text).readText()
                                     assertEquals("$CANCEL_BOOKING", cancellationMessage.substringBefore(":"))
@@ -732,7 +732,7 @@ class ApplicationTest {
                             val rawMessage = incoming.receive()
                             if (rawMessage is Frame.Text) {
                                 val message = rawMessage.readText()
-                                if (FrameType.fromRawFrame(message) == BOOKING_REQUEST) {
+                                if (FrameType.fromFrameText(message) == BOOKING_REQUEST) {
                                     delay(20) // Wait until the rider receive the booking confirmation.
                                     val bookingData =
                                         Json.decodeFromString<Map<String, String?>>(message.substringAfter(":"))

@@ -11,8 +11,8 @@ class DispatchRequestData(
     @SerialName("des") val dropOffLocation: Location,
     @SerialName("pym") val paymentMethod: String,
     @SerialName("stp") val stops: List<Location> = emptyList(),
-    @SerialName("gnr") val gender: String? = null,
-    @SerialName("crT") val carType: String? = null,
+    @SerialName("gnr") var gender: String? = null,
+    @SerialName("crT") var carType: String? = null,
     @SerialName("tim") val timestamp: Long? = null,
 ) {
     fun isFutureBookingRequest() = timestamp != null

@@ -20,7 +20,7 @@ class DispatchController(
 ) {
 
     @OptIn(ExperimentalSerializationApi::class)
-    suspend fun dispatch(requestDataJson: String, riderSession: DefaultWebSocketServerSession): String {
+    suspend fun initDispatchSession(requestDataJson: String, riderSession: DefaultWebSocketServerSession): String {
         var riderId = ""
         if (driverDataCache.isEmpty()) {
             riderSession.send("${FrameType.NO_MORE_DRIVER_AVAILABLE}:")
@@ -29,7 +29,7 @@ class DispatchController(
             val dispatchRequestData = Json.decodeFromString<DispatchRequestData>(requestDataJson)
             riderId = dispatchRequestData.riderId
             if (userStatusManager.userCanConnect(riderId)) {
-                dispatcher.dispatch(dispatchRequestData, riderSession)
+                dispatcher.initialize(dispatchRequestData, riderSession)
             }else{
                 riderSession.close(
                     CloseReason(
@@ -41,6 +41,16 @@ class DispatchController(
             }
         }
         return riderId
+    }
+
+    suspend fun dispatch(riderId: String, requestDataJson: String){
+        val data = Json.decodeFromString<Map<String, String>>(requestDataJson)
+        val dispatchData = dispatchDataList[riderId]!!
+        dispatchData.dispatchRequestData.apply {
+            carType = data["car_type"]
+            gender = data["gender"]
+        }
+        dispatcher.dispatch(dispatchData)
     }
 
     suspend fun cancelDispatch(dispatchId: String, riderSession: DefaultWebSocketServerSession) {

@@ -8,7 +8,7 @@ import com.hamba.dispatcher.services.api.DataAccessClient
 import com.hamba.dispatcher.services.api.RouteApiClient
 import com.hamba.dispatcher.services.sdk.RealTimeDatabase
 import com.hamba.dispatcher.utils.dataAccessServerAddressToLocation
-import com.hamba.dispatcher.utils.getDistanceAndDurationFromDriverLocationToPickup
+import com.hamba.dispatcher.utils.getTotalDistanceAndDurationFromDirections
 import com.hamba.dispatcher.websockets.FrameType
 import io.ktor.http.cio.websocket.*
 import io.ktor.websocket.*
@@ -16,7 +16,6 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.*
-import java.time.Duration
 
 class DriverController(
     private val driverDataRepository: DriverDataRepository,
@@ -130,7 +129,7 @@ class DriverController(
         val pickupDirectionPolylines = getPickupDirectionPolylines(pickupDirection)
 
         val tripDistanceAndDuration = getDistanceAndDurationFromPickupToDropOff(tripDirection)
-        val pickupDistanceAndDuration = getDistanceAndDurationFromDriverLocationToPickup(pickupDirection)
+        val pickupDistanceAndDuration = getTotalDistanceAndDurationFromDirections(listOf(pickupDirection))
         val tripRoomData = mutableMapOf(
             "driver" to data["driver_id"]!!,
             "rider" to data["rider_id"]!!,

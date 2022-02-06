@@ -17,6 +17,8 @@ enum class FrameType(private val code: Byte) {
     TRIP_ROOM(13),
     BOOKING_ID(14),
     START_FUTURE_BOOKING_TRIP(15),
+    TRIP_INFO(16),
+    INIT_DISPATCH_SESSION(17)
     ;
 
     override fun toString(): String {
@@ -24,7 +26,7 @@ enum class FrameType(private val code: Byte) {
     }
 
     companion object {
-        fun fromRawFrame(rawFrameText: String): FrameType?{
+        fun fromFrameText(rawFrameText: String): FrameType?{
             val code = rawFrameText.substringBefore(":")
             return values().firstOrNull { it.code == code.toByte() }
         }
