@@ -18,6 +18,7 @@ abstract class BaseCache {
   }
 
   @protected
+  // TODO refactor completly wrappe the [Database], do not expose it.
   Future<void> onDatabaseCreated(Database database, int databaseVersion);
 
   Future<int> insert(JsonObject data) {
