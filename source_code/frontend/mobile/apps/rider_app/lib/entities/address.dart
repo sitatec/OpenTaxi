@@ -10,6 +10,7 @@ class Address {
   String city;
   String province;
   Coordinates? coordinates;
+  late int createdAt;
 
   Address({
     required this.streetAddress,
@@ -18,7 +19,10 @@ class Address {
     this.province = "",
     this.placeId = "",
     this.coordinates,
-  });
+    int? createdAt,
+  }) {
+    this.createdAt = createdAt ?? DateTime.now().millisecondsSinceEpoch;
+  }
 
   Map<String, dynamic> toMap() {
     final map = <String, dynamic>{"adr": streetAddress};

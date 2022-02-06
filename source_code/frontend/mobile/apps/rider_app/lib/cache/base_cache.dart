@@ -21,7 +21,7 @@ abstract class BaseCache {
   // TODO refactor completly wrappe the [Database], do not expose it.
   Future<void> onDatabaseCreated(Database database, int databaseVersion);
 
-  Future<int> insert(JsonObject data) {
+  Future<void> insert(JsonObject data) {
     assert(database != null && database!.isOpen);
     return database!.insert(
       tableName,
@@ -46,20 +46,14 @@ abstract class BaseCache {
     );
   }
 
-  Future<void> delete(String columnName, List<Object> columnValue) {
+  // TODO make more generic
+  Future<void> delete(String where, List whereArgs) {
     assert(database != null && database!.isOpen);
-    if (!RegExp(r'^[a-zA-Z_]+$').hasMatch(columnName) ||
-        columnName.length > 20) {
-      // Prevent SQL injection (TODO improve protection)
-      throw Exception(
-        "Table column Name can contain only alphabetic letters and _ character",
-      );
-    }
 
     return database!.delete(
       tableName,
-      where: "$columnName = ?",
-      whereArgs: [columnValue],
+      where: where,
+      whereArgs: whereArgs,
     );
   }
 }
