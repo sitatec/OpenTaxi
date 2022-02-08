@@ -12,6 +12,14 @@ class RecentTripsAddressesCache extends BaseCache {
       "CREATE TABLE $tableName(place_id TEXT NOT NULL PRYMARY KEY, street_address TEXT NOT NULL, latitude REAL NOT NULL, longitude REAL NOT NULL, created_ad INTEGER NOT NULL) WITHOUT ROWID",
     );
   }
+
+  @override
+  Future<void> clearCache() {
+    return delete(
+      "created_at < ?",
+      [DateTime.now().subtract(const Duration(days: 30))],
+    );
+  }
 }
 
 extension on Address {
