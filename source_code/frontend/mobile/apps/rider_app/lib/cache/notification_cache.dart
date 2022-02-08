@@ -12,6 +12,14 @@ class NotificationCache extends BaseCache {
       "CREATE TABLE $tableName(id INTERGER NOT NULL PRIMARY KEY, title TEXT NOT NULL, body TEXT NOT NULL, type INTEGER NOT NULL, data TEXT, created_ad INTEGER NOT NULL)",
     );
   }
+
+  @override
+  Future<void> clearOldCache() {
+    return delete(
+      "created_at < ?",
+      [DateTime.now().subtract(const Duration(days: 30))],
+    );
+  }
 }
 
 extension on Notification {

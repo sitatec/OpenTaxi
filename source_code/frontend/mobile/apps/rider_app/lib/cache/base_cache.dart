@@ -6,11 +6,19 @@ import 'package:sqflite/sqflite.dart';
 abstract class BaseCache {
   Database? database;
   final String tableName;
+  final int maxCacheSize;
 
-  BaseCache(this.tableName, {this.database}) {
+  BaseCache(this.tableName, {this.database, this.maxCacheSize = 30}) {
     if (!RegExp(r'^[a-zA-Z_]+$').hasMatch(tableName)) {
       // Prevent SQL injection, TODO: improve protection.
       throw Exception("Only letters and _ are allowed in table name");
+    }
+  }
+
+  Future<void> _clearCacheIfNeeded() async {
+    final rowCount = await count();
+    if (rowCount > maxCacheSize) {
+      return clearOldCache();
     }
   }
 
@@ -20,6 +28,7 @@ abstract class BaseCache {
       onCreate: onDatabaseCreated,
       version: 1,
     );
+    _clearCacheIfNeeded();
   }
 
   @protected
@@ -68,6 +77,8 @@ abstract class BaseCache {
         await database!.rawQuery("SELECT COUNT(*) AS count FROM $tableName");
     return queryResponse.first["count"] as int;
   }
+
+  Future<void> clearOldCache();
 }
 
 class CacheQuery {
