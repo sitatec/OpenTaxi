@@ -7,7 +7,12 @@ abstract class BaseCache {
   Database? database;
   final String tableName;
 
-  BaseCache(this.tableName, {this.database});
+  BaseCache(this.tableName, {this.database}) {
+    if (!RegExp(r'^[a-zA-Z_]+$').hasMatch(tableName)) {
+      // Prevent SQL injection, TODO: improve protection.
+      throw Exception("Only letters and _ are allowed in table name");
+    }
+  }
 
   Future<void> initCacheStore() async {
     database ??= await openDatabase(
@@ -55,6 +60,13 @@ abstract class BaseCache {
       where: where,
       whereArgs: whereArgs,
     );
+  }
+
+  Future<int> count() async {
+    assert(database != null && database!.isOpen);
+    final queryResponse =
+        await database!.rawQuery("SELECT COUNT(*) AS count FROM $tableName");
+    return queryResponse.first["count"] as int;
   }
 }
 
