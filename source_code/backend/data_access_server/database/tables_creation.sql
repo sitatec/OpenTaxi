@@ -56,6 +56,12 @@ CREATE TYPE SUPPORTED_BANK AS ENUM (
   'TYME'
 );
 
+CREATE TYPE ONLINE_STATUS AS ENUM (
+  'ONLINE',
+  'OFFLINE',
+  'IN_TRIP'
+)
+
 
 ---------------------  TABLES CREATION ---------------------
 
@@ -137,7 +143,7 @@ CREATE TABLE public.driver (
   has_additional_certifications BOOLEAN NOT NULL,
   home_address_id INTEGER NOT NULL,
   bio VARCHAR(160),
-  is_online BOOLEAN DEFAULT FALSE NOT NULL,
+  online_status ONLINE_STATUS DEFAULT OFFLINE NOT NULL,
   price_by_minute DECIMAL(9,2),
   price_by_km DECIMAL(9,2),
   CONSTRAINT driver_pk PRIMARY KEY (account_id)

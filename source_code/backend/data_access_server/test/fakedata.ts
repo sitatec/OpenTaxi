@@ -57,7 +57,7 @@ export const DRIVER = {
   has_additional_certifications: true,
   home_address_id: ADDRESS.id,
   is_south_african_citizen: true,
-  is_online: false,
+  online_status: 'OFFLINE',
   price_by_minute: "29.34",
 };
 
