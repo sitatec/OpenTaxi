@@ -42,12 +42,12 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
 
   bool get buttonsEnabled {
     for (Address address in stopAddresses) {
-      if (address.streetAddress.length < 5) {
+      if (address.streetAddress.trim().isEmpty) {
         return false;
       }
     }
-    return origin.streetAddress.length > 5 &&
-        destination.streetAddress.length > 5;
+    return origin.streetAddress.trim().isNotEmpty &&
+        destination.streetAddress.trim().isNotEmpty;
   }
 
   @override
@@ -103,16 +103,16 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(
+          title: Text(
             "Select Locations",
             style: TextStyle(
               fontSize: 17,
               fontWeight: FontWeight.w500,
-              color: Colors.black87,
+              color: theme.primaryColor,
             ),
           ),
           backgroundColor: theme.scaffoldBackgroundColor,
-          foregroundColor: Colors.black87,
+          foregroundColor: theme.primaryColor,
           centerTitle: true,
           toolbarHeight: 50,
           elevation: 3,
@@ -124,6 +124,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                 children: [
                   const SizedBox(height: 24),
                   Row(
+                    key: const ValueKey("origin_address_field"),
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -170,7 +171,13 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                       final prediction =
                                           options.elementAt(index);
                                       return InkWell(
-                                        onTap: () => onSelected(prediction),
+                                        onTap: () {
+                                          onSelected(prediction);
+                                          setState(() {
+                                            origin.streetAddress =
+                                                prediction.description!;
+                                          });
+                                        },
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 16),
@@ -284,7 +291,13 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                         final prediction =
                                             options.elementAt(index);
                                         return InkWell(
-                                          onTap: () => onSelected(prediction),
+                                          onTap: () {
+                                            onSelected(prediction);
+                                            setState(() {
+                                              stopAddresses[i].streetAddress =
+                                                  prediction.description!;
+                                            });
+                                          },
                                           child: Padding(
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: 10, vertical: 16),
@@ -355,6 +368,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                   ],
                   const SizedBox(height: 16),
                   Row(
+                    key: const ValueKey("destination_address_field"),
                     children: [
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -399,12 +413,19 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                       final prediction =
                                           options.elementAt(index);
                                       return InkWell(
-                                        onTap: () => onSelected(prediction),
+                                        onTap: () {
+                                          onSelected(prediction);
+                                          setState(() {
+                                            destination.streetAddress =
+                                                prediction.description!;
+                                          });
+                                        },
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 16),
                                           child: Text(
-                                            prediction.description ?? "error",
+                                            prediction.description ??
+                                                "Load Error",
                                             style:
                                                 const TextStyle(fontSize: 15),
                                           ),
@@ -659,78 +680,80 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                         right: 16,
                         bottom: 24,
                       ),
-                      child: Row(
+                      child: Column(
                         children: [
-                          Expanded(
-                            child: TextButton(
-                              onPressed: !buttonsEnabled ? null : () {},
-                              child: Container(
-                                width: double.infinity,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 5),
-                                child: const Text(
-                                  "Ride Later",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                              ),
-                              style: TextButton.styleFrom(
-                                primary: Colors.white,
-                                elevation: 3,
-                                backgroundColor: buttonsEnabled
-                                    ? theme.primaryColor
-                                    : theme.scaffoldBackgroundColor,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
+                          TextButton(
+                            onPressed: !buttonsEnabled
+                                ? null
+                                : () {
+                                    Navigator.of(context).push(
+                                      MaterialPageRoute(
+                                        builder: (_) {
+                                          return OrderPage(
+                                            DispatchRequestData(
+                                              origin,
+                                              destination,
+                                              stopAddresses,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: const Text(
+                                "Ride Now",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ),
+                            style: TextButton.styleFrom(
+                              primary: Colors.white,
+                              backgroundColor: buttonsEnabled
+                                  ? theme.primaryColor
+                                  : Colors.white,
+                              elevation: buttonsEnabled ? 0 : 3,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
                           ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: TextButton(
-                              onPressed: !buttonsEnabled
-                                  ? null
-                                  : () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) {
-                                            return OrderPage(
-                                              DispatchRequestData(
-                                                origin,
-                                                destination,
-                                                stopAddresses,
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      );
-                                    },
-                              child: Container(
-                                width: double.infinity,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 5),
-                                child: const Text(
-                                  "Ride Now",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                          const SizedBox(height: 16),
+                          TextButton(
+                            onPressed: !buttonsEnabled
+                                ? null
+                                : _showTripDateAndTimePickers,
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: const Text(
+                                "Ride Later",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
-                              style: TextButton.styleFrom(
-                                primary: Colors.white,
-                                backgroundColor: buttonsEnabled
-                                    ? theme.primaryColor
-                                    : theme.scaffoldBackgroundColor,
-                                elevation: 3,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                            ),
+                            style: TextButton.styleFrom(
+                              primary: buttonsEnabled
+                                  ? theme.primaryColor
+                                  : theme.scaffoldBackgroundColor,
+                              backgroundColor: Colors.white,
+                              elevation: buttonsEnabled ? 0 : 3,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: buttonsEnabled
+                                    ? BorderSide(
+                                        color: theme.primaryColor,
+                                        width: 1.5,
+                                      )
+                                    : BorderSide.none,
                               ),
                             ),
                           ),
@@ -742,6 +765,61 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _showTripDateAndTimePickers() async {
+    // TODO refactor
+    final todaysDate = DateTime.now();
+    final selectedDate = await showDatePicker(
+      helpText: "SELECT TRIP DATE",
+      context: context,
+      initialDate: todaysDate,
+      firstDate: todaysDate,
+      lastDate: todaysDate.add(const Duration(days: 30)),
+      builder: (context, picker) {
+        final theme = Theme.of(context);
+        return Theme(
+          data: theme.copyWith(
+            colorScheme: ColorScheme.light(primary: theme.primaryColor),
+            dialogTheme: DialogTheme(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          child: picker!,
+        );
+      },
+    );
+    final selectedDateIsToday =
+        todaysDate.difference(selectedDate!).inDays == 0;
+    final selectedTime = await showTimePicker(
+      helpText: "SELECT TRIP TIME",
+      context: context,
+      initialTime: TimeOfDay.now(),
+      builder: (context, picker) {
+        final theme = Theme.of(context);
+        return Theme(
+          data: theme.copyWith(
+            colorScheme: ColorScheme.light(primary: theme.primaryColor),
+            dialogTheme: DialogTheme(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+          ),
+          child: picker!,
+        );
+      },
+    );
+    final selectedDateAndTime = DateTime(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day,
+      selectedTime!.hour,
+      selectedTime.minute,
+    );
+    // TODO navigate to the next screen
   }
 
   // bool _shouldShowAutocompletedAddresses() {
