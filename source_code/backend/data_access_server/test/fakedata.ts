@@ -1,10 +1,10 @@
 const ACCOUNT_ID = "sljf45Esfjsllsfksl45";
 export const ACCOUNT = {
   id: ACCOUNT_ID,
-  first_name: "Steve",
-  last_name: "Jobs",
-  display_name: "steve jobs",
-  email: "stevejobs@apple.com",
+  first_name: "Oprah",
+  last_name: "Winfrey",
+  display_name: "Oprah Winfrey",
+  email: "oprahwinfrey@email.com",
   profile_picture_url: "urltopic.jpg",
   phone_number: "45463454354",
   notification_token: "lsjfETEjflsji4-436lsjf",

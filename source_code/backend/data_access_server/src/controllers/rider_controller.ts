@@ -24,17 +24,33 @@ export default class RiderController extends Controller {
   getRiderData = async (httpRequest: Request, httpResponse: Response) =>
     this.entityManager.getEntity("rider", httpRequest, httpResponse);
 
-  getFavoriteDrivers = async (httpRequest: Request, httpResponse: Response) =>
-    this.entityManager.getEntityWithRelation(
-      "driver",
+  getFavoriteDrivers = async (httpRequest: Request, httpResponse: Response) => {
+    const riderId = httpRequest.query.rider_id;
+    const driverId = httpRequest.query.driver_id;
+
+    let queryText =
+      "SELECT account.display_name, account.first_name, account.last_name, account.profile_picture_url, driver.online_status, driver.price_by_km FROM favorite_driver JOIN driver ON driver.account_id = favorite_driver.driver_id JOIN account ON account.id = driver.account_id WHERE favorite_driver.rider_id = $1";
+    let queryParams = [riderId];
+
+    if (driverId) {
+      queryText += " AND favorite_driver.driver_id = $2";
+      queryParams.push(driverId);
+    }
+    
+    wrappeResponseHandling(
       "favorite_driver",
-      httpRequest,
+      getQueryParams(httpRequest),
       httpResponse,
-      "account_id",
-      "driver_id",
-      "driver",
-      true
+      async () => {
+        return (
+          await this.entityManager.execCustomQuery(
+            queryText,
+            queryParams as string[]
+          )
+        ).rows;
+      }
     );
+  };
 
   addFavoriteDriver = async (httpRequest: Request, httpResponse: Response) => {
     httpRequest.body = httpRequest.query;
@@ -42,7 +58,7 @@ export default class RiderController extends Controller {
       "favorite_driver",
       httpRequest,
       httpResponse,
-      "",
+      ""
     );
   };
 
@@ -95,16 +111,28 @@ export default class RiderController extends Controller {
     this.entityManager.deleteEntity("account", httpRequest, httpResponse); // Deleting the account will delete the
   // rider data too, because a CASCADE constraint is specified on the account_id
   // column.
-  
+
   addFavoritePlace = async (httpRequest: Request, httpResponse: Response) =>
-    this.entityManager.createEntity("favorite_place", httpRequest, httpResponse);
+    this.entityManager.createEntity(
+      "favorite_place",
+      httpRequest,
+      httpResponse
+    );
 
   getFavoritePlace = (httpRequest: Request, httpResponse: Response) =>
     this.entityManager.getEntity("favorite_place", httpRequest, httpResponse);
 
   updateFavoritePlace = async (httpRequest: Request, httpResponse: Response) =>
-    this.entityManager.updateEntity("favorite_place", httpRequest, httpResponse);
+    this.entityManager.updateEntity(
+      "favorite_place",
+      httpRequest,
+      httpResponse
+    );
 
   deleteFavoritePlace = async (httpRequest: Request, httpResponse: Response) =>
-    this.entityManager.deleteEntity("favorite_place", httpRequest, httpResponse);
+    this.entityManager.deleteEntity(
+      "favorite_place",
+      httpRequest,
+      httpResponse
+    );
 }
