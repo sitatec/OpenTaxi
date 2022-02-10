@@ -60,7 +60,7 @@ CREATE TYPE ONLINE_STATUS AS ENUM (
   'ONLINE',
   'OFFLINE',
   'IN_TRIP'
-)
+);
 
 
 ---------------------  TABLES CREATION ---------------------
@@ -143,7 +143,7 @@ CREATE TABLE public.driver (
   has_additional_certifications BOOLEAN NOT NULL,
   home_address_id INTEGER NOT NULL,
   bio VARCHAR(160),
-  online_status ONLINE_STATUS DEFAULT OFFLINE NOT NULL,
+  online_status ONLINE_STATUS DEFAULT 'OFFLINE' NOT NULL,
   price_by_minute DECIMAL(9,2),
   price_by_km DECIMAL(9,2),
   CONSTRAINT driver_pk PRIMARY KEY (account_id)
@@ -211,7 +211,7 @@ CREATE TABLE public.booking_stop_address(
   booking_id BIGINT NOT NULL,
   address_id BIGINT NOT NULL,
   CONSTRAINT booking_stop_addresses_pk PRIMARY KEY (booking_id, address_id)
-)
+);
 
 
 CREATE SEQUENCE public.address_id_seq;
@@ -322,14 +322,14 @@ FOREIGN KEY (address_id)
 REFERENCES public.address (id)
 ON DELETE NO ACTION
 ON UPDATE NO ACTION
-NOT DEFERRABLE
+NOT DEFERRABLE;
 
 ALTER TABLE public.booking_stop_address ADD CONSTRAINT booking_stop_address_booking_id
 FOREIGN KEY (booking_id)
 REFERENCES public.booking (id)
 ON DELETE CASCADE
 ON UPDATE NO ACTION
-NOT DEFERRABLE
+NOT DEFERRABLE;
 
 ALTER TABLE public.trip ADD CONSTRAINT booking_trip_fk
 FOREIGN KEY (booking_id)
