@@ -13,6 +13,8 @@
     "firebase": "^9.6.6"
   },
   "devDependencies": {
+    "closure-webpack-plugin": "^2.5.0",
+    "google-closure-compiler": "^20220202.0.0",
     "webpack": "^5.69.1",
     "webpack-cli": "^4.9.2"
   }
