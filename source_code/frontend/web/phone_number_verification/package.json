@@ -15,7 +15,9 @@
   "devDependencies": {
     "closure-webpack-plugin": "^2.5.0",
     "google-closure-compiler": "^20220202.0.0",
+    "javascript-obfuscator": "^4.0.0",
     "webpack": "^5.69.1",
-    "webpack-cli": "^4.9.2"
+    "webpack-cli": "^4.9.2",
+    "webpack-obfuscator": "^3.5.1"
   }
 }

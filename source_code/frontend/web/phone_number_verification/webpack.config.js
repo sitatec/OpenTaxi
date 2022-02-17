@@ -1,5 +1,6 @@
 const path = require("path");
 const ClosurePlugin = require("closure-webpack-plugin");
+const WebpackObfuscator = require('webpack-obfuscator');
 
 module.exports = {
   // The entry point file described above
@@ -15,4 +16,9 @@ module.exports = {
   optimization: {
     minimizer: [new ClosurePlugin({ mode: "STANDARD" }, {})],
   },
+  plugins: [
+    new WebpackObfuscator ({
+        rotateStringArray: true
+    })
+  ]
 };
