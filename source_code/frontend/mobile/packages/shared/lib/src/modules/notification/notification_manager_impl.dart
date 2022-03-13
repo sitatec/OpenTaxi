@@ -1,5 +1,46 @@
 part of 'api.dart';
 
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+  'hamba_chat_channel4', // id
+  'Hamba chat channel 4', // title
+  description:
+      'This channel is used for displaying notification for text messages and audio calls.', // description
+  importance: Importance.max,
+  playSound: true,
+  sound: RawResourceAndroidNotificationSound("chat_notification"),
+);
+
+Future<void> _handler(RemoteMessage message) async {
+  print("---------- ON_BACKGROUND_NOTIFICATION ----------");
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  print("---------- FlutterLocalNotificationsPlugin INSTANCIATED ----------");
+  // final Map<String, dynamic> sendbird = message.data["sendbird"];
+  flutterLocalNotificationsPlugin.show(
+      // message.hashCode,
+      // sendbird["push_title"],
+      // sendbird["message"],
+      4,
+      "Title",
+      "Body",
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+          channel.id, channel.name,
+          channelDescription: channel.description,
+          sound: channel.sound,
+          icon: "@mipmap/ic_launcher",
+          importance: Importance.max,
+          priority: Priority.high,
+          playSound: true,
+          visibility: NotificationVisibility.public,
+          // other properties...
+        ),
+      ));
+
+  print("---------- END_BACKGROUND_HANDLER ----------");
+}
+
 @internal
 class NotificationManagerImpl implements NotificationManager {
   final FirebaseMessaging _firebaseMessaging;
@@ -25,6 +66,11 @@ class NotificationManagerImpl implements NotificationManager {
     FirebaseFunctions? firebaseFunctions,
   ])  : _firebaseMessaging = firebaseMessaging ?? FirebaseMessaging.instance,
         _firebaseFunctions = firebaseFunctions ?? FirebaseFunctions.instance {
+    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true, // Required to display a heads up notification
+      badge: true,
+      sound: true,
+    );
     _firebaseMessaging.getInitialMessage().then((message) {
       if (message != null) {
         _notificationStreamController
@@ -48,6 +94,11 @@ class NotificationManagerImpl implements NotificationManager {
     _firebaseMessaging.onTokenRefresh.listen((token) {
       _notificationToken = token;
       _notificationTokenStreamController.add(token);
+    });
+    FirebaseMessaging.onBackgroundMessage(_handler);
+    Future.delayed(Duration(seconds: 25), () {
+      print("------------------- handler manually called -------------------");
+      _handler(RemoteMessage());
     });
   }
 

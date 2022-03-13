@@ -16,9 +16,9 @@ module.exports = {
   optimization: {
     minimizer: [new ClosurePlugin({ mode: "STANDARD" }, {})],
   },
-  plugins: [
-    new WebpackObfuscator ({
-        rotateStringArray: true
-    })
-  ]
+  // plugins: [
+  //   new WebpackObfuscator ({
+  //       rotateStringArray: true
+  //   })
+  // ]
 };

@@ -76,7 +76,7 @@ class Payment {
   dynamic _getPaymentData(Account account, double amount) => {
         "amount": amount,
         "name_first": account.firstName,
-        "name_last": account.surname,
+        "name_last": account.lastName,
         "email_address": account.email,
         "cell_number": account.phoneNumber,
         "return_url": _paymentSuccessfullUrl,

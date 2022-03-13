@@ -198,7 +198,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (index >= _lastMessageIndex) {
                         Future.delayed(Duration.zero, () async {
                           await _loadPreviousMessages();
-                          _lastMessageIndex += ChatManager.messageLoadPageSize;
+                          _lastMessageIndex +=
+                              ChatManager.messageLoadPageSize - 1;
                         });
                       }
                       return Padding(

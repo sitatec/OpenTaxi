@@ -29,13 +29,15 @@ export default class RiderController extends Controller {
     const driverId = httpRequest.query.driver_id;
 
     let queryText =
-      "SELECT account.display_name, account.first_name, account.last_name, account.profile_picture_url, driver.online_status, driver.price_by_km FROM favorite_driver JOIN driver ON driver.account_id = favorite_driver.driver_id JOIN account ON account.id = driver.account_id WHERE favorite_driver.rider_id = $1";
+      "SELECT account.display_name, account.first_name, account.last_name, account.profile_picture_url, driver.online_status, driver.price_by_km, vehicle.make vehicle_make, vehicle.model vehicle_model, AVG(review.rating) rating FROM favorite_driver JOIN driver ON driver.account_id = favorite_driver.driver_id JOIN account ON account.id = driver.account_id JOIN vehicle ON vehicle.driver_id = driver.account_id LEFT JOIN review ON review.recipient_id = driver.account_id WHERE favorite_driver.rider_id = $1";
     let queryParams = [riderId];
 
     if (driverId) {
       queryText += " AND favorite_driver.driver_id = $2";
       queryParams.push(driverId);
     }
+
+    queryText += " GROUP BY (driver.account_id, account.display_name, account.first_name, account.last_name, account.profile_picture_url, driver.online_status, driver.price_by_km, vehicle.make, vehicle.model)"
     
     wrappeResponseHandling(
       "favorite_driver",

@@ -231,6 +231,11 @@ class NavigationDrawer extends StatelessWidget {
               "Favorites",
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
+            onTap: () {
+              // Navigator.of(context).push(MaterialPageRoute(builder: (_){
+              //   return
+              // }));
+            },
           ),
           const SizedBox(height: 12),
           ListTile(

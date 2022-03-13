@@ -1,6 +1,25 @@
 import Axios from "axios";
-import { RIDER_URL, DEFAULT_SUCCESS_RESPONSE, DRIVER_URL } from "../constants";
-import { ACCOUNT, ADDRESS, DRIVER, FAVORITE_PLACE, RIDER } from "../fakedata";
+import {
+  RIDER_URL,
+  DEFAULT_SUCCESS_RESPONSE,
+  DRIVER_URL,
+  VEHICLE_URL,
+  PAYMENT_URL,
+  BOOKING_URL,
+  REVIEW_URL,
+} from "../constants";
+import {
+  ACCOUNT,
+  ACCOUNT_1,
+  ADDRESS,
+  BOOKING,
+  DRIVER,
+  FAVORITE_PLACE,
+  PAYMENT,
+  REVIEW,
+  RIDER,
+  VEHICLE,
+} from "../fakedata";
 import { createAddress, execQuery } from "../utils";
 import { cloneObjec, getSuccessResponse } from "../utils";
 
@@ -16,6 +35,7 @@ const createRider = async () => {
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
@@ -122,14 +142,28 @@ describe("ENDPOINT: RIDER", () => {
   });
 });
 
+
 describe("ENDPOINT: RIDER/FAVORITE_DRIVERS", () => {
   const FAVORITE_DRIVER = cloneObjec(DRIVER) as typeof DRIVER;
 
+  jest.setTimeout(10_000);
+
+  const createDriversVehicle = async () => {
+    const response = await Axios.post(VEHICLE_URL, VEHICLE);
+    expect(response.status).toBe(201);
+    expect(response.data).toEqual(getSuccessResponse(VEHICLE.id));
+  };
+
   const createDriver = async () => {
+    // ADDRESS
     await execQuery("DELETE FROM address WHERE id = $1", [ADDRESS.id]);
     await createAddress();
-    const account = cloneObjec(ACCOUNT) as typeof ACCOUNT;
-    account.id = ACCOUNT.id + "driver";
+    const secondAddress: typeof ADDRESS = cloneObjec(ADDRESS);
+    secondAddress.id = 2;
+    
+    await createAddress(secondAddress);
+
+    const account = cloneObjec(ACCOUNT_1) as typeof ACCOUNT_1;
     account.email = "new@email.com";
     account.phone_number = "888888";
 
@@ -142,6 +176,8 @@ describe("ENDPOINT: RIDER/FAVORITE_DRIVERS", () => {
 
     expect(response.status).toBe(201);
     expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
+
+    await createDriversVehicle();
   };
 
   const addFavoriteDriver = async () => {
@@ -155,20 +191,34 @@ describe("ENDPOINT: RIDER/FAVORITE_DRIVERS", () => {
       expect(response.data).toEqual(DEFAULT_SUCCESS_RESPONSE);
     } catch (error) {
       console.log(error);
+      throw error;
     }
+  };
+
+  const createReview = async () => {
+    const review = cloneObjec(REVIEW) as typeof REVIEW;
+    review.recipient_id = FAVORITE_DRIVER.account_id;
+    await Axios.post(REVIEW_URL, review);
   };
 
   beforeAll(async () => {
     try {
+      await execQuery("DELETE FROM review");
+      await execQuery("DELETE FROM trip");
+      await execQuery("DELETE FROM booking");
       await execQuery("DELETE FROM account"); // Deleting the accounts will delete the
       // rider and the driver data too, because a CASCADE constraint is specified
       // on the account_id column.
       await createRider();
 
       await createDriver();
-      console.log("");
+
+      await Axios.post(PAYMENT_URL, PAYMENT);
+
+      await Axios.post(BOOKING_URL, BOOKING);
     } catch (error) {
       console.log(error);
+      throw error;
     }
   });
 
@@ -194,12 +244,39 @@ describe("ENDPOINT: RIDER/FAVORITE_DRIVERS", () => {
     expect(response.data).toEqual(
       getSuccessResponse([
         {
-          display_name: ACCOUNT.display_name,
-          first_name: ACCOUNT.first_name,
-          last_name: ACCOUNT.last_name,
+          display_name: ACCOUNT_1.display_name,
+          first_name: ACCOUNT_1.first_name,
+          last_name: ACCOUNT_1.last_name,
           online_status: FAVORITE_DRIVER.online_status,
           price_by_km: FAVORITE_DRIVER.price_by_km,
           profile_picture_url: ACCOUNT.profile_picture_url,
+          vehicle_make: VEHICLE.make,
+          vehicle_model: VEHICLE.model,
+          rating: null,
+        },
+      ])
+    );
+  });
+
+  it("Should successfully get all rider's favorite drivers with their average ratings", async () => {
+    await addFavoriteDriver(); // Add the favorite driver first.
+    await createReview();
+    const response = await Axios.get(
+      getUrlWithQuery(`/favorite_drivers?rider_id=${RIDER.account_id}`)
+    );
+    expect(response.status).toBe(200);
+    expect(response.data).toEqual(
+      getSuccessResponse([
+        {
+          display_name: ACCOUNT_1.display_name,
+          first_name: ACCOUNT_1.first_name,
+          last_name: ACCOUNT_1.last_name,
+          online_status: FAVORITE_DRIVER.online_status,
+          price_by_km: FAVORITE_DRIVER.price_by_km,
+          profile_picture_url: ACCOUNT.profile_picture_url,
+          vehicle_make: VEHICLE.make,
+          vehicle_model: VEHICLE.model,
+          rating: REVIEW.rating,
         },
       ])
     );
@@ -218,12 +295,14 @@ describe("ENDPOINT: RIDER/FAVORITE_DRIVERS", () => {
     expect(response.data).toEqual(
       getSuccessResponse([
         {
-          display_name: ACCOUNT.display_name,
-          first_name: ACCOUNT.first_name,
-          last_name: ACCOUNT.last_name,
+          display_name: ACCOUNT_1.display_name,
+          first_name: ACCOUNT_1.first_name,
+          last_name: ACCOUNT_1.last_name,
           online_status: FAVORITE_DRIVER.online_status,
           price_by_km: FAVORITE_DRIVER.price_by_km,
           profile_picture_url: ACCOUNT.profile_picture_url,
+          vehicle_make: VEHICLE.make,
+          vehicle_model: VEHICLE.model,
         },
       ])
     );

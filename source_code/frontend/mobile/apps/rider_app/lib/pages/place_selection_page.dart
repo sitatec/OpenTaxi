@@ -507,7 +507,6 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                           SizedBox(
                             height: 40,
                             child: TabBar(
-                                padding: EdgeInsets.zero,
                                 indicatorColor: theme.primaryColor,
                                 labelColor: theme.primaryColor,
                                 unselectedLabelColor: gray,

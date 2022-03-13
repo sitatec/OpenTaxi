@@ -33,7 +33,7 @@ import java.util.*
 
 class Playground {
     @Test
-    fun playground() {
+    fun run() {
         println()
         println(Duration.ofSeconds(200_000_000_000))
         println()
