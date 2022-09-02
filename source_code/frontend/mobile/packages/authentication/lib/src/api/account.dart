@@ -17,8 +17,7 @@ class Account {
   final AccountRepository repository;
   final AuthenticationProvider _authenticationProvider;
 
-  Future<String>? get accessToken =>
-      _authenticationProvider.getCurrentAccountToken;
+  Future<String>? get accessToken => _authenticationProvider.getCurrentAccountToken;
 
   Account({
     required this.id,
@@ -35,22 +34,20 @@ class Account {
     this.notificationToken = "",
     AuthenticationProvider? authenticationProvider,
     AccountRepository? accountRepository,
-  })  : _authenticationProvider =
-            authenticationProvider ?? AuthenticationProvider.instance,
+  })  : _authenticationProvider = authenticationProvider ?? AuthenticationProvider.instance,
         repository = accountRepository ?? AccountRepository();
 
   Account.fromJson(JsonObject jsonObject)
       : this(
           id: jsonObject["id"],
           firstName: jsonObject["first_name"],
-          lastName: jsonObject["surname"],
+          lastName: jsonObject["last_name"],
           email: jsonObject["email"],
           profilePicture: jsonObject["profile_picture_url"],
           phoneNumber: jsonObject["phone_number"],
           registeredAt: DateTime.parse(jsonObject["registered_at"]),
           role: stringToEnum(jsonObject["role"], AccountRole.values),
-          status:
-              stringToEnum(jsonObject["account_status"], AccountStatus.values),
+          status: stringToEnum(jsonObject["account_status"], AccountStatus.values),
           genre: stringToEnum(jsonObject["gender"], Gender.values),
           displayName: jsonObject["nickname"] ?? "",
           notificationToken: jsonObject["notification_token"] ?? "",
@@ -68,8 +65,7 @@ class Account {
         "gender": enumToString(genre),
         "diplay_name": displayName.isEmpty ? null : displayName,
         "profile_picture_url": profilePicture,
-        "notification_token":
-            notificationToken.isEmpty ? null : notificationToken
+        "notification_token": notificationToken.isEmpty ? null : notificationToken
       };
 }
 

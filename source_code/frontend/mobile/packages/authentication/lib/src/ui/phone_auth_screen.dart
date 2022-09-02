@@ -171,7 +171,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                       ),
                       const SizedBox(height: 4),
                       const Text(
-                        "Hamba will send you a text with a verification code.",
+                        "We will send you a text with a verification code.",
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 39),
@@ -186,7 +186,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                   right: 4, top: 11, bottom: 14),
                               child: const Center(
                                 child: Text(
-                                  "+27",
+                                  "+224",
                                   style: PhoneAuthScreen.phoneNumberFieldStyle,
                                 ),
                               ),
@@ -220,7 +220,7 @@ class _PhoneAuthScreenState extends State<PhoneAuthScreen> {
                                     PhoneAuthScreen.numberLength) {
                                   setState(() {
                                     isContinueButtonEnabled = true;
-                                    phoneNumber = "+27 $newValue";
+                                    phoneNumber = "+224 $newValue";
                                   });
                                 } else if (newValue.length <
                                         PhoneAuthScreen.numberLength &&

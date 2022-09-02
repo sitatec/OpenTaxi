@@ -49,6 +49,7 @@ export class Database {
     })
   ) {
     if (!this.initialized) {
+      console.log('Initializing DB');
       if (process.env.NODE_ENV === "test") {
         client = new Pool({
           user: "postgres",
@@ -70,6 +71,7 @@ export class Database {
       this.instance = new Database(client);
       this.initialized = true;
     }
+    console.log('DB Initialized');
     return this.instance;
   }
 

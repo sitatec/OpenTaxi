@@ -4,27 +4,23 @@ import 'dart:convert';
 import 'package:web_socket_channel/status.dart' as close_reason;
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-const dispatcherServerUrl =
-    "wss://dispatcher-dot-hamba-project.uc.r.appspot.com/driver";
+const dispatcherServerUrl = "wss://dispatcher-dot-buoyant-notch-360016.uc.r.appspot.com/";
 
 class Dispatcher {
   WebSocketChannel? _webSocketChannel;
   late final StreamController<bool> _connectionStreamController;
-  late final StreamController<MapEntry<FramType, dynamic>>
-      _dataStreamController;
+  late final StreamController<MapEntry<FramType, dynamic>> _dataStreamController;
   bool _isConnected = false;
   MapEntry<FramType, dynamic>? _pendingData;
   Stream<bool> get isConnected => _connectionStreamController.stream;
-  Stream<MapEntry<FramType, dynamic>> get dataStream =>
-      _dataStreamController.stream;
+  Stream<MapEntry<FramType, dynamic>> get dataStream => _dataStreamController.stream;
 
   Dispatcher([this._webSocketChannel]) {
     _connectionStreamController = StreamController<bool>.broadcast(
       onListen: () => _connectionStreamController.add(_isConnected),
     );
 
-    _dataStreamController =
-        StreamController<MapEntry<FramType, dynamic>>.broadcast(
+    _dataStreamController = StreamController<MapEntry<FramType, dynamic>>.broadcast(
       onListen: () {
         if (_pendingData != null) {
           _dataStreamController.add(_pendingData!);
@@ -47,11 +43,11 @@ class Dispatcher {
   }
 
   Future<void> connect({
+    String path = 'dispatch',
     void Function(String? socketCloseReason)? onServerDisconnect,
   }) async {
     if (_isConnected) return;
-    _webSocketChannel =
-        WebSocketChannel.connect(Uri.parse(dispatcherServerUrl));
+    _webSocketChannel = WebSocketChannel.connect(Uri.parse(dispatcherServerUrl + path));
     _toggleConnectStatus(true);
     _webSocketChannel!.stream.listen(
       _convertData,

@@ -46,7 +46,7 @@ class PhoneNumberDoesntExistPage extends StatelessWidget {
                     ),
                     const TextSpan(
                       text:
-                          ". If you don't have a hamba account yet, please visit the link below to create one.",
+                          ". If you don't have a account yet, please visit the link below to create one.",
                     ),
                   ],
                 ),

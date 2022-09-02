@@ -12,7 +12,7 @@ import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-const val API_KEY = "AIzaSyAwvDFbXeO-hMSzDldugtisPhk_MArmztA"
+const val API_KEY = "AIzaSyCtTJoqXBa1NOKjS9sV43cUKeaNlDtacfM" // TODO use env variables
 
 private const val BASE_URL = "https://maps.googleapis.com/maps/api"
 private const val DISTANCE_MATRIX_URL = "$BASE_URL/distancematrix/json?departure_time=now&language=en&key=$API_KEY"

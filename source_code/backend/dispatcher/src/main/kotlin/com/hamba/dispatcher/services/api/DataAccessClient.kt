@@ -11,7 +11,7 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-private const val DATA_ACCESS_SERVER_URL = "https://hamba-project.uc.r.appspot.com"
+private const val DATA_ACCESS_SERVER_URL = "https://buoyant-notch-360016.uc.r.appspot.com"
 private const val SERVERS_ACCESS_TOKEN = "skfS43Z5ljSFSJS_sjzr-kss4643jslSGSAOPBN?p"
 // TODO create a authentication system for the servers as well, instead of using a hard coded token.
 

@@ -37,6 +37,7 @@ export default class Server {
   }
 
   start() {
+    console.log('Starting Server');
     this.httpServer = this.app.listen(PORT, () => {
       console.log(`Server started and listening ${PORT} port.`);
     });

@@ -8,9 +8,7 @@ import 'api/account.dart';
 import 'api/authentication_exception.dart';
 import 'api/authentication_provider.dart';
 
-class FirebaseAuthProvider
-    with ChangeNotifier
-    implements AuthenticationProvider {
+class FirebaseAuthProvider with ChangeNotifier implements AuthenticationProvider {
   final FirebaseAuth _firebaseAuth;
   AuthState _currentAuthState = AuthState.uninitialized;
   final _authStateStreamController = StreamController<AuthState>.broadcast();
@@ -34,8 +32,7 @@ class FirebaseAuthProvider
 
   void _initialize() {
     _firebaseAuth.authStateChanges().listen(_onAuthStateChanged);
-    _authStateStreamController.onListen =
-        () => _authStateStreamController.sink.add(_currentAuthState);
+    _authStateStreamController.onListen = () => _authStateStreamController.sink.add(_currentAuthState);
   }
 
   @override
@@ -48,8 +45,7 @@ class FirebaseAuthProvider
   Stream<AuthState> get authBinaryState => _authStateStreamController.stream;
 
   @override
-  Future<String>? get getCurrentAccountToken =>
-      _firebaseAuth.currentUser?.getIdToken();
+  Future<String>? get getCurrentAccountToken => _firebaseAuth.currentUser?.getIdToken();
 
   @override
   void dispose() {
@@ -110,8 +106,7 @@ class FirebaseAuthProvider
       final userIdToken = await credentials.user!.getIdToken();
       await _accountRepository
           .create(account.toJsonObject(), userIdToken) // Retry on fail.
-          .catchError((e) =>
-              _accountRepository.create(account.toJsonObject(), userIdToken));
+          .catchError((e) => _accountRepository.create(account.toJsonObject(), userIdToken));
       // TODO handle the case when the user is registered with firebase but the account creation on our db fails.
     } catch (e) {
       _account = null;
@@ -141,8 +136,7 @@ class FirebaseAuthProvider
   void _switchState(AuthState targetState) {
     if (_currentAuthState == targetState) return;
     _currentAuthState = targetState;
-    if (targetState == AuthState.authenticated ||
-        targetState == AuthState.unauthenticated) {
+    if (targetState == AuthState.authenticated || targetState == AuthState.unauthenticated) {
       _authStateStreamController.sink.add(targetState);
     }
     notifyListeners();
@@ -164,8 +158,7 @@ extension Converter on FirebaseAuthException {
   AuthenticationException toAuthenticationException() {
     switch (code) {
       case 'account-exists-with-different-credential':
-        return const AuthenticationException
-            .accountExistsWithDifferentCredential();
+        return const AuthenticationException.accountExistsWithDifferentCredential();
       case 'invalid-credential':
         return const AuthenticationException.invalidCredential();
       case 'invalid-verification-code':

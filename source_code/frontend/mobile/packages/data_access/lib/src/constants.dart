@@ -1,1 +1,1 @@
-const dataAccessBaseUrl = "https://hamba-project.uc.r.appspot.com";
+const dataAccessBaseUrl = "https://buoyant-notch-360016.uc.r.appspot.com/";

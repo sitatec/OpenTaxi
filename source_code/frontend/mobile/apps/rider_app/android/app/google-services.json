@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1079623662942",
+    "project_id": "buoyant-notch-360016",
+    "storage_bucket": "buoyant-notch-360016.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1079623662942:android:e453eb550db125883ea3cf",
+        "android_client_info": {
+          "package_name": "com.hamba.rider"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1079623662942-q2b0n3753v6to0k266o7g2hlieomb4a6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDzs2XDWFXCAE7Js4Az198wL_ik1rNDL40"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1079623662942-q2b0n3753v6to0k266o7g2hlieomb4a6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:authentication/authentication.dart';
@@ -41,8 +43,7 @@ class App extends StatelessWidget {
       remoteUserId: "driver",
       remoteUserName: "Driver",
     );
-    final communicationManager =
-        ChatManager(channelData); // AudioCallManager(channelData);
+    final communicationManager = ChatManager(channelData); // AudioCallManager(channelData);
     final splashDelay = Future.delayed(const Duration(seconds: 2));
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -104,8 +105,7 @@ class App extends StatelessWidget {
                       }
                       if (authSnapshot.data == AuthState.authenticated) {
                         final riderAccount = authenticationProvider.account!;
-                        if (riderAccount.role != AccountRole.UNDEFINED &&
-                            riderAccount.role != AccountRole.RIDER) {
+                        if (riderAccount.role != AccountRole.UNDEFINED && riderAccount.role != AccountRole.RIDER) {
                           // TODO handle if the user is not a driver.
                           return Scaffold(
                             body: Center(
@@ -131,9 +131,7 @@ class App extends StatelessWidget {
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(5),
                                         side: BorderSide(
-                                          color: Theme.of(context)
-                                              .primaryColor
-                                              .withAlpha(30),
+                                          color: Theme.of(context).primaryColor.withAlpha(30),
                                         ),
                                       ),
                                     ),

@@ -8,7 +8,7 @@ import java.io.FileInputStream
 
 fun initializeFirebase(
     secretsPath: String = "",
-    projectId: String = "hamba-project",
+    projectId: String = "buoyant-notch-360016",
     databaseUrl: String = "https://hamba-project-default-rtdb.firebaseio.com/"
 ) {
     val firebaseOptions = FirebaseOptions.builder().setDatabaseUrl(databaseUrl).setProjectId(projectId)

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>1079623662942-cl9ivm0l02iplknjcdh29nr1lggehojk.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.1079623662942-cl9ivm0l02iplknjcdh29nr1lggehojk</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBzf-uRq1duq0jtkBUr5m2OuzjO_9ICrHM</string>
+	<key>GCM_SENDER_ID</key>
+	<string>1079623662942</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.riderApp</string>
+	<key>PROJECT_ID</key>
+	<string>buoyant-notch-360016</string>
+	<key>STORAGE_BUCKET</key>
+	<string>buoyant-notch-360016.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:1079623662942:ios:a81daaed596073083ea3cf</string>
+</dict>
+</plist>

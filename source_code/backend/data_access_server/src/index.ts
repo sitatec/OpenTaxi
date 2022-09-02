@@ -5,6 +5,8 @@ import { validateToken } from "./security/token_validator";
 import Server from "./server";
 import { extractTokenFromHeader } from "./utils/http_utils";
 
+console.log('Launch');
+
 const app = express();
 const SERVERS_ACCESS_TOKEN = "skfS43Z5ljSFSJS_sjzr-kss4643jslSGSAOPBN?p";
 // TODO create a authentication system for the servers as well, instead of using a hard coded token.

@@ -1,4 +1,4 @@
-import 'package:driver_app/entities/driver.dart';
+import 'package:rider_app/entities/rider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared/shared.dart';
@@ -7,9 +7,9 @@ import 'registration_form_template.dart';
 
 class RegisterEmailPhoneAddress extends StatefulWidget {
   final VoidCallback _goToNextPage;
-  final Driver _driver;
+  final Rider _rider;
 
-  const RegisterEmailPhoneAddress(this._driver, this._goToNextPage, {Key? key})
+  const RegisterEmailPhoneAddress(this._rider, this._goToNextPage, {Key? key})
       : super(key: key);
 
   @override
@@ -96,19 +96,19 @@ class _RegisterEmailPhoneAddressState extends State<RegisterEmailPhoneAddress> {
       setState(
           () => _loadingMessage = "Saving data..."); // Show the loading widget.
       try {
-        final driver = widget._driver;
+        final rider = widget._rider;
         final updateData = {
           "account": {"email": email},
-          "driver": {
+          "rider": {
             "address": homeAddress,
             if (alternativePhoneNumber != null)
               "alternative_phone_number": alternativePhoneNumber
           }
         };
-        await driver.repository.update(
-          driver.account.id,
+        await rider.repository.update(
+          rider.account.id,
           updateData,
-          await driver.account.accessToken!,
+          await rider.account.accessToken!,
         );
         widget._goToNextPage();
       } on HttpException catch (e) {

@@ -1,5 +1,5 @@
 name: authentication
-description: The authentication package of Hamba
+description: The authentication package of Uber-POC
 version: 0.0.1
 publish_to: none
 

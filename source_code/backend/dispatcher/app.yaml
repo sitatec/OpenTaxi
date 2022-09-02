@@ -4,4 +4,4 @@ service: dispatcher
 
 automatic_scaling:
   min_num_instances: 1
-  max_num_instances: 15
+  max_num_instances: 1 #15

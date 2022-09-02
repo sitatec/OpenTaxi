@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -134,7 +135,11 @@ class _ChoosePlaceOnMapPageState extends State<ChoosePlaceOnMapPage> {
 Future<Uint8List> _capturePng(GlobalKey iconKey) async {
   RenderRepaintBoundary boundary =
       iconKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-
+  if (boundary.debugNeedsPaint) {
+    log("Waiting for boundary to be painted.");
+    await Future.delayed(const Duration(milliseconds: 20));
+    return _capturePng(iconKey);
+  }
   ui.Image image = await boundary.toImage(pixelRatio: 3.0);
 
   ByteData byteData = (await image.toByteData(format: ui.ImageByteFormat.png))!;

@@ -1,14 +1,16 @@
 {
   "name": "data_access_server",
   "version": "1.0.0",
-  "description": "The server that is responsible of accessing the database and exposing the data through a REST API.(part of the hamba project)",
+  "description": "The server that is responsible of accessing the database and exposing the data through a REST API.(part of the uber-poc project)",
   "main": "build/index.js",
   "scripts": {
     "start": "node ./build/index.js",
     "build": "tsc",
+    "gcp-build": "tsc",
     "test": "jest -i",
     "test_coverage": "jest -i --coverage",
-    "jest_clear": "jest --clearCache"
+    "jest_clear": "jest --clearCache",
+    "deploy": "gcloud app deploy"
   },
   "author": "Sita Bérété, Freelance Full-Stack Engineer",
   "license": "SEE LICENSE IN ./LICENSE",

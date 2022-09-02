@@ -1,6 +1,6 @@
-import 'package:driver_app/authentication/ui/register_email_phone_address.dart';
-import 'package:driver_app/authentication/ui/registration_form_template.dart';
-import 'package:driver_app/entities/driver.dart';
+import 'package:rider_app/authentication/ui/register_email_phone_address.dart';
+import 'package:rider_app/authentication/ui/registration_form_template.dart';
+import 'package:rider_app/entities/rider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared/shared.dart';
@@ -13,10 +13,10 @@ class IntroduceYourSelfScreen extends StatefulWidget {
     fontWeight: FontWeight.w500,
   );
 
-  final Driver driver;
+  final Rider rider;
   final VoidCallback goToNexPage;
 
-  const IntroduceYourSelfScreen(this.driver, this.goToNexPage, {Key? key})
+  const IntroduceYourSelfScreen(this.rider, this.goToNexPage, {Key? key})
       : super(key: key);
 
   @override
@@ -152,7 +152,7 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
                       textAlign: TextAlign.center,
                     ),
                     const Text(
-                      "South Africa?",
+                      "Guinea?",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -211,16 +211,16 @@ class _IntroduceYourSelfScreenState extends State<IntroduceYourSelfScreen> {
   Future<void> _saveDataAndGoNext(bool isShoutAfricanCitizen) async {
     Navigator.of(context).pop(); // Hide IsSouthAfricanCitizen bottom sheet.
     setState(() => _loadingMessage = "Saving data...");
-    final driverAccount = widget.driver.account;
-    final accessToken = await driverAccount.accessToken!;
-    driverAccount
+    final riderAccount = widget.rider.account;
+    final accessToken = await riderAccount.accessToken!;
+    riderAccount
       ..firstName = firstName
       // ..surname = surName
-      ..role = AccountRole.DRIVER
+      ..role = AccountRole.RIDER
       ..genre = stringToEnum(selectedGender, Gender.values);
     try {
-      await widget.driver.repository
-          .create(widget.driver.toJsonObject(), accessToken);
+      await widget.rider.repository
+          .create(widget.rider.toJsonObject(), accessToken);
       widget.goToNexPage();
     } on HttpException catch (e) {
       //TODO first check if internet connection is available, then handle the exception properly.

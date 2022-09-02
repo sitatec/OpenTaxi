@@ -46,8 +46,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
         return false;
       }
     }
-    return origin.streetAddress.trim().isNotEmpty &&
-        destination.streetAddress.trim().isNotEmpty;
+    return origin.streetAddress.trim().isNotEmpty && destination.streetAddress.trim().isNotEmpty;
   }
 
   @override
@@ -60,8 +59,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
         autocompleteOrigin = location;
       });
     });
-    keyboardSubscription =
-        keyboardVisibilityController.onChange.listen((bool visible) {
+    keyboardSubscription = keyboardVisibilityController.onChange.listen((bool visible) {
       setState(() {
         isKeyboardVisible = visible;
       });
@@ -136,13 +134,11 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                       ),
                       Expanded(
                         child: Autocomplete<Prediction>(
-                          optionsBuilder:
-                              (TextEditingValue textEditingValue) async {
+                          optionsBuilder: (TextEditingValue textEditingValue) async {
                             if (textEditingValue.text.trim().isEmpty) {
                               return const <Prediction>[];
                             }
-                            final autocompleteResponse =
-                                await _googlePlacesApi.autocomplete(
+                            final autocompleteResponse = await _googlePlacesApi.autocomplete(
                               textEditingValue.text,
                               origin: autocompleteOrigin,
                               location: autocompleteLocation,
@@ -157,41 +153,32 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                 elevation: 4,
                                 child: Container(
                                   constraints: BoxConstraints(
-                                    maxHeight:
-                                        MediaQuery.of(context).size.height *
-                                            0.6,
+                                    maxHeight: MediaQuery.of(context).size.height * 0.6,
                                   ),
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.8,
+                                  width: MediaQuery.of(context).size.width * 0.8,
                                   child: ListView.separated(
                                     padding: EdgeInsets.zero,
                                     shrinkWrap: true,
                                     itemCount: options.length,
                                     itemBuilder: (context, index) {
-                                      final prediction =
-                                          options.elementAt(index);
+                                      final prediction = options.elementAt(index);
                                       return InkWell(
                                         onTap: () {
                                           onSelected(prediction);
                                           setState(() {
-                                            origin.streetAddress =
-                                                prediction.description!;
+                                            origin.streetAddress = prediction.description!;
                                           });
                                         },
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 16),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
                                           child: Text(
                                             prediction.description ?? "error",
-                                            style:
-                                                const TextStyle(fontSize: 15),
+                                            style: const TextStyle(fontSize: 15),
                                           ),
                                         ),
                                       );
                                     },
-                                    separatorBuilder:
-                                        (BuildContext context, int index) =>
-                                            const Divider(
+                                    separatorBuilder: (BuildContext context, int index) => const Divider(
                                       thickness: 1,
                                       height: 0,
                                     ),
@@ -200,8 +187,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                               ),
                             );
                           },
-                          displayStringForOption: (prediction) =>
-                              prediction.description!,
+                          displayStringForOption: (prediction) => prediction.description!,
                           fieldViewBuilder: (
                             context,
                             textEditingController,
@@ -210,19 +196,15 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                           ) {
                             focusNode.addListener(() {
                               setState(() {
-                                originTextFieldHint = focusNode.hasFocus
-                                    ? "From"
-                                    : "Current location";
+                                originTextFieldHint = focusNode.hasFocus ? "From" : "Current location";
                               });
                             });
                             return TextField(
                               controller: textEditingController,
-                              onChanged: (value) =>
-                                  origin.streetAddress = value,
+                              onChanged: (value) => origin.streetAddress = value,
                               focusNode: focusNode,
                               decoration: InputDecoration(
-                                contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                                 hintText: originTextFieldHint,
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(6),
@@ -261,8 +243,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                               if (textEditingValue.text.trim().isEmpty) {
                                 return const <Prediction>[];
                               }
-                              final autocompleteResponse =
-                                  await _googlePlacesApi.autocomplete(
+                              final autocompleteResponse = await _googlePlacesApi.autocomplete(
                                 textEditingValue.text,
                                 origin: autocompleteOrigin,
                                 location: autocompleteLocation,
@@ -277,41 +258,32 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                   elevation: 4,
                                   child: Container(
                                     constraints: BoxConstraints(
-                                      maxHeight:
-                                          MediaQuery.of(context).size.height *
-                                              0.6,
+                                      maxHeight: MediaQuery.of(context).size.height * 0.6,
                                     ),
-                                    width:
-                                        MediaQuery.of(context).size.width * 0.8,
+                                    width: MediaQuery.of(context).size.width * 0.8,
                                     child: ListView.separated(
                                       padding: EdgeInsets.zero,
                                       shrinkWrap: true,
                                       itemCount: options.length,
                                       itemBuilder: (context, index) {
-                                        final prediction =
-                                            options.elementAt(index);
+                                        final prediction = options.elementAt(index);
                                         return InkWell(
                                           onTap: () {
                                             onSelected(prediction);
                                             setState(() {
-                                              stopAddresses[i].streetAddress =
-                                                  prediction.description!;
+                                              stopAddresses[i].streetAddress = prediction.description!;
                                             });
                                           },
                                           child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 10, vertical: 16),
+                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
                                             child: Text(
                                               prediction.description ?? "error",
-                                              style:
-                                                  const TextStyle(fontSize: 15),
+                                              style: const TextStyle(fontSize: 15),
                                             ),
                                           ),
                                         );
                                       },
-                                      separatorBuilder:
-                                          (BuildContext context, int index) =>
-                                              const Divider(
+                                      separatorBuilder: (BuildContext context, int index) => const Divider(
                                         thickness: 1,
                                         height: 0,
                                       ),
@@ -320,8 +292,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                 ),
                               );
                             },
-                            displayStringForOption: (prediction) =>
-                                prediction.description!,
+                            displayStringForOption: (prediction) => prediction.description!,
                             fieldViewBuilder: (
                               context,
                               textEditingController,
@@ -331,11 +302,9 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                               return TextField(
                                 controller: textEditingController,
                                 focusNode: focusNode,
-                                onChanged: (value) =>
-                                    stopAddresses[i].streetAddress = value,
+                                onChanged: (value) => stopAddresses[i].streetAddress = value,
                                 decoration: InputDecoration(
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(horizontal: 8),
+                                  contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                                   hintText: "Stop",
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(6),
@@ -383,8 +352,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                             if (textEditingValue.text.trim().isEmpty) {
                               return const <Prediction>[];
                             }
-                            final autocompleteResponse =
-                                await _googlePlacesApi.autocomplete(
+                            final autocompleteResponse = await _googlePlacesApi.autocomplete(
                               textEditingValue.text,
                               origin: autocompleteOrigin,
                               location: autocompleteLocation,
@@ -399,42 +367,32 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                 elevation: 4,
                                 child: Container(
                                   constraints: BoxConstraints(
-                                    maxHeight:
-                                        MediaQuery.of(context).size.height *
-                                            0.6,
+                                    maxHeight: MediaQuery.of(context).size.height * 0.6,
                                   ),
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.8,
+                                  width: MediaQuery.of(context).size.width * 0.8,
                                   child: ListView.separated(
                                     padding: EdgeInsets.zero,
                                     shrinkWrap: true,
                                     itemCount: options.length,
                                     itemBuilder: (context, index) {
-                                      final prediction =
-                                          options.elementAt(index);
+                                      final prediction = options.elementAt(index);
                                       return InkWell(
                                         onTap: () {
                                           onSelected(prediction);
                                           setState(() {
-                                            destination.streetAddress =
-                                                prediction.description!;
+                                            destination.streetAddress = prediction.description!;
                                           });
                                         },
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 16),
+                                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 16),
                                           child: Text(
-                                            prediction.description ??
-                                                "Load Error",
-                                            style:
-                                                const TextStyle(fontSize: 15),
+                                            prediction.description ?? "Load Error",
+                                            style: const TextStyle(fontSize: 15),
                                           ),
                                         ),
                                       );
                                     },
-                                    separatorBuilder:
-                                        (BuildContext context, int index) =>
-                                            const Divider(
+                                    separatorBuilder: (BuildContext context, int index) => const Divider(
                                       thickness: 1,
                                       height: 0,
                                     ),
@@ -443,19 +401,15 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                               ),
                             );
                           },
-                          displayStringForOption: (prediction) =>
-                              prediction.description!,
-                          fieldViewBuilder: (context, textEditingController,
-                              focusNode, onFieldSubmitted) {
+                          displayStringForOption: (prediction) => prediction.description!,
+                          fieldViewBuilder: (context, textEditingController, focusNode, onFieldSubmitted) {
                             return TextField(
                               autofocus: true,
                               controller: textEditingController,
                               focusNode: focusNode,
-                              onChanged: (value) =>
-                                  destination.streetAddress = value,
+                              onChanged: (value) => destination.streetAddress = value,
                               decoration: InputDecoration(
-                                contentPadding:
-                                    const EdgeInsets.symmetric(horizontal: 8),
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                                 hintText: "To",
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(6),
@@ -470,12 +424,10 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                       ),
                       InkWell(
                         onTap: () {
-                          if (stopAddresses.isNotEmpty &&
-                              stopAddresses.last.streetAddress.isEmpty) {
+                          if (stopAddresses.isNotEmpty && stopAddresses.last.streetAddress.isEmpty) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                content: Text(
-                                    "Please enter the address of the previous stop first."),
+                                content: Text("Please enter the address of the previous stop first."),
                               ),
                             );
                             return;
@@ -498,8 +450,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                   const SizedBox(height: 16),
                   const Divider(thickness: 1),
                   Container(
-                    constraints: BoxConstraints(
-                        maxHeight: MediaQuery.of(context).size.height * 0.7),
+                    constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
                     child: DefaultTabController(
                       length: 2,
                       child: Column(
@@ -514,17 +465,13 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                   fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                 ),
-                                tabs: const [
-                                  Tab(text: "Favourite Addresses"),
-                                  Tab(text: "Recent Addresses")
-                                ]),
+                                tabs: const [Tab(text: "Favourite Addresses"), Tab(text: "Recent Addresses")]),
                           ),
                           Expanded(
                             child: TabBarView(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
                                   child:
                                       // Column(
                                       //   crossAxisAlignment: CrossAxisAlignment.start,
@@ -541,8 +488,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                               child: SizedBox(
                                                 height: 26,
                                                 width: 26,
-                                                child:
-                                                    CircularProgressIndicator(),
+                                                child: CircularProgressIndicator(),
                                               ),
                                             )
                                           : _favoritePlaces.isEmpty
@@ -552,47 +498,31 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                                   ),
                                                 )
                                               : ListView.builder(
-                                                  itemCount:
-                                                      _favoritePlaces.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    final place =
-                                                        _favoritePlaces[index];
-                                                    final placeLabel =
-                                                        place["place_label"]!;
-                                                    final lowerCaseLabel =
-                                                        placeLabel
-                                                            .trim()
-                                                            .toLowerCase();
+                                                  itemCount: _favoritePlaces.length,
+                                                  itemBuilder: (context, index) {
+                                                    final place = _favoritePlaces[index];
+                                                    final placeLabel = place["place_label"]!;
+                                                    final lowerCaseLabel = placeLabel.trim().toLowerCase();
                                                     return _FavoritePlaceWidget(
-                                                      icon: lowerCaseLabel ==
-                                                              "home"
+                                                      icon: lowerCaseLabel == "home"
                                                           ? Icon(
                                                               Icons.house,
-                                                              color: theme
-                                                                  .disabledColor,
+                                                              color: theme.disabledColor,
                                                             )
-                                                          : lowerCaseLabel ==
-                                                                  "work"
+                                                          : lowerCaseLabel == "work"
                                                               ? Icon(
                                                                   Icons.work,
-                                                                  color: theme
-                                                                      .disabledColor,
+                                                                  color: theme.disabledColor,
                                                                 )
                                                               : Icon(
-                                                                  Icons
-                                                                      .star_rate_rounded,
-                                                                  color: theme
-                                                                      .disabledColor,
+                                                                  Icons.star_rate_rounded,
+                                                                  color: theme.disabledColor,
                                                                 ),
-                                                      title: Text(placeLabel,
-                                                          textScaleFactor: 1.2),
+                                                      title: Text(placeLabel, textScaleFactor: 1.2),
                                                       address: Text(
-                                                        place[
-                                                            "street_address"]!,
+                                                        place["street_address"]!,
                                                         style: TextStyle(
-                                                          color: theme
-                                                              .disabledColor,
+                                                          color: theme.disabledColor,
                                                         ),
                                                       ),
                                                     );
@@ -602,8 +532,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                   // ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 16),
+                                  padding: const EdgeInsets.symmetric(horizontal: 16),
                                   child: _isLoadingRecentPlaces
                                       ? const Center(
                                           child: SizedBox(
@@ -621,10 +550,8 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                                           : ListView.builder(
                                               itemCount: _recentPlaces.length,
                                               itemBuilder: (context, index) {
-                                                final place =
-                                                    _recentPlaces[index];
-                                                final streetAddress =
-                                                    place["street_address"]!;
+                                                final place = _recentPlaces[index];
+                                                final streetAddress = place["street_address"]!;
                                                 return ListTile(
                                                   title: Text(streetAddress),
                                                 );
@@ -713,9 +640,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                             ),
                             style: TextButton.styleFrom(
                               primary: Colors.white,
-                              backgroundColor: buttonsEnabled
-                                  ? theme.primaryColor
-                                  : Colors.white,
+                              backgroundColor: buttonsEnabled ? theme.primaryColor : Colors.white,
                               elevation: buttonsEnabled ? 0 : 3,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
@@ -724,9 +649,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                           ),
                           const SizedBox(height: 16),
                           TextButton(
-                            onPressed: !buttonsEnabled
-                                ? null
-                                : _showTripDateAndTimePickers,
+                            onPressed: !buttonsEnabled ? null : _showTripDateAndTimePickers,
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.symmetric(vertical: 5),
@@ -740,9 +663,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
                               ),
                             ),
                             style: TextButton.styleFrom(
-                              primary: buttonsEnabled
-                                  ? theme.primaryColor
-                                  : theme.scaffoldBackgroundColor,
+                              primary: buttonsEnabled ? theme.primaryColor : theme.scaffoldBackgroundColor,
                               backgroundColor: Colors.white,
                               elevation: buttonsEnabled ? 0 : 3,
                               shape: RoundedRectangleBorder(
@@ -790,8 +711,7 @@ class _PlaceSelectionPageState extends State<PlaceSelectionPage> {
         );
       },
     );
-    final selectedDateIsToday =
-        todaysDate.difference(selectedDate!).inDays == 0;
+    final selectedDateIsToday = todaysDate.difference(selectedDate!).inDays == 0;
     final selectedTime = await showTimePicker(
       helpText: "SELECT TRIP TIME",
       context: context,
